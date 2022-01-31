@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="jose-jwt" Version="3.2.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="src\Binance\Models\Filters\" />
+    <Folder Include="src\Binance\Models\Responses\" />
+    <Folder Include="src\Binance\Models\Requests\" />
+  </ItemGroup>
+
+</Project>
