@@ -9,8 +9,8 @@ namespace ExchangeLibrary
     public interface IExchange
     {
         /// <summary>
-        ///     Получить цену определенной монеты
+        ///     Получить всю информацию о монетах
         /// </summary>
-        Task<double> GetCryptoPrice(string cryptoName, CancellationToken cancellationToken);
+        Task<string> GetAllCoinsInformationAsync(long recvWindow, CancellationToken cancellationToken);
     }
 }

@@ -7,12 +7,8 @@
   <ItemGroup>
     <PackageReference Include="jose-jwt" Version="3.2.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="src\Binance\Models\Filters\" />
-    <Folder Include="src\Binance\Models\Responses\" />
-    <Folder Include="src\Binance\Models\Requests\" />
+    <PackageReference Include="NLog.Targets.Seq" Version="2.1.0" />
+    <PackageReference Include="StackExchange.Redis" Version="2.2.88" />
   </ItemGroup>
 
 </Project>

@@ -3,7 +3,7 @@
     /// <summary>
     ///     Тип ограничения скорости
     /// </summary>
-    public enum RateLimiterType
+    public enum RateLimitType
     {
         /// <summary>
         ///     Запрос
@@ -19,5 +19,10 @@
         ///     Необработанные запросы
         /// </summary>
         RAW_REQUESTS,
+
+        /// <summary>
+        ///     Информация обо всех монетах
+        /// </summary>
+        ALL_COINS_INFO,
     }
 }

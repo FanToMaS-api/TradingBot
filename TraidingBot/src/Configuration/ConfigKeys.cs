@@ -9,5 +9,10 @@
         ///     Ключ подключения к Binance
         /// </summary>
         public const string API_KEY = nameof(API_KEY);
+
+        /// <summary>
+        ///     Секретный ключ подключения к Binance
+        /// </summary>
+        public const string SECRET_KEY = nameof(SECRET_KEY);
     }
 }
