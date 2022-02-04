@@ -1,4 +1,4 @@
-﻿namespace ExchangeLibrary.Binance.Client.Helpers
+﻿namespace ExchangeLibrary.Binance
 {
     /// <summary>
     ///     Сожаржит все конечные точки Binance

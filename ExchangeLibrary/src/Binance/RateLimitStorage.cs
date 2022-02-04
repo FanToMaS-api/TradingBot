@@ -1,7 +1,7 @@
 ﻿using ExchangeLibrary.Binance.Models;
 using System;
 
-namespace ExchangeLibrary.Binance.Client.Helpers
+namespace ExchangeLibrary.Binance
 {
     /// <summary>
     ///     Настройки для Binance

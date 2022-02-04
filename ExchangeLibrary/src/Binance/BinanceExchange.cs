@@ -1,6 +1,6 @@
 ﻿using ExchangeLibrary;
+using ExchangeLibrary.Binance;
 using ExchangeLibrary.Binance.Client;
-using ExchangeLibrary.Binance.Client.Helpers;
 using ExchangeLibrary.Binance.Client.Impl;
 using ExchangeLibrary.Binance.Enums;
 using ExchangeLibrary.Binance.Exceptions;
