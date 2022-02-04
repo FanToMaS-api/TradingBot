@@ -23,7 +23,7 @@
         /// <summary>
         ///     Отобразить
         /// </summary>
-        public static string Display(this BinanceExceptionType exceptionType)
+        public static string Display(this BinanceExceptionType? exceptionType)
         {
             return exceptionType switch
             {
@@ -32,6 +32,7 @@
                 BinanceExceptionType.RateLimit => "Превышена скорость запроса",
                 BinanceExceptionType.Blocked => "IP адрес заблокирован",
                 BinanceExceptionType.ServerException => "Ошибка на стороне сервера (это НЕ говорит о неудачной операции)",
+                null => "",
                 _ => exceptionType.ToString(),
             };
         }

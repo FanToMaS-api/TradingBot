@@ -1,5 +1,7 @@
 ﻿using ExchangeLibrary.Binance.Enums;
+using Newtonsoft.Json;
 using System;
+using System.Collections.Generic;
 
 namespace ExchangeLibrary.Binance.Exceptions
 {
@@ -11,7 +13,17 @@ namespace ExchangeLibrary.Binance.Exceptions
         #region .ctor
 
         /// <inheritdoc cref="BinanceException"/>
-        public BinanceException(Exception exception, BinanceExceptionType exceptionType) : base(exception.Message, exception) 
+        public BinanceException(BinanceExceptionType exceptionType) : base() 
+        {
+            ExceptionType = exceptionType;
+        }
+
+        /// <inheritdoc cref="BinanceException"/>
+        public BinanceException(string message) : base(message)
+        { }
+
+        /// <inheritdoc cref="BinanceException"/>
+        public BinanceException(BinanceExceptionType exceptionType, string message, Exception innerException) : base(message, innerException)
         {
             ExceptionType = exceptionType;
         }
@@ -21,9 +33,24 @@ namespace ExchangeLibrary.Binance.Exceptions
         #region Properties
 
         /// <summary>
+        ///     Код ошибки
+        /// </summary>
+        public int StatusCode { get; set; }
+
+        /// <summary>
+        ///     Сообщения в заголовке ошибки
+        /// </summary>
+        public Dictionary<string, IEnumerable<string>> Headers { get; set; }
+
+        /// <summary>
         ///     Тип исключения
         /// </summary>
-        public BinanceExceptionType ExceptionType { get; private set; }
+        public BinanceExceptionType? ExceptionType { get; private set; }
+
+        /// <inheritdoc />
+        public override string Message => $"Code: {StatusCode}\n" +
+            $"Message: {ExceptionType.Display()}\n" +
+            $"Server message: {base.Message}";
 
         #endregion
 

@@ -1,9 +1,13 @@
-﻿using Newtonsoft.Json;
+﻿using ExchangeLibrary.Binance.Exceptions;
+using Newtonsoft.Json;
 using System.Collections.Generic;
+using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using ExchangeLibrary.Binance.Enums;
+using System.Linq;
 
 namespace ExchangeLibrary.Binance.Client.Impl
 {
@@ -107,6 +111,10 @@ namespace ExchangeLibrary.Binance.Client.Impl
                 }
 
                 var response = await _client.SendAsync(request, cancellationToken);
+                if (!response.IsSuccessStatusCode)
+                {
+                    await ProcessBadResponseAsync(response, cancellationToken);
+                }
 
                 using (var responseContent = response.Content)
                 {
@@ -115,6 +123,31 @@ namespace ExchangeLibrary.Binance.Client.Impl
             }
         }
 
-        #endregion
+        /// <summary>
+        ///     Обработка неверного отвечета с Binance
+        /// </summary>
+        private async Task ProcessBadResponseAsync(HttpResponseMessage response, CancellationToken cancellationToken)
+        {
+            using (HttpContent responseContent = response.Content)
+            {
+                var statusCode = (int)response.StatusCode;
+                BinanceException httpException = statusCode switch
+                {
+                    403 => new BinanceException(BinanceExceptionType.WAFLimit),
+                    429 => new BinanceException(BinanceExceptionType.RateLimit),
+                    418 => new BinanceException(BinanceExceptionType.Blocked),
+                    >= 500 => new BinanceException(BinanceExceptionType.ServerException),
+                    >= 400 => new BinanceException(BinanceExceptionType.InvalidRequest),
+                    _ => new BinanceException($"Unknown error type with code")
+                };
+
+                httpException.StatusCode = statusCode;
+                httpException.Headers = response.Headers.ToDictionary(a => a.Key, a => a.Value);
+
+                throw httpException;
+            }
+
+            #endregion
+        }
     }
 }

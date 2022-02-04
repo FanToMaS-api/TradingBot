@@ -53,13 +53,13 @@ namespace TraidingBot.Exchanges.Binance
             }
 
             var result = await _client.SendSignedAsync(
-              BinanceEndpoints.ALL_COINS_INFORMATION,
-              HttpMethod.Get,
-              query: new Dictionary<string, object>
-              {
+                BinanceEndpoints.ALL_COINS_INFORMATION,
+                HttpMethod.Get,
+                query: new Dictionary<string, object>
+                {
                     { "recvWindow", recvWindow },
                     { "timestamp", DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() },
-              });
+                });
 
             IncrementCallsMade(rateModel);
 
@@ -78,7 +78,7 @@ namespace TraidingBot.Exchanges.Binance
             if (_redisDatabase.TryGetIntValue(key, out keyValue) && keyValue.Value >= rateLimit.Limit)
             {
                 _logger.Warn($"Too many request '{keyValue.Value}' for '{keyValue.Key}' endpoint. Expiration limit '{keyValue.Expiration?.ToString("s")}'");
-                
+
                 return true;
             }
 
