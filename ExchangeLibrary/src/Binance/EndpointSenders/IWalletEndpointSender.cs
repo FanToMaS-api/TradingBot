@@ -1,12 +1,9 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
 
-namespace ExchangeLibrary
+namespace ExchangeLibrary.Binance.EndpointSenders
 {
-    /// <summary>
-    ///     Общий интерфейс для всех бирж
-    /// </summary>
-    public interface IExchange
+    public interface IWalletEndpointSender 
     {
         /// <summary>
         ///     Вернуть статус системы

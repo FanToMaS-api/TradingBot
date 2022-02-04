@@ -2,13 +2,14 @@
 using ExchangeLibrary.Binance;
 using ExchangeLibrary.Binance.Client;
 using ExchangeLibrary.Binance.Client.Impl;
+using ExchangeLibrary.Binance.EndpointSenders;
+using ExchangeLibrary.Binance.EndpointSenders.Impl;
 using ExchangeLibrary.Binance.Enums;
 using ExchangeLibrary.Binance.Exceptions;
 using ExchangeLibrary.Binance.Models;
 using ExchangeLibrary.Redis;
 using NLog;
 using System;
-using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
@@ -24,6 +25,7 @@ namespace TraidingBot.Exchanges.Binance
 
         private readonly ILogger _logger = LogManager.GetCurrentClassLogger();
         private readonly IBinanceClient _client;
+        private readonly IWalletEndpointSender _walletSender;
         private readonly IRedisDatabase _redisDatabase;
         private readonly HttpClient _httpClient;
         private bool _isDisposed;
@@ -39,9 +41,27 @@ namespace TraidingBot.Exchanges.Binance
             _httpClient = new();
             _redisDatabase = new RedisDatabase();
             _client = new BinanceClient(_httpClient, apiKey, secretKey);
+            _walletSender = new WalletEndpointSender(_client);
         }
 
         #endregion
+
+        /// <inheritdoc />
+        public async Task<string> GetSystemStatusAsync(CancellationToken cancellationToken)
+        {
+            var rateModel = _rateLimits.StatusLimit;
+            if (CheckLimit(rateModel, out var rateLimit))
+            {
+                throw new TooManyRequestsException(rateLimit.Expiration, rateLimit.Value, rateLimit.Key);
+            }
+
+            var result = await _walletSender.GetSystemStatusAsync(cancellationToken);
+
+            IncrementCallsMade(rateModel);
+
+            return result;
+        }
+
 
         /// <inheritdoc />
         public async Task<string> GetAllCoinsInformationAsync(long recvWindow, CancellationToken cancellationToken)
@@ -52,14 +72,7 @@ namespace TraidingBot.Exchanges.Binance
                 throw new TooManyRequestsException(rateLimit.Expiration, rateLimit.Value, rateLimit.Key);
             }
 
-            var result = await _client.SendSignedAsync(
-                BinanceEndpoints.ALL_COINS_INFORMATION,
-                HttpMethod.Get,
-                query: new Dictionary<string, object>
-                {
-                    { "recvWindow", recvWindow },
-                    { "timestamp", DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() },
-                });
+            var result = await _walletSender.GetAllCoinsInformationAsync(recvWindow, cancellationToken);
 
             IncrementCallsMade(rateModel);
 

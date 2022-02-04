@@ -24,5 +24,10 @@
         ///     Информация обо всех монетах
         /// </summary>
         ALL_COINS_INFO,
+        
+        /// <summary>
+        ///     Информация о статусе системы
+        /// </summary>
+        STATUS_INFO,
     }
 }
