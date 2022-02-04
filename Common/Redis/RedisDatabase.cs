@@ -2,10 +2,10 @@
 using StackExchange.Redis;
 using System;
 
-namespace ExchangeLibrary.Redis
+namespace Common.Redis
 {
     /// <inheritdoc cref="IRedisDatabase"/>
-    internal class RedisDatabase : IRedisDatabase
+    public class RedisDatabase : IRedisDatabase
     {
         #region Fields
 

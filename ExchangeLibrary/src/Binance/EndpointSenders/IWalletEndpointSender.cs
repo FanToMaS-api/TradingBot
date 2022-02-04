@@ -1,4 +1,7 @@
-﻿using System.Threading;
+﻿using Common.Models;
+using ExchangeLibrary.Binance.DTOs;
+using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace ExchangeLibrary.Binance.EndpointSenders
@@ -13,6 +16,6 @@ namespace ExchangeLibrary.Binance.EndpointSenders
         /// <summary>
         ///     Получить всю информацию о монетах
         /// </summary>
-        Task<string> GetAllCoinsInformationAsync(long recvWindow, CancellationToken cancellationToken);
+        Task<IEnumerable<CoinDTO>> GetAllCoinsInformationAsync(long recvWindow, CancellationToken cancellationToken);
     }
 }

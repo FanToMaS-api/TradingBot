@@ -1,4 +1,6 @@
-﻿using System.Threading;
+﻿using Common.Models;
+using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace ExchangeLibrary
@@ -16,6 +18,6 @@ namespace ExchangeLibrary
         /// <summary>
         ///     Получить всю информацию о монетах
         /// </summary>
-        Task<string> GetAllCoinsInformationAsync(long recvWindow, CancellationToken cancellationToken);
+        Task<IEnumerable<ITrade>> GetAllCoinsInformationAsync(long recvWindow, CancellationToken cancellationToken);
     }
 }

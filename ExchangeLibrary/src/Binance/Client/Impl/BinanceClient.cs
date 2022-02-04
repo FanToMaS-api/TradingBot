@@ -8,6 +8,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using ExchangeLibrary.Binance.Enums;
 using System.Linq;
+using NLog;
 
 namespace ExchangeLibrary.Binance.Client.Impl
 {
@@ -21,6 +22,7 @@ namespace ExchangeLibrary.Binance.Client.Impl
         private readonly string _apiKey;
         private readonly string _apiSecret;
         private readonly HttpClient _client;
+        private readonly ILogger _logger = LogManager.GetCurrentClassLogger();
         private readonly string _baseUrl = "https://api.binance.com";
 
         #endregion
@@ -113,7 +115,7 @@ namespace ExchangeLibrary.Binance.Client.Impl
                 var response = await _client.SendAsync(request, cancellationToken);
                 if (!response.IsSuccessStatusCode)
                 {
-                    await ProcessBadResponseAsync(response, cancellationToken);
+                    ProcessBadResponse(response);
                 }
 
                 using (var responseContent = response.Content)
@@ -126,7 +128,7 @@ namespace ExchangeLibrary.Binance.Client.Impl
         /// <summary>
         ///     Обработка неверного отвечета с Binance
         /// </summary>
-        private async Task ProcessBadResponseAsync(HttpResponseMessage response, CancellationToken cancellationToken)
+        private void ProcessBadResponse(HttpResponseMessage response)
         {
             using (HttpContent responseContent = response.Content)
             {

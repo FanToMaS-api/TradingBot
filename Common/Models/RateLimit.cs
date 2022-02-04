@@ -1,11 +1,7 @@
-﻿using ExchangeLibrary.Binance.Enums;
+﻿using Common.Enums;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace ExchangeLibrary.Binance.Models
+namespace Common.Models
 {
     /// <summary>
     ///     Модель ограничителя скорости

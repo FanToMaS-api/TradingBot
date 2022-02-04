@@ -1,15 +1,17 @@
-﻿using ExchangeLibrary;
+﻿using AutoMapper;
+using Common.Enums;
+using Common.Models;
+using Common.Redis;
+using ExchangeLibrary;
 using ExchangeLibrary.Binance;
 using ExchangeLibrary.Binance.Client;
 using ExchangeLibrary.Binance.Client.Impl;
 using ExchangeLibrary.Binance.EndpointSenders;
 using ExchangeLibrary.Binance.EndpointSenders.Impl;
-using ExchangeLibrary.Binance.Enums;
 using ExchangeLibrary.Binance.Exceptions;
-using ExchangeLibrary.Binance.Models;
-using ExchangeLibrary.Redis;
 using NLog;
 using System;
+using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
@@ -27,6 +29,7 @@ namespace TraidingBot.Exchanges.Binance
         private readonly IBinanceClient _client;
         private readonly IWalletEndpointSender _walletSender;
         private readonly IRedisDatabase _redisDatabase;
+        private readonly IMapper _mapper;
         private readonly HttpClient _httpClient;
         private bool _isDisposed;
         private readonly RateLimitStorage _rateLimits = new();
@@ -36,9 +39,10 @@ namespace TraidingBot.Exchanges.Binance
         #region .ctor
 
         /// <inheritdoc cref="BinanceExchange"/>
-        public BinanceExchange(string apiKey, string secretKey)
+        public BinanceExchange(string apiKey, string secretKey, IMapper mapper)
         {
             _httpClient = new();
+            _mapper = mapper;
             _redisDatabase = new RedisDatabase();
             _client = new BinanceClient(_httpClient, apiKey, secretKey);
             _walletSender = new WalletEndpointSender(_client);
@@ -64,7 +68,7 @@ namespace TraidingBot.Exchanges.Binance
 
 
         /// <inheritdoc />
-        public async Task<string> GetAllCoinsInformationAsync(long recvWindow, CancellationToken cancellationToken)
+        public async Task<IEnumerable<ITrade>> GetAllCoinsInformationAsync(long recvWindow, CancellationToken cancellationToken)
         {
             var rateModel = _rateLimits.AllCoinsInfoLimit;
             if (CheckLimit(rateModel, out var rateLimit))
@@ -76,7 +80,7 @@ namespace TraidingBot.Exchanges.Binance
 
             IncrementCallsMade(rateModel);
 
-            return result;
+            return _mapper.Map<IEnumerable<ITrade>>(result);
         }
 
         #region Private methods
