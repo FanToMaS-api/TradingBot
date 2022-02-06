@@ -53,7 +53,7 @@ namespace TraidingBot.Exchanges.Binance
         /// <inheritdoc />
         public async Task<string> GetSystemStatusAsync(CancellationToken cancellationToken)
         {
-            var rateModel = _rateLimits.StatusLimit;
+            var rateModel = _rateLimits.SistemStatusLimit;
             if (CheckLimit(rateModel, out var rateLimit))
             {
                 throw new TooManyRequestsException(rateLimit.Expiration, rateLimit.Value, rateLimit.Key);
@@ -66,6 +66,21 @@ namespace TraidingBot.Exchanges.Binance
             return result;
         }
 
+        /// <inheritdoc />
+        public async Task<string> GetAccountStatusAsync(long recvWindow, CancellationToken cancellationToken)
+        {
+            var rateModel = _rateLimits.AccountStatusLimit;
+            if (CheckLimit(rateModel, out var rateLimit))
+            {
+                throw new TooManyRequestsException(rateLimit.Expiration, rateLimit.Value, rateLimit.Key);
+            }
+
+            var result = await _walletSender.GetAccountStatusAsync(recvWindow, cancellationToken);
+
+            IncrementCallsMade(rateModel);
+
+            return result;
+        }
 
         /// <inheritdoc />
         public async Task<IEnumerable<ITrade>> GetAllCoinsInformationAsync(long recvWindow, CancellationToken cancellationToken)

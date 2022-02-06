@@ -12,9 +12,14 @@ namespace ExchangeLibrary.Binance
         #region Properties
 
         /// <summary>
-        ///     Лимит кол-ва запросов статуса кошелька
+        ///     Лимит кол-ва запросов статуса системы
         /// </summary>
-        public RateLimit StatusLimit { get; set; } = new RateLimit(RateLimitType.STATUS_INFO, TimeSpan.FromMinutes(1), 1);
+        public RateLimit SistemStatusLimit { get; set; } = new RateLimit(RateLimitType.SISTEM_STATUS_INFO, TimeSpan.FromMinutes(1), 1);
+        
+        /// <summary>
+        ///     Лимит кол-ва запросов статуса аккаунта
+        /// </summary>
+        public RateLimit AccountStatusLimit { get; set; } = new RateLimit(RateLimitType.ACCOUNT_STATUS_INFO, TimeSpan.FromMinutes(1), 1);
 
         /// <summary>
         ///     Лимит кол-ва запросов информации обо всех монетах

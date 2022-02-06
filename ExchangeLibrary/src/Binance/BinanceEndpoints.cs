@@ -13,6 +13,11 @@
         public const string SYSTEM_STATUS = "/sapi/v1/system/status";
 
         /// <summary>
+        ///     Статус аккаунта
+        /// </summary>
+        public const string ACCOUNT_STATUS = "/sapi/v1/account/status";
+
+        /// <summary>
         ///     Информация обо всех монетах
         /// </summary>
         public const string ALL_COINS_INFORMATION = "/sapi/v1/capital/config/getall";

@@ -14,6 +14,11 @@ namespace ExchangeLibrary.Binance.EndpointSenders
         Task<string> GetSystemStatusAsync(CancellationToken cancellationToken);
 
         /// <summary>
+        ///     Вернуть статус аккаунта
+        /// </summary>
+        Task<string> GetAccountStatusAsync(long recvWindow, CancellationToken cancellationToken);
+
+        /// <summary>
         ///     Получить всю информацию о монетах
         /// </summary>
         Task<IEnumerable<CoinDTO>> GetAllCoinsInformationAsync(long recvWindow, CancellationToken cancellationToken);

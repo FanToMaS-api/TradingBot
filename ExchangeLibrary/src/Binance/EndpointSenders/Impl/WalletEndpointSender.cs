@@ -45,6 +45,19 @@ namespace ExchangeLibrary.Binance.EndpointSenders.Impl
                 cancellationToken: cancellationToken);
 
         /// <inheritdoc />
+        public async Task<string> GetAccountStatusAsync(long recvWindow, CancellationToken cancellationToken) =>
+             await _client.SendSignedAsync(
+                 BinanceEndpoints.ACCOUNT_STATUS,
+                 HttpMethod.Get,
+                 query: new Dictionary<string, object>
+                 {
+                    { "recvWindow", recvWindow },
+                    { "timestamp", DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() },
+                 },
+                 cancellationToken);
+
+
+        /// <inheritdoc />
         public async Task<IEnumerable<CoinDTO>> GetAllCoinsInformationAsync(long recvWindow, CancellationToken cancellationToken)
         {
             var result = await _client.SendSignedAsync(

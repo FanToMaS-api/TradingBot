@@ -16,6 +16,11 @@ namespace ExchangeLibrary
         Task<string> GetSystemStatusAsync(CancellationToken cancellationToken);
 
         /// <summary>
+        ///     Вернуть статус аккаунта
+        /// </summary>
+        Task<string> GetAccountStatusAsync(long recvWindow, CancellationToken cancellationToken);
+
+        /// <summary>
         ///     Получить всю информацию о монетах
         /// </summary>
         Task<IEnumerable<ITrade>> GetAllCoinsInformationAsync(long recvWindow, CancellationToken cancellationToken);

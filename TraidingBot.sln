@@ -9,7 +9,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TraidingBotTests", "Traidin
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ExchangeLibrary", "ExchangeLibrary\ExchangeLibrary.csproj", "{4A83D430-2BDB-4F38-A020-3486C388CCCF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Common", "Common\Common.csproj", "{EC3E1D8C-205E-4735-AEB4-C5968CFA583C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Common", "Common\Common.csproj", "{EC3E1D8C-205E-4735-AEB4-C5968CFA583C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExchangeLibraryTests", "ExchangeLibraryTests\ExchangeLibraryTests.csproj", "{89347D96-A3A0-476D-A564-342EF43CBC0D}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{12F24765-46E3-4F00-98C4-0B86F8EB2464}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,9 +37,17 @@ Global
 		{EC3E1D8C-205E-4735-AEB4-C5968CFA583C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EC3E1D8C-205E-4735-AEB4-C5968CFA583C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EC3E1D8C-205E-4735-AEB4-C5968CFA583C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{89347D96-A3A0-476D-A564-342EF43CBC0D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{89347D96-A3A0-476D-A564-342EF43CBC0D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{89347D96-A3A0-476D-A564-342EF43CBC0D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{89347D96-A3A0-476D-A564-342EF43CBC0D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{6DD31040-F598-4DAC-B508-5F38CCACAE12} = {12F24765-46E3-4F00-98C4-0B86F8EB2464}
+		{89347D96-A3A0-476D-A564-342EF43CBC0D} = {12F24765-46E3-4F00-98C4-0B86F8EB2464}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {0CE21AF9-B1BE-48B3-8D32-314E4E50D733}

@@ -102,12 +102,12 @@ namespace ExchangeLibrary.Binance.Client.Impl
         {
             using (var request = new HttpRequestMessage(httpMethod, _baseUrl + requestUri))
             {
-                if (!(content is null))
+                if (content is not null)
                 {
                     request.Content = new StringContent(JsonConvert.SerializeObject(content), Encoding.UTF8, "application/json");
                 }
 
-                if (!(_apiKey is null))
+                if (_apiKey is not null)
                 {
                     request.Headers.Add("X-MBX-APIKEY", _apiKey);
                 }

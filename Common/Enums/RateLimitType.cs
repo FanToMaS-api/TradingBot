@@ -28,6 +28,11 @@
         /// <summary>
         ///     Информация о статусе системы
         /// </summary>
-        STATUS_INFO,
+        SISTEM_STATUS_INFO,
+
+        /// <summary>
+        ///     Информация о статусе аккаунта
+        /// </summary>
+        ACCOUNT_STATUS_INFO,
     }
 }
