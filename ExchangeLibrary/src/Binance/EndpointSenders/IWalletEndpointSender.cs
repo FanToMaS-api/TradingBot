@@ -11,7 +11,7 @@ namespace ExchangeLibrary.Binance.EndpointSenders
         /// <summary>
         ///     Вернуть статус системы
         /// </summary>
-        Task<string> GetSystemStatusAsync(CancellationToken cancellationToken);
+        Task<SystemStatusDTO> GetSystemStatusAsync(CancellationToken cancellationToken);
 
         /// <summary>
         ///     Вернуть статус аккаунта

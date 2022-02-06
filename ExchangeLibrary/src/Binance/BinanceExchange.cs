@@ -63,7 +63,7 @@ namespace TraidingBot.Exchanges.Binance
 
             IncrementCallsMade(rateModel);
 
-            return result;
+            return "TODO";
         }
 
         /// <inheritdoc />

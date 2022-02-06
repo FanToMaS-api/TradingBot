@@ -38,11 +38,16 @@ namespace ExchangeLibrary.Binance.EndpointSenders.Impl
         /// TODO: Здесь вместо string должны уже возвращаться модели или какие-то смысленные типы, незачем тащить string кучу уровней
 
         /// <inheritdoc />
-        public async Task<string> GetSystemStatusAsync(CancellationToken cancellationToken) =>
-             await _client.SendPublicAsync(
-                BinanceEndpoints.SYSTEM_STATUS,
-                HttpMethod.Get,
-                cancellationToken: cancellationToken);
+        public async Task<SystemStatusDTO> GetSystemStatusAsync(CancellationToken cancellationToken)
+        {
+            var result = await _client.SendPublicAsync(
+                 BinanceEndpoints.SYSTEM_STATUS,
+                 HttpMethod.Get,
+                 cancellationToken: cancellationToken);
+
+            return JsonConvert.DeserializeObject<SystemStatusDTO>(result);
+        }
+
 
         /// <inheritdoc />
         public async Task<string> GetAccountStatusAsync(long recvWindow, CancellationToken cancellationToken) =>

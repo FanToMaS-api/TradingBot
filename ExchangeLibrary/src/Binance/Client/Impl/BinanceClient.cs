@@ -49,7 +49,7 @@ namespace ExchangeLibrary.Binance.Client.Impl
             object content = null,
             CancellationToken cancellationToken = default)
         {
-            if (!(query is null))
+            if (query is not null)
             {
                 var queryStringBuilder = BinanceUrlHelper.BuildQueryString(query, new StringBuilder());
 
