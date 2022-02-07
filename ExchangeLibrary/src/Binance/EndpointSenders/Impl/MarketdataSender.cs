@@ -65,6 +65,23 @@ namespace ExchangeLibrary.Binance.EndpointSenders.Impl
             return JsonConvert.DeserializeObject<IEnumerable<RecentTradeDto>>(result);
         }
 
+        /// <inheritdoc />
+        public async Task<IEnumerable<RecentTradeDto>> GetOldTradesAsync(string symbol, long fromId, int limit = 500, CancellationToken cancellationToken = default)
+        {
+            var result = await _client.SendPublicAsync(
+                BinanceEndpoints.OLD_TRADES,
+                HttpMethod.Get,
+                query: new Dictionary<string, object>
+                {
+                    { "symbol", symbol },
+                    { "limit", limit },
+                    { "fromId", fromId },
+                },
+                cancellationToken: cancellationToken);
+
+            return JsonConvert.DeserializeObject<IEnumerable<RecentTradeDto>>(result);
+        }
+
         #endregion
     }
 }

@@ -107,10 +107,10 @@ namespace ExchangeLibrary.Binance.Client.Impl
                     request.Content = new StringContent(JsonConvert.SerializeObject(content), Encoding.UTF8, "application/json");
                 }
 
-                //if (_apiKey is not null)
-                //{
-                //    request.Headers.Add("X-MBX-APIKEY", _apiKey);
-                //}
+                if (_apiKey is not null)
+                {
+                    request.Headers.Add("X-MBX-APIKEY", _apiKey);
+                }
 
                 var response = await _client.SendAsync(request, cancellationToken);
                 if (!response.IsSuccessStatusCode)

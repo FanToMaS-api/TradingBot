@@ -31,11 +31,22 @@ namespace ExchangeLibrary.Binance.EndpointSenders
         /// <summary>
         ///     Возвращает последние сделки по монете
         /// </summary>
-        /// <param name="symbol"></param>
-        /// <param name="limit"> Кол-во сделокю Принимает значения от 500 до 1000 </param>
+        /// <param name="symbol"> Монета </param>
+        /// <param name="limit"> Кол-во сделок. Принимает значения от 500 до 1000 </param>
         /// <remarks>
         ///    <paramref name="limit"> Принимает значения от 500 до 1000 </paramref>
         /// </remarks>
         Task<IEnumerable<RecentTradeDto>> GetRecentTradesAsync(string symbol, int limit = 500, CancellationToken cancellationToken = default);
+
+        /// <summary>
+        ///     Возвращает исторические сделки по монете
+        /// </summary>
+        /// <param name="symbol"> Монета </param>
+        /// <param name="fromId"> Нижняя граница выгрузки </param>
+        /// <param name="limit"> Кол-во сделок. Принимает значения от 500 до 1000 </param>
+        /// <remarks>
+        ///    <paramref name="limit"> Принимает значения от 500 до 1000 </paramref>
+        /// </remarks>
+        Task<IEnumerable<RecentTradeDto>> GetOldTradesAsync(string symbol, long fromId, int limit = 500, CancellationToken cancellationToken = default);
     }
 }

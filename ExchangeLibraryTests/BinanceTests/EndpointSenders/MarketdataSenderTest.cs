@@ -70,6 +70,30 @@ namespace ExchangeLibraryTests.BinanceTests.EndpointSenders
             Assert.True(result[0].IsBestMatch);
         }
 
+        /// <summary>
+        ///     “ест запроса списка исторических сделок
+        /// </summary>
+        [Fact(DisplayName = "“ест запроса списка исторических сделок")]
+        public async Task GetOldTradesAsyncTest()
+        {
+            var filePath = "..\\..\\..\\BinanceTests\\Jsons\\Marketdata\\OLD_TRADES.json";
+            using var client = CreateMockHttpClient(BinanceEndpoints.OLD_TRADES, filePath);
+            IBinanceClient binanceClient = new BinanceClient(client, "", "");
+            IMarketdataSender marketdataSender = new MarketdataSender(binanceClient);
+
+            // Act
+            var result = (await marketdataSender.GetOldTradesAsync("", 1000, cancellationToken: CancellationToken.None)).ToList();
+
+            Assert.Single(result);
+            Assert.Equal(28457, result[0].Id);
+            Assert.Equal(4.00000100, result[0].Price);
+            Assert.Equal(12.00000000, result[0].Qty);
+            Assert.Equal(48.000012, result[0].QuoteQty);
+            Assert.Equal(1499865549590, result[0].TimeUnix);
+            Assert.True(result[0].IsBuyerMaker);
+            Assert.True(result[0].IsBestMatch);
+        }
+
         #endregion
 
         #region Private methods

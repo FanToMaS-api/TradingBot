@@ -14,6 +14,8 @@ namespace ExchangeLibrary.Binance.DTOs.Marketdata
         [JsonProperty("lastUpdateId")]
         public long LastUpdateId { get; set; }
 
+        // TODO: Написать конвертер данных, с такими данными работать невозможно
+
         /// <summary>
         ///     Список цен/объемов на покупку
         /// </summary>
@@ -32,6 +34,4 @@ namespace ExchangeLibrary.Binance.DTOs.Marketdata
         [JsonProperty("asks")]
         public List<List<double>> Asks { get; set; }
     }
-
-
 }

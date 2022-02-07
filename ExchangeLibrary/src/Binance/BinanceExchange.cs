@@ -155,7 +155,27 @@ namespace TraidingBot.Exchanges.Binance
 
             var result = await _marketdataSender.GetRecentTradesAsync(symbol, limit, cancellationToken);
 
-            IncrementCallsMade(requestWeight, limit.ToString());
+            IncrementCallsMade(requestWeight, RequestWeightModel.GetDefaultKey());
+
+            return "TODO";
+        }
+
+        /// <inheritdoc />
+        public async Task<string> GetOldTradesAsync(
+            string symbol,
+            long fromId,
+            int limit = 500,
+            CancellationToken cancellationToken = default)
+        {
+            var requestWeight = _requestsWeightStorage.OldTradesWeight;
+            if (CheckLimit(requestWeight.Type, out var rateLimit))
+            {
+                throw new TooManyRequestsException(rateLimit.Expiration, rateLimit.Value, rateLimit.Key);
+            }
+
+            var result = await _marketdataSender.GetOldTradesAsync(symbol, fromId, limit, cancellationToken);
+
+            IncrementCallsMade(requestWeight, RequestWeightModel.GetDefaultKey());
 
             return "TODO";
         }

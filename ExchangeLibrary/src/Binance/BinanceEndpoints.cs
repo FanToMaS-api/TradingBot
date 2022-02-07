@@ -46,6 +46,11 @@
         /// </summary>
         public const string RECENT_TRADES = "/api/v3/trades";
 
+        /// <summary>
+        ///     Исторические сделки
+        /// </summary>
+        public const string OLD_TRADES = "/api/v3/historicalTrades";
+
         #endregion
     }
 }

@@ -80,6 +80,16 @@ namespace ExchangeLibrary.Binance
                 { RequestWeightModel.GetDefaultKey(), 1 }
             });
 
+        /// <summary>
+        ///     Вес запроса списка недавних сделок
+        /// </summary>
+        public RequestWeightModel OldTradesWeight { get; set; } = new RequestWeightModel(
+            Enums.ApiType.Api,
+            new()
+            {
+                { RequestWeightModel.GetDefaultKey(), 5 }
+            });
+
         #endregion
     }
 }

@@ -40,5 +40,13 @@ namespace ExchangeLibrary
         ///     Возвращает последние сделки по монете
         /// </summary>
         Task<string> GetRecentTradesAsync(string symbol, int limit = 500, CancellationToken cancellationToken = default);
+
+        /// <summary>
+        ///     Возвращает исторические сделки
+        /// </summary>
+        /// <param name="symbol"> Монета </param>
+        /// <param name="fromId"> Нижняя граница выгрузки </param>
+        /// <param name="limit"> Кол-во сделок. Принимает значения от 500 до 1000 </param>
+        Task<string> GetOldTradesAsync(string symbol, long fromId, int limit = 500, CancellationToken cancellationToken = default);
     }
 }
