@@ -1,4 +1,5 @@
-﻿using ExchangeLibrary.Binance.Enums;
+﻿using Common.Enums;
+using ExchangeLibrary.Binance.Enums;
 
 namespace ExchangeLibrary.src.Binance.Enums.Helper
 {
@@ -7,6 +8,30 @@ namespace ExchangeLibrary.src.Binance.Enums.Helper
     /// </summary>
     internal static class EnumHelper
     {
+        /// <summary>
+        ///     Возвращает период свечи в формате необходимом бинансу
+        /// </summary>
+        public static string GetInterval(this CandleStickIntervalType intervalType) =>
+            intervalType switch
+            {
+                CandleStickIntervalType.OneMinute => "1m",
+                CandleStickIntervalType.ThreeMinutes => "3m",
+                CandleStickIntervalType.FiveMinutes => "5m",
+                CandleStickIntervalType.FifteenMinutes => "15m",
+                CandleStickIntervalType.ThirtyMinutes => "30m",
+                CandleStickIntervalType.OneHour => "1h",
+                CandleStickIntervalType.TwoHour => "2h",
+                CandleStickIntervalType.FourHours => "4h",
+                CandleStickIntervalType.SixHours => "6h",
+                CandleStickIntervalType.EightHours => "8h",
+                CandleStickIntervalType.TwelveHours => "12h",
+                CandleStickIntervalType.OneDay => "1d",
+                CandleStickIntervalType.ThreeDays => "3d",
+                CandleStickIntervalType.OneWeek => "1w",
+                CandleStickIntervalType.OneMonth => "1M",
+                _ => intervalType.ToString(),
+            };
+
         /// <summary>
         ///     Возвращает конечную точку для указанной версии API
         /// </summary>

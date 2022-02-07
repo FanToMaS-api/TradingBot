@@ -1,12 +1,12 @@
-﻿using ExchangeLibrary.Binance.Client;
+﻿using Common.Enums;
+using ExchangeLibrary.Binance.Client;
 using ExchangeLibrary.Binance.DTOs.Marketdata;
+using ExchangeLibrary.Binance.Models;
+using ExchangeLibrary.src.Binance.Enums.Helper;
 using Newtonsoft.Json;
 using NLog;
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net.Http;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -80,6 +80,37 @@ namespace ExchangeLibrary.Binance.EndpointSenders.Impl
                 cancellationToken: cancellationToken);
 
             return JsonConvert.DeserializeObject<IEnumerable<RecentTradeDto>>(result);
+        }
+
+        /// <inheritdoc />
+        public async Task<IEnumerable<CandleStickDto>> GetCandleStickAsync(
+            string symbol,
+            CandleStickIntervalType interval,
+            long? startTime = null,
+            long? endTime = null,
+            int limit = 500,
+            CancellationToken cancellationToken = default)
+        {
+            var parameters =
+                new Dictionary<string, object>
+                {
+                    { "symbol", symbol },
+                    { "interval", interval.GetInterval() },
+                    { "limit", limit },
+                };
+            if (startTime is not null && endTime is not null)
+            {
+                parameters["startTime"] = startTime;
+                parameters["endTime"] = endTime;
+            }
+
+            var result = await _client.SendPublicAsync(
+                BinanceEndpoints.CANDLESTICK_DATA,
+                HttpMethod.Get,
+                query: parameters,
+                cancellationToken: cancellationToken);
+
+            return JsonConvert.DeserializeObject<IEnumerable<CandleStickDto>>(result, new CandleStickDtoConverter());
         }
 
         #endregion

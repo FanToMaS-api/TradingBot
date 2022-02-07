@@ -92,12 +92,12 @@ namespace ExchangeLibrary.Binance.DTOs.Marketdata
 
             var result = new List<PriceQtyPair>();
             var collection = token.Values().ToList();
-            for (var i = 0; i < collection.Count - 1; i++)
+            for (var i = 0; i < collection.Count; i++)
             {
                 result.Add(new PriceQtyPair 
                 { 
-                    Price = (double)collection[i], 
-                    Qty = (double)collection[i + 1] 
+                    Price = (double)collection[i++], 
+                    Qty = (double)collection[i] 
                 });
             }
 

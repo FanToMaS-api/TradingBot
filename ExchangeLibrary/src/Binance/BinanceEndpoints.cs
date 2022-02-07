@@ -51,6 +51,11 @@
         /// </summary>
         public const string OLD_TRADES = "/api/v3/historicalTrades";
 
+        /// <summary>
+        ///     Свечи для монеты
+        /// </summary>
+        public const string CANDLESTICK_DATA = "/api/v3/klines";
+
         #endregion
     }
 }

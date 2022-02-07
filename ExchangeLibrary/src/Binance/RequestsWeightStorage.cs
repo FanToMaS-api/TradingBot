@@ -90,6 +90,16 @@ namespace ExchangeLibrary.Binance
                 { RequestWeightModel.GetDefaultKey(), 5 }
             });
 
+        /// <summary>
+        ///     Вес запроса свечей для монеты
+        /// </summary>
+        public RequestWeightModel CandleStickDataWeight { get; set; } = new RequestWeightModel(
+            Enums.ApiType.Api,
+            new()
+            {
+                { RequestWeightModel.GetDefaultKey(), 1 }
+            });
+
         #endregion
     }
 }

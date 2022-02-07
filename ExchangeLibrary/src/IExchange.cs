@@ -1,4 +1,5 @@
-﻿using Common.Models;
+﻿using Common.Enums;
+using Common.Models;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -46,7 +47,23 @@ namespace ExchangeLibrary
         /// </summary>
         /// <param name="symbol"> Монета </param>
         /// <param name="fromId"> Нижняя граница выгрузки </param>
-        /// <param name="limit"> Кол-во сделок. Принимает значения от 500 до 1000 </param>
+        /// <param name="limit"> Кол-во сделок (максимум 1000, по умолчанию 500) </param>
         Task<string> GetOldTradesAsync(string symbol, long fromId, int limit = 500, CancellationToken cancellationToken = default);
+
+        /// <summary>
+        ///     Возвращает свечи по определенной паре
+        /// </summary>
+        /// <param name="symbol"> Пара </param>
+        /// <param name="interval"> Период свечи </param>
+        /// <param name="startTime"> Время начала построения </param>
+        /// <param name="endTime"> Окончание периода </param>
+        /// <param name="limit"> Кол-во свечей (максимум 1000, по умолчанию 500) </param>
+        Task<string> GetCandleStickAsync(
+            string symbol,
+            CandleStickIntervalType interval,
+            long? startTime = null,
+            long? endTime = null,
+            int limit = 500,
+            CancellationToken cancellationToken = default);
     }
 }

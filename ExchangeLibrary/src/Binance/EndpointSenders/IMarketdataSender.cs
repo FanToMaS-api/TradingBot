@@ -1,4 +1,6 @@
-﻿using ExchangeLibrary.Binance.DTOs.Marketdata;
+﻿using Common.Enums;
+using ExchangeLibrary.Binance.DTOs.Marketdata;
+using ExchangeLibrary.Binance.Models;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -32,10 +34,7 @@ namespace ExchangeLibrary.Binance.EndpointSenders
         ///     Возвращает последние сделки по монете
         /// </summary>
         /// <param name="symbol"> Монета </param>
-        /// <param name="limit"> Кол-во сделок. Принимает значения от 500 до 1000 </param>
-        /// <remarks>
-        ///    <paramref name="limit"> Принимает значения от 500 до 1000 </paramref>
-        /// </remarks>
+        /// <param name="limit"> Кол-во сделок (максимум 1000, по умолчанию 500) </param>
         Task<IEnumerable<RecentTradeDto>> GetRecentTradesAsync(string symbol, int limit = 500, CancellationToken cancellationToken = default);
 
         /// <summary>
@@ -43,10 +42,23 @@ namespace ExchangeLibrary.Binance.EndpointSenders
         /// </summary>
         /// <param name="symbol"> Монета </param>
         /// <param name="fromId"> Нижняя граница выгрузки </param>
-        /// <param name="limit"> Кол-во сделок. Принимает значения от 500 до 1000 </param>
-        /// <remarks>
-        ///    <paramref name="limit"> Принимает значения от 500 до 1000 </paramref>
-        /// </remarks>
+        /// <param name="limit"> Кол-во сделок (максимум 1000, по умолчанию 500) </param>
         Task<IEnumerable<RecentTradeDto>> GetOldTradesAsync(string symbol, long fromId, int limit = 500, CancellationToken cancellationToken = default);
+
+        /// <summary>
+        ///     Возвращает свечи по определенной паре
+        /// </summary>
+        /// <param name="symbol"> Пара </param>
+        /// <param name="interval"> Период свечи </param>
+        /// <param name="startTime"> Время начала построения </param>
+        /// <param name="endTime"> Окончание периода </param>
+        /// <param name="limit"> Кол-во свечей (максимум 1000, по умолчанию 500) </param>
+        Task<IEnumerable<CandleStickDto>> GetCandleStickAsync(
+            string symbol,
+            CandleStickIntervalType interval,
+            long? startTime = null,
+            long? endTime = null,
+            int limit = 500,
+            CancellationToken cancellationToken = default);
     }
 }

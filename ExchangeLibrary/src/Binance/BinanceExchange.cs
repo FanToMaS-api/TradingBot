@@ -180,6 +180,28 @@ namespace TraidingBot.Exchanges.Binance
             return "TODO";
         }
 
+        /// <inheritdoc />
+        public async Task<string> GetCandleStickAsync(
+            string symbol,
+            CandleStickIntervalType interval,
+            long? startTime = null,
+            long? endTime = null,
+            int limit = 500,
+            CancellationToken cancellationToken = default)
+        {
+            var requestWeight = _requestsWeightStorage.CandleStickDataWeight;
+            if (CheckLimit(requestWeight.Type, out var rateLimit))
+            {
+                throw new TooManyRequestsException(rateLimit.Expiration, rateLimit.Value, rateLimit.Key);
+            }
+
+            var result = await _marketdataSender.GetCandleStickAsync(symbol, interval, startTime, endTime, limit, cancellationToken);
+
+            IncrementCallsMade(requestWeight, RequestWeightModel.GetDefaultKey());
+
+            return "TODO";
+        }
+
         #endregion
 
         #region Private methods

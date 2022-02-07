@@ -92,6 +92,35 @@ namespace ExchangeLibraryTests.BinanceTests.EndpointSenders
             Assert.True(result[0].IsBestMatch);
         }
 
+        /// <summary>
+        ///     “ест запроса списка свечей по монете
+        /// </summary>
+        [Fact(DisplayName = "“ест запроса списка свечей по монете")]
+        public async Task GetCandleStickAsyncTest()
+        {
+            var filePath = "..\\..\\..\\BinanceTests\\Jsons\\Marketdata\\CANDLESTICK_DATA.json";
+            using var client = CreateMockHttpClient(BinanceEndpoints.CANDLESTICK_DATA, filePath);
+            IBinanceClient binanceClient = new BinanceClient(client, "", "");
+            IMarketdataSender marketdataSender = new MarketdataSender(binanceClient);
+
+            // Act
+            var result = (await marketdataSender.GetCandleStickAsync("", Common.Enums.CandleStickIntervalType.OneMinute, cancellationToken: CancellationToken.None)).ToList();
+
+            Assert.Single(result);
+            Assert.Equal(1499040000000, result[0].OpenTimeUnix);
+            Assert.Equal(0.01634790, result[0].OpenPrice);
+            Assert.Equal(0.80000000, result[0].MaxPrice);
+            Assert.Equal(0.01575800, result[0].MinPrice);
+            Assert.Equal(0.01577100, result[0].ClosePrice);
+            Assert.Equal(148976.11427815, result[0].Volume);
+            Assert.Equal(1499644799999, result[0].CloseTimeUnix);
+            Assert.Equal(2434.19055334, result[0].QuoteAssetVolume);
+            Assert.Equal(308, result[0].TradesNumber);
+            Assert.Equal(1756.87402397, result[0].BasePurchaseVolume);
+            Assert.Equal(28.46694368, result[0].QuotePurchaseVolume);
+            Assert.Equal("17928899.62484339", result[0].Ignore);
+        }
+
         #endregion
 
         #region Private methods
