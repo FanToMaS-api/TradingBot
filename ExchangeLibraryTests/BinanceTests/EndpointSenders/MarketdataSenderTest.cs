@@ -38,12 +38,10 @@ namespace ExchangeLibraryTests.BinanceTests.EndpointSenders
 
             Assert.Single(result.Bids);
             Assert.Single(result.Asks);
-            Assert.Equal(2, result.Bids[0].Count);
-            Assert.Equal(2, result.Asks[0].Count);
-            Assert.Equal(4.00000000, result.Bids[0].First());
-            Assert.Equal(431.00000000, result.Bids[0].Last());
-            Assert.Equal(4.00000200, result.Asks[0].First());
-            Assert.Equal(12.00000000, result.Asks[0].Last());
+            Assert.Equal(4.00000000, result.Bids[0].Price);
+            Assert.Equal(431.00000000, result.Bids[0].Qty);
+            Assert.Equal(4.00000200, result.Asks[0].Price);
+            Assert.Equal(12.00000000, result.Asks[0].Qty);
         }
 
         /// <summary>

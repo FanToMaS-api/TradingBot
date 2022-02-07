@@ -46,7 +46,7 @@ namespace ExchangeLibrary.Binance.EndpointSenders.Impl
                 },
                 cancellationToken: cancellationToken);
 
-            return JsonConvert.DeserializeObject<OrderBookDto>(result);
+            return JsonConvert.DeserializeObject<OrderBookDto>(result, new OrderBookDtoConverter());
         }
 
         /// <inheritdoc />
