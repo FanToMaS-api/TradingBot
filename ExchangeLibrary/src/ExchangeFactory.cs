@@ -14,7 +14,7 @@ namespace ExchangeLibrary
         {
             return exchangeType switch
             {
-                ExchangeType.Binance => new BinanceExchange(apiKey, secretKey),
+                ExchangeType.Binance => new BinanceExchange(apiKey, secretKey, null), // TODO
                 _ => throw new System.Exception("Unexpected Type")
             };
         }

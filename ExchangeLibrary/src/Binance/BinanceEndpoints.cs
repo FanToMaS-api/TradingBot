@@ -1,4 +1,4 @@
-﻿namespace ExchangeLibrary.Binance.Client.Helpers
+﻿namespace ExchangeLibrary.Binance
 {
     /// <summary>
     ///     Сожаржит все конечные точки Binance
@@ -11,6 +11,11 @@
         ///     Статус системы
         /// </summary>
         public const string SYSTEM_STATUS = "/sapi/v1/system/status";
+
+        /// <summary>
+        ///     Статус аккаунта
+        /// </summary>
+        public const string ACCOUNT_STATUS = "/sapi/v1/account/status";
 
         /// <summary>
         ///     Информация обо всех монетах

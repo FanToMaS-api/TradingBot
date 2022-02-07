@@ -1,9 +1,14 @@
-﻿using Newtonsoft.Json;
+﻿using ExchangeLibrary.Binance.Exceptions;
+using Newtonsoft.Json;
 using System.Collections.Generic;
+using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using ExchangeLibrary.Binance.Enums;
+using System.Linq;
+using NLog;
 
 namespace ExchangeLibrary.Binance.Client.Impl
 {
@@ -17,6 +22,7 @@ namespace ExchangeLibrary.Binance.Client.Impl
         private readonly string _apiKey;
         private readonly string _apiSecret;
         private readonly HttpClient _client;
+        private readonly ILogger _logger = LogManager.GetCurrentClassLogger();
         private readonly string _baseUrl = "https://api.binance.com";
 
         #endregion
@@ -43,7 +49,7 @@ namespace ExchangeLibrary.Binance.Client.Impl
             object content = null,
             CancellationToken cancellationToken = default)
         {
-            if (!(query is null))
+            if (query is not null)
             {
                 var queryStringBuilder = BinanceUrlHelper.BuildQueryString(query, new StringBuilder());
 
@@ -53,7 +59,7 @@ namespace ExchangeLibrary.Binance.Client.Impl
                 }
             }
 
-            return await SendAsync(requestUri, httpMethod, content, cancellationToken);
+            return await SendAsync(requestUri, httpMethod, content, cancellationToken: cancellationToken);
         }
 
         /// <inheritdoc />
@@ -82,7 +88,7 @@ namespace ExchangeLibrary.Binance.Client.Impl
 
             requestUri += $"?{queryStringBuilder}";
 
-            return await SendAsync(requestUri, httpMethod, content, cancellationToken);
+            return await SendAsync(requestUri, httpMethod, content, cancellationToken: cancellationToken);
         }
 
         #endregion
@@ -96,17 +102,21 @@ namespace ExchangeLibrary.Binance.Client.Impl
         {
             using (var request = new HttpRequestMessage(httpMethod, _baseUrl + requestUri))
             {
-                if (!(content is null))
+                if (content is not null)
                 {
                     request.Content = new StringContent(JsonConvert.SerializeObject(content), Encoding.UTF8, "application/json");
                 }
 
-                if (!(_apiKey is null))
+                if (_apiKey is not null)
                 {
                     request.Headers.Add("X-MBX-APIKEY", _apiKey);
                 }
 
                 var response = await _client.SendAsync(request, cancellationToken);
+                if (!response.IsSuccessStatusCode)
+                {
+                    ProcessBadResponse(response);
+                }
 
                 using (var responseContent = response.Content)
                 {
@@ -115,6 +125,31 @@ namespace ExchangeLibrary.Binance.Client.Impl
             }
         }
 
-        #endregion
+        /// <summary>
+        ///     Обработка неверного отвечета с Binance
+        /// </summary>
+        private void ProcessBadResponse(HttpResponseMessage response)
+        {
+            using (HttpContent responseContent = response.Content)
+            {
+                var statusCode = (int)response.StatusCode;
+                BinanceException httpException = statusCode switch
+                {
+                    403 => new BinanceException(BinanceExceptionType.WAFLimit),
+                    429 => new BinanceException(BinanceExceptionType.RateLimit),
+                    418 => new BinanceException(BinanceExceptionType.Blocked),
+                    >= 500 => new BinanceException(BinanceExceptionType.ServerException),
+                    >= 400 => new BinanceException(BinanceExceptionType.InvalidRequest),
+                    _ => new BinanceException($"Unknown error type with code")
+                };
+
+                httpException.StatusCode = statusCode;
+                httpException.Headers = response.Headers.ToDictionary(a => a.Key, a => a.Value);
+
+                throw httpException;
+            }
+
+            #endregion
+        }
     }
 }

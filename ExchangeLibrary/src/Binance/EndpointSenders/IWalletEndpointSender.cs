@@ -1,19 +1,17 @@
 ﻿using Common.Models;
+using ExchangeLibrary.Binance.DTOs;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace ExchangeLibrary
+namespace ExchangeLibrary.Binance.EndpointSenders
 {
-    /// <summary>
-    ///     Общий интерфейс для всех бирж
-    /// </summary>
-    public interface IExchange
+    public interface IWalletEndpointSender 
     {
         /// <summary>
         ///     Вернуть статус системы
         /// </summary>
-        Task<string> GetSystemStatusAsync(CancellationToken cancellationToken);
+        Task<SystemStatusDTO> GetSystemStatusAsync(CancellationToken cancellationToken);
 
         /// <summary>
         ///     Вернуть статус аккаунта
@@ -23,6 +21,6 @@ namespace ExchangeLibrary
         /// <summary>
         ///     Получить всю информацию о монетах
         /// </summary>
-        Task<IEnumerable<ITrade>> GetAllCoinsInformationAsync(long recvWindow, CancellationToken cancellationToken);
+        Task<IEnumerable<CoinDTO>> GetAllCoinsInformationAsync(long recvWindow, CancellationToken cancellationToken);
     }
 }

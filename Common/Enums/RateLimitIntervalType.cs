@@ -1,4 +1,4 @@
-﻿namespace ExchangeLibrary.Binance.Enums
+﻿namespace Common.Enums
 {
     /// <summary>
     ///     Тип интервала ограничения скорости
