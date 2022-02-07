@@ -59,7 +59,7 @@ namespace ExchangeLibrary.Binance.Client.Impl
                 }
             }
 
-            return await SendAsync(requestUri, httpMethod, content, cancellationToken);
+            return await SendAsync(requestUri, httpMethod, content, cancellationToken: cancellationToken);
         }
 
         /// <inheritdoc />
@@ -88,7 +88,7 @@ namespace ExchangeLibrary.Binance.Client.Impl
 
             requestUri += $"?{queryStringBuilder}";
 
-            return await SendAsync(requestUri, httpMethod, content, cancellationToken);
+            return await SendAsync(requestUri, httpMethod, content, cancellationToken: cancellationToken);
         }
 
         #endregion

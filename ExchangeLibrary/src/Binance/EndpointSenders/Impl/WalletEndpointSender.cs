@@ -59,7 +59,7 @@ namespace ExchangeLibrary.Binance.EndpointSenders.Impl
                     { "recvWindow", recvWindow },
                     { "timestamp", DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() },
                  },
-                 cancellationToken);
+                 cancellationToken: cancellationToken);
 
 
         /// <inheritdoc />
@@ -73,7 +73,7 @@ namespace ExchangeLibrary.Binance.EndpointSenders.Impl
                     { "recvWindow", recvWindow },
                     { "timestamp", DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() },
                  },
-                 cancellationToken);
+                 cancellationToken: cancellationToken);
 
             return JsonConvert.DeserializeObject<List<CoinDTO>>(result);
         }
