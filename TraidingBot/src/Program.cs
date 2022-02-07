@@ -19,7 +19,7 @@ namespace TraidingBot
             var binance = ExchangeFactory.CreateExchange(ExchangeType.Binance, apiKey, secretKey);
             using var cts = new CancellationTokenSource();
 
-            Console.WriteLine(await binance.GetAllCoinsInformationAsync(7000, cts.Token));
+            Console.WriteLine(await binance.GetRecentTradesAsync("BNBBTC", 1000, cts.Token));
         }
     }
 }

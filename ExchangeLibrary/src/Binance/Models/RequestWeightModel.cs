@@ -6,14 +6,14 @@ namespace ExchangeLibrary.Binance.Models
     /// <summary>
     ///     Модель веса запроса
     /// </summary>
-    internal class RequestWeight
+    internal class RequestWeightModel
     {
         private static string _defaultKey = "default";
 
         #region .ctor
 
-        /// <inheritdoc cref="RequestWeight"/>
-        public RequestWeight(ApiType type, Dictionary<string, long> weights)
+        /// <inheritdoc cref="RequestWeightModel"/>
+        public RequestWeightModel(ApiType type, Dictionary<string, long> weights)
         {
             Type = type;
             Weights = weights;

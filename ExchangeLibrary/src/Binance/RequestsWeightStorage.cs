@@ -12,48 +12,73 @@ namespace ExchangeLibrary.Binance
         /// <summary>
         ///     Вес запроса статуса системы
         /// </summary>
-        public RequestWeight SistemStatusWeight { get; set; } = new RequestWeight(
+        public RequestWeightModel SistemStatusWeight { get; set; } = new RequestWeightModel(
             Enums.ApiType.Sapi,
-            new() 
+            new()
             {
-                { RequestWeight.GetDefaultKey(), 1 } 
+                { RequestWeightModel.GetDefaultKey(), 1 }
             });
 
         /// <summary>
         ///     Вес запроса статуса аккаунта
         /// </summary>
-        public RequestWeight AccountStatusWeight { get; set; } = new RequestWeight(
+        public RequestWeightModel AccountStatusWeight { get; set; } = new RequestWeightModel(
             Enums.ApiType.Sapi,
             new()
             {
-                { RequestWeight.GetDefaultKey(), 1 }
+                { RequestWeightModel.GetDefaultKey(), 1 }
             });
 
         /// <summary>
         ///     Вес запроса информации обо всех монетах
         /// </summary>
-        public RequestWeight AllCoinsInfoWeight { get; set; } = new RequestWeight(
+        public RequestWeightModel AllCoinsInfoWeight { get; set; } = new RequestWeightModel(
             Enums.ApiType.Sapi,
             new()
             {
-                { RequestWeight.GetDefaultKey(), 10 }
+                { RequestWeightModel.GetDefaultKey(), 10 }
             });
 
         /// <summary>
         ///     Вес запроса таксы за торговлю определенными монетами
         /// </summary>
-        public RequestWeight TradeFeeWeight { get; set; } = new RequestWeight(
+        public RequestWeightModel TradeFeeWeight { get; set; } = new RequestWeightModel(
             Enums.ApiType.Sapi,
             new()
             {
-                { RequestWeight.GetDefaultKey(), 1 }
+                { RequestWeightModel.GetDefaultKey(), 1 }
             });
 
         #endregion
 
         #region Marketdata requests weight
 
+        /// <summary>
+        ///     Вес запроса книги ордеров
+        /// </summary>
+        public RequestWeightModel OrderBookWeight { get; set; } = new RequestWeightModel(
+            Enums.ApiType.Api,
+            new()
+            {
+                { "5", 1 },
+                { "10", 1 },
+                { "20", 1 },
+                { "50", 1 },
+                { "100", 1 },
+                { "500", 5 },
+                { "1000", 10 },
+                { "5000", 50 },
+            });
 
+        /// <summary>
+        ///     Вес запроса списка недавних сделок
+        /// </summary>
+        public RequestWeightModel RecentTradesWeight { get; set; } = new RequestWeightModel(
+            Enums.ApiType.Api,
+            new()
+            {
+                { RequestWeightModel.GetDefaultKey(), 1 }
+            });
 
         #endregion
     }

@@ -29,7 +29,8 @@ namespace TraidingBot.Exchanges.Binance
 
         private readonly ILogger _logger = LogManager.GetCurrentClassLogger();
         private readonly IBinanceClient _client;
-        private readonly IWalletEndpointSender _walletSender;
+        private readonly IWalletSender _walletSender;
+        private readonly IMarketdataSender _marketdataSender;
         private readonly IRedisDatabase _redisDatabase;
         private readonly IMapper _mapper;
         private readonly HttpClient _httpClient;
@@ -48,10 +49,13 @@ namespace TraidingBot.Exchanges.Binance
             _mapper = mapper;
             _redisDatabase = new RedisDatabase();
             _client = new BinanceClient(_httpClient, apiKey, secretKey);
-            _walletSender = new WalletEndpointSender(_client);
+            _walletSender = new WalletSender(_client);
+            _marketdataSender = new MarketdataSender(_client);
         }
 
         #endregion
+
+        #region Wallet
 
         /// <inheritdoc />
         public async Task<string> GetSystemStatusAsync(CancellationToken cancellationToken = default)
@@ -64,7 +68,7 @@ namespace TraidingBot.Exchanges.Binance
 
             var result = await _walletSender.GetSystemStatusAsync(cancellationToken);
 
-            IncrementCallsMade(requestWeight, RequestWeight.GetDefaultKey());
+            IncrementCallsMade(requestWeight, RequestWeightModel.GetDefaultKey());
 
             return "TODO";
         }
@@ -80,7 +84,7 @@ namespace TraidingBot.Exchanges.Binance
 
             var result = await _walletSender.GetAccountTraidingStatusAsync(recvWindow, cancellationToken);
 
-            IncrementCallsMade(requestWeight, RequestWeight.GetDefaultKey());
+            IncrementCallsMade(requestWeight, RequestWeightModel.GetDefaultKey());
 
             return "TODO";
         }
@@ -99,7 +103,7 @@ namespace TraidingBot.Exchanges.Binance
 
             var result = await _walletSender.GetTradeFeeAsync(symbol, recvWindow, cancellationToken);
 
-            IncrementCallsMade(requestWeight, RequestWeight.GetDefaultKey());
+            IncrementCallsMade(requestWeight, RequestWeightModel.GetDefaultKey());
 
             return "TODO";
         }
@@ -115,10 +119,48 @@ namespace TraidingBot.Exchanges.Binance
 
             var result = await _walletSender.GetAllCoinsInformationAsync(recvWindow, cancellationToken);
 
-            IncrementCallsMade(requestWeight, RequestWeight.GetDefaultKey());
+            IncrementCallsMade(requestWeight, RequestWeightModel.GetDefaultKey());
 
             return _mapper.Map<IEnumerable<ITrade>>(result);
         }
+
+        #endregion
+
+        #region Marketdata
+
+        /// <inheritdoc />
+        public async Task<string> GetOrderBookAsync(string symbol, int limit = 100, CancellationToken cancellationToken = default)
+        {
+            var requestWeight = _requestsWeightStorage.OrderBookWeight;
+            if (CheckLimit(requestWeight.Type, out var rateLimit))
+            {
+                throw new TooManyRequestsException(rateLimit.Expiration, rateLimit.Value, rateLimit.Key);
+            }
+
+            var result = await _marketdataSender.GetOrderBookAsync(symbol, limit, cancellationToken);
+
+            IncrementCallsMade(requestWeight, limit.ToString());
+
+            return "TODO";
+        }
+
+        /// <inheritdoc />
+        public async Task<string> GetRecentTradesAsync(string symbol, int limit = 500, CancellationToken cancellationToken = default)
+        {
+            var requestWeight = _requestsWeightStorage.RecentTradesWeight;
+            if (CheckLimit(requestWeight.Type, out var rateLimit))
+            {
+                throw new TooManyRequestsException(rateLimit.Expiration, rateLimit.Value, rateLimit.Key);
+            }
+
+            var result = await _marketdataSender.GetRecentTradesAsync(symbol, limit, cancellationToken);
+
+            IncrementCallsMade(requestWeight, limit.ToString());
+
+            return "TODO";
+        }
+
+        #endregion
 
         #region Private methods
 
@@ -155,7 +197,7 @@ namespace TraidingBot.Exchanges.Binance
         /// <summary>
         ///     Увеличивает кол-во сделанных вызовов или создает новую пару значений
         /// </summary>
-        private void IncrementCallsMade(RequestWeight requestWeight, string weightParamKey)
+        private void IncrementCallsMade(RequestWeightModel requestWeight, string weightParamKey)
         {
             var rateLimit = GetRateLimit(requestWeight.Type);
             var key = GetRedisKey(rateLimit.Type);

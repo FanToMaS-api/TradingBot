@@ -30,5 +30,15 @@ namespace ExchangeLibrary
         /// </summary>
         /// <param name="symbol"> Обозначение монеты </param>
         Task<string> GetTradeFeeAsync(string symbol = null, long recvWindow = 5000, CancellationToken cancellationToken = default);
+
+        /// <summary>
+        ///     Получить книгу ордеров по определенной монете
+        /// </summary>
+        Task<string> GetOrderBookAsync(string symbol, int limit = 100, CancellationToken cancellationToken = default);
+
+        /// <summary>
+        ///     Возвращает последние сделки по монете
+        /// </summary>
+        Task<string> GetRecentTradesAsync(string symbol, int limit = 500, CancellationToken cancellationToken = default);
     }
 }

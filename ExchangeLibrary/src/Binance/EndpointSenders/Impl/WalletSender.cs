@@ -13,7 +13,7 @@ namespace ExchangeLibrary.Binance.EndpointSenders.Impl
     /// <summary>
     ///     Отвечает за отправку запросов к конечным точкам кошелька
     /// </summary>
-    internal class WalletEndpointSender : IWalletEndpointSender
+    internal class WalletSender : IWalletSender
     {
         #region Fields
 
@@ -24,8 +24,8 @@ namespace ExchangeLibrary.Binance.EndpointSenders.Impl
 
         #region .ctor
 
-        /// <inheritdoc cref="WalletEndpointSender" />
-        public WalletEndpointSender(IBinanceClient client)
+        /// <inheritdoc cref="WalletSender" />
+        public WalletSender(IBinanceClient client)
         {
             _client = client;
         }
@@ -33,8 +33,6 @@ namespace ExchangeLibrary.Binance.EndpointSenders.Impl
         #endregion
 
         #region Public methods
-
-        /// TODO: Здесь вместо string должны уже возвращаться модели или какие-то смысленные типы, незачем тащить string кучу уровней
 
         /// <inheritdoc />
         public async Task<SystemStatusDto> GetSystemStatusAsync(CancellationToken cancellationToken = default)

@@ -41,6 +41,11 @@
         /// </summary>
         public const string ORDER_BOOK = "/api/v3/depth";
 
+        /// <summary>
+        ///     Недавние сделки
+        /// </summary>
+        public const string RECENT_TRADES = "/api/v3/trades";
+
         #endregion
     }
 }

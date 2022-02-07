@@ -14,10 +14,24 @@ namespace ExchangeLibrary.Binance.DTOs.Marketdata
         [JsonProperty("lastUpdateId")]
         public long LastUpdateId { get; set; }
 
+        /// <summary>
+        ///     Список цен/объемов на покупку
+        /// </summary>
+        /// <remarks>
+        ///     Содержит списки с 2мя элементами, где 1ый это Цена 2ой - кол-во
+        /// </remarks>
         [JsonProperty("bids")]
-        public List<double> Bids { get; set; }
+        public List<List<double>> Bids { get; set; }
 
+        /// <summary>
+        ///     Список цен/объемов на продажу
+        /// </summary>
+        /// <remarks>
+        ///     Содержит списки с 2мя элементами, где 1ый это Цена 2ой - кол-во
+        /// </remarks>
         [JsonProperty("asks")]
-        public List<double> Asks { get; set; }
+        public List<List<double>> Asks { get; set; }
     }
+
+
 }

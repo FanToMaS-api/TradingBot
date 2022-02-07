@@ -16,9 +16,9 @@ using Xunit;
 namespace ExchangeLibraryTests.BinanceTests.EndpointSenders
 {
     /// <summary>
-    ///     Класс, тестирующий <see cref="WalletEndpointSender"/>
+    ///     Класс, тестирующий <see cref="WalletSender"/>
     /// </summary>
-    public class WalletEndpointSenderTest
+    public class WalletSenderTest
     {
         #region Public methods
 
@@ -31,7 +31,7 @@ namespace ExchangeLibraryTests.BinanceTests.EndpointSenders
             var filePath = "..\\..\\..\\BinanceTests\\Jsons\\Wallet\\SYSTEM_STATUS.json";
             using var client = CreateMockHttpClient(BinanceEndpoints.SYSTEM_STATUS, filePath);
             IBinanceClient binanceClient = new BinanceClient(client, "", "");
-            IWalletEndpointSender walletEndpointSender = new WalletEndpointSender(binanceClient);
+            IWalletSender walletEndpointSender = new WalletSender(binanceClient);
 
             // Act
             var result = await walletEndpointSender.GetSystemStatusAsync(CancellationToken.None);
@@ -49,7 +49,7 @@ namespace ExchangeLibraryTests.BinanceTests.EndpointSenders
             var filePath = "..\\..\\..\\BinanceTests\\Jsons\\Wallet\\ALL_COINS_INFORMATION.json";
             using var client = CreateMockHttpClient(BinanceEndpoints.ALL_COINS_INFORMATION, filePath);
             IBinanceClient binanceClient = new BinanceClient(client, "testApiKey", "testSecretKey");
-            IWalletEndpointSender walletEndpointSender = new WalletEndpointSender(binanceClient);
+            IWalletSender walletEndpointSender = new WalletSender(binanceClient);
 
             // Act
             var result = (await walletEndpointSender.GetAllCoinsInformationAsync(7000, CancellationToken.None))
@@ -71,7 +71,7 @@ namespace ExchangeLibraryTests.BinanceTests.EndpointSenders
             var filePath = "..\\..\\..\\BinanceTests\\Jsons\\Wallet\\ACCOUNT_API_TRADING_STATUS.json";
             using var client = CreateMockHttpClient(BinanceEndpoints.ACCOUNT_API_TRADING_STATUS, filePath);
             IBinanceClient binanceClient = new BinanceClient(client, "testApiKey", "testSecretKey");
-            IWalletEndpointSender walletEndpointSender = new WalletEndpointSender(binanceClient);
+            IWalletSender walletEndpointSender = new WalletSender(binanceClient);
 
             // Act
             var result = await walletEndpointSender.GetAccountTraidingStatusAsync(7000, CancellationToken.None);
@@ -93,7 +93,7 @@ namespace ExchangeLibraryTests.BinanceTests.EndpointSenders
             var filePath = "..\\..\\..\\BinanceTests\\Jsons\\Wallet\\TRADE_FEE.json";
             using var client = CreateMockHttpClient(BinanceEndpoints.TRADE_FEE, filePath);
             IBinanceClient binanceClient = new BinanceClient(client, "testApiKey", "testSecretKey");
-            IWalletEndpointSender walletEndpointSender = new WalletEndpointSender(binanceClient);
+            IWalletSender walletEndpointSender = new WalletSender(binanceClient);
 
             // Act
             var result = (await walletEndpointSender.GetTradeFeeAsync()).ToList();
