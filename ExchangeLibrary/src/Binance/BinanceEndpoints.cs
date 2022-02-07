@@ -13,11 +13,6 @@
         public const string SYSTEM_STATUS = "/sapi/v1/system/status";
 
         /// <summary>
-        ///     Статус аккаунта
-        /// </summary>
-        public const string ACCOUNT_STATUS = "/sapi/v1/account/status";
-
-        /// <summary>
         ///     Информация обо всех монетах
         /// </summary>
         public const string ALL_COINS_INFORMATION = "/sapi/v1/capital/config/getall";
@@ -28,7 +23,7 @@
         public const string DAILY_ACCOUNT_SNAPSHOT = "/sapi/v1/accountSnapshot";
 
         /// <summary>
-        ///     Статуст аккаунта (трейдинг)
+        ///     Статус аккаунта (трейдинг)
         /// </summary>
         public const string ACCOUNT_API_TRADING_STATUS = "/sapi/v1/account/apiTradingStatus";
 
@@ -39,8 +34,27 @@
 
         #endregion
 
-        #region MarketData
+        #region Marketdata
 
+        /// <summary>
+        ///     Книга ордеров
+        /// </summary>
+        public const string ORDER_BOOK = "/api/v3/depth";
+
+        /// <summary>
+        ///     Недавние сделки
+        /// </summary>
+        public const string RECENT_TRADES = "/api/v3/trades";
+
+        /// <summary>
+        ///     Исторические сделки
+        /// </summary>
+        public const string OLD_TRADES = "/api/v3/historicalTrades";
+
+        /// <summary>
+        ///     Свечи для монеты
+        /// </summary>
+        public const string CANDLESTICK_DATA = "/api/v3/klines";
 
         #endregion
     }

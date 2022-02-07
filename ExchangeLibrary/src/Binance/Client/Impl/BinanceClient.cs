@@ -115,7 +115,7 @@ namespace ExchangeLibrary.Binance.Client.Impl
                 var response = await _client.SendAsync(request, cancellationToken);
                 if (!response.IsSuccessStatusCode)
                 {
-                    ProcessBadResponse(response);
+                    await ProcessBadResponseAsync(response, cancellationToken);
                 }
 
                 using (var responseContent = response.Content)
@@ -128,18 +128,19 @@ namespace ExchangeLibrary.Binance.Client.Impl
         /// <summary>
         ///     Обработка неверного отвечета с Binance
         /// </summary>
-        private void ProcessBadResponse(HttpResponseMessage response)
+        private async Task ProcessBadResponseAsync(HttpResponseMessage response, CancellationToken cancellationToken)
         {
             using (HttpContent responseContent = response.Content)
             {
                 var statusCode = (int)response.StatusCode;
+                var message = await response.Content.ReadAsStringAsync(cancellationToken);
                 BinanceException httpException = statusCode switch
                 {
-                    403 => new BinanceException(BinanceExceptionType.WAFLimit),
-                    429 => new BinanceException(BinanceExceptionType.RateLimit),
-                    418 => new BinanceException(BinanceExceptionType.Blocked),
-                    >= 500 => new BinanceException(BinanceExceptionType.ServerException),
-                    >= 400 => new BinanceException(BinanceExceptionType.InvalidRequest),
+                    403 => new BinanceException(BinanceExceptionType.WAFLimit, message),
+                    429 => new BinanceException(BinanceExceptionType.RateLimit, message),
+                    418 => new BinanceException(BinanceExceptionType.Blocked, message),
+                    >= 500 => new BinanceException(BinanceExceptionType.ServerException, message),
+                    >= 400 => new BinanceException(BinanceExceptionType.InvalidRequest, message),
                     _ => new BinanceException($"Unknown error type with code")
                 };
 

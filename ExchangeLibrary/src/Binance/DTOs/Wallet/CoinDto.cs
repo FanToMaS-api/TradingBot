@@ -1,11 +1,11 @@
 ﻿using Newtonsoft.Json;
 
-namespace ExchangeLibrary.Binance.DTOs
+namespace ExchangeLibrary.Binance.DTOs.Wallet
 {
     /// <summary>
     ///     Модель монеты
     /// </summary>
-    public class CoinDTO
+    public class CoinDto
     {
         #region Properties
 

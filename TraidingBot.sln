@@ -11,9 +11,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ExchangeLibrary", "Exchange
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Common", "Common\Common.csproj", "{EC3E1D8C-205E-4735-AEB4-C5968CFA583C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExchangeLibraryTests", "ExchangeLibraryTests\ExchangeLibraryTests.csproj", "{89347D96-A3A0-476D-A564-342EF43CBC0D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ExchangeLibraryTests", "ExchangeLibraryTests\ExchangeLibraryTests.csproj", "{89347D96-A3A0-476D-A564-342EF43CBC0D}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{12F24765-46E3-4F00-98C4-0B86F8EB2464}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{518C7A56-4FA5-4D28-9972-D5E3712DB386}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -46,7 +48,10 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
+		{E04F9BD9-1606-48A9-A798-004827517EE7} = {518C7A56-4FA5-4D28-9972-D5E3712DB386}
 		{6DD31040-F598-4DAC-B508-5F38CCACAE12} = {12F24765-46E3-4F00-98C4-0B86F8EB2464}
+		{4A83D430-2BDB-4F38-A020-3486C388CCCF} = {518C7A56-4FA5-4D28-9972-D5E3712DB386}
+		{EC3E1D8C-205E-4735-AEB4-C5968CFA583C} = {518C7A56-4FA5-4D28-9972-D5E3712DB386}
 		{89347D96-A3A0-476D-A564-342EF43CBC0D} = {12F24765-46E3-4F00-98C4-0B86F8EB2464}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution

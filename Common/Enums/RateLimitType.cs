@@ -6,9 +6,14 @@
     public enum RateLimitType
     {
         /// <summary>
-        ///     Запрос
+        ///     Запрос к sapi
         /// </summary>
-        REQUEST_WEIGHT,
+        SAPI_REQUEST,
+
+        /// <summary>
+        ///     Запрос к api
+        /// </summary>
+        API_REQUEST,
 
         /// <summary>
         ///     Заказы
@@ -34,5 +39,10 @@
         ///     Информация о статусе аккаунта
         /// </summary>
         ACCOUNT_STATUS_INFO,
+
+        /// <summary>
+        ///     Информация о таксе за торговлю
+        /// </summary>
+        TRADE_FEE,
     }
 }

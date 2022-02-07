@@ -1,31 +1,25 @@
 ﻿using Common.Enums;
 using Common.Models;
+using ExchangeLibrary.Binance.Models;
 using System;
 
 namespace ExchangeLibrary.Binance
 {
     /// <summary>
-    ///     Настройки для Binance
+    ///     Хранилище лимитов для Binance
     /// </summary>
     internal class RateLimitStorage
     {
-        #region Properties
+        /// <summary>
+        ///     Единый лимит на совокупный вес всех запросов в минуту для IP для всех конечных точек /sapi/*
+        /// </summary>
+        public RateLimit SapiWeightLimit { get; set; } = 
+            new RateLimit(RateLimitType.SAPI_REQUEST, TimeSpan.FromMinutes(1), 12000);
 
         /// <summary>
-        ///     Лимит кол-ва запросов статуса системы
+        ///     Единый лимит на совокупный вес всех запросов в минуту для IP для всех конечных точек /api/*
         /// </summary>
-        public RateLimit SistemStatusLimit { get; set; } = new RateLimit(RateLimitType.SISTEM_STATUS_INFO, TimeSpan.FromMinutes(1), 1);
-        
-        /// <summary>
-        ///     Лимит кол-ва запросов статуса аккаунта
-        /// </summary>
-        public RateLimit AccountStatusLimit { get; set; } = new RateLimit(RateLimitType.ACCOUNT_STATUS_INFO, TimeSpan.FromMinutes(1), 1);
-
-        /// <summary>
-        ///     Лимит кол-ва запросов информации обо всех монетах
-        /// </summary>
-        public RateLimit AllCoinsInfoLimit { get; set; } = new RateLimit(RateLimitType.ALL_COINS_INFO, TimeSpan.FromMinutes(1), 10);
-
-        #endregion
+        public RateLimit ApiWeightLimit { get; set; } = 
+            new RateLimit(RateLimitType.API_REQUEST, TimeSpan.FromMinutes(1), 1200);
     }
 }

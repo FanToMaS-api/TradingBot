@@ -24,7 +24,7 @@ namespace ExchangeLibrary.Binance.Exceptions
         { }
 
         /// <inheritdoc cref="BinanceException"/>
-        public BinanceException(BinanceExceptionType exceptionType, string message, Exception innerException) : base(message, innerException)
+        public BinanceException(BinanceExceptionType exceptionType, string message) : base(message)
         {
             ExceptionType = exceptionType;
         }
@@ -51,7 +51,7 @@ namespace ExchangeLibrary.Binance.Exceptions
         /// <inheritdoc />
         public override string Message => $"Code: {StatusCode}\n" +
             $"Message: {ExceptionType.Display()}\n" +
-            $"Server message: {base.Message}";
+            $"Base message: {base.Message}";
 
         #endregion
 
