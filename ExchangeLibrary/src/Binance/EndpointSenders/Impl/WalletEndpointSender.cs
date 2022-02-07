@@ -1,6 +1,5 @@
-﻿using Common.Models;
-using ExchangeLibrary.Binance.Client;
-using ExchangeLibrary.Binance.DTOs;
+﻿using ExchangeLibrary.Binance.Client;
+using ExchangeLibrary.Binance.DTOs.Wallet;
 using Newtonsoft.Json;
 using NLog;
 using System;
@@ -38,32 +37,61 @@ namespace ExchangeLibrary.Binance.EndpointSenders.Impl
         /// TODO: Здесь вместо string должны уже возвращаться модели или какие-то смысленные типы, незачем тащить string кучу уровней
 
         /// <inheritdoc />
-        public async Task<SystemStatusDTO> GetSystemStatusAsync(CancellationToken cancellationToken)
+        public async Task<SystemStatusDto> GetSystemStatusAsync(CancellationToken cancellationToken = default)
         {
             var result = await _client.SendPublicAsync(
                  BinanceEndpoints.SYSTEM_STATUS,
                  HttpMethod.Get,
                  cancellationToken: cancellationToken);
 
-            return JsonConvert.DeserializeObject<SystemStatusDTO>(result);
+            return JsonConvert.DeserializeObject<SystemStatusDto>(result);
         }
 
-
         /// <inheritdoc />
-        public async Task<string> GetAccountStatusAsync(long recvWindow, CancellationToken cancellationToken) =>
-             await _client.SendSignedAsync(
-                 BinanceEndpoints.ACCOUNT_STATUS,
-                 HttpMethod.Get,
-                 query: new Dictionary<string, object>
-                 {
+        public async Task<AccountTraidingStatusDto> GetAccountTraidingStatusAsync(
+            long recvWindow = 5000,
+            CancellationToken cancellationToken = default)
+        {
+            var result = await _client.SendSignedAsync(
+                BinanceEndpoints.ACCOUNT_API_TRADING_STATUS,
+                HttpMethod.Get,
+                query: new Dictionary<string, object>
+                {
                     { "recvWindow", recvWindow },
                     { "timestamp", DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() },
-                 },
-                 cancellationToken: cancellationToken);
+                },
+                cancellationToken: cancellationToken);
 
+            return JsonConvert.DeserializeObject<AccountTraidingStatusDto>(result);
+        }
 
         /// <inheritdoc />
-        public async Task<IEnumerable<CoinDTO>> GetAllCoinsInformationAsync(long recvWindow, CancellationToken cancellationToken)
+        public async Task<IEnumerable<TradeFeeDto>> GetTradeFeeAsync(
+            string symbol = null,
+            long recvWindow = 5000,
+            CancellationToken cancellationToken = default)
+        {
+            var parameters = new Dictionary<string, object>();
+            if (!string.IsNullOrEmpty(symbol))
+            {
+                parameters["symbol"] = symbol;
+            }
+
+            parameters["recvWindow"] = recvWindow;
+            parameters["timestamp"] = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+            var result = await _client.SendSignedAsync(
+                BinanceEndpoints.TRADE_FEE,
+                HttpMethod.Get,
+                query: parameters,
+                cancellationToken: cancellationToken);
+
+            return JsonConvert.DeserializeObject<IEnumerable<TradeFeeDto>>(result);
+        }
+
+        /// <inheritdoc />
+        public async Task<IEnumerable<CoinDto>> GetAllCoinsInformationAsync(
+            long recvWindow = 5000,
+            CancellationToken cancellationToken = default)
         {
             var result = await _client.SendSignedAsync(
                  BinanceEndpoints.ALL_COINS_INFORMATION,
@@ -75,7 +103,7 @@ namespace ExchangeLibrary.Binance.EndpointSenders.Impl
                  },
                  cancellationToken: cancellationToken);
 
-            return JsonConvert.DeserializeObject<List<CoinDTO>>(result);
+            return JsonConvert.DeserializeObject<List<CoinDto>>(result);
         }
 
 

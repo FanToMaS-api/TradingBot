@@ -1,0 +1,12 @@
+{
+  "data": { 
+    "isLocked": true, // API trading function is locked or not
+    "plannedRecoverTime": 123, // If API trading function is locked, this is the planned recover time
+    "triggerCondition": {
+      "GCR": 150, // Number of GTC orders
+      "IFER": 152, // Number of FOK/IOC orders
+      "UFR": 302 // Number of orders
+    },
+    "updateTime": 1547630471725
+  }
+}

@@ -13,16 +13,22 @@ namespace ExchangeLibrary
         /// <summary>
         ///     Вернуть статус системы
         /// </summary>
-        Task<string> GetSystemStatusAsync(CancellationToken cancellationToken);
+        Task<string> GetSystemStatusAsync(CancellationToken cancellationToken = default);
 
         /// <summary>
         ///     Вернуть статус аккаунта
         /// </summary>
-        Task<string> GetAccountStatusAsync(long recvWindow, CancellationToken cancellationToken);
+        Task<string> GetAccountTraidingStatusAsync(long recvWindow = 5000, CancellationToken cancellationToken = default);
 
         /// <summary>
         ///     Получить всю информацию о монетах
         /// </summary>
-        Task<IEnumerable<ITrade>> GetAllCoinsInformationAsync(long recvWindow, CancellationToken cancellationToken);
+        Task<IEnumerable<ITrade>> GetAllCoinsInformationAsync(long recvWindow = 5000, CancellationToken cancellationToken = default);
+
+        /// <summary>
+        ///     Получить информацию о таксе за все монеты или за определенную
+        /// </summary>
+        /// <param name="symbol"> Обозначение монеты </param>
+        Task<string> GetTradeFeeAsync(string symbol = null, long recvWindow = 5000, CancellationToken cancellationToken = default);
     }
 }

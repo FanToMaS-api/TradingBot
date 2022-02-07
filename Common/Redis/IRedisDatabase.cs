@@ -13,11 +13,11 @@ namespace Common.Redis
         bool TryGetIntValue(string key, out RedisKeyValue<int> model);
 
         /// <summary>
-        ///     Увеличивить занчение или создать новое по ключу с значением по умолчанию <paramref name="defaultValue"/>
+        ///     Увеличивить значение или создать новое по ключу с значением по умолчанию <paramref name="value"/>
         /// </summary>
         /// <param name="key"></param>
-        /// <param name="defaultValue"> Значение по умолчанию </param>
         /// <param name="expiration"> Время экспирации ключа </param>
-        void IncrementOrCreateKeyValue(string key, int defaultValue, TimeSpan expiration);
+        /// <param name="value"> На сколько увеличить значение  </param>
+        void IncrementOrCreateKeyValue(string key, TimeSpan expiration, long value = 1);
     }
 }

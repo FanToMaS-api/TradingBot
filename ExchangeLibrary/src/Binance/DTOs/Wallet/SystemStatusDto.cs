@@ -1,19 +1,12 @@
 ﻿using Newtonsoft.Json;
 
-namespace ExchangeLibrary.Binance.DTOs
+namespace ExchangeLibrary.Binance.DTOs.Wallet
 {
     /// <summary>
     ///     Модель статуса системы
     /// </summary>
-    public class SystemStatusDTO
+    public class SystemStatusDto
     {
-        #region .ctor
-
-        public SystemStatusDTO()
-        { }
-
-        #endregion
-
         #region Properties
 
         /// <summary>

@@ -48,13 +48,13 @@ namespace Common.Redis
         }
 
         /// <inheritdoc />
-        public void IncrementOrCreateKeyValue(string key, int defaultValue, TimeSpan expiration)
+        public void IncrementOrCreateKeyValue(string key, TimeSpan expiration, long value = 1)
         {
             var redisValue = ExecuteRequest(() => _database.StringGetWithExpiry(key));
 
             if (redisValue.Value.HasValue)
             {
-                ExecuteRequest(() => _database.StringIncrement(key));
+                ExecuteRequest(() => _database.StringIncrement(key, value));
 
                 // Случаются моменты, когда ключ создаётся без экспирации
                 // Вручную проставляем экспирацию, поверх имеющихся значений ключа
@@ -65,7 +65,7 @@ namespace Common.Redis
             }
             else
             {
-                ExecuteRequest(() => _database.StringSet(key, defaultValue, expiration));
+                ExecuteRequest(() => _database.StringSet(key, value, expiration));
             }
         }
 
