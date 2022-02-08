@@ -33,19 +33,19 @@ namespace ExchangeLibrary
         Task<string> GetTradeFeeAsync(string symbol = null, long recvWindow = 5000, CancellationToken cancellationToken = default);
 
         /// <summary>
-        ///     Получить книгу ордеров по определенной монете
+        ///     Получить книгу ордеров по определенной паре
         /// </summary>
         Task<string> GetOrderBookAsync(string symbol, int limit = 100, CancellationToken cancellationToken = default);
 
         /// <summary>
-        ///     Возвращает последние сделки по монете
+        ///     Возвращает последние сделки по паре
         /// </summary>
         Task<string> GetRecentTradesAsync(string symbol, int limit = 500, CancellationToken cancellationToken = default);
 
         /// <summary>
         ///     Возвращает исторические сделки
         /// </summary>
-        /// <param name="symbol"> Монета </param>
+        /// <param name="symbol"> Пара </param>
         /// <param name="fromId"> Нижняя граница выгрузки </param>
         /// <param name="limit"> Кол-во сделок (максимум 1000, по умолчанию 500) </param>
         Task<string> GetOldTradesAsync(string symbol, long fromId, int limit = 500, CancellationToken cancellationToken = default);
@@ -65,5 +65,15 @@ namespace ExchangeLibrary
             long? endTime = null,
             int limit = 500,
             CancellationToken cancellationToken = default);
+
+        /// <summary>
+        ///     Возвращает текущую среднюю цену пары
+        /// </summary>
+        Task<string> GetAveragePriceAsync(string symbol, CancellationToken cancellationToken = default);
+
+        /// <summary>
+        ///     Возвращает 24 статистику о цене для пары или для всех пар, если <code><paramref name="symbol" /> = null or ""</code> 
+        /// </summary>
+        Task<string> GetDayPriceChangeAsync(string symbol, CancellationToken cancellationToken = default);
     }
 }

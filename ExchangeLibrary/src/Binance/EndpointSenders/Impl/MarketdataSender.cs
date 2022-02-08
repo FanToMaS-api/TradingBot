@@ -1,8 +1,7 @@
 ﻿using Common.Enums;
 using ExchangeLibrary.Binance.Client;
 using ExchangeLibrary.Binance.DTOs.Marketdata;
-using ExchangeLibrary.Binance.Models;
-using ExchangeLibrary.src.Binance.Enums.Helper;
+using ExchangeLibrary.Binance.Enums.Helper;
 using Newtonsoft.Json;
 using NLog;
 using System.Collections.Generic;
@@ -111,6 +110,45 @@ namespace ExchangeLibrary.Binance.EndpointSenders.Impl
                 cancellationToken: cancellationToken);
 
             return JsonConvert.DeserializeObject<IEnumerable<CandleStickDto>>(result, new CandleStickDtoConverter());
+        }
+
+        /// <inheritdoc />
+        public async Task<AveragePriceDto> GetAveragePriceAsync(string symbol, CancellationToken cancellationToken = default)
+        {
+            var result = await _client.SendPublicAsync(
+                BinanceEndpoints.AVERAGE_PRICE,
+                HttpMethod.Get,
+                query: new Dictionary<string, object>
+                {
+                    { "symbol", symbol },
+                },
+                cancellationToken: cancellationToken);
+
+            return JsonConvert.DeserializeObject<AveragePriceDto>(result);
+        }
+
+        /// <inheritdoc />
+        public async Task<IEnumerable<DayPriceChangeDto>> GetDayPriceChangeAsync(string symbol, CancellationToken cancellationToken = default)
+        {
+            var isNull = string.IsNullOrEmpty(symbol);
+            var responce = await _client.SendPublicAsync(
+                BinanceEndpoints.DAY_PRICE_CHANGE,
+                HttpMethod.Get,
+                query: new Dictionary<string, object>
+                {
+                    { "symbol", symbol },
+                },
+                cancellationToken: cancellationToken);
+
+            if (!isNull)
+            {
+                var result = new List<DayPriceChangeDto>();
+                result.Add(JsonConvert.DeserializeObject<DayPriceChangeDto>(responce));
+
+                return result;
+            }
+
+            return JsonConvert.DeserializeObject<IEnumerable<DayPriceChangeDto>>(responce);
         }
 
         #endregion

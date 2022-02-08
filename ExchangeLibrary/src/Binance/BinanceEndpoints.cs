@@ -56,6 +56,16 @@
         /// </summary>
         public const string CANDLESTICK_DATA = "/api/v3/klines";
 
+        /// <summary>
+        ///     Текущая средняя цена монеты
+        /// </summary>
+        public const string AVERAGE_PRICE = "/api/v3/avgPrice";
+
+        /// <summary>
+        ///     Изменение цены пары за 24 часа
+        /// </summary>
+        public const string DAY_PRICE_CHANGE = "/api/v3/ticker/24hr";
+
         #endregion
     }
 }

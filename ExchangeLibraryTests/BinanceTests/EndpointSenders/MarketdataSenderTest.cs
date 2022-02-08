@@ -1,6 +1,7 @@
 using ExchangeLibrary.Binance;
 using ExchangeLibrary.Binance.Client;
 using ExchangeLibrary.Binance.Client.Impl;
+using ExchangeLibrary.Binance.DTOs.Marketdata;
 using ExchangeLibrary.Binance.EndpointSenders;
 using ExchangeLibrary.Binance.EndpointSenders.Impl;
 using RichardSzalay.MockHttp;
@@ -11,6 +12,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Reflection;
 using Xunit;
 
 namespace ExchangeLibraryTests.BinanceTests.EndpointSenders
@@ -20,6 +22,76 @@ namespace ExchangeLibraryTests.BinanceTests.EndpointSenders
     /// </summary>
     public class MarketdataSenderTest
     {
+        #region Fields
+
+        /// <summary>
+        ///     Ожидаемый результат выполнения запроса 24го изменения цены
+        /// </summary>
+        private static readonly List<DayPriceChangeDto> _expectedDayPriceChange = new List<DayPriceChangeDto>
+        {
+            new DayPriceChangeDto
+            {
+                Symbol = "BNBBTC",
+                PriceChange = -94.99999800,
+                PriceChangePercent = -95.960,
+                WeightedAvgPrice = 0.29628482,
+                PrevClosePrice = 0.10002000,
+                LastPrice = 4.00000200,
+                LastQty = 200.00000000,
+                BidPrice = 4.00000000,
+                BidQty = 100.00000000,
+                AskPrice = 4.00000200,
+                AskQty = 100.00000000,
+                OpenPrice = 99.00000000,
+                HighPrice = 100.00000000,
+                LowPrice = 0.10000000,
+                Volume = 8913.30000000,
+                QuoteVolume = 15.30000000,
+                OpenTimeUnix = 1499783499040,
+                CloseTimeUnix = 1499869899040,
+                FirstId = 28385,
+                LastId = 28460,
+                Count = 76,
+            }
+        };
+
+        #endregion
+
+        #region Data
+
+        /// <summary>
+        ///     Пути к файлам и объекты для проверки для запроса 24х часового изменения цены
+        /// </summary>
+        public static IEnumerable<object[]> DayPriceChangeData =>
+        new List<object[]>
+        {
+            /// тест при запросе информации о паре
+            new object[]
+            {
+                "BNBBTC",
+                "..\\..\\..\\BinanceTests\\Jsons\\Marketdata\\DAY_PRICE_CHANGE_SYMBOL.json",
+               _expectedDayPriceChange
+            },
+
+            /// тест при запросе информации о всех парах
+            new object[]
+            {
+                null,
+                "..\\..\\..\\BinanceTests\\Jsons\\Marketdata\\DAY_PRICE_CHANGE_SYMBOL_IS_NULL.json",
+                _expectedDayPriceChange
+            },
+
+            /// тест при запросе информации о всех парах
+            new object[]
+            {
+                "",
+                "..\\..\\..\\BinanceTests\\Jsons\\Marketdata\\DAY_PRICE_CHANGE_SYMBOL_IS_NULL.json",
+                _expectedDayPriceChange
+            },
+        };
+
+        #endregion
+
         #region Public methods
 
         /// <summary>
@@ -119,6 +191,50 @@ namespace ExchangeLibraryTests.BinanceTests.EndpointSenders
             Assert.Equal(1756.87402397, result[0].BasePurchaseVolume);
             Assert.Equal(28.46694368, result[0].QuotePurchaseVolume);
             Assert.Equal("17928899.62484339", result[0].Ignore);
+        }
+
+        /// <summary>
+        ///     Тест запроса текущей средней цены пары
+        /// </summary>
+        [Fact(DisplayName = "Тест запроса текущей средней цены пары")]
+        public async Task GetAveragePriceAsyncTest()
+        {
+            var filePath = "..\\..\\..\\BinanceTests\\Jsons\\Marketdata\\AVERAGE_PRICE.json";
+            using var client = CreateMockHttpClient(BinanceEndpoints.AVERAGE_PRICE, filePath);
+            IBinanceClient binanceClient = new BinanceClient(client, "", "");
+            IMarketdataSender marketdataSender = new MarketdataSender(binanceClient);
+
+            // Act
+            var result = await marketdataSender.GetAveragePriceAsync("", cancellationToken: CancellationToken.None);
+
+            Assert.Equal(5, result.Mins);
+            Assert.Equal(9.35751834, result.AveragePrice);
+        }
+
+        /// <summary>
+        ///     Тест запроса 24х часового изменения цены пары
+        /// </summary>
+        [Theory(DisplayName = "Тест запроса 24х часового изменения цены пары")]
+        [MemberData(nameof(DayPriceChangeData))]
+        public async Task GetDayPriceChangeAsyncTest(string symbol, string filePath, List<DayPriceChangeDto> expectedDtos)
+        {
+            using var client = CreateMockHttpClient(BinanceEndpoints.DAY_PRICE_CHANGE, filePath);
+            IBinanceClient binanceClient = new BinanceClient(client, "", "");
+            IMarketdataSender marketdataSender = new MarketdataSender(binanceClient);
+
+            // Act
+            var result = (await marketdataSender.GetDayPriceChangeAsync(symbol, cancellationToken: CancellationToken.None)).ToList();
+
+            for (var i = 0; i < result.Count; i++)
+            {
+                var dto = expectedDtos[i];
+                var actual = result[i];
+                var properties = dto.GetType().GetProperties();
+                foreach (var property in properties)
+                {
+                    Assert.Equal(property.GetValue(dto), property.GetValue(actual));
+                }
+            }
         }
 
         #endregion
