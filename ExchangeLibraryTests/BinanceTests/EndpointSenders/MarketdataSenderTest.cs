@@ -240,6 +240,7 @@ namespace ExchangeLibraryTests.BinanceTests.EndpointSenders
         public async Task GetOrderBookAsyncTest()
         {
             var filePath = "../../../BinanceTests/Jsons/Marketdata/ORDER_BOOK.json";
+
             using var client = CreateMockHttpClient(BinanceEndpoints.ORDER_BOOK, filePath);
             IBinanceClient binanceClient = new BinanceClient(client, "", "");
             IMarketdataSender marketdataSender = new MarketdataSender(binanceClient);
