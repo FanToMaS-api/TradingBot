@@ -13,7 +13,7 @@ namespace ExchangeLibrary.Binance.EndpointSenders
     public interface IMarketdataSender
     {
         /// <summary>
-        ///     Получить книгу ордеров по определенной монете
+        ///     Получить ордера из стакана по определенной монете
         /// </summary>
         /// <param name="symbol"> Наименование пары </param>
         /// <param name="limit"> 
@@ -67,9 +67,20 @@ namespace ExchangeLibrary.Binance.EndpointSenders
         Task<AveragePriceDto> GetAveragePriceAsync(string symbol, CancellationToken cancellationToken = default);
 
         /// <summary>
-        ///     Возвращает 24 статистику о цене для пары или для всех пар, если <code><paramref name="symbol" /> = null or ""</code> 
+        ///     Возвращает 24 статистику о цене для пары или для всех пар (если <code><paramref name="symbol" /> = null or ""</code>)
         /// </summary>
-        /// <param name="symbol"> Пара (допустимо null or "") </param>
         Task<IEnumerable<DayPriceChangeDto>> GetDayPriceChangeAsync(string symbol, CancellationToken cancellationToken = default);
+
+        /// <summary>
+        ///     Возвращает последнюю цену для пары или для всех пар (если <code><paramref name="symbol" /> = null or ""</code>)
+        /// </summary>
+        Task<IEnumerable<SymbolPriceTickerDto>> GetSymbolPriceTickerAsync(string symbol, CancellationToken cancellationToken = default);
+
+        /// <summary>
+        ///     Возвращает лучшую цену/количество в стакане для символа или символов
+        /// </summary>
+        Task<IEnumerable<SymbolOrderBookTickerDto>> GetSymbolOrderBookTickerAsync(
+            string symbol,
+            CancellationToken cancellationToken = default);
     }
 }

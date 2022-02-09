@@ -72,8 +72,18 @@ namespace ExchangeLibrary
         Task<string> GetAveragePriceAsync(string symbol, CancellationToken cancellationToken = default);
 
         /// <summary>
-        ///     Возвращает 24 статистику о цене для пары или для всех пар, если <code><paramref name="symbol" /> = null or ""</code> 
+        ///     Возвращает 24 статистику о цене для пары или для всех пар если <code><paramref name="symbol" /> = null or ""</code>)
         /// </summary>
         Task<string> GetDayPriceChangeAsync(string symbol, CancellationToken cancellationToken = default);
+
+        /// <summary>
+        ///     Возвращает последнюю цену для пары или для всех пар (если <code><paramref name="symbol" /> = null or ""</code>)
+        /// </summary>
+        Task<string> GetSymbolPriceTickerAsync(string symbol, CancellationToken cancellationToken = default);
+
+        /// <summary>
+        ///     Возвращает лучшую цену/количество в стакане для символа или символов
+        /// </summary>
+        Task<string> GetSymbolOrderBookTickerAsync(string symbol, CancellationToken cancellationToken = default);
     }
 }

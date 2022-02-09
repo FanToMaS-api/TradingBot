@@ -235,6 +235,40 @@ namespace TraidingBot.Exchanges.Binance
             return "TODO";
         }
 
+        /// <inheritdoc />
+        public async Task<string> GetSymbolPriceTickerAsync(string symbol, CancellationToken cancellationToken = default)
+        {
+            var requestWeight = _requestsWeightStorage.SymbolPriceTickerWeight;
+            if (CheckLimit(requestWeight.Type, out var rateLimit))
+            {
+                throw new TooManyRequestsException(rateLimit.Expiration, rateLimit.Value, rateLimit.Key);
+            }
+
+            var result = await _marketdataSender.GetSymbolPriceTickerAsync(symbol, cancellationToken);
+
+            var key = string.IsNullOrEmpty(symbol) ? "null" : RequestWeightModel.GetDefaultKey();
+            IncrementCallsMade(requestWeight, key);
+
+            return "TODO";
+        }
+
+        /// <inheritdoc />
+        public async Task<string> GetSymbolOrderBookTickerAsync(string symbol, CancellationToken cancellationToken = default)
+        {
+            var requestWeight = _requestsWeightStorage.SymbolOrderBookTickerWeight;
+            if (CheckLimit(requestWeight.Type, out var rateLimit))
+            {
+                throw new TooManyRequestsException(rateLimit.Expiration, rateLimit.Value, rateLimit.Key);
+            }
+
+            var result = await _marketdataSender.GetSymbolOrderBookTickerAsync(symbol, cancellationToken);
+
+            var key = string.IsNullOrEmpty(symbol) ? "null" : RequestWeightModel.GetDefaultKey();
+            IncrementCallsMade(requestWeight, key);
+
+            return "TODO";
+        }
+
         #endregion
 
         #region Private methods
