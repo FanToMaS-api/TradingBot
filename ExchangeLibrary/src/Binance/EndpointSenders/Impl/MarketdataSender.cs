@@ -1,7 +1,7 @@
 ﻿using ExchangeLibrary.Binance.Client;
 using ExchangeLibrary.Binance.DTOs.Marketdata;
+using ExchangeLibrary.Binance.Enums;
 using ExchangeLibrary.Binance.Enums.Helper;
-using ExchangeLibrary.src.Binance.Enums;
 using Newtonsoft.Json;
 using NLog;
 using System.Collections.Generic;
@@ -142,8 +142,10 @@ namespace ExchangeLibrary.Binance.EndpointSenders.Impl
 
             if (!isNull)
             {
-                var result = new List<DayPriceChangeDto>();
-                result.Add(JsonConvert.DeserializeObject<DayPriceChangeDto>(responce));
+                var result = new List<DayPriceChangeDto>
+                {
+                    JsonConvert.DeserializeObject<DayPriceChangeDto>(responce)
+                };
 
                 return result;
             }
@@ -166,8 +168,10 @@ namespace ExchangeLibrary.Binance.EndpointSenders.Impl
 
             if (!isNull)
             {
-                var result = new List<SymbolPriceTickerDto>();
-                result.Add(JsonConvert.DeserializeObject<SymbolPriceTickerDto>(responce));
+                var result = new List<SymbolPriceTickerDto>
+                {
+                    JsonConvert.DeserializeObject<SymbolPriceTickerDto>(responce)
+                };
 
                 return result;
             }
@@ -192,8 +196,10 @@ namespace ExchangeLibrary.Binance.EndpointSenders.Impl
 
             if (!isNull)
             {
-                var result = new List<SymbolOrderBookTickerDto>();
-                result.Add(JsonConvert.DeserializeObject<SymbolOrderBookTickerDto>(responce));
+                var result = new List<SymbolOrderBookTickerDto>
+                {
+                    JsonConvert.DeserializeObject<SymbolOrderBookTickerDto>(responce)
+                };
 
                 return result;
             }

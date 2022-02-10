@@ -16,14 +16,12 @@ namespace ExchangeLibrary.Binance.WebSocket
         #region Fields
 
         private static readonly Logger Log = LogManager.GetCurrentClassLogger();
-        private const string _baseUrl = "wss://stream.binance.com:9443";
-
         private readonly IBinanceWebSocketHumble _webSocketHumble;
-        private List<Func<string, Task>> _onMessageReceivedFunctions = new();
-        private List<CancellationTokenRegistration> _onMessageReceivedCancellationTokenRegistrations = new();
+        private readonly List<Func<string, Task>> _onMessageReceivedFunctions = new();
+        private readonly List<CancellationTokenRegistration> _onMessageReceivedCancellationTokenRegistrations = new();
         private CancellationTokenSource _loopCancellationTokenSource;
-        private Uri _uri;
-        private int _receiveBufferSize;
+        private readonly Uri _uri;
+        private readonly int _receiveBufferSize;
         private bool _isDisposed;
 
         #endregion

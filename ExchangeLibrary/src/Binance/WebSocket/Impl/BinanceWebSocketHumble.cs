@@ -1,5 +1,4 @@
-﻿using ExchangeLibrary.Binance.WebSocket;
-using System;
+﻿using System;
 using System.Net.WebSockets;
 using System.Threading;
 using System.Threading.Tasks;
@@ -13,7 +12,7 @@ namespace ExchangeLibrary.Binance.WebSocket.Impl
     {
         #region Fields
 
-        private ClientWebSocket _webSocket;
+        private readonly ClientWebSocket _webSocket;
 
         #endregion
 

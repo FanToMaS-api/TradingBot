@@ -1,6 +1,4 @@
-﻿using ExchangeLibrary.src.Binance.Enums;
-
-namespace ExchangeLibrary.Binance.Enums.Helper
+﻿namespace ExchangeLibrary.Binance.Enums.Helper
 {
     /// <summary>
     ///     Расширяет enum'ы

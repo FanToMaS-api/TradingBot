@@ -4,7 +4,7 @@ using ExchangeLibrary.Binance.Client.Impl;
 using ExchangeLibrary.Binance.DTOs.Marketdata;
 using ExchangeLibrary.Binance.EndpointSenders;
 using ExchangeLibrary.Binance.EndpointSenders.Impl;
-using ExchangeLibrary.src.Binance.Enums;
+using ExchangeLibrary.Binance.Enums;
 using RichardSzalay.MockHttp;
 using System;
 using System.Collections.Generic;
