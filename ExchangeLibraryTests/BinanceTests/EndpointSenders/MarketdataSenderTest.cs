@@ -68,7 +68,7 @@ namespace ExchangeLibraryTests.BinanceTests.EndpointSenders
             new object[]
             {
                 "BNBBTC",
-                "..\\..\\..\\BinanceTests\\Jsons\\Marketdata\\DAY_PRICE_CHANGE_SYMBOL.json",
+                "../../../BinanceTests/Jsons/Marketdata/DAY_PRICE_CHANGE_SYMBOL.json",
                _expectedDayPriceChange
             },
 
@@ -76,7 +76,7 @@ namespace ExchangeLibraryTests.BinanceTests.EndpointSenders
             new object[]
             {
                 null,
-                "..\\..\\..\\BinanceTests\\Jsons\\Marketdata\\DAY_PRICE_CHANGE_SYMBOL_IS_NULL.json",
+                "../../../BinanceTests/Jsons/Marketdata/DAY_PRICE_CHANGE_SYMBOL_IS_NULL.json",
                 _expectedDayPriceChange
             },
 
@@ -84,7 +84,7 @@ namespace ExchangeLibraryTests.BinanceTests.EndpointSenders
             new object[]
             {
                 "",
-                "..\\..\\..\\BinanceTests\\Jsons\\Marketdata\\DAY_PRICE_CHANGE_SYMBOL_IS_NULL.json",
+                "../../../BinanceTests/Jsons/Marketdata/DAY_PRICE_CHANGE_SYMBOL_IS_NULL.json",
                 _expectedDayPriceChange
             },
         };
@@ -99,7 +99,7 @@ namespace ExchangeLibraryTests.BinanceTests.EndpointSenders
             new object[]
             {
                 "LTCBTC",
-                "..\\..\\..\\BinanceTests\\Jsons\\Marketdata\\SYMBOL_PRICE_TICKER.json",
+                "../../../BinanceTests/Jsons/Marketdata/SYMBOL_PRICE_TICKER.json",
                 new List<SymbolPriceTickerDto>
                 {
                     new SymbolPriceTickerDto
@@ -114,7 +114,7 @@ namespace ExchangeLibraryTests.BinanceTests.EndpointSenders
             new object[]
             {
                 null,
-                "..\\..\\..\\BinanceTests\\Jsons\\Marketdata\\SYMBOL_PRICE_TICKERS.json",
+                "../../../BinanceTests/Jsons/Marketdata/SYMBOL_PRICE_TICKERS.json",
                 new List<SymbolPriceTickerDto>
                 {
                     new SymbolPriceTickerDto
@@ -134,7 +134,7 @@ namespace ExchangeLibraryTests.BinanceTests.EndpointSenders
             new object[]
             {
                 "",
-                "..\\..\\..\\BinanceTests\\Jsons\\Marketdata\\SYMBOL_PRICE_TICKERS.json",
+                "../../../BinanceTests/Jsons/Marketdata/SYMBOL_PRICE_TICKERS.json",
                 new List<SymbolPriceTickerDto>
                 {
                     new SymbolPriceTickerDto
@@ -161,7 +161,7 @@ namespace ExchangeLibraryTests.BinanceTests.EndpointSenders
             new object[]
             {
                 "LTCBTC",
-                "..\\..\\..\\BinanceTests\\Jsons\\Marketdata\\SYMBOL_ORDER_BOOK_TICKER.json",
+                "../../../BinanceTests/Jsons/Marketdata/SYMBOL_ORDER_BOOK_TICKER.json",
                 new List<SymbolOrderBookTickerDto>
                 {
                     new SymbolOrderBookTickerDto
@@ -179,7 +179,7 @@ namespace ExchangeLibraryTests.BinanceTests.EndpointSenders
             new object[]
             {
                 null,
-                "..\\..\\..\\BinanceTests\\Jsons\\Marketdata\\SYMBOL_ORDER_BOOK_TICKERS.json",
+                "../../../BinanceTests/Jsons/Marketdata/SYMBOL_ORDER_BOOK_TICKERS.json",
                 new List<SymbolOrderBookTickerDto>
                 {
                     new SymbolOrderBookTickerDto
@@ -205,7 +205,7 @@ namespace ExchangeLibraryTests.BinanceTests.EndpointSenders
             new object[]
             {
                 "",
-                "..\\..\\..\\BinanceTests\\Jsons\\Marketdata\\SYMBOL_ORDER_BOOK_TICKERS.json",
+                "../../../BinanceTests/Jsons/Marketdata/SYMBOL_ORDER_BOOK_TICKERS.json",
                 new List<SymbolOrderBookTickerDto>
                 {
                     new SymbolOrderBookTickerDto
@@ -235,10 +235,11 @@ namespace ExchangeLibraryTests.BinanceTests.EndpointSenders
         /// <summary>
         ///     Тест запроса списка ордеров для конкретной монеты
         /// </summary>
-        [Fact(DisplayName = "Тест запроса списка ордеров для конкретной монеты")]
+        [Fact(DisplayName = "Test requesting a list of orders for a specific coin")]
         public async Task GetOrderBookAsyncTest()
         {
-            var filePath = "..\\..\\..\\BinanceTests\\Jsons\\Marketdata\\ORDER_BOOK.json";
+            var filePath = "../../../BinanceTests/Jsons/Marketdata/ORDER_BOOK.json";
+
             using var client = CreateMockHttpClient(BinanceEndpoints.ORDER_BOOK, filePath);
             IBinanceClient binanceClient = new BinanceClient(client, "", "");
             IMarketdataSender marketdataSender = new MarketdataSender(binanceClient);
@@ -257,10 +258,10 @@ namespace ExchangeLibraryTests.BinanceTests.EndpointSenders
         /// <summary>
         ///     Тест запроса списка недавних сделок
         /// </summary>
-        [Fact(DisplayName = "Тест запроса списка недавних сделок")]
+        [Fact(DisplayName = "Test recent trades list query")]
         public async Task GetRecentTradesAsyncTest()
         {
-            var filePath = "..\\..\\..\\BinanceTests\\Jsons\\Marketdata\\RECENT_TRADES.json";
+            var filePath = "../../../BinanceTests/Jsons/Marketdata/RECENT_TRADES.json";
             using var client = CreateMockHttpClient(BinanceEndpoints.RECENT_TRADES, filePath);
             IBinanceClient binanceClient = new BinanceClient(client, "", "");
             IMarketdataSender marketdataSender = new MarketdataSender(binanceClient);
@@ -281,10 +282,10 @@ namespace ExchangeLibraryTests.BinanceTests.EndpointSenders
         /// <summary>
         ///     Тест запроса списка исторических сделок
         /// </summary>
-        [Fact(DisplayName = "Тест запроса списка исторических сделок")]
+        [Fact(DisplayName = "Test the request for a list of historical trades")]
         public async Task GetOldTradesAsyncTest()
         {
-            var filePath = "..\\..\\..\\BinanceTests\\Jsons\\Marketdata\\OLD_TRADES.json";
+            var filePath = "../../../BinanceTests/Jsons/Marketdata/OLD_TRADES.json";
             using var client = CreateMockHttpClient(BinanceEndpoints.OLD_TRADES, filePath);
             IBinanceClient binanceClient = new BinanceClient(client, "", "");
             IMarketdataSender marketdataSender = new MarketdataSender(binanceClient);
@@ -305,10 +306,10 @@ namespace ExchangeLibraryTests.BinanceTests.EndpointSenders
         /// <summary>
         ///     Тест запроса списка свечей по монете
         /// </summary>
-        [Fact(DisplayName = "Тест запроса списка свечей по монете")]
+        [Fact(DisplayName = "Test request for a list of candlesticks by coin")]
         public async Task GetCandleStickAsyncTest()
         {
-            var filePath = "..\\..\\..\\BinanceTests\\Jsons\\Marketdata\\CANDLESTICK_DATA.json";
+            var filePath = "../../../BinanceTests/Jsons/Marketdata/CANDLESTICK_DATA.json";
             using var client = CreateMockHttpClient(BinanceEndpoints.CANDLESTICK_DATA, filePath);
             IBinanceClient binanceClient = new BinanceClient(client, "", "");
             IMarketdataSender marketdataSender = new MarketdataSender(binanceClient);
@@ -334,10 +335,10 @@ namespace ExchangeLibraryTests.BinanceTests.EndpointSenders
         /// <summary>
         ///     Тест запроса текущей средней цены пары
         /// </summary>
-        [Fact(DisplayName = "Тест запроса текущей средней цены пары")]
+        [Fact(DisplayName = "Test request for the current average price of a pair")]
         public async Task GetAveragePriceAsyncTest()
         {
-            var filePath = "..\\..\\..\\BinanceTests\\Jsons\\Marketdata\\AVERAGE_PRICE.json";
+            var filePath = "../../../BinanceTests/Jsons/Marketdata/AVERAGE_PRICE.json";
             using var client = CreateMockHttpClient(BinanceEndpoints.AVERAGE_PRICE, filePath);
             IBinanceClient binanceClient = new BinanceClient(client, "", "");
             IMarketdataSender marketdataSender = new MarketdataSender(binanceClient);
@@ -352,7 +353,7 @@ namespace ExchangeLibraryTests.BinanceTests.EndpointSenders
         /// <summary>
         ///     Тест запроса 24х часового изменения цены пары
         /// </summary>
-        [Theory(DisplayName = "Тест запроса 24х часового изменения цены пары")]
+        [Theory(DisplayName = "Test request for a 24-hour change in the price of a pair")]
         [MemberData(nameof(DayPriceChangeData))]
         public async Task GetDayPriceChangeAsyncTest(string symbol, string filePath, List<DayPriceChangeDto> expectedDtos)
         {
@@ -378,7 +379,7 @@ namespace ExchangeLibraryTests.BinanceTests.EndpointSenders
         /// <summary>
         ///     Тест запроса последней цены пары/пар
         /// </summary>
-        [Theory(DisplayName = "Тест запроса последней цены пары/пар")]
+        [Theory(DisplayName = "Test requesting the last price of a pair/pairs")]
         [MemberData(nameof(SymbolPriceTickerData))]
         public async Task GetSymbolPriceTickerAsync(string symbol, string filePath, List<SymbolPriceTickerDto> expectedDtos)
         {
@@ -404,7 +405,7 @@ namespace ExchangeLibraryTests.BinanceTests.EndpointSenders
         /// <summary>
         ///     Тест запроса лучшей цены/количества в стакане для символа или символов
         /// </summary>
-        [Theory(DisplayName = "Тест запроса лучшей цены/количества в стакане для символа или символов")]
+        [Theory(DisplayName = "Test requesting the best price/quantity in the order book for a symbol or symbols")]
         [MemberData(nameof(SymbolOrderBookTickerData))]
         public async Task GetSymbolOrderBookTickerAsyncAsync(string symbol, string filePath, List<SymbolOrderBookTickerDto> expectedDtos)
         {

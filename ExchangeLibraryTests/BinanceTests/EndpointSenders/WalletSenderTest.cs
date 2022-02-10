@@ -25,10 +25,10 @@ namespace ExchangeLibraryTests.BinanceTests.EndpointSenders
         /// <summary>
         ///     Тест запроса статуса системы
         /// </summary>
-        [Fact(DisplayName = "Тест запроса статуса системы")]
+        [Fact(DisplayName = "Test requesting system status")]
         public async Task GetSystemStatusAsyncTest()
         {
-            var filePath = "..\\..\\..\\BinanceTests\\Jsons\\Wallet\\SYSTEM_STATUS.json";
+            var filePath = "../../../BinanceTests/Jsons/Wallet/SYSTEM_STATUS.json";
             using var client = CreateMockHttpClient(BinanceEndpoints.SYSTEM_STATUS, filePath);
             IBinanceClient binanceClient = new BinanceClient(client, "", "");
             IWalletSender walletEndpointSender = new WalletSender(binanceClient);
@@ -43,10 +43,10 @@ namespace ExchangeLibraryTests.BinanceTests.EndpointSenders
         /// <summary>
         ///     Тест запроса информации обо всех монетах
         /// </summary>
-        [Fact(DisplayName = "Тест запроса информации обо всех монетах")]
+        [Fact(DisplayName = "Test requesting information about all coins")]
         public async Task GetAllCoinsInformationAsyncTest()
         {
-            var filePath = "..\\..\\..\\BinanceTests\\Jsons\\Wallet\\ALL_COINS_INFORMATION.json";
+            var filePath = "../../../BinanceTests/Jsons/Wallet/ALL_COINS_INFORMATION.json";
             using var client = CreateMockHttpClient(BinanceEndpoints.ALL_COINS_INFORMATION, filePath);
             IBinanceClient binanceClient = new BinanceClient(client, "testApiKey", "testSecretKey");
             IWalletSender walletEndpointSender = new WalletSender(binanceClient);
@@ -65,10 +65,10 @@ namespace ExchangeLibraryTests.BinanceTests.EndpointSenders
         /// <summary>
         ///     Тест запроса статуса аккаунта
         /// </summary>
-        [Fact(DisplayName = "Тест запроса статуса аккаунта")]
+        [Fact(DisplayName = "Test the request of status of an account request")]
         public async Task GetAccountTraidingStatusAsyncTest()
         {
-            var filePath = "..\\..\\..\\BinanceTests\\Jsons\\Wallet\\ACCOUNT_API_TRADING_STATUS.json";
+            var filePath = "../../../BinanceTests/Jsons/Wallet/ACCOUNT_API_TRADING_STATUS.json";
             using var client = CreateMockHttpClient(BinanceEndpoints.ACCOUNT_API_TRADING_STATUS, filePath);
             IBinanceClient binanceClient = new BinanceClient(client, "testApiKey", "testSecretKey");
             IWalletSender walletEndpointSender = new WalletSender(binanceClient);
@@ -87,10 +87,10 @@ namespace ExchangeLibraryTests.BinanceTests.EndpointSenders
         /// <summary>
         ///     Тест запроса таксы по всем монетам
         /// </summary>
-        [Fact(DisplayName = "Тест запроса таксы по всем монетам")]
+        [Fact(DisplayName = "Еest requesting commission for all coins")]
         public async Task GetTradeFeeAsyncTest()
         {
-            var filePath = "..\\..\\..\\BinanceTests\\Jsons\\Wallet\\TRADE_FEE.json";
+            var filePath = "../../../BinanceTests/Jsons/Wallet/TRADE_FEE.json";
             using var client = CreateMockHttpClient(BinanceEndpoints.TRADE_FEE, filePath);
             IBinanceClient binanceClient = new BinanceClient(client, "testApiKey", "testSecretKey");
             IWalletSender walletEndpointSender = new WalletSender(binanceClient);
