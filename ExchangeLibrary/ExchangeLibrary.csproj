@@ -22,8 +22,4 @@
     <ProjectReference Include="..\Common\Common.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="src\Binance\WebSoket\Impl\" />
-  </ItemGroup>
-
 </Project>
