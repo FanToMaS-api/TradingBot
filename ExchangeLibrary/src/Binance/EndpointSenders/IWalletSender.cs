@@ -26,9 +26,9 @@ namespace ExchangeLibrary.Binance.EndpointSenders
         Task<IEnumerable<CoinDto>> GetAllCoinsInformationAsync(long recvWindow = 5000, CancellationToken cancellationToken = default);
 
         /// <summary>
-        ///     Запрос таксы по всем монетам или по конктретной
+        ///     Запрос таксы по всем парам или по конктретной
         /// </summary>
-        /// <param name="symbol"> Наименование конкретной монеты</param>
+        /// <param name="symbol"> Наименование конкретной пары </param>
         Task<IEnumerable<TradeFeeDto>> GetTradeFeeAsync(string symbol = null, long recvWindow = 5000, CancellationToken cancellationToken = default);
     }
 }

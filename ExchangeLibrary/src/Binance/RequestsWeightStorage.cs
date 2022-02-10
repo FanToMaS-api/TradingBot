@@ -100,6 +100,49 @@ namespace ExchangeLibrary.Binance
                 { RequestWeightModel.GetDefaultKey(), 1 }
             });
 
+        /// <summary>
+        ///     Вес запроса текущей средней цены монеты
+        /// </summary>
+        public RequestWeightModel CurrentAveragePriceWeight { get; set; } = new RequestWeightModel(
+            Enums.ApiType.Api,
+            new()
+            {
+                { RequestWeightModel.GetDefaultKey(), 1 }
+            });
+
+        /// <summary>
+        ///     Вес запроса изменения цены пары за 24 часа
+        /// </summary>
+        public RequestWeightModel DayTickerPriceChangeWeight { get; set; } = new RequestWeightModel(
+            Enums.ApiType.Api,
+            new()
+            {
+                { RequestWeightModel.GetDefaultKey(), 1 },
+                { "null", 40 },
+            });
+        
+        /// <summary>
+        ///     Вес запроса последней цены/цен пары/пар
+        /// </summary>
+        public RequestWeightModel SymbolPriceTickerWeight { get; set; } = new RequestWeightModel(
+            Enums.ApiType.Api,
+            new()
+            {
+                { RequestWeightModel.GetDefaultKey(), 1 },
+                { "null", 2 }, 
+            });
+
+        /// <summary>
+        ///     Вес запроса лучшая цены/количества в стакане для символа или символов
+        /// </summary>
+        public RequestWeightModel SymbolOrderBookTickerWeight { get; set; } = new RequestWeightModel(
+            Enums.ApiType.Api,
+            new()
+            {
+                { RequestWeightModel.GetDefaultKey(), 1 },
+                { "null", 2 },
+            });
+
         #endregion
     }
 }

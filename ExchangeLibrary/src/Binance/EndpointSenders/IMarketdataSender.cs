@@ -13,9 +13,9 @@ namespace ExchangeLibrary.Binance.EndpointSenders
     public interface IMarketdataSender
     {
         /// <summary>
-        ///     Получить книгу ордеров по определенной монете
+        ///     Получить ордера из стакана по определенной монете
         /// </summary>
-        /// <param name="symbol"> Наименование монеты </param>
+        /// <param name="symbol"> Наименование пары </param>
         /// <param name="limit"> 
         ///     Необходимое кол-во ордеров.
         ///     Возможные значения: 5, 10, 20, 50, 100, 500, 1000, 5000
@@ -31,16 +31,16 @@ namespace ExchangeLibrary.Binance.EndpointSenders
         Task<OrderBookDto> GetOrderBookAsync(string symbol, int limit = 100, CancellationToken cancellationToken = default);
 
         /// <summary>
-        ///     Возвращает последние сделки по монете
+        ///     Возвращает последние сделки по паре
         /// </summary>
-        /// <param name="symbol"> Монета </param>
+        /// <param name="symbol"> Пара </param>
         /// <param name="limit"> Кол-во сделок (максимум 1000, по умолчанию 500) </param>
         Task<IEnumerable<RecentTradeDto>> GetRecentTradesAsync(string symbol, int limit = 500, CancellationToken cancellationToken = default);
 
         /// <summary>
-        ///     Возвращает исторические сделки по монете
+        ///     Возвращает исторические сделки по паре
         /// </summary>
-        /// <param name="symbol"> Монета </param>
+        /// <param name="symbol"> Пара </param>
         /// <param name="fromId"> Нижняя граница выгрузки </param>
         /// <param name="limit"> Кол-во сделок (максимум 1000, по умолчанию 500) </param>
         Task<IEnumerable<RecentTradeDto>> GetOldTradesAsync(string symbol, long fromId, int limit = 500, CancellationToken cancellationToken = default);
@@ -59,6 +59,28 @@ namespace ExchangeLibrary.Binance.EndpointSenders
             long? startTime = null,
             long? endTime = null,
             int limit = 500,
+            CancellationToken cancellationToken = default);
+
+        /// <summary>
+        ///     Возвращает текущую среднюю цену пары
+        /// </summary>
+        Task<AveragePriceDto> GetAveragePriceAsync(string symbol, CancellationToken cancellationToken = default);
+
+        /// <summary>
+        ///     Возвращает 24 статистику о цене для пары или для всех пар (если <code><paramref name="symbol" /> = null or ""</code>)
+        /// </summary>
+        Task<IEnumerable<DayPriceChangeDto>> GetDayPriceChangeAsync(string symbol, CancellationToken cancellationToken = default);
+
+        /// <summary>
+        ///     Возвращает последнюю цену для пары или для всех пар (если <code><paramref name="symbol" /> = null or ""</code>)
+        /// </summary>
+        Task<IEnumerable<SymbolPriceTickerDto>> GetSymbolPriceTickerAsync(string symbol, CancellationToken cancellationToken = default);
+
+        /// <summary>
+        ///     Возвращает лучшую цену/количество в стакане для символа или символов
+        /// </summary>
+        Task<IEnumerable<SymbolOrderBookTickerDto>> GetSymbolOrderBookTickerAsync(
+            string symbol,
             CancellationToken cancellationToken = default);
     }
 }

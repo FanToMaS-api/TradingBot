@@ -1,6 +1,5 @@
 ﻿using ExchangeLibrary.Binance.Enums;
-using ExchangeLibrary.src.Binance.Enums.Helper;
-using Newtonsoft.Json;
+using ExchangeLibrary.Binance.Enums.Helper;
 using System;
 using System.Collections.Generic;
 
