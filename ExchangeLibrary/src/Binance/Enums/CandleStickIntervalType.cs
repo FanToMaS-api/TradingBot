@@ -1,4 +1,4 @@
-﻿namespace Common.Enums
+﻿namespace ExchangeLibrary.Binance.Enums
 {
     /// <summary>
     ///     Типы периодов свечей

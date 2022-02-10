@@ -1,7 +1,7 @@
-﻿using Common.Enums;
-using ExchangeLibrary.Binance.Client;
+﻿using ExchangeLibrary.Binance.Client;
 using ExchangeLibrary.Binance.DTOs.Marketdata;
 using ExchangeLibrary.Binance.Enums.Helper;
+using ExchangeLibrary.src.Binance.Enums;
 using Newtonsoft.Json;
 using NLog;
 using System.Collections.Generic;

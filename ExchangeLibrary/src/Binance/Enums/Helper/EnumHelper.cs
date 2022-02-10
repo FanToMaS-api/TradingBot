@@ -1,4 +1,4 @@
-﻿using Common.Enums;
+﻿using ExchangeLibrary.src.Binance.Enums;
 
 namespace ExchangeLibrary.Binance.Enums.Helper
 {
@@ -60,6 +60,26 @@ namespace ExchangeLibrary.Binance.Enums.Helper
                 BinanceExceptionType.ServerException => "Ошибка на стороне сервера (это НЕ говорит о неудачной операции)",
                 null => "",
                 _ => exceptionType.ToString(),
+            };
+        }
+
+        /// <summary>
+        ///     Получит строковое представление стрима для запроса
+        /// </summary>
+        public static string InString(this MarketdataStreamType streamType)
+        {
+            return streamType switch
+            {
+                MarketdataStreamType.AggregateTradeStream => "@aggTrade",
+                MarketdataStreamType.TradeStream => "@trade",
+                MarketdataStreamType.CandleStickStream => "@kline_",
+                MarketdataStreamType.IndividualSymbolMiniTickerStream => "@miniTicker",
+                MarketdataStreamType.AllMarketMiniTickersStream => "!miniTicker@arr",
+                MarketdataStreamType.IndividualSymbolTickerStream => "@ticker",
+                MarketdataStreamType.AllMarketTickersStream => "!ticker@arr",
+                MarketdataStreamType.AllBookTickersStream => "!bookTicker",
+                MarketdataStreamType.PartialBookDepthStream => "@depth",
+                _ => streamType.ToString(),
             };
         }
     }

@@ -1,9 +1,10 @@
-﻿using System;
+﻿using ExchangeLibrary.Binance.WebSocket;
+using System;
 using System.Net.WebSockets;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace ExchangeLibrary.Binance.WebSoket.Impl
+namespace ExchangeLibrary.Binance.WebSocket.Impl
 {
     /// <summary>
     ///     Скромный объект для Binance над <see cref="ClientWebSocket" />
@@ -33,7 +34,8 @@ namespace ExchangeLibrary.Binance.WebSoket.Impl
         #region Public methods
 
         /// <inheritdoc />
-        public async Task ConnectAsync(Uri uri, CancellationToken cancellationToken) => await _webSocket.ConnectAsync(uri, cancellationToken);
+        public async Task ConnectAsync(Uri uri, CancellationToken cancellationToken) =>
+            await _webSocket.ConnectAsync(uri, cancellationToken);
 
         /// <inheritdoc />
         public async Task CloseOutputAsync(WebSocketCloseStatus closeStatus, string statusDescription, CancellationToken cancellationToken) =>
@@ -56,7 +58,7 @@ namespace ExchangeLibrary.Binance.WebSoket.Impl
         #region Implementation IDisposable
 
         /// <inheritdoc />
-        public void Dispose() => _webSocket.Dispose(); 
+        public void Dispose() => _webSocket.Dispose();
 
         #endregion
     }

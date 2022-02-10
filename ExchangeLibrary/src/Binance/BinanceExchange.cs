@@ -11,6 +11,7 @@ using ExchangeLibrary.Binance.EndpointSenders.Impl;
 using ExchangeLibrary.Binance.Enums;
 using ExchangeLibrary.Binance.Exceptions;
 using ExchangeLibrary.Binance.Models;
+using ExchangeLibrary.src.Binance.Enums;
 using NLog;
 using System;
 using System.Collections.Generic;

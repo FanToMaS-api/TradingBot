@@ -4,6 +4,7 @@ using ExchangeLibrary.Binance.Client.Impl;
 using ExchangeLibrary.Binance.DTOs.Marketdata;
 using ExchangeLibrary.Binance.EndpointSenders;
 using ExchangeLibrary.Binance.EndpointSenders.Impl;
+using ExchangeLibrary.src.Binance.Enums;
 using RichardSzalay.MockHttp;
 using System;
 using System.Collections.Generic;
@@ -315,7 +316,7 @@ namespace ExchangeLibraryTests.BinanceTests.EndpointSenders
             IMarketdataSender marketdataSender = new MarketdataSender(binanceClient);
 
             // Act
-            var result = (await marketdataSender.GetCandleStickAsync("", Common.Enums.CandleStickIntervalType.OneMinute, cancellationToken: CancellationToken.None)).ToList();
+            var result = (await marketdataSender.GetCandleStickAsync("", CandleStickIntervalType.OneMinute, cancellationToken: CancellationToken.None)).ToList();
 
             Assert.Single(result);
             Assert.Equal(1499040000000, result[0].OpenTimeUnix);
