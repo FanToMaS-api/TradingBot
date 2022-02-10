@@ -37,7 +37,7 @@
         #region Marketdata
 
         /// <summary>
-        ///     Книга ордеров
+        ///     Ордера из стакана
         /// </summary>
         public const string ORDER_BOOK = "/api/v3/depth";
 
@@ -65,6 +65,16 @@
         ///     Изменение цены пары за 24 часа
         /// </summary>
         public const string DAY_PRICE_CHANGE = "/api/v3/ticker/24hr";
+
+        /// <summary>
+        ///     Последняя цена пары или пар
+        /// </summary>
+        public const string SYMBOL_PRICE_TICKER = "/api/v3/ticker/price";
+
+        /// <summary>
+        ///     Лучшая цена/количество в стакане для символа или символов
+        /// </summary>
+        public const string SYMBOL_ORDER_BOOK_TICKER = "/api/v3/ticker/bookTicker";
 
         #endregion
     }

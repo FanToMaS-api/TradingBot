@@ -151,6 +151,56 @@ namespace ExchangeLibrary.Binance.EndpointSenders.Impl
             return JsonConvert.DeserializeObject<IEnumerable<DayPriceChangeDto>>(responce);
         }
 
+        /// <inheritdoc />
+        public async Task<IEnumerable<SymbolPriceTickerDto>> GetSymbolPriceTickerAsync(string symbol, CancellationToken cancellationToken = default)
+        {
+            var isNull = string.IsNullOrEmpty(symbol);
+            var responce = await _client.SendPublicAsync(
+                BinanceEndpoints.SYMBOL_PRICE_TICKER,
+                HttpMethod.Get,
+                query: new Dictionary<string, object>
+                {
+                    { "symbol", symbol },
+                },
+                cancellationToken: cancellationToken);
+
+            if (!isNull)
+            {
+                var result = new List<SymbolPriceTickerDto>();
+                result.Add(JsonConvert.DeserializeObject<SymbolPriceTickerDto>(responce));
+
+                return result;
+            }
+
+            return JsonConvert.DeserializeObject<IEnumerable<SymbolPriceTickerDto>>(responce);
+        }
+
+        /// <inheritdoc />
+        public async Task<IEnumerable<SymbolOrderBookTickerDto>> GetSymbolOrderBookTickerAsync(
+            string symbol,
+            CancellationToken cancellationToken = default)
+        {
+            var isNull = string.IsNullOrEmpty(symbol);
+            var responce = await _client.SendPublicAsync(
+                BinanceEndpoints.SYMBOL_ORDER_BOOK_TICKER,
+                HttpMethod.Get,
+                query: new Dictionary<string, object>
+                {
+                    { "symbol", symbol },
+                },
+                cancellationToken: cancellationToken);
+
+            if (!isNull)
+            {
+                var result = new List<SymbolOrderBookTickerDto>();
+                result.Add(JsonConvert.DeserializeObject<SymbolOrderBookTickerDto>(responce));
+
+                return result;
+            }
+
+            return JsonConvert.DeserializeObject<IEnumerable<SymbolOrderBookTickerDto>>(responce);
+        }
+
         #endregion
     }
 }

@@ -120,6 +120,28 @@ namespace ExchangeLibrary.Binance
                 { RequestWeightModel.GetDefaultKey(), 1 },
                 { "null", 40 },
             });
+        
+        /// <summary>
+        ///     Вес запроса последней цены/цен пары/пар
+        /// </summary>
+        public RequestWeightModel SymbolPriceTickerWeight { get; set; } = new RequestWeightModel(
+            Enums.ApiType.Api,
+            new()
+            {
+                { RequestWeightModel.GetDefaultKey(), 1 },
+                { "null", 2 }, 
+            });
+
+        /// <summary>
+        ///     Вес запроса лучшая цены/количества в стакане для символа или символов
+        /// </summary>
+        public RequestWeightModel SymbolOrderBookTickerWeight { get; set; } = new RequestWeightModel(
+            Enums.ApiType.Api,
+            new()
+            {
+                { RequestWeightModel.GetDefaultKey(), 1 },
+                { "null", 2 },
+            });
 
         #endregion
     }
