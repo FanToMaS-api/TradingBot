@@ -30,6 +30,30 @@
             };
 
         /// <summary>
+        ///     Переводит период свечи в формате бинанса в удобный для работы <see cref="CandleStickIntervalType"/>
+        /// </summary>
+        public static CandleStickIntervalType ConvertToCandleStickIntervalType(this string intervalType) =>
+            intervalType switch
+            {
+                "1m" => CandleStickIntervalType.OneMinute,
+                "3m" => CandleStickIntervalType.ThreeMinutes,
+                "5m" => CandleStickIntervalType.FiveMinutes,
+                "15m" => CandleStickIntervalType.FifteenMinutes,
+                "30m" => CandleStickIntervalType.ThirtyMinutes,
+                "1h" => CandleStickIntervalType.OneHour,
+                "2h" => CandleStickIntervalType.TwoHour,
+                "4h" => CandleStickIntervalType.FourHours,
+                "6h" => CandleStickIntervalType.SixHours,
+                "8h" => CandleStickIntervalType.EightHours,
+                "12h" => CandleStickIntervalType.TwelveHours,
+                "1d" => CandleStickIntervalType.OneDay,
+                "3d" => CandleStickIntervalType.ThreeDays,
+                "1w" => CandleStickIntervalType.OneWeek,
+                "1M" => CandleStickIntervalType.OneMonth,
+                _ => throw new System.Exception($"Failed to convert '{intervalType}' to {nameof(CandleStickIntervalType)}"),
+            };
+
+        /// <summary>
         ///     Возвращает конечную точку для указанной версии API
         /// </summary>
         public static string GetEndPoint(this ApiVersionType type)

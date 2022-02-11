@@ -3,12 +3,12 @@ using ExchangeLibrary.Binance.Enums.Helper;
 using ExchangeLibrary.Binance.WebSocket.Impl;
 using System.Net.WebSockets;
 
-namespace ExchangeLibrary.Binance.WebSocket
+namespace ExchangeLibrary.Binance.WebSocket.Marketdata
 {
     /// <summary>
     ///     Веб-сокет маркетдаты бинанса
     /// </summary>
-    internal class MarketDataWebSocket : BinanceWebSocket
+    internal class MarketdataWebSocket : BinanceWebSocket
     {
         private const string BaseUrl = "wss://stream.binance.com:9443";
 
@@ -17,7 +17,7 @@ namespace ExchangeLibrary.Binance.WebSocket
         /// </summary>
         /// <param name="symbol"> Пара </param>
         /// <param name="streamType"> Тип стрима, на который подписываемся </param>
-        public MarketDataWebSocket(string symbol, MarketdataStreamType streamType)
+        public MarketdataWebSocket(string symbol, MarketdataStreamType streamType)
         : base(new BinanceWebSocketHumble(new ClientWebSocket()), $"{BaseUrl}/ws/{symbol}/{streamType.InString()}")
         { }
 
@@ -26,7 +26,7 @@ namespace ExchangeLibrary.Binance.WebSocket
         /// </summary>
         /// <param name="symbol"> Пара </param>
         /// <param name="streamType"> Тип стрима, на который подписываемся </param>
-        public MarketDataWebSocket(string symbol, MarketdataStreamType streamType, IBinanceWebSocketHumble webSocketHumble)
+        public MarketdataWebSocket(string symbol, MarketdataStreamType streamType, IBinanceWebSocketHumble webSocketHumble)
         : base(webSocketHumble, $"{BaseUrl}/ws/{symbol}/{streamType.InString()}")
         { }
 
@@ -34,7 +34,7 @@ namespace ExchangeLibrary.Binance.WebSocket
         ///     Подписывыется на указанные стримы
         /// </summary>
         /// <param name="streams"> Элементы symbol streamType </param>
-        public MarketDataWebSocket(string[] streams)
+        public MarketdataWebSocket(string[] streams)
         : base(new BinanceWebSocketHumble(new ClientWebSocket()), $"{BaseUrl}/stream?streams={string.Join("/", streams)}")
         { }
 
@@ -42,7 +42,7 @@ namespace ExchangeLibrary.Binance.WebSocket
         ///     Подписывыется на указанные стримы
         /// </summary>
         /// <param name="streams"> Элементы symbol streamType </param>
-        public MarketDataWebSocket(string[] streams, IBinanceWebSocketHumble webSocketHumble)
+        public MarketdataWebSocket(string[] streams, IBinanceWebSocketHumble webSocketHumble)
         : base(webSocketHumble, BaseUrl + "/stream?streams=" + string.Join("/", streams))
         { }
 
@@ -55,7 +55,7 @@ namespace ExchangeLibrary.Binance.WebSocket
             string symbol,
             CandleStickIntervalType candleStickInterval)
         {
-            return (MarketDataWebSocket)new BinanceWebSocket(
+            return (MarketdataWebSocket)new BinanceWebSocket(
                 new BinanceWebSocketHumble(new ClientWebSocket()),
                 $"{BaseUrl}/ws/{symbol}/{MarketdataStreamType.CandleStickStream.InString()}{candleStickInterval.GetInterval()}");
         }
@@ -65,7 +65,7 @@ namespace ExchangeLibrary.Binance.WebSocket
         /// </summary>
         public static BinanceWebSocket CreateAllMarketMiniTickersStream()
         {
-            return (MarketDataWebSocket)new BinanceWebSocket(
+            return (MarketdataWebSocket)new BinanceWebSocket(
                 new BinanceWebSocketHumble(new ClientWebSocket()),
                 $"{BaseUrl}/ws/{MarketdataStreamType.AllMarketMiniTickersStream.InString()}");
         }
@@ -75,7 +75,7 @@ namespace ExchangeLibrary.Binance.WebSocket
         /// </summary>
         public static BinanceWebSocket CreateAllMarketTickersStream()
         {
-            return (MarketDataWebSocket)new BinanceWebSocket(
+            return (MarketdataWebSocket)new BinanceWebSocket(
                 new BinanceWebSocketHumble(new ClientWebSocket()),
                 $"{BaseUrl}/ws/{MarketdataStreamType.AllMarketTickersStream.InString()}");
         }
@@ -85,7 +85,7 @@ namespace ExchangeLibrary.Binance.WebSocket
         /// </summary>
         public static BinanceWebSocket CreateAllBookTickersStream()
         {
-            return (MarketDataWebSocket)new BinanceWebSocket(
+            return (MarketdataWebSocket)new BinanceWebSocket(
                 new BinanceWebSocketHumble(new ClientWebSocket()),
                 $"{BaseUrl}/ws/{MarketdataStreamType.AllBookTickersStream.InString()}");
         }
@@ -104,7 +104,7 @@ namespace ExchangeLibrary.Binance.WebSocket
                 url += "@100ms";
             }
 
-            return (MarketDataWebSocket)new BinanceWebSocket(
+            return (MarketdataWebSocket)new BinanceWebSocket(
                 new BinanceWebSocketHumble(new ClientWebSocket()),
                 url);
         }

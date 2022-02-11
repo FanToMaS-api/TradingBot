@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 namespace ExchangeLibrary.Binance.WebSocket
 {
     /// <summary>
-    ///     Оболочка над Binance websocket
+    ///     Оболочка над Binance web socket
     /// </summary>
     internal class BinanceWebSocket
     {
