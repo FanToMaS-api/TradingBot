@@ -11,7 +11,7 @@ namespace ExchangeLibrary.Binance.WebSocket
     /// <summary>
     ///     Оболочка над Binance web socket
     /// </summary>
-    internal class BinanceWebSocket
+    public class BinanceWebSocket
     {
         #region Fields
 
@@ -58,8 +58,8 @@ namespace ExchangeLibrary.Binance.WebSocket
             {
                 _loopCancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
                 await _webSocketHumble.ConnectAsync(_uri, cancellationToken);
-                await Task.Factory.StartNew(() =>
-                    ReceiveLoop(_loopCancellationTokenSource.Token, _receiveBufferSize),
+                await Task.Factory.StartNew(
+                    async () => await ReceiveLoopAsync(_loopCancellationTokenSource.Token, _receiveBufferSize),
                     _loopCancellationTokenSource.Token,
                     TaskCreationOptions.LongRunning,
                     TaskScheduler.Default);
@@ -120,7 +120,7 @@ namespace ExchangeLibrary.Binance.WebSocket
         /// <summary>
         ///     Цикл получения данных со стрима сервера
         /// </summary>
-        private async Task ReceiveLoop(CancellationToken cancellationToken, int _receiveBufferSize = 8192)
+        private async Task ReceiveLoopAsync(CancellationToken cancellationToken, int _receiveBufferSize = 8192)
         {
             WebSocketReceiveResult receiveResult = null;
             try
@@ -128,18 +128,25 @@ namespace ExchangeLibrary.Binance.WebSocket
                 while (!cancellationToken.IsCancellationRequested)
                 {
                     var buffer = new ArraySegment<byte>(new byte[_receiveBufferSize]);
-                    receiveResult = await _webSocketHumble.ReceiveAsync(buffer, cancellationToken);
-
-                    if (receiveResult.MessageType == WebSocketMessageType.Close)
+                    try
                     {
-                        Log.Error($"The web socket has been closed");
-                        OnClosed?.Invoke(this, null);
+                        receiveResult = await _webSocketHumble.ReceiveAsync(buffer, cancellationToken);
 
-                        break;
+                        if (receiveResult.MessageType == WebSocketMessageType.Close)
+                        {
+                            Log.Error($"The web socket has been closed");
+                            OnClosed?.Invoke(this, null);
+
+                            break;
+                        }
+
+                        var content = Encoding.UTF8.GetString(buffer.ToArray());
+                        _onMessageReceivedFunctions.ForEach(func => func(content));
                     }
-
-                    var content = Encoding.UTF8.GetString(buffer.ToArray());
-                    _onMessageReceivedFunctions.ForEach(func => func(content));
+                    catch (Exception ex)
+                    {
+                        Log.Error(ex, "Failed to det marketdata");
+                    }
                 }
             }
             catch (TaskCanceledException ex)

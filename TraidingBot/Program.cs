@@ -1,4 +1,5 @@
 ﻿using ExchangeLibrary;
+using ExchangeLibrary.Binance.WebSocket.Marketdata;
 using NLog;
 using System;
 using System.Configuration;
@@ -19,7 +20,24 @@ namespace TraidingBot
             var binance = ExchangeFactory.CreateExchange(ExchangeType.Binance, apiKey, secretKey);
             using var cts = new CancellationTokenSource();
 
-            Console.WriteLine(await binance.GetDayPriceChangeAsync(null, cts.Token));
+            // Console.WriteLine(await binance.GetDayPriceChangeAsync(null, cts.Token));
+
+            var webSoket = MarketdataWebSocket.CreateCandleStickStream(
+                "BNBBTC",
+                ExchangeLibrary.Binance.Enums.CandleStickIntervalType.OneMinute);
+
+            webSoket.AddOnMessageReceivedFunc(
+                _ =>
+                {
+                    Console.WriteLine(_);
+                    return Task.CompletedTask;
+                },
+                cts.Token);
+
+            await webSoket.ConnectAsync(cts.Token);
+
+            await Task.Delay(70000);
+            webSoket.Dispose();
         }
     }
 }
