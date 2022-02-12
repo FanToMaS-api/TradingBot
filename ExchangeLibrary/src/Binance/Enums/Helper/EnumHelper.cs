@@ -94,7 +94,7 @@
             {
                 MarketdataStreamType.AggregateTradeStream => "@aggTrade",
                 MarketdataStreamType.TradeStream => "@trade",
-                MarketdataStreamType.CandleStickStream => "@kline_",
+                MarketdataStreamType.CandlestickStream => "@kline_",
                 MarketdataStreamType.IndividualSymbolMiniTickerStream => "@miniTicker",
                 MarketdataStreamType.AllMarketMiniTickersStream => "!miniTicker@arr",
                 MarketdataStreamType.IndividualSymbolTickerStream => "@ticker",

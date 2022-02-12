@@ -86,7 +86,7 @@ namespace ExchangeLibrary.Binance.EndpointSenders.Impl
         }
 
         /// <inheritdoc />
-        public async Task<IEnumerable<CandleStickDto>> GetCandleStickAsync(
+        public async Task<IEnumerable<CandlestickDto>> GetCandleStickAsync(
             string symbol,
             CandleStickIntervalType interval,
             long? startTime = null,
@@ -115,7 +115,7 @@ namespace ExchangeLibrary.Binance.EndpointSenders.Impl
 
             var converter = new JsonConvertWrapper();
             converter.AddConverter(new CandleStickDtoEnumerableConverter());
-            return converter.Deserialize<IEnumerable<CandleStickDto>>(result);
+            return converter.Deserialize<IEnumerable<CandlestickDto>>(result);
         }
 
         /// <inheritdoc />

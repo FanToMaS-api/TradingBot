@@ -22,7 +22,8 @@ namespace ExchangeLibrary.Binance.WebSocket
         private readonly List<CancellationTokenRegistration> _onMessageReceivedCancellationTokenRegistrations = new();
         private CancellationTokenSource _loopCancellationTokenSource;
         private readonly Uri _uri;
-        private readonly int _receiveBufferSize;
+        private readonly JsonConvertWrapper _jsonConvertWrapper;
+        private readonly int _receiveBufferSize = 8192;
         private bool _isDisposed;
 
         #endregion
@@ -30,11 +31,11 @@ namespace ExchangeLibrary.Binance.WebSocket
         #region .ctor
 
         /// <inheritdoc cref="BinanceWebSocket"/>>
-        public BinanceWebSocket(IBinanceWebSocketHumble socketHumble, string url, int receiveBufferSize = 8192)
+        public BinanceWebSocket(IBinanceWebSocketHumble socketHumble, JsonConvertWrapper jsonConvertWrapper, string url)
         {
+            _jsonConvertWrapper = jsonConvertWrapper;
             _webSocketHumble = socketHumble;
             _uri = new Uri(url);
-            _receiveBufferSize = receiveBufferSize;
         }
 
         #endregion
@@ -146,8 +147,7 @@ namespace ExchangeLibrary.Binance.WebSocket
                         var content = Encoding.UTF8.GetString(buffer.Slice(0, receiveResult.Count).ToArray());
                         _onMessageReceivedFunctions.ForEach(func =>
                         {
-                            var jsonConverter = new JsonConvertWrapper();
-                            var task = func(jsonConverter.Deserialize<T>(content));
+                            var task = func(_jsonConvertWrapper.Deserialize<T>(content));
                             CheckTaskException(task);
                         });
                     }

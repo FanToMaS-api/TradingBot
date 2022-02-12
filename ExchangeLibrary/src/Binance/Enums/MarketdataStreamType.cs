@@ -18,7 +18,7 @@
         /// <summary>
         ///     Поток обновляет информацию о свече пары
         /// </summary>
-        CandleStickStream,
+        CandlestickStream,
 
         /// <summary>
         ///     Индивидуальный поток мини-тикера символа

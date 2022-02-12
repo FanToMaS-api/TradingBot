@@ -23,7 +23,7 @@ namespace TraidingBot
 
             Console.WriteLine(await binance.GetDayPriceChangeAsync(null, cts.Token));
 
-            var webSoket = MarketdataWebSocket<CandleStickStreamDto>.CreateCandleStickStream(
+            var webSoket = MarketdataWebSocket<CandlestickStreamDto>.CreateCandlestickStream(
                 "BNBBTC",
                 ExchangeLibrary.Binance.Enums.CandleStickIntervalType.OneMinute);
 

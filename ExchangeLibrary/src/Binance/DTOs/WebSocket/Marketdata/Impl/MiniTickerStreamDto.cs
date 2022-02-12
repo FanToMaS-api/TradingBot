@@ -14,7 +14,7 @@ namespace ExchangeLibrary.Binance.DTOs.WebSocket.Marketdata.Impl
         /// <summary>
         ///     Цена закрытия
         /// </summary>
-        [JsonPropertyName("с")]
+        [JsonPropertyName("c")]
         public double ClosePrice { get; set; }
 
         /// <summary>

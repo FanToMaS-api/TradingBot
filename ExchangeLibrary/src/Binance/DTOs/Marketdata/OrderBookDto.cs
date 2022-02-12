@@ -1,7 +1,7 @@
-﻿using System;
+﻿using ExchangeLibrary.Binance.DTOs.WebSocket.Marketdata;
+using ExchangeLibrary.Binance.Enums;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -10,8 +10,11 @@ namespace ExchangeLibrary.Binance.DTOs.Marketdata
     /// <summary>
     ///     Модель книги заказов
     /// </summary>
-    public class OrderBookDto
+    public class OrderBookDto : IMarketdataStreamDto
     {
+        /// <inheritdoc />
+        public MarketdataStreamType StreamType => MarketdataStreamType.PartialBookDepthStream;
+
         /// <summary>
         ///    Идентификатор последнего обновления 
         /// </summary>
@@ -110,5 +113,4 @@ namespace ExchangeLibrary.Binance.DTOs.Marketdata
             }
         }
     }
-
 }

@@ -9,7 +9,7 @@ namespace ExchangeLibrary.Binance.DTOs.Marketdata
     /// <summary>
     ///     Модель свечи для монеты
     /// </summary>
-    public class CandleStickDto
+    public class CandlestickDto
     {
         /// <summary>
         ///     Время открытия
@@ -67,9 +67,9 @@ namespace ExchangeLibrary.Binance.DTOs.Marketdata
         public double QuotePurchaseVolume { get; set; }
 
         /// <summary>
-        ///     Устанавливает св-ва для <see cref="CandleStickDto"/>
+        ///     Устанавливает св-ва для <see cref="CandlestickDto"/>
         /// </summary>
-        internal static void SetPropertiesCandleStickDto(ref Utf8JsonReader reader, CandleStickDto result)
+        internal static void SetPropertiesCandleStickDto(ref Utf8JsonReader reader, CandlestickDto result)
         {
             result.OpenTimeUnix = reader.ReadLongAndNext();
             result.OpenPrice = reader.ReadDoubleAndNext();
@@ -85,19 +85,19 @@ namespace ExchangeLibrary.Binance.DTOs.Marketdata
         }
     }
 
-    public class CandleStickDtoEnumerableConverter : JsonConverter<IEnumerable<CandleStickDto>>
+    public class CandleStickDtoEnumerableConverter : JsonConverter<IEnumerable<CandlestickDto>>
     {
         /// <inheritdoc />
-        public override IEnumerable<CandleStickDto> Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+        public override IEnumerable<CandlestickDto> Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
-            var result = new List<CandleStickDto>();
+            var result = new List<CandlestickDto>();
             while (reader.Read())
             {
                 if (reader.TokenType == JsonTokenType.StartArray)
                 {
-                    var newCandleStick = new CandleStickDto();
+                    var newCandleStick = new CandlestickDto();
                     reader.Read();
-                    CandleStickDto.SetPropertiesCandleStickDto(ref reader, newCandleStick);
+                    CandlestickDto.SetPropertiesCandleStickDto(ref reader, newCandleStick);
 
                     result.Add(newCandleStick);
                 }
@@ -107,7 +107,7 @@ namespace ExchangeLibrary.Binance.DTOs.Marketdata
         }
 
         /// <inheritdoc />
-        public override void Write(Utf8JsonWriter writer, IEnumerable<CandleStickDto> value, JsonSerializerOptions options)
+        public override void Write(Utf8JsonWriter writer, IEnumerable<CandlestickDto> value, JsonSerializerOptions options)
         {
             throw new NotImplementedException();
         }
@@ -116,19 +116,19 @@ namespace ExchangeLibrary.Binance.DTOs.Marketdata
     /// <summary>
     ///     Нормально конвертирует полученные данные
     /// </summary>
-    public class CandleStickDtoConverter : JsonConverter<CandleStickDto>
+    public class CandleStickDtoConverter : JsonConverter<CandlestickDto>
     {
         /// <inheritdoc />
-        public override CandleStickDto Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+        public override CandlestickDto Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
-            var result = new CandleStickDto();
+            var result = new CandlestickDto();
 
             while (reader.Read())
             {
                 if (reader.TokenType == JsonTokenType.StartArray)
                 {
                     reader.Read();
-                    CandleStickDto.SetPropertiesCandleStickDto(ref reader, result);
+                    CandlestickDto.SetPropertiesCandleStickDto(ref reader, result);
                 }
             }
 
@@ -136,7 +136,7 @@ namespace ExchangeLibrary.Binance.DTOs.Marketdata
         }
 
         /// <inheritdoc />
-        public override void Write(Utf8JsonWriter writer, CandleStickDto value, JsonSerializerOptions options)
+        public override void Write(Utf8JsonWriter writer, CandlestickDto value, JsonSerializerOptions options)
         {
             throw new NotImplementedException();
         }

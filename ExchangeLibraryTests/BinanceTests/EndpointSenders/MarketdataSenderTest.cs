@@ -99,9 +99,9 @@ namespace ExchangeLibraryTests.BinanceTests.EndpointSenders
                 new object[]
                 {
                     "../../../BinanceTests/Jsons/Marketdata/CANDLESTICK_DATA.json",
-                    new CandleStickDto[]
+                    new CandlestickDto[]
                     {
-                        new CandleStickDto
+                        new CandlestickDto
                         {
                             OpenTimeUnix = 1499040000000,
                             OpenPrice = 0.01634790,
@@ -115,7 +115,7 @@ namespace ExchangeLibraryTests.BinanceTests.EndpointSenders
                             BasePurchaseVolume = 1756.87402397,
                             QuotePurchaseVolume = 28.46694368,
                         },
-                        new CandleStickDto
+                        new CandlestickDto
                         {
                             OpenTimeUnix = 12,
                             OpenPrice = 0.12,
@@ -356,7 +356,7 @@ namespace ExchangeLibraryTests.BinanceTests.EndpointSenders
         /// </summary>
         [Theory(DisplayName = "Request for a list of candlesticks by coin Test")]
         [MemberData(nameof(CandleStickData))]
-        public async Task GetCandleStickAsyncTest(string filePath, CandleStickDto[] expected)
+        public async Task GetCandleStickAsyncTest(string filePath, CandlestickDto[] expected)
         {
             using var client = CreateMockHttpClient(BinanceEndpoints.CANDLESTICK_DATA, filePath);
             IBinanceClient binanceClient = new BinanceClient(client, "", "");
@@ -366,7 +366,7 @@ namespace ExchangeLibraryTests.BinanceTests.EndpointSenders
             var result = (await marketdataSender.GetCandleStickAsync("", CandleStickIntervalType.OneMinute, cancellationToken: CancellationToken.None)).ToList();
 
             Assert.Equal(2, result.Count);
-            var properties = typeof(CandleStickDto).GetProperties();
+            var properties = typeof(CandlestickDto).GetProperties();
             for (var i = 0; i < expected.Length; i++)
             {
                 for (var j = 0; j < properties.Length; j++)

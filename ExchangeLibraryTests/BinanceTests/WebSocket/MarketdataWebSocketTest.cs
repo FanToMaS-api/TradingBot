@@ -1,9 +1,12 @@
-﻿using ExchangeLibrary.Binance.DTOs.WebSocket.Marketdata.Impl;
+﻿using ExchangeLibrary.Binance.DTOs.Marketdata;
+using ExchangeLibrary.Binance.DTOs.WebSocket.Marketdata.Impl;
 using ExchangeLibrary.Binance.Enums;
+using ExchangeLibrary.Binance.Enums.Helper;
 using ExchangeLibrary.Binance.WebSocket;
 using ExchangeLibrary.Binance.WebSocket.Marketdata;
 using NSubstitute;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Net.WebSockets;
 using System.Text;
@@ -42,7 +45,8 @@ namespace ExchangeLibraryTests.BinanceTests.WebSocket
             var bytes = GetBytes("../../../BinanceTests/Jsons/WebSocket/AggregateTradeStreams.json");
             var webSocketHumbleMock = GetMockingBinanceWebHumble(url, bytes);
             using var webSocket = new MarketdataWebSocket<AggregateSymbolTradeStreamDto>(
-                url, MarketdataStreamType.AggregateTradeStream,
+                url,
+                MarketdataStreamType.AggregateTradeStream,
                 webSocketHumbleMock);
 
             webSocket.AddOnMessageReceivedFunc(
@@ -60,6 +64,247 @@ namespace ExchangeLibraryTests.BinanceTests.WebSocket
 
             // Act
             await webSocket.ConnectAsync(CancellationToken.None);
+        }
+
+        /// <summary>
+        ///     Тест подписки на <see cref="MarketdataStreamType.IndividualSymbolBookTickerStream"/>
+        /// </summary>
+        [Fact(DisplayName = "Individual symbol book ticker stream subscription Test")]
+        public async Task SubscriptionBookTickerStreamTest()
+        {
+            var expected = new BookTickerStreamDto
+            {
+                OrderBookUpdatedId = 400900217,
+                Symbol = "BNBUSDT",
+                BestBidPrice = 25.35190000,
+                BestBidQuantity = 31.21000000,
+                BestAskPrice = 25.36520000,
+                BestAskQuantity = 40.66000000,
+            };
+            var url = "wss://stream.binance.com:9443";
+            var bytes = GetBytes("../../../BinanceTests/Jsons/WebSocket/IndividualSymbolBookTickerStream.json");
+            var webSocketHumbleMock = GetMockingBinanceWebHumble(url, bytes);
+            using var webSocket = new MarketdataWebSocket<BookTickerStreamDto>(
+                url,
+                MarketdataStreamType.IndividualSymbolBookTickerStream,
+                webSocketHumbleMock);
+
+            webSocket.AddOnMessageReceivedFunc(
+                async (actual) =>
+                {
+                    var properties = typeof(BookTickerStreamDto).GetProperties();
+                    for (var i = 0; i < properties.Length; i++)
+                    {
+                        Assert.Equal(properties[i].GetValue(expected), properties[i].GetValue(actual));
+                    }
+
+                    await webSocket.DisconnectAsync(CancellationToken.None);
+                },
+                CancellationToken.None);
+
+            // Act
+            await webSocket.ConnectAsync(CancellationToken.None);
+        }
+
+        /// <summary>
+        ///     Тест подписки на <see cref="MarketdataStreamType.CandlestickStream"/>
+        /// </summary>
+        [Fact(DisplayName = "Candlestick stream subscription Test")]
+        public async Task SubscriptionCandlestickStreamTest()
+        {
+            var expected = new CandlestickStreamDto
+            {
+                EventTimeUnix = 123456789,
+                Symbol = "BNBBTC",
+                Kline = new KlineModelDto
+                {
+                    KineStartTimeUnix = 123400000,
+                    KineStopTimeUnix = 123460000,
+                    Symbol = "BNBBTC",
+                    _interval = "1m",
+                    FirstTradeId = 100,
+                    LastTradeId = 200,
+                    OpenPrice = 0.0010,
+                    MinPrice = 0.0015,
+                    MaxPrice = 0.0025,
+                    ClosePrice = 0.0020,
+                    Volume = 1000,
+                    IsKlineClosed = true,
+                    QuoteAssetVolume = 1.0000,
+                    TradesNumber = 100,
+                    BasePurchaseVolume = 500,
+                    QuotePurchaseVolume = 0.500
+                }
+            };
+            var url = "wss://stream.binance.com:9443";
+            var bytes = GetBytes("../../../BinanceTests/Jsons/WebSocket/CandlestickStream.json");
+            var webSocketHumbleMock = GetMockingBinanceWebHumble(url, bytes);
+            using var webSocket = MarketdataWebSocket<CandlestickStreamDto>.CreateCandlestickStream(
+                url,
+                CandleStickIntervalType.OneMinute,
+                webSocketHumbleMock);
+
+            webSocket.AddOnMessageReceivedFunc(
+                async (actual) =>
+                {
+                    Assert.Equal(expected.EventTimeUnix, actual.EventTimeUnix);
+                    Assert.Equal(expected.Symbol, actual.Symbol);
+
+                    var properties = typeof(KlineModelDto).GetProperties();
+                    for (var i = 0; i < properties.Length; i++)
+                    {
+                        Assert.Equal(properties[i].GetValue(expected.Kline), properties[i].GetValue(actual.Kline));
+                    }
+
+                    await webSocket.DisconnectAsync(CancellationToken.None);
+                },
+                CancellationToken.None);
+
+            // Act
+            await webSocket.ConnectAsync(CancellationToken.None);
+        }
+
+        /// <summary>
+        ///     Тест подписки на <see cref="MarketdataStreamType.IndividualSymbolMiniTickerStream"/>
+        /// </summary>
+        [Fact(DisplayName = "Individual symbol mini ticker stream Test")]
+        public async Task SubscriptionMiniTickerStreamTest()
+        {
+            var expected = new MiniTickerStreamDto
+            {
+                EventTimeUnix = 123456789,
+                Symbol = "BNBBTC",
+                ClosePrice = 0.0025,
+                OpenPrice = 0.0010,
+                MinPrice = 0.0008,
+                MaxPrice = 0.0025,
+                BasePurchaseVolume = 10000,
+                QuotePurchaseVolume = 18
+            };
+            var url = "wss://stream.binance.com:9443";
+            var bytes = GetBytes("../../../BinanceTests/Jsons/WebSocket/IndividualSymbolMiniTickerStream.json");
+            var webSocketHumbleMock = GetMockingBinanceWebHumble(url, bytes);
+            using var webSocket = new MarketdataWebSocket<MiniTickerStreamDto>(
+                url,
+                MarketdataStreamType.IndividualSymbolMiniTickerStream,
+                webSocketHumbleMock);
+
+            webSocket.AddOnMessageReceivedFunc(
+                async (actual) =>
+                {
+                    var properties = typeof(MiniTickerStreamDto).GetProperties();
+                    for (var i = 0; i < properties.Length; i++)
+                    {
+                        Assert.Equal(properties[i].GetValue(expected), properties[i].GetValue(actual));
+                    }
+
+                    await webSocket.DisconnectAsync(CancellationToken.None);
+                },
+                CancellationToken.None);
+
+            // Act
+            await webSocket.ConnectAsync(CancellationToken.None);
+        }
+
+        /// <summary>
+        ///     Тест подписки на <see cref="MarketdataStreamType.PartialBookDepthStream"/>
+        /// </summary>
+        [Fact(DisplayName = "Partial book depth stream Test")]
+        public async Task SubscriptionPartialBookDepthStreamTest()
+        {
+            var expected = new OrderBookDto
+            {
+                LastUpdateId = 160,
+                Bids = new List<PriceQtyPair>
+                {
+                    new PriceQtyPair
+                    {
+                        Price = 0.0024,
+                        Qty = 10
+                    },
+                    new PriceQtyPair
+                    {
+                        Price = 0.0025,
+                        Qty = 11
+                    },
+                },
+                Asks = new List<PriceQtyPair>
+                {
+                    new PriceQtyPair
+                    {
+                        Price = 0.0026,
+                        Qty = 100
+                    },
+                    new PriceQtyPair
+                    {
+                        Price = 0.0027,
+                        Qty = 111
+                    },
+                }
+            };
+            var url = "wss://stream.binance.com:9443";
+            var bytes = GetBytes("../../../BinanceTests/Jsons/WebSocket/PartialBookDepthStream.json");
+            var webSocketHumbleMock = GetMockingBinanceWebHumble(url, bytes);
+            using var webSocket = MarketdataWebSocket<OrderBookDto>.CreatePartialBookDepthStream(
+                url,
+                webSocketHumbleMock);
+
+            webSocket.AddOnMessageReceivedFunc(
+                async (actual) =>
+                {
+                    Assert.Equal(expected.Bids.Count, actual.Bids.Count);
+                    Assert.Equal(expected.Asks.Count, actual.Asks.Count);
+                    Assert.Equal(expected.LastUpdateId, actual.LastUpdateId);
+                    Assert.Equal(expected.Bids[0].Price, actual.Bids[0].Price);
+                    Assert.Equal(expected.Bids[0].Qty, actual.Bids[0].Qty);
+                    Assert.Equal(expected.Bids[1].Price, actual.Bids[1].Price);
+                    Assert.Equal(expected.Bids[1].Qty, actual.Bids[1].Qty);
+                    Assert.Equal(expected.Asks[0].Price, actual.Asks[0].Price);
+                    Assert.Equal(expected.Asks[0].Qty, actual.Asks[0].Qty);
+                    Assert.Equal(expected.Asks[1].Price, actual.Asks[1].Price);
+                    Assert.Equal(expected.Asks[1].Qty, actual.Asks[1].Qty);
+
+                    await webSocket.DisconnectAsync(CancellationToken.None);
+                },
+                CancellationToken.None);
+
+            // Act
+            await webSocket.ConnectAsync(CancellationToken.None);
+        }
+
+        /// <summary>
+        ///     Проверка верной конвертации значений периодов свечей
+        /// </summary>
+        [Fact(DisplayName = "Candlesticks Interval Convertation Test")]
+        public void CandlestickIntervalConversionTest()
+        {
+            var intervalstringViews = new List<string>
+            { "1m", "3m", "5m", "15m", "30m", "1h", "2h", "4h", "6h", "8h", "12h", "1d", "3d", "1w", "1M" };
+            var intervals = new List<CandleStickIntervalType>
+            {
+
+                CandleStickIntervalType.OneMinute,
+                CandleStickIntervalType.ThreeMinutes,
+                CandleStickIntervalType.FiveMinutes,
+                CandleStickIntervalType.FifteenMinutes,
+                CandleStickIntervalType.ThirtyMinutes,
+                CandleStickIntervalType.OneHour,
+                CandleStickIntervalType.TwoHour,
+                CandleStickIntervalType.FourHours,
+                CandleStickIntervalType.SixHours,
+                CandleStickIntervalType.EightHours,
+                CandleStickIntervalType.TwelveHours,
+                CandleStickIntervalType.OneDay,
+                CandleStickIntervalType.ThreeDays,
+                CandleStickIntervalType.OneWeek,
+                CandleStickIntervalType.OneMonth
+            };
+
+            for (var i = 0; i < intervalstringViews.Count; i++)
+            {
+                Assert.Equal(intervalstringViews[i], intervals[i].GetInterval());
+                Assert.Equal(intervalstringViews[i].ConvertToCandleStickIntervalType(), intervals[i]);
+            }
         }
 
         #endregion

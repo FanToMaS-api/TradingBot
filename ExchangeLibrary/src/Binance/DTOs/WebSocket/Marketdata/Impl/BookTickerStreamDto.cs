@@ -21,6 +21,12 @@ namespace ExchangeLibrary.Binance.DTOs.WebSocket.Marketdata.Impl
         public long OrderBookUpdatedId { get; set; }
 
         /// <summary>
+        ///     Имя пары
+        /// </summary>
+        [JsonPropertyName("s")]
+        public string Symbol { get; set; }
+
+        /// <summary>
         ///    Лучшая цена спроса
         /// </summary>
         [JsonPropertyName("b")]

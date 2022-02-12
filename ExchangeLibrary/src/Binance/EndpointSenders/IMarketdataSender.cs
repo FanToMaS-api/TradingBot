@@ -52,7 +52,7 @@ namespace ExchangeLibrary.Binance.EndpointSenders
         /// <param name="startTime"> Время начала построения </param>
         /// <param name="endTime"> Окончание периода </param>
         /// <param name="limit"> Кол-во свечей (максимум 1000, по умолчанию 500) </param>
-        Task<IEnumerable<CandleStickDto>> GetCandleStickAsync(
+        Task<IEnumerable<CandlestickDto>> GetCandleStickAsync(
             string symbol,
             CandleStickIntervalType interval,
             long? startTime = null,

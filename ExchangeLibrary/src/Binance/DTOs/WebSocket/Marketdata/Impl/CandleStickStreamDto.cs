@@ -7,10 +7,10 @@ namespace ExchangeLibrary.Binance.DTOs.WebSocket.Marketdata.Impl
     /// <summary>
     ///     Модель потока обновления информации о свече пары
     /// </summary>
-    public class CandleStickStreamDto : MarketdataStreamDtoBase, IMarketdataStreamDto
+    public class CandlestickStreamDto : MarketdataStreamDtoBase, IMarketdataStreamDto
     {
         /// <inheritdoc />
-        public MarketdataStreamType StreamType => MarketdataStreamType.CandleStickStream;
+        public MarketdataStreamType StreamType => MarketdataStreamType.CandlestickStream;
 
         /// <summary>
         ///     Данные о свече
