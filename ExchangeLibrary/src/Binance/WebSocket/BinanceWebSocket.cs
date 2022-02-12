@@ -1,4 +1,5 @@
-﻿using NLog;
+﻿using Common.JsonConvertWrapper;
+using NLog;
 using System;
 using System.Collections.Generic;
 using System.Net.WebSockets;
@@ -11,13 +12,13 @@ namespace ExchangeLibrary.Binance.WebSocket
     /// <summary>
     ///     Оболочка над Binance websocket
     /// </summary>
-    public class BinanceWebSocket : IDisposable
+    public class BinanceWebSocket<T> : IDisposable
     {
         #region Fields
 
         private static readonly Logger Log = LogManager.GetCurrentClassLogger();
         private readonly IBinanceWebSocketHumble _webSocketHumble;
-        private readonly List<Func<string, Task>> _onMessageReceivedFunctions = new();
+        private readonly List<Func<T, Task>> _onMessageReceivedFunctions = new();
         private readonly List<CancellationTokenRegistration> _onMessageReceivedCancellationTokenRegistrations = new();
         private CancellationTokenSource _loopCancellationTokenSource;
         private readonly Uri _uri;
@@ -88,7 +89,7 @@ namespace ExchangeLibrary.Binance.WebSocket
         /// <summary>
         ///     Добавляет обработчик на получение ответа от сокета 
         /// </summary>
-        public void AddOnMessageReceivedFunc(Func<string, Task> onMessageReceivedFunc, CancellationToken cancellationToken)
+        public void AddOnMessageReceivedFunc(Func<T, Task> onMessageReceivedFunc, CancellationToken cancellationToken)
         {
             _onMessageReceivedFunctions.Add(onMessageReceivedFunc);
 
@@ -145,7 +146,8 @@ namespace ExchangeLibrary.Binance.WebSocket
                         var content = Encoding.UTF8.GetString(buffer.ToArray());
                         _onMessageReceivedFunctions.ForEach(func =>
                         {
-                            var task = func(content);
+                            var jsonConverter = new JsonConvertWrapper();
+                            var task = func(jsonConverter.Deserialize<T>(content));
                             CheckTaskException(task);
                         });
                     }

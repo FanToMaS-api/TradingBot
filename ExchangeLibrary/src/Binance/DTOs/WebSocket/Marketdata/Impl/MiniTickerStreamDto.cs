@@ -1,21 +1,22 @@
-﻿using ExchangeLibrary.Binance.Enums;
+﻿using ExchangeLibrary.Binance.DTOs.WebSocket.Marketdata;
+using ExchangeLibrary.Binance.Enums;
 using System.Text.Json.Serialization;
 
-namespace ExchangeLibrary.Binance.DTOs.WebSocket.Marketdata
+namespace ExchangeLibrary.Binance.DTOs.WebSocket.Marketdata.Impl
 {
     /// <summary>
     ///     Модель индивидуального потока мини-тикера символа
     /// </summary>
-    internal class MiniTickerStreamDto : MarketdataStreamDtoBase
+    internal class MiniTickerStreamDto : MarketdataStreamDtoBase, IMarketdataStreamDto
     {
         /// <inheritdoc />
-        public override MarketdataStreamType StreamType => MarketdataStreamType.IndividualSymbolMiniTickerStream;
+        public MarketdataStreamType StreamType => MarketdataStreamType.IndividualSymbolMiniTickerStream;
 
         /// <summary>
         ///     Цена закрытия
         /// </summary>
         [JsonPropertyName("с")]
-        public double ClosePrice{ get; set; }
+        public double ClosePrice { get; set; }
 
         /// <summary>
         ///     Цена открытия

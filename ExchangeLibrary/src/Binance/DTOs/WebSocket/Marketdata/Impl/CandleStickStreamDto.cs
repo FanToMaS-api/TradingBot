@@ -1,16 +1,17 @@
-﻿using ExchangeLibrary.Binance.Enums;
+﻿using ExchangeLibrary.Binance.DTOs.WebSocket.Marketdata;
+using ExchangeLibrary.Binance.Enums;
 using ExchangeLibrary.Binance.Enums.Helper;
 using System.Text.Json.Serialization;
 
-namespace ExchangeLibrary.Binance.DTOs.WebSocket.Marketdata
+namespace ExchangeLibrary.Binance.DTOs.WebSocket.Marketdata.Impl
 {
     /// <summary>
     ///     Модель потока обновления информации о свече пары
     /// </summary>
-    internal class CandleStickStreamDto : MarketdataStreamDtoBase
+    internal class CandleStickStreamDto : MarketdataStreamDtoBase, IMarketdataStreamDto
     {
         /// <inheritdoc />
-        public override MarketdataStreamType StreamType => MarketdataStreamType.CandleStickStream;
+        public MarketdataStreamType StreamType => MarketdataStreamType.CandleStickStream;
 
         /// <summary>
         ///     Данные о свече
@@ -116,7 +117,7 @@ namespace ExchangeLibrary.Binance.DTOs.WebSocket.Marketdata
         /// <summary>
         ///     Объем базового актива, который купили тейкеры
         /// </summary>
-        [JsonPropertyName("V")] 
+        [JsonPropertyName("V")]
         public double BasePurchaseVolume { get; set; }
 
         /// <summary>

@@ -1,5 +1,4 @@
-﻿using Common.JsonConvertWrapper;
-using ExchangeLibrary.Binance.DTOs.WebSocket.Marketdata;
+﻿using ExchangeLibrary.Binance.DTOs.WebSocket.Marketdata.Impl;
 using ExchangeLibrary.Binance.Enums;
 using ExchangeLibrary.Binance.WebSocket;
 using ExchangeLibrary.Binance.WebSocket.Marketdata;
@@ -42,14 +41,11 @@ namespace ExchangeLibraryTests.BinanceTests.WebSocket
             var url = "wss://stream.binance.com:9443";
             var bytes = GetBytes("../../../BinanceTests/Jsons/WebSocket/AggregateTradeStreams.json");
             var webSocketHumbleMock = GetMockingBinanceWebHumble(url, bytes);
-            using var webSocket = new MarketdataWebSocket(url, MarketdataStreamType.AggregateTradeStream, webSocketHumbleMock, bytes.Length);
+            using var webSocket = new MarketdataWebSocket<AggregateSymbolTradeStreamDto>(url, MarketdataStreamType.AggregateTradeStream, webSocketHumbleMock, bytes.Length);
 
             webSocket.AddOnMessageReceivedFunc(
-                async (json) =>
+                async (actual) =>
                 {
-                    var converter = new JsonConvertWrapper();
-                    var actual = converter.Deserialize<AggregateSymbolTradeStreamDto>(json);
-
                     var properties = typeof(AggregateSymbolTradeStreamDto).GetProperties();
                     for (var i = 0; i < properties.Length; i++)
                     {

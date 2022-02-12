@@ -1,15 +1,16 @@
-﻿using ExchangeLibrary.Binance.Enums;
+﻿using ExchangeLibrary.Binance.DTOs.WebSocket.Marketdata;
+using ExchangeLibrary.Binance.Enums;
 using System.Text.Json.Serialization;
 
-namespace ExchangeLibrary.Binance.DTOs.WebSocket.Marketdata
+namespace ExchangeLibrary.Binance.DTOs.WebSocket.Marketdata.Impl
 {
     /// <summary>
     ///     Модель данных с потока необработанной торговой информации; у каждой сделки есть уникальный покупатель и продавец
     /// </summary>
-    internal class SymbolTradeStreamDto : MarketdataStreamDtoBase
+    internal class SymbolTradeStreamDto : MarketdataStreamDtoBase, IMarketdataStreamDto
     {
         /// <inheritdoc />
-        public override MarketdataStreamType StreamType => MarketdataStreamType.TradeStream;
+        public MarketdataStreamType StreamType => MarketdataStreamType.TradeStream;
 
         /// <summary>
         ///     Идентификатор заказа продавца

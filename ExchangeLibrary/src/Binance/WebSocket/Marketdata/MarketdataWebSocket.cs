@@ -1,4 +1,5 @@
-﻿using ExchangeLibrary.Binance.Enums;
+﻿using ExchangeLibrary.Binance.DTOs.WebSocket.Marketdata;
+using ExchangeLibrary.Binance.Enums;
 using ExchangeLibrary.Binance.Enums.Helper;
 using ExchangeLibrary.Binance.WebSocket.Impl;
 using System.Net.WebSockets;
@@ -8,7 +9,8 @@ namespace ExchangeLibrary.Binance.WebSocket.Marketdata
     /// <summary>
     ///     Веб-сокет маркетдаты бинанса
     /// </summary>
-    public class MarketdataWebSocket : BinanceWebSocket
+    public class MarketdataWebSocket<T> : BinanceWebSocket<T>
+        where T : IMarketdataStreamDto
     {
         private const string BaseUrl = "wss://stream.binance.com:9443";
 
@@ -25,7 +27,10 @@ namespace ExchangeLibrary.Binance.WebSocket.Marketdata
         /// <param name="symbol"> Пара (в нижнем регистре) </param>
         /// <param name="streamType"> Тип стрима, на который подписываемся </param>
         public MarketdataWebSocket(string symbol, MarketdataStreamType streamType, int receiveBufferSize = 8192)
-        : base(new BinanceWebSocketHumble(new ClientWebSocket()), $"{BaseUrl}/ws/{symbol.ToLower()}{streamType.InString()}", receiveBufferSize)
+        : base(
+              new BinanceWebSocketHumble(new ClientWebSocket()),
+              $"{BaseUrl}/ws/{symbol.ToLower()}{streamType.InString()}",
+              receiveBufferSize)
         { }
 
         /// <summary>
@@ -46,7 +51,10 @@ namespace ExchangeLibrary.Binance.WebSocket.Marketdata
         /// </summary>
         /// <param name="streams"> Элементы symbol(в нижнем регистре) streamType </param>
         public MarketdataWebSocket(string[] streams, int receiveBufferSize = 8192)
-        : base(new BinanceWebSocketHumble(new ClientWebSocket()), $"{BaseUrl}/stream?streams={string.Join("/", streams)}", receiveBufferSize)
+        : base(
+              new BinanceWebSocketHumble(new ClientWebSocket()),
+              $"{BaseUrl}/stream?streams={string.Join("/", streams)}",
+              receiveBufferSize)
         { }
 
         /// <summary>
@@ -62,12 +70,12 @@ namespace ExchangeLibrary.Binance.WebSocket.Marketdata
         /// </summary>
         /// <param name="symbol"> Пара (в нижнем регистре) </param>
         /// <param name="candleStickInterval"> Временной интервал изменения свечи </param>
-        public static MarketdataWebSocket CreateCandleStickStream(
+        public static MarketdataWebSocket<T> CreateCandleStickStream(
             string symbol,
             CandleStickIntervalType candleStickInterval,
             int receiveBufferSize = 8192)
         {
-            return new MarketdataWebSocket(
+            return new MarketdataWebSocket<T>(
                 new BinanceWebSocketHumble(new ClientWebSocket()),
                 $"{BaseUrl}/ws/{symbol.ToLower()}{MarketdataStreamType.CandleStickStream.InString()}{candleStickInterval.GetInterval()}",
                 receiveBufferSize);
@@ -76,9 +84,9 @@ namespace ExchangeLibrary.Binance.WebSocket.Marketdata
         /// <summary>
         ///     Получать статистику всех мини-тикеров за 24 часа
         /// </summary>
-        public static BinanceWebSocket CreateAllMarketMiniTickersStream(int receiveBufferSize = 8192)
+        public static MarketdataWebSocket<T> CreateAllMarketMiniTickersStream(int receiveBufferSize = 8192)
         {
-            return new MarketdataWebSocket(
+            return new MarketdataWebSocket<T>(
                 new BinanceWebSocketHumble(new ClientWebSocket()),
                 $"{BaseUrl}/ws/{MarketdataStreamType.AllMarketMiniTickersStream.InString()}",
                 receiveBufferSize);
@@ -87,9 +95,9 @@ namespace ExchangeLibrary.Binance.WebSocket.Marketdata
         /// <summary>
         ///     Получать статистику всех тикеров за 24 часа
         /// </summary>
-        public static BinanceWebSocket CreateAllMarketTickersStream(int receiveBufferSize = 8192)
+        public static MarketdataWebSocket<T> CreateAllMarketTickersStream(int receiveBufferSize = 8192)
         {
-            return new MarketdataWebSocket(
+            return new MarketdataWebSocket<T>(
                 new BinanceWebSocketHumble(new ClientWebSocket()),
                 $"{BaseUrl}/ws/{MarketdataStreamType.AllMarketTickersStream.InString()}",
                 receiveBufferSize);
@@ -98,9 +106,9 @@ namespace ExchangeLibrary.Binance.WebSocket.Marketdata
         /// <summary>
         ///     Получать обновления лучшей цены покупки или продажи или количество в режиме реального времени для всех символов
         /// </summary>
-        public static BinanceWebSocket CreateAllBookTickersStream(int receiveBufferSize = 8192)
+        public static MarketdataWebSocket<T> CreateAllBookTickersStream(int receiveBufferSize = 8192)
         {
-            return new MarketdataWebSocket(
+            return new MarketdataWebSocket<T>(
                 new BinanceWebSocketHumble(new ClientWebSocket()),
                 $"{BaseUrl}/ws/{MarketdataStreamType.AllBookTickersStream.InString()}",
                 receiveBufferSize);
@@ -112,7 +120,7 @@ namespace ExchangeLibrary.Binance.WebSocket.Marketdata
         /// <param name="symbol"> Пара (в нижнем регистре) </param>
         /// <param name="levels"> Кол-во оредеров. Допустимые значения 5, 10, 20 </param>
         /// <param name="activateFastReceive"> Активировать прием данных раз в 100 миллисекунд </param>
-        public static BinanceWebSocket CreatePartialBookDepthStream(
+        public static MarketdataWebSocket<T> CreatePartialBookDepthStream(
             string symbol,
             int levels = 10,
             bool activateFastReceive = false, 
@@ -124,7 +132,7 @@ namespace ExchangeLibrary.Binance.WebSocket.Marketdata
                 url += "@100ms";
             }
 
-            return new MarketdataWebSocket(
+            return new MarketdataWebSocket<T>(
                 new BinanceWebSocketHumble(new ClientWebSocket()),
                 url,
                 receiveBufferSize);

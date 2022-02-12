@@ -8,10 +8,7 @@ namespace ExchangeLibrary.Binance.DTOs.WebSocket.Marketdata
     /// </summary>
     internal class MarketdataStreamDtoBase
     {
-        /// <summary>
-        ///     Тип стрима с которого получаем данные
-        /// </summary>
-        public virtual MarketdataStreamType StreamType { get; }
+
 
         /// <summary>
         ///     Время события
@@ -24,11 +21,5 @@ namespace ExchangeLibrary.Binance.DTOs.WebSocket.Marketdata
         /// </summary>
         [JsonPropertyName("s")]
         public string Symbol { get; set; }
-
-        ///// <summary>
-        /////     Имя стрима (можно игнорировать)
-        ///// </summary>
-        //[JsonIgnore]
-        //private string StreamName { get; set; }
     }
 }

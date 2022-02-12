@@ -1,12 +1,14 @@
-﻿using ExchangeLibrary.Binance.Enums;
+﻿using ExchangeLibrary.Binance.DTOs.WebSocket.Marketdata;
+using ExchangeLibrary.Binance.Enums;
 using System.Text.Json.Serialization;
 
-namespace ExchangeLibrary.Binance.DTOs.WebSocket.Marketdata
+namespace ExchangeLibrary.Binance.DTOs.WebSocket.Marketdata.Impl
 {
     /// <summary>
-    ///     
+    ///     Модель данных обновления лучшей цены или количества спроса или предложения
+    ///     в режиме реального времени для указанного символа
     /// </summary>
-    internal class BookTickerStreamDto
+    internal class BookTickerStreamDto : IMarketdataStreamDto
     {
         /// <summary>
         ///     Тип стрима с которого получаем данные

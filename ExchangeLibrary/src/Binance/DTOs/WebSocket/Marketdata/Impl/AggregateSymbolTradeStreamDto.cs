@@ -1,15 +1,16 @@
-﻿using ExchangeLibrary.Binance.Enums;
+﻿using ExchangeLibrary.Binance.DTOs.WebSocket.Marketdata;
+using ExchangeLibrary.Binance.Enums;
 using System.Text.Json.Serialization;
 
-namespace ExchangeLibrary.Binance.DTOs.WebSocket.Marketdata
+namespace ExchangeLibrary.Binance.DTOs.WebSocket.Marketdata.Impl
 {
     /// <summary>
     ///     Модель данных с потока торговой информации, которая агрегируется для одного ордера тейкера
     /// </summary>
-    internal class AggregateSymbolTradeStreamDto : MarketdataStreamDtoBase
+    internal class AggregateSymbolTradeStreamDto : MarketdataStreamDtoBase, IMarketdataStreamDto
     {
         /// <inheritdoc />
-        public override MarketdataStreamType StreamType => MarketdataStreamType.AggregateTradeStream;
+        public MarketdataStreamType StreamType => MarketdataStreamType.AggregateTradeStream;
 
         /// <summary>
         ///     Совокупное Id сделки

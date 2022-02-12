@@ -1,15 +1,16 @@
-﻿using ExchangeLibrary.Binance.Enums;
+﻿using ExchangeLibrary.Binance.DTOs.WebSocket.Marketdata;
+using ExchangeLibrary.Binance.Enums;
 using System.Text.Json.Serialization;
 
-namespace ExchangeLibrary.Binance.DTOs.WebSocket.Marketdata
+namespace ExchangeLibrary.Binance.DTOs.WebSocket.Marketdata.Impl
 {
     /// <summary>
     ///     Модель статистики бегущего окна за 24 часа для одного символа
     /// </summary>
-    internal class TickerStreamDto : MarketdataStreamDtoBase
+    internal class TickerStreamDto : MarketdataStreamDtoBase, IMarketdataStreamDto
     {
         /// <inheritdoc />
-        public override MarketdataStreamType StreamType => MarketdataStreamType.IndividualSymbolTickerStream;
+        public MarketdataStreamType StreamType => MarketdataStreamType.IndividualSymbolTickerStream;
 
         /// <summary>
         ///    Цена
@@ -105,7 +106,7 @@ namespace ExchangeLibrary.Binance.DTOs.WebSocket.Marketdata
         ///    Время открытия статистики
         /// </summary>
         [JsonPropertyName("O")]
-        public long StatisticOpenTimeUnix{ get; set; }
+        public long StatisticOpenTimeUnix { get; set; }
 
         /// <summary>
         ///    Время закрытия статистики
