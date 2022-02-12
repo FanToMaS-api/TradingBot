@@ -48,24 +48,6 @@ namespace Common.JsonConvertWrapper.Converters
 
         /// <inheritdoc />
         public override void Write(Utf8JsonWriter writer, object value, JsonSerializerOptions options)
-        {
-            var str = value.ToString();
-            if (int.TryParse(str, out var i))
-            {
-                writer.WriteNumberValue(i);
-            }
-            else if (double.TryParse(str, out var d))
-            {
-                writer.WriteNumberValue(d);
-            }
-            else if (long.TryParse(str, out var l))
-            {
-                writer.WriteNumberValue(l);
-            }
-            else
-            {
-                throw new Exception($"Unable to parse {str} to number");
-            }
-        }
+        { }
     }
 }

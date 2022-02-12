@@ -1,5 +1,4 @@
-﻿using ExchangeLibrary.Binance.DTOs.WebSocket.Marketdata;
-using ExchangeLibrary.Binance.Enums;
+﻿using ExchangeLibrary.Binance.Enums;
 using ExchangeLibrary.Binance.Enums.Helper;
 using System.Text.Json.Serialization;
 
@@ -8,7 +7,7 @@ namespace ExchangeLibrary.Binance.DTOs.WebSocket.Marketdata.Impl
     /// <summary>
     ///     Модель потока обновления информации о свече пары
     /// </summary>
-    internal class CandleStickStreamDto : MarketdataStreamDtoBase, IMarketdataStreamDto
+    public class CandleStickStreamDto : MarketdataStreamDtoBase, IMarketdataStreamDto
     {
         /// <inheritdoc />
         public MarketdataStreamType StreamType => MarketdataStreamType.CandleStickStream;
@@ -23,7 +22,7 @@ namespace ExchangeLibrary.Binance.DTOs.WebSocket.Marketdata.Impl
     /// <summary>
     ///     Модель данных о свече
     /// </summary>
-    internal class KlineModelDto
+    public class KlineModelDto
     {
         /// <summary>
         ///     Время открытия свечи
@@ -49,10 +48,10 @@ namespace ExchangeLibrary.Binance.DTOs.WebSocket.Marketdata.Impl
         public CandleStickIntervalType Interval => _interval.ConvertToCandleStickIntervalType();
 
         /// <summary>
-        ///     Интервал
+        ///     Интервал (нужен для парса json)
         /// </summary>
         [JsonPropertyName("i")]
-        private string _interval { get; set; }
+        public string _interval { get; set; }
 
         /// <summary>
         ///     Первое Id сделки

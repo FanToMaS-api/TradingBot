@@ -1,5 +1,4 @@
-﻿using ExchangeLibrary.Binance.DTOs.WebSocket.Marketdata;
-using ExchangeLibrary.Binance.Enums;
+﻿using ExchangeLibrary.Binance.Enums;
 using System.Text.Json.Serialization;
 
 namespace ExchangeLibrary.Binance.DTOs.WebSocket.Marketdata.Impl
@@ -7,7 +6,7 @@ namespace ExchangeLibrary.Binance.DTOs.WebSocket.Marketdata.Impl
     /// <summary>
     ///     Модель индивидуального потока мини-тикера символа
     /// </summary>
-    internal class MiniTickerStreamDto : MarketdataStreamDtoBase, IMarketdataStreamDto
+    public class MiniTickerStreamDto : MarketdataStreamDtoBase, IMarketdataStreamDto
     {
         /// <inheritdoc />
         public MarketdataStreamType StreamType => MarketdataStreamType.IndividualSymbolMiniTickerStream;

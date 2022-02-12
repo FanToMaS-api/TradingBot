@@ -1,5 +1,4 @@
-﻿using ExchangeLibrary.Binance.DTOs.WebSocket.Marketdata;
-using ExchangeLibrary.Binance.Enums;
+﻿using ExchangeLibrary.Binance.Enums;
 using System.Text.Json.Serialization;
 
 namespace ExchangeLibrary.Binance.DTOs.WebSocket.Marketdata.Impl
@@ -7,7 +6,7 @@ namespace ExchangeLibrary.Binance.DTOs.WebSocket.Marketdata.Impl
     /// <summary>
     ///     Модель статистики бегущего окна за 24 часа для одного символа
     /// </summary>
-    internal class TickerStreamDto : MarketdataStreamDtoBase, IMarketdataStreamDto
+    public class TickerStreamDto : MarketdataStreamDtoBase, IMarketdataStreamDto
     {
         /// <inheritdoc />
         public MarketdataStreamType StreamType => MarketdataStreamType.IndividualSymbolTickerStream;

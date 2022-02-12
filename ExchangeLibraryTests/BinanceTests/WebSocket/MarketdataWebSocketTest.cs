@@ -41,7 +41,9 @@ namespace ExchangeLibraryTests.BinanceTests.WebSocket
             var url = "wss://stream.binance.com:9443";
             var bytes = GetBytes("../../../BinanceTests/Jsons/WebSocket/AggregateTradeStreams.json");
             var webSocketHumbleMock = GetMockingBinanceWebHumble(url, bytes);
-            using var webSocket = new MarketdataWebSocket<AggregateSymbolTradeStreamDto>(url, MarketdataStreamType.AggregateTradeStream, webSocketHumbleMock, bytes.Length);
+            using var webSocket = new MarketdataWebSocket<AggregateSymbolTradeStreamDto>(
+                url, MarketdataStreamType.AggregateTradeStream,
+                webSocketHumbleMock);
 
             webSocket.AddOnMessageReceivedFunc(
                 async (actual) =>
@@ -94,7 +96,7 @@ namespace ExchangeLibraryTests.BinanceTests.WebSocket
                         ((ArraySegment<byte>)_[0])[i] = bytes[i];
                     }
 
-                    return new WebSocketReceiveResult(1, WebSocketMessageType.Text, true);
+                    return new WebSocketReceiveResult(bytes.Length, WebSocketMessageType.Text, true);
                 });
 
             return binanceWebSocketHumble;

@@ -134,7 +134,7 @@ namespace ExchangeLibrary.Binance.WebSocket
                     try
                     {
                         receiveResult = await _webSocketHumble.ReceiveAsync(buffer, cancellationToken);
-
+                        
                         if (receiveResult.MessageType == WebSocketMessageType.Close)
                         {
                             Log.Error($"The web socket has been closed");
@@ -143,7 +143,7 @@ namespace ExchangeLibrary.Binance.WebSocket
                             break;
                         }
 
-                        var content = Encoding.UTF8.GetString(buffer.ToArray());
+                        var content = Encoding.UTF8.GetString(buffer.Slice(0, receiveResult.Count).ToArray());
                         _onMessageReceivedFunctions.ForEach(func =>
                         {
                             var jsonConverter = new JsonConvertWrapper();

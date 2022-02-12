@@ -1,15 +1,12 @@
-﻿using ExchangeLibrary.Binance.Enums;
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
 
 namespace ExchangeLibrary.Binance.DTOs.WebSocket.Marketdata
 {
     /// <summary>
     ///     Базовый класс моделей получаемых со стримов маркетдаты
     /// </summary>
-    internal class MarketdataStreamDtoBase
+    public class MarketdataStreamDtoBase
     {
-
-
         /// <summary>
         ///     Время события
         /// </summary>
