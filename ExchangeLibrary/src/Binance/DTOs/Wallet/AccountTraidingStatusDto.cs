@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace ExchangeLibrary.Binance.DTOs.Wallet
 {
@@ -12,7 +13,7 @@ namespace ExchangeLibrary.Binance.DTOs.Wallet
         /// <summary>
         ///     Содержит инфу об аккаунте
         /// </summary>
-        [JsonProperty("data")]
+        [JsonPropertyName("data")]
         public DataDto Data { get; set; }
 
         #endregion
@@ -28,25 +29,25 @@ namespace ExchangeLibrary.Binance.DTOs.Wallet
         /// <summary>
         ///     Заблокирован ли трейдер
         /// </summary>
-        [JsonProperty("isLocked")]
+        [JsonPropertyName("isLocked")]
         public bool IsLocked { get; set; }
 
         /// <summary>
         ///     Если торговля запрещена, указывает время до ее восстановления
         /// </summary>
-        [JsonProperty("plannedRecoverTime")]
+        [JsonPropertyName("plannedRecoverTime")]
         public long PlannedRecoverTimeUnix { get; set; }
 
         /// <summary>
         ///     Содержит инфу об ордерах 
         /// </summary>
-        [JsonProperty("triggerCondition")]
+        [JsonPropertyName("triggerCondition")]
         public TriggerConditionDto TriggerCondition { get; set; }
 
         /// <summary>
         ///     Время обновления
         /// </summary>
-        [JsonProperty("updateTime")]
+        [JsonPropertyName("updateTime")]
         public long UpdateTimeUnix { get; set; }
 
         #endregion
@@ -60,19 +61,19 @@ namespace ExchangeLibrary.Binance.DTOs.Wallet
         /// <summary>
         ///     Количество ордеров GCR
         /// </summary>
-        [JsonProperty("GCR")]
+        [JsonPropertyName("GCR")]
         public int GCR { get; set; }
 
         /// <summary>
         ///     Количество ордеров FOK/IOC
         /// </summary>
-        [JsonProperty("IFER")]
+        [JsonPropertyName("IFER")]
         public int IFER { get; set; }
 
         /// <summary>
         ///     Количество ордеров
         /// </summary>
-        [JsonProperty("UFR")]
+        [JsonPropertyName("UFR")]
         public int UFR { get; set; }
     }
 }

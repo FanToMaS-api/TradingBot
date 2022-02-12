@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json;
+﻿using System.Text.Json.Serialization;
 
 namespace ExchangeLibrary.Binance.DTOs.Marketdata
 {
@@ -10,13 +10,13 @@ namespace ExchangeLibrary.Binance.DTOs.Marketdata
         /// <summary>
         ///     Кол-во минут выборки данных средней цены
         /// </summary>
-        [JsonProperty("mins")]
+        [JsonPropertyName("mins")]
         public int Mins { get; set; }
 
         /// <summary>
         ///     Текущая средняя цена
         /// </summary>
-        [JsonProperty("price")]
+        [JsonPropertyName("price")]
         public double AveragePrice { get; set; }
     }
 }

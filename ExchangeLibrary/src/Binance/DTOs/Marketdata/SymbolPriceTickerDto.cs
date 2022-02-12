@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json;
+﻿using System.Text.Json.Serialization;
 
 namespace ExchangeLibrary.Binance.DTOs.Marketdata
 {
@@ -10,13 +10,13 @@ namespace ExchangeLibrary.Binance.DTOs.Marketdata
         /// <summary>
         ///     Название пары
         /// </summary>
-        [JsonProperty("symbol")]
+        [JsonPropertyName("symbol")]
         public string Symbol { get; set; }
 
         /// <summary>
         ///     Цена
         /// </summary>
-        [JsonProperty("price")]
+        [JsonPropertyName("price")]
         public double Price { get; set; }
     }
 }

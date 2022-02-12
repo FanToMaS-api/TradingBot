@@ -1,5 +1,5 @@
 ﻿using ExchangeLibrary.Binance.Enums;
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace ExchangeLibrary.Binance.DTOs.WebSocket.Marketdata
 {
@@ -14,37 +14,37 @@ namespace ExchangeLibrary.Binance.DTOs.WebSocket.Marketdata
         /// <summary>
         ///     Идентификатор заказа продавца
         /// </summary>
-        [JsonProperty("a")]
+        [JsonPropertyName("a")]
         public long SellerOrderId { get; set; }
 
         /// <summary>
         ///     Идентификатор заказа покупателя
         /// </summary>
-        [JsonProperty("b")]
+        [JsonPropertyName("b")]
         public long BuyerOrderId { get; set; }
 
         /// <summary>
         ///     Цена сделки
         /// </summary>
-        [JsonProperty("p")]
+        [JsonPropertyName("p")]
         public double Price { get; set; }
 
         /// <summary>
         ///     Объем сделки
         /// </summary>
-        [JsonProperty("q")]
+        [JsonPropertyName("q")]
         public double Quantity { get; set; }
 
         /// <summary>
         ///     Время Id сделки
         /// </summary>
-        [JsonProperty("T")]
+        [JsonPropertyName("T")]
         public long TradeTimeUnix { get; set; }
 
         /// <summary>
         ///     Является ли покупатель маркет-мейкером?
         /// </summary>
-        [JsonProperty("m")]
+        [JsonPropertyName("m")]
         public bool IsMarketMaker { get; set; }
     }
 }

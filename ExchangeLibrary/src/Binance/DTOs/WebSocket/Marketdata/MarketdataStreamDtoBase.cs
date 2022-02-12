@@ -1,5 +1,5 @@
 ﻿using ExchangeLibrary.Binance.Enums;
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace ExchangeLibrary.Binance.DTOs.WebSocket.Marketdata
 {
@@ -16,13 +16,19 @@ namespace ExchangeLibrary.Binance.DTOs.WebSocket.Marketdata
         /// <summary>
         ///     Время события
         /// </summary>
-        [JsonProperty("E")]
+        [JsonPropertyName("E")]
         public long EventTimeUnix { get; set; }
 
         /// <summary>
         ///     Пара тикеров
         /// </summary>
-        [JsonProperty("s")]
+        [JsonPropertyName("s")]
         public string Symbol { get; set; }
+
+        ///// <summary>
+        /////     Имя стрима (можно игнорировать)
+        ///// </summary>
+        //[JsonIgnore]
+        //private string StreamName { get; set; }
     }
 }

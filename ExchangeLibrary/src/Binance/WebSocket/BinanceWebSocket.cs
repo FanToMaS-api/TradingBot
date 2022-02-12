@@ -9,9 +9,9 @@ using System.Threading.Tasks;
 namespace ExchangeLibrary.Binance.WebSocket
 {
     /// <summary>
-    ///     Оболочка над Binance web socket
+    ///     Оболочка над Binance websocket
     /// </summary>
-    public class BinanceWebSocket
+    public class BinanceWebSocket : IDisposable
     {
         #region Fields
 
@@ -58,11 +58,13 @@ namespace ExchangeLibrary.Binance.WebSocket
             {
                 _loopCancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
                 await _webSocketHumble.ConnectAsync(_uri, cancellationToken);
-                await Task.Factory.StartNew(
+                var task = await Task.Factory.StartNew(
                     async () => await ReceiveLoopAsync(_loopCancellationTokenSource.Token, _receiveBufferSize),
                     _loopCancellationTokenSource.Token,
                     TaskCreationOptions.LongRunning,
                     TaskScheduler.Default);
+
+                task.Wait();
             }
         }
 
@@ -120,7 +122,7 @@ namespace ExchangeLibrary.Binance.WebSocket
         /// <summary>
         ///     Цикл получения данных со стрима сервера
         /// </summary>
-        private async Task ReceiveLoopAsync(CancellationToken cancellationToken, int _receiveBufferSize = 8192)
+        private async Task ReceiveLoopAsync(CancellationToken cancellationToken, int _receiveBufferSize)
         {
             WebSocketReceiveResult receiveResult = null;
             try
@@ -141,11 +143,16 @@ namespace ExchangeLibrary.Binance.WebSocket
                         }
 
                         var content = Encoding.UTF8.GetString(buffer.ToArray());
-                        _onMessageReceivedFunctions.ForEach(func => func(content));
+                        _onMessageReceivedFunctions.ForEach(func =>
+                        {
+                            var task = func(content);
+                            CheckTaskException(task);
+                        });
                     }
                     catch (Exception ex)
                     {
-                        Log.Error(ex, "Failed to det marketdata");
+                        Log.Error(ex, "Failed to get data from stream");
+                        throw;
                     }
                 }
             }
@@ -153,6 +160,21 @@ namespace ExchangeLibrary.Binance.WebSocket
             {
                 Log.Error(ex, $"The recieve loop was cancelled.");
                 await DisconnectAsync(CancellationToken.None);
+            }
+        }
+
+        /// <summary>
+        ///     Проверяет на успешное завершение таски, бросает исключения если таска провалилась
+        /// </summary>
+        /// <param name="task"></param>
+        private void CheckTaskException(Task task)
+        {
+            if (task.Status == TaskStatus.Faulted)
+            {
+                foreach (var e in task.Exception.InnerExceptions)
+                {
+                    throw e;
+                }
             }
         }
 

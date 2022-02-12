@@ -1,5 +1,5 @@
 ﻿using ExchangeLibrary.Binance.Enums;
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace ExchangeLibrary.Binance.DTOs.WebSocket.Marketdata
 {
@@ -16,31 +16,31 @@ namespace ExchangeLibrary.Binance.DTOs.WebSocket.Marketdata
         /// <summary>
         ///     Идентификатор обновления книги заказов
         /// </summary>
-        [JsonProperty("u")]
+        [JsonPropertyName("u")]
         public long OrderBookUpdatedId { get; set; }
 
         /// <summary>
         ///    Лучшая цена спроса
         /// </summary>
-        [JsonProperty("b")]
+        [JsonPropertyName("b")]
         public double BestBidPrice { get; set; }
 
         /// <summary>
         ///    Лучшая объем спроса
         /// </summary>
-        [JsonProperty("B")]
+        [JsonPropertyName("B")]
         public double BestBidQuantity { get; set; }
 
         /// <summary>
         ///    Лучшая цена предложения
         /// </summary>
-        [JsonProperty("a")]
+        [JsonPropertyName("a")]
         public double BestAskPrice { get; set; }
 
         /// <summary>
         ///    Лучшая объем предложения
         /// </summary>
-        [JsonProperty("A")]
+        [JsonPropertyName("A")]
         public double BestAskQuantity { get; set; }
     }
 }

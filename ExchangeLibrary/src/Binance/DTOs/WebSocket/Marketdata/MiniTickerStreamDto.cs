@@ -1,5 +1,5 @@
 ﻿using ExchangeLibrary.Binance.Enums;
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace ExchangeLibrary.Binance.DTOs.WebSocket.Marketdata
 {
@@ -14,37 +14,37 @@ namespace ExchangeLibrary.Binance.DTOs.WebSocket.Marketdata
         /// <summary>
         ///     Цена закрытия
         /// </summary>
-        [JsonProperty("с")]
+        [JsonPropertyName("с")]
         public double ClosePrice{ get; set; }
 
         /// <summary>
         ///     Цена открытия
         /// </summary>
-        [JsonProperty("o")]
+        [JsonPropertyName("o")]
         public double OpenPrice { get; set; }
 
         /// <summary>
         ///     Минимальная цена
         /// </summary>
-        [JsonProperty("l")]
+        [JsonPropertyName("l")]
         public double MinPrice { get; set; }
 
         /// <summary>
         ///     Максимальная цена
         /// </summary>
-        [JsonProperty("h")]
+        [JsonPropertyName("h")]
         public double MaxPrice { get; set; }
 
         /// <summary>
         ///     Объем базового актива, который купили тейкеры
         /// </summary>
-        [JsonProperty("v")]
+        [JsonPropertyName("v")]
         public double BasePurchaseVolume { get; set; }
 
         /// <summary>
         ///     Объем актива по котировке тейкера на покупку
         /// </summary>
-        [JsonProperty("q")]
+        [JsonPropertyName("q")]
         public double QuotePurchaseVolume { get; set; }
     }
 }

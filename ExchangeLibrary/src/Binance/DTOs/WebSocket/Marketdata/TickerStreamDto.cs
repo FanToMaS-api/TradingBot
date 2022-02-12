@@ -1,5 +1,5 @@
 ﻿using ExchangeLibrary.Binance.Enums;
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace ExchangeLibrary.Binance.DTOs.WebSocket.Marketdata
 {
@@ -14,121 +14,121 @@ namespace ExchangeLibrary.Binance.DTOs.WebSocket.Marketdata
         /// <summary>
         ///    Цена
         /// </summary>
-        [JsonProperty("p")]
+        [JsonPropertyName("p")]
         public double Price { get; set; }
 
         /// <summary>
         ///    Изменение цены в процентах
         /// </summary>
-        [JsonProperty("P")]
+        [JsonPropertyName("P")]
         public double PricePercentChange { get; set; }
 
         /// <summary>
         ///    Средневзвешенная цена
         /// </summary>
-        [JsonProperty("w")]
+        [JsonPropertyName("w")]
         public double WeightedAveragePrice { get; set; }
 
         /// <summary>
         ///    Цена самой первой сделки до 24-х часового скользящего окна
         /// </summary>
-        [JsonProperty("x")]
+        [JsonPropertyName("x")]
         public double FirstPrice { get; set; }
 
         /// <summary>
         ///    Последняя цена
         /// </summary>
-        [JsonProperty("c")]
+        [JsonPropertyName("c")]
         public double LastPrice { get; set; }
 
         /// <summary>
         ///    Последнее     кол-во
         /// </summary>
-        [JsonProperty("Q")]
+        [JsonPropertyName("Q")]
         public double LastQuantity { get; set; }
 
         /// <summary>
         ///    Лучшая цена спроса
         /// </summary>
-        [JsonProperty("b")]
+        [JsonPropertyName("b")]
         public double BestBidPrice { get; set; }
 
         /// <summary>
         ///    Лучшая объем спроса
         /// </summary>
-        [JsonProperty("B")]
+        [JsonPropertyName("B")]
         public double BestBidQuantity { get; set; }
 
         /// <summary>
         ///    Лучшая цена предложения
         /// </summary>
-        [JsonProperty("a")]
+        [JsonPropertyName("a")]
         public double BestAskPrice { get; set; }
 
         /// <summary>
         ///    Лучшая объем предложения
         /// </summary>
-        [JsonProperty("A")]
+        [JsonPropertyName("A")]
         public double BestAskQuantity { get; set; }
 
         /// <summary>
         ///    Цена открытия
         /// </summary>
-        [JsonProperty("o")]
+        [JsonPropertyName("o")]
         public double OpenPrice { get; set; }
 
         /// <summary>
         ///    Максимальная цена
         /// </summary>
-        [JsonProperty("h")]
+        [JsonPropertyName("h")]
         public double MaxPrice { get; set; }
 
         /// <summary>
         ///    Минимальная цена
         /// </summary>
-        [JsonProperty("l")]
+        [JsonPropertyName("l")]
         public double MinPrice { get; set; }
 
         /// <summary>
         ///    Общий торгуемый объем базовых активов
         /// </summary>
-        [JsonProperty("v")]
+        [JsonPropertyName("v")]
         public double AllBaseVolume { get; set; }
 
         /// <summary>
         ///    Общий торгуемый объем котировочного актива
         /// </summary>
-        [JsonProperty("q")]
+        [JsonPropertyName("q")]
         public double AllQuoteVolume { get; set; }
 
         /// <summary>
         ///    Время открытия статистики
         /// </summary>
-        [JsonProperty("O")]
+        [JsonPropertyName("O")]
         public long StatisticOpenTimeUnix{ get; set; }
 
         /// <summary>
         ///    Время закрытия статистики
         /// </summary>
-        [JsonProperty("C")]
+        [JsonPropertyName("C")]
         public long StatisticCloseTimeUnix { get; set; }
 
         /// <summary>
         ///    Id первой сделки
         /// </summary>
-        [JsonProperty("F")]
+        [JsonPropertyName("F")]
         public long FirstTradeId { get; set; }
 
         /// <summary>
         ///    Id последней сделки
         /// </summary>
-        [JsonProperty("L")]
+        [JsonPropertyName("L")]
         public long LastTradeId { get; set; }
 
         /// <summary>
         ///    Число сделок
         /// </summary>
-        [JsonProperty("n")]
+        [JsonPropertyName("n")]
         public long TradeNumber { get; set; }
     }
 }

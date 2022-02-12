@@ -1,5 +1,6 @@
 ﻿using ExchangeLibrary;
 using ExchangeLibrary.Binance.WebSocket.Marketdata;
+using Newtonsoft.Json;
 using NLog;
 using System;
 using System.Configuration;
