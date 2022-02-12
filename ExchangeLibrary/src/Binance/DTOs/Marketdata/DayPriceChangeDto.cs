@@ -124,7 +124,7 @@ namespace ExchangeLibrary.Binance.DTOs.Marketdata
         /// <summary>
         ///     Id последеней сделки
         /// </summary>
-        [JsonPropertyName("LastId")]
+        [JsonPropertyName("lastId")]
         public long LastId { get; set; }
 
         /// <summary>

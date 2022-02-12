@@ -1,4 +1,4 @@
-﻿using Common.Converters;
+﻿using Common.JsonConvertWrapper;
 using ExchangeLibrary.Binance.DTOs.WebSocket.Marketdata;
 using ExchangeLibrary.Binance.Enums;
 using ExchangeLibrary.Binance.WebSocket;
@@ -8,8 +8,6 @@ using System;
 using System.IO;
 using System.Net.WebSockets;
 using System.Text;
-using System.Text.Json;
-using System.Text.Json.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
@@ -26,7 +24,6 @@ namespace ExchangeLibraryTests.BinanceTests.WebSocket
         /// <summary>
         ///     Тест подписки на <see cref="MarketdataStreamType.AggregateTradeStream"/>
         /// </summary>
-        // TODO: Убрать Newtonsoft из проекта!
         [Fact(DisplayName = "Aggregate Trade Stream subscription Test")]
         public async Task SubscriptionAggregateTradeStreamTest()
         {
@@ -50,9 +47,8 @@ namespace ExchangeLibraryTests.BinanceTests.WebSocket
             webSocket.AddOnMessageReceivedFunc(
                 async (json) =>
                 {
-                    var options = new JsonSerializerOptions();
-                    options.Converters.Add(new AutoStringToNumberConverter());
-                    var actual = JsonSerializer.Deserialize<AggregateSymbolTradeStreamDto>(json, options);
+                    var converter = new JsonConvertWrapper();
+                    var actual = converter.Deserialize<AggregateSymbolTradeStreamDto>(json);
 
                     var properties = typeof(AggregateSymbolTradeStreamDto).GetProperties();
                     for (var i = 0; i < properties.Length; i++)

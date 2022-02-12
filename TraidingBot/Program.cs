@@ -1,6 +1,5 @@
 ﻿using ExchangeLibrary;
 using ExchangeLibrary.Binance.WebSocket.Marketdata;
-using Newtonsoft.Json;
 using NLog;
 using System;
 using System.Configuration;
@@ -21,7 +20,7 @@ namespace TraidingBot
             var binance = ExchangeFactory.CreateExchange(ExchangeType.Binance, apiKey, secretKey);
             using var cts = new CancellationTokenSource();
 
-            // Console.WriteLine(await binance.GetDayPriceChangeAsync(null, cts.Token));
+            Console.WriteLine(await binance.GetDayPriceChangeAsync(null, cts.Token));
 
             var webSoket = MarketdataWebSocket.CreateCandleStickStream(
                 "BNBBTC",

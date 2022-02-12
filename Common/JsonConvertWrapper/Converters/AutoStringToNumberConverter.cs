@@ -2,7 +2,7 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace Common.Converters
+namespace Common.JsonConvertWrapper.Converters
 {
     /// <summary>
     ///     Автоматически конвертирует строки в нужные типы
@@ -17,17 +17,12 @@ namespace Common.Converters
             // see https://stackoverflow.com/questions/1749966/c-sharp-how-to-determine-whether-a-type-is-a-number
             switch (Type.GetTypeCode(typeToConvert))
             {
-                case TypeCode.Byte:
-                case TypeCode.SByte:
-                case TypeCode.UInt16:
-                case TypeCode.UInt32:
-                case TypeCode.UInt64:
-                case TypeCode.Int16:
                 case TypeCode.Int32:
                 case TypeCode.Int64:
                 case TypeCode.Decimal:
                 case TypeCode.Double:
-                case TypeCode.Single:
+                case TypeCode.String:
+                case TypeCode.Boolean:
                     return true;
                 default:
                     return false;
@@ -37,31 +32,18 @@ namespace Common.Converters
         /// <inheritdoc />
         public override object Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
-            if (reader.TokenType == JsonTokenType.String)
+            return Type.GetTypeCode(typeToConvert) switch
             {
-                var s = reader.GetString();
-                return (typeToConvert == typeof(int) && int.TryParse(s, out var i))
-                    ? i
-                    : (typeToConvert == typeof(long) && long.TryParse(s, out var l))
-                    ? l
-                    : (typeToConvert == typeof(double) && double.TryParse(s, out var d))
-                    ? d
-                    : throw new Exception($"Unable to parse {s} to number");
-            }
-
-            if (reader.TokenType == JsonTokenType.Number)
-            {
-                return typeToConvert == typeof(int)
-                    ? reader.GetInt32()
-                    : typeToConvert == typeof(long)
-                    ? reader.GetInt64()
-                    : throw new Exception($"Unable to parse to number");
-            }
-
-            using (var document = JsonDocument.ParseValue(ref reader))
-            {
-                throw new Exception($"Unable to parse {document.RootElement} to number");
-            }
+                TypeCode.Int32 when reader.TokenType == JsonTokenType.Number => reader.GetInt32(),
+                TypeCode.Int32 when reader.TokenType == JsonTokenType.String => int.Parse(reader.GetString()),
+                TypeCode.Int64 when reader.TokenType == JsonTokenType.Number => reader.GetInt64(),
+                TypeCode.Int64 when reader.TokenType == JsonTokenType.String => long.Parse(reader.GetString()),
+                TypeCode.Double when reader.TokenType == JsonTokenType.Number => reader.GetDouble(),
+                TypeCode.Double when reader.TokenType == JsonTokenType.String => double.Parse(reader.GetString()),
+                TypeCode.Boolean => reader.GetBoolean(),
+                TypeCode.String => reader.GetString(),
+                _ => reader.GetString(),
+            };
         }
 
         /// <inheritdoc />

@@ -91,6 +91,49 @@ namespace ExchangeLibraryTests.BinanceTests.EndpointSenders
             };
 
         /// <summary>
+        ///     Пути к файлам и объекты для проверки для запроса списка свечей по монете
+        /// </summary>
+        public static IEnumerable<object[]> CandleStickData =>
+            new List<object[]>
+            {
+                new object[]
+                {
+                    "../../../BinanceTests/Jsons/Marketdata/CANDLESTICK_DATA.json",
+                    new CandleStickDto[]
+                    {
+                        new CandleStickDto
+                        {
+                            OpenTimeUnix = 1499040000000,
+                            OpenPrice = 0.01634790,
+                            MaxPrice = 0.80000000,
+                            MinPrice = 0.01575800,
+                            ClosePrice = 0.01577100,
+                            Volume = 148976.11427815,
+                            CloseTimeUnix = 1499644799999,
+                            QuoteAssetVolume = 2434.19055334,
+                            TradesNumber = 308,
+                            BasePurchaseVolume = 1756.87402397,
+                            QuotePurchaseVolume = 28.46694368,
+                        },
+                        new CandleStickDto
+                        {
+                            OpenTimeUnix = 12,
+                            OpenPrice = 0.12,
+                            MaxPrice = 0.12,
+                            MinPrice = 0.12,
+                            ClosePrice = 0.12,
+                            Volume = 12.11427815,
+                            CloseTimeUnix = 12,
+                            QuoteAssetVolume = 12,
+                            TradesNumber = 12,
+                            BasePurchaseVolume = 12.87402397,
+                            QuotePurchaseVolume = 12,
+                        }
+                    }
+                }
+            };
+
+        /// <summary>
         ///     Пути к файлам и объекты для проверки для запроса последней цены пары/пар
         /// </summary>
         public static IEnumerable<object[]> SymbolPriceTickerData =>
@@ -248,12 +291,16 @@ namespace ExchangeLibraryTests.BinanceTests.EndpointSenders
             // Act
             var result = await marketdataSender.GetOrderBookAsync("", cancellationToken: CancellationToken.None);
 
-            Assert.Single(result.Bids);
-            Assert.Single(result.Asks);
+            Assert.Equal(2, result.Bids.Count);
+            Assert.Equal(2, result.Asks.Count);
             Assert.Equal(4.00000000, result.Bids[0].Price);
             Assert.Equal(431.00000000, result.Bids[0].Qty);
+            Assert.Equal(5.00000000, result.Bids[1].Price);
+            Assert.Equal(15.00000000, result.Bids[1].Qty);
             Assert.Equal(4.00000200, result.Asks[0].Price);
             Assert.Equal(12.00000000, result.Asks[0].Qty);
+            Assert.Equal(6.00000200, result.Asks[1].Price);
+            Assert.Equal(18.00000000, result.Asks[1].Qty);
         }
 
         /// <summary>
@@ -307,10 +354,10 @@ namespace ExchangeLibraryTests.BinanceTests.EndpointSenders
         /// <summary>
         ///     Тест запроса списка свечей по монете
         /// </summary>
-        [Fact(DisplayName = "Request for a list of candlesticks by coin Test")]
-        public async Task GetCandleStickAsyncTest()
+        [Theory(DisplayName = "Request for a list of candlesticks by coin Test")]
+        [MemberData(nameof(CandleStickData))]
+        public async Task GetCandleStickAsyncTest(string filePath, CandleStickDto[] expected)
         {
-            var filePath = "../../../BinanceTests/Jsons/Marketdata/CANDLESTICK_DATA.json";
             using var client = CreateMockHttpClient(BinanceEndpoints.CANDLESTICK_DATA, filePath);
             IBinanceClient binanceClient = new BinanceClient(client, "", "");
             IMarketdataSender marketdataSender = new MarketdataSender(binanceClient);
@@ -318,19 +365,15 @@ namespace ExchangeLibraryTests.BinanceTests.EndpointSenders
             // Act
             var result = (await marketdataSender.GetCandleStickAsync("", CandleStickIntervalType.OneMinute, cancellationToken: CancellationToken.None)).ToList();
 
-            Assert.Single(result);
-            Assert.Equal(1499040000000, result[0].OpenTimeUnix);
-            Assert.Equal(0.01634790, result[0].OpenPrice);
-            Assert.Equal(0.80000000, result[0].MaxPrice);
-            Assert.Equal(0.01575800, result[0].MinPrice);
-            Assert.Equal(0.01577100, result[0].ClosePrice);
-            Assert.Equal(148976.11427815, result[0].Volume);
-            Assert.Equal(1499644799999, result[0].CloseTimeUnix);
-            Assert.Equal(2434.19055334, result[0].QuoteAssetVolume);
-            Assert.Equal(308, result[0].TradesNumber);
-            Assert.Equal(1756.87402397, result[0].BasePurchaseVolume);
-            Assert.Equal(28.46694368, result[0].QuotePurchaseVolume);
-            Assert.Equal("17928899.62484339", result[0].Ignore);
+            Assert.Equal(2, result.Count);
+            var properties = typeof(CandleStickDto).GetProperties();
+            for (var i = 0; i < expected.Length; i++)
+            {
+                for (var j = 0; j < properties.Length; j++)
+                {
+                    Assert.Equal(properties[j].GetValue(expected[i]), properties[j].GetValue(result[i]));
+                }
+            }
         }
 
         /// <summary>

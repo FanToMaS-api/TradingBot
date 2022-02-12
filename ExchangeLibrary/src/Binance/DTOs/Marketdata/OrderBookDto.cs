@@ -1,8 +1,9 @@
-﻿using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace ExchangeLibrary.Binance.DTOs.Marketdata
 {
@@ -14,17 +15,20 @@ namespace ExchangeLibrary.Binance.DTOs.Marketdata
         /// <summary>
         ///    Идентификатор последнего обновления 
         /// </summary>
+        [JsonPropertyName("lastUpdateId")]
         public long LastUpdateId { get; set; }
 
         /// <summary>
         ///     Список цен/объемов на покупку
         /// </summary>
-        public List<PriceQtyPair> Bids { get; set; }
+        [JsonPropertyName("bids")]
+        public List<PriceQtyPair> Bids { get; set; } = new();
 
         /// <summary>
         ///     Список цен/объемов на продажу
         /// </summary>
-        public List<PriceQtyPair> Asks { get; set; }
+        [JsonPropertyName("asks")]
+        public List<PriceQtyPair> Asks { get; set; } = new();
     }
 
     /// <summary>
@@ -48,60 +52,62 @@ namespace ExchangeLibrary.Binance.DTOs.Marketdata
     /// </summary>
     public class OrderBookDtoConverter : JsonConverter<OrderBookDto>
     {
-        public override bool CanWrite => false;
-
-        public override OrderBookDto ReadJson(
-            JsonReader reader,
-            Type objectType,
-            OrderBookDto existingValue,
-            bool hasExistingValue,
-            JsonSerializer serializer)
+        /// <inheritdoc />
+        public override OrderBookDto Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
-            // Load JObject from stream
-            var jObject = JObject.Load(reader);
             var result = new OrderBookDto();
-            if (jObject["lastUpdateId"] is not null)
-            {
-                result.LastUpdateId = (long)jObject.GetValue("lastUpdateId");
-            }
+            string lastPropertyName = "";
 
-            if (jObject["bids"] is not null)
+            while (reader.Read())
             {
-                result.Bids = CreatePairList(jObject.GetValue("bids"));
-            }
+                if (reader.TokenType == JsonTokenType.PropertyName)
+                {
+                    lastPropertyName = reader.GetString();
+                    reader.Read();
 
-            if (jObject["asks"] is not null)
-            {
-                result.Asks = CreatePairList(jObject.GetValue("asks"));
+                    switch (lastPropertyName)
+                    {
+                        case "lastUpdateId":
+                            result.LastUpdateId = reader.GetInt64();
+                            continue;
+                    }
+                }
+
+                if (reader.TokenType != JsonTokenType.String)
+                {
+                    continue;
+                }
+
+                CreatePair(ref reader, result, lastPropertyName);
             }
 
             return result;
         }
 
-        public override void WriteJson(JsonWriter writer, OrderBookDto value, JsonSerializer serializer)
+        /// <inheritdoc />
+        public override void Write(Utf8JsonWriter writer, OrderBookDto value, JsonSerializerOptions options)
         {
             throw new NotImplementedException();
         }
 
-        private List<PriceQtyPair> CreatePairList(JToken token)
+        /// <summary>
+        ///     Создает пару и добавляет в нужный массив пар
+        /// </summary>
+        private void CreatePair(ref Utf8JsonReader reader, OrderBookDto result, string lastPropertyName)
         {
-            if (token is null)
+            var workItem = new PriceQtyPair();
+            workItem.Price = double.Parse(reader.GetString());
+            reader.Read();
+            workItem.Qty = double.Parse(reader.GetString());
+            switch (lastPropertyName)
             {
-                return new();
+                case "bids":
+                    result.Bids.Add(workItem);
+                    break;
+                case "asks":
+                    result.Asks.Add(workItem);
+                    break;
             }
-
-            var result = new List<PriceQtyPair>();
-            var collection = token.Values().ToList();
-            for (var i = 0; i < collection.Count; i++)
-            {
-                result.Add(new PriceQtyPair 
-                { 
-                    Price = (double)collection[i++], 
-                    Qty = (double)collection[i] 
-                });
-            }
-
-            return result;
         }
     }
 
