@@ -13,23 +13,23 @@
       {
         "addressRegex": "^(bnb1)[0-9a-z]{38}$",
         "coin": "BTC",
-        "depositDesc": "Wallet Maintenance, Deposit Suspended", // shown only when "depositEnable" is false.
+        "depositDesc": "Wallet Maintenance, Deposit Suspended",
         "depositEnable": false,
         "isDefault": false,
         "memoRegex": "^[0-9A-Za-z\\-_]{1,120}$",
-        "minConfirm": 1, // min number for balance confirmation
+        "minConfirm": 1,
         "name": "BEP2",
         "network": "BNB",
         "resetAddressStatus": false,
         "specialTips": "Both a MEMO and an Address are required to successfully deposit your BEP2-BTCB tokens to Binance.",
-        "unLockConfirm": 0, // confirmation number for balance unlock 
-        "withdrawDesc": "Wallet Maintenance, Withdrawal Suspended", // shown only when "withdrawEnable" is false.
+        "unLockConfirm": 0,
+        "withdrawDesc": "Wallet Maintenance, Withdrawal Suspended",
         "withdrawEnable": false,
         "withdrawFee": "0.00000220",
         "withdrawIntegerMultiple": "0.00000001",
         "withdrawMax": "9999999999.99999999",
         "withdrawMin": "0.00000440",
-        "sameAddress": true // If the coin needs to provide memo to withdraw
+        "sameAddress": true
       },
       {
         "addressRegex": "^[13][a-km-zA-HJ-NP-Z1-9]{25,34}$|^(bc1)[0-9A-Za-z]{39,59}$",
@@ -70,23 +70,23 @@
       {
         "addressRegex": "MyCoin",
         "coin": "MyCoin",
-        "depositDesc": "MyCoinMyCoin", // shown only when "depositEnable" is false.
+        "depositDesc": "MyCoinMyCoin",
         "depositEnable": false,
         "isDefault": false,
         "memoRegex": "^[0-9A-Za-z\\-_]{1,120}$",
-        "minConfirm": 1, // min number for balance confirmation
+        "minConfirm": 1,
         "name": "MyCoin",
         "network": "MyCoin",
         "resetAddressStatus": false,
         "specialTips": "MyCoinMyCoinMyCoinMyCoinully depEP2-BTCB tokens to Binance.",
-        "unLockConfirm": 0, // confirmation number for balance unlock 
-        "withdrawDesc": "Wallet Maintenance, Withdrawal Suspended", // shown only when "withdrawEnable" is false.
+        "unLockConfirm": 0,
+        "withdrawDesc": "Wallet Maintenance, Withdrawal Suspended",
         "withdrawEnable": false,
         "withdrawFee": "0.1555",
         "withdrawIntegerMultiple": "0.1555",
         "withdrawMax": "15551555.99999999",
         "withdrawMin": "0.1555",
-        "sameAddress": true // If the coin needs to provide memo to withdraw
+        "sameAddress": true
       },
       {
         "addressRegex": "^[13][a-km-zA-HJ-NP-Z1-9]{25,34}$|^(bc1)[0-9A-Za-z]{39,59}$",

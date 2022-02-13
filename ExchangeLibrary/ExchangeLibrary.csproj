@@ -13,7 +13,6 @@
   <ItemGroup>
     <PackageReference Include="AutoMapper" Version="11.0.1" />
     <PackageReference Include="jose-jwt" Version="3.2.0" />
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
     <PackageReference Include="NLog.Targets.Seq" Version="2.1.0" />
     <PackageReference Include="StackExchange.Redis" Version="2.2.88" />
   </ItemGroup>

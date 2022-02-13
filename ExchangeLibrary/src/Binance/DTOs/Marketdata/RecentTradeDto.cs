@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json;
+﻿using System.Text.Json.Serialization;
 
 namespace ExchangeLibrary.Binance.DTOs.Marketdata
 {
@@ -10,43 +10,43 @@ namespace ExchangeLibrary.Binance.DTOs.Marketdata
         /// <summary>
         ///     Уникальный идентификатор
         /// </summary>
-        [JsonProperty("id")]
+        [JsonPropertyName("id")]
         public long Id { get; set; }
 
         /// <summary>
         ///     Цена сделки
         /// </summary>
-        [JsonProperty("price")]
+        [JsonPropertyName("price")]
         public double Price { get; set; }
 
         /// <summary>
         ///     Кол-во
         /// </summary>
-        [JsonProperty("qty")]
+        [JsonPropertyName("qty")]
         public double Qty { get; set; }
 
         /// <summary>
         ///     Кол-во
         /// </summary>
-        [JsonProperty("quoteQty")]
+        [JsonPropertyName("quoteQty")]
         public double QuoteQty { get; set; }
 
         /// <summary>
         ///     Время сделки
         /// </summary>
-        [JsonProperty("time")]
+        [JsonPropertyName("time")]
         public long TimeUnix { get; set; }
 
         /// <summary>
         ///     Была ли покупка по указанной покупателем цене
         /// </summary>
-        [JsonProperty("isBuyerMaker")]
+        [JsonPropertyName("isBuyerMaker")]
         public bool IsBuyerMaker { get; set; }
 
         /// <summary>
         ///     Была ли встречная сделка
         /// </summary>
-        [JsonProperty("isBestMatch")]
+        [JsonPropertyName("isBestMatch")]
         public bool IsBestMatch { get; set; }
     }
 }

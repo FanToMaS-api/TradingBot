@@ -1,14 +1,13 @@
-﻿using ExchangeLibrary.Binance.Exceptions;
-using Newtonsoft.Json;
+﻿using ExchangeLibrary.Binance.Enums;
+using ExchangeLibrary.Binance.Exceptions;
+using NLog;
 using System.Collections.Generic;
-using System.Net;
+using System.Linq;
 using System.Net.Http;
 using System.Text;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using ExchangeLibrary.Binance.Enums;
-using System.Linq;
-using NLog;
 
 namespace ExchangeLibrary.Binance.Client.Impl
 {
@@ -104,7 +103,7 @@ namespace ExchangeLibrary.Binance.Client.Impl
             {
                 if (content is not null)
                 {
-                    request.Content = new StringContent(JsonConvert.SerializeObject(content), Encoding.UTF8, "application/json");
+                    request.Content = new StringContent(JsonSerializer.Serialize(content), Encoding.UTF8, "application/json");
                 }
 
                 if (_apiKey is not null)

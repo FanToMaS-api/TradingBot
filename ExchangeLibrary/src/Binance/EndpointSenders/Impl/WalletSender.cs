@@ -1,6 +1,6 @@
-﻿using ExchangeLibrary.Binance.Client;
+﻿using Common.JsonConvertWrapper;
+using ExchangeLibrary.Binance.Client;
 using ExchangeLibrary.Binance.DTOs.Wallet;
-using Newtonsoft.Json;
 using NLog;
 using System;
 using System.Collections.Generic;
@@ -42,7 +42,8 @@ namespace ExchangeLibrary.Binance.EndpointSenders.Impl
                  HttpMethod.Get,
                  cancellationToken: cancellationToken);
 
-            return JsonConvert.DeserializeObject<SystemStatusDto>(result);
+            var converter = new JsonDeserializerWrapper();
+            return converter.Deserialize<SystemStatusDto>(result);
         }
 
         /// <inheritdoc />
@@ -60,7 +61,8 @@ namespace ExchangeLibrary.Binance.EndpointSenders.Impl
                 },
                 cancellationToken: cancellationToken);
 
-            return JsonConvert.DeserializeObject<AccountTraidingStatusDto>(result);
+            var converter = new JsonDeserializerWrapper();
+            return converter.Deserialize<AccountTraidingStatusDto>(result);
         }
 
         /// <inheritdoc />
@@ -83,7 +85,8 @@ namespace ExchangeLibrary.Binance.EndpointSenders.Impl
                 query: parameters,
                 cancellationToken: cancellationToken);
 
-            return JsonConvert.DeserializeObject<IEnumerable<TradeFeeDto>>(result);
+            var converter = new JsonDeserializerWrapper();
+            return converter.Deserialize<IEnumerable<TradeFeeDto>>(result);
         }
 
         /// <inheritdoc />
@@ -101,9 +104,9 @@ namespace ExchangeLibrary.Binance.EndpointSenders.Impl
                  },
                  cancellationToken: cancellationToken);
 
-            return JsonConvert.DeserializeObject<List<CoinDto>>(result);
+            var converter = new JsonDeserializerWrapper();
+            return converter.Deserialize<List<CoinDto>>(result);
         }
-
 
         #endregion
     }

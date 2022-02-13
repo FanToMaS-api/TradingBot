@@ -1,4 +1,6 @@
 ﻿using ExchangeLibrary;
+using ExchangeLibrary.Binance.DTOs.WebSocket.Marketdata.Impl;
+using ExchangeLibrary.Binance.WebSocket.Marketdata;
 using NLog;
 using System;
 using System.Configuration;
@@ -20,6 +22,23 @@ namespace TraidingBot
             using var cts = new CancellationTokenSource();
 
             Console.WriteLine(await binance.GetDayPriceChangeAsync(null, cts.Token));
+
+            var webSoket = MarketdataWebSocket<CandlestickStreamDto>.CreateCandlestickStream(
+                "BNBBTC",
+                ExchangeLibrary.Binance.Enums.CandleStickIntervalType.OneMinute);
+
+            webSoket.AddOnMessageReceivedFunc(
+                _ =>
+                {
+                    Console.WriteLine($"Interval: {_.Kline.Interval} Open Price: {_.Kline.OpenPrice} Close Price: {_.Kline.ClosePrice}");
+                    return Task.CompletedTask;
+                },
+                cts.Token);
+
+            await webSoket.ConnectAsync(cts.Token);
+
+            await Task.Delay(70000);
+            webSoket.Dispose();
         }
     }
 }

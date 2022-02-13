@@ -1,14 +1,15 @@
-﻿using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using System;
-using System.Linq;
+﻿using System;
+using System.Collections.Generic;
+using Common.JsonConvertWrapper;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace ExchangeLibrary.Binance.DTOs.Marketdata
 {
     /// <summary>
     ///     Модель свечи для монеты
     /// </summary>
-    public class CandleStickDto
+    public class CandlestickDto
     {
         /// <summary>
         ///     Время открытия
@@ -58,7 +59,7 @@ namespace ExchangeLibrary.Binance.DTOs.Marketdata
         /// <summary>
         ///     Объем базового актива, который купили тейкеры
         /// </summary>
-        public double BasePurchaseVolume{ get; set; }
+        public double BasePurchaseVolume { get; set; }
 
         /// <summary>
         ///     Объем актива по котировке тейкера на покупку
@@ -66,56 +67,72 @@ namespace ExchangeLibrary.Binance.DTOs.Marketdata
         public double QuotePurchaseVolume { get; set; }
 
         /// <summary>
-        ///     Игнорировать
+        ///     Устанавливает св-ва для <see cref="CandlestickDto"/>
         /// </summary>
-        public string Ignore { get; set; }
+        /// <param name="reader"> Reader с указателем на начало массива с данными о свече </param>
+        internal static CandlestickDto Create(ref Utf8JsonReader reader)
+        {
+            var result = new CandlestickDto();
+
+            reader.Read();
+            result.OpenTimeUnix = reader.ReadLongAndNext();
+            result.OpenPrice = reader.ReadDoubleAndNext();
+            result.MaxPrice = reader.ReadDoubleAndNext();
+            result.MinPrice = reader.ReadDoubleAndNext();
+            result.ClosePrice = reader.ReadDoubleAndNext();
+            result.Volume = reader.ReadDoubleAndNext();
+            result.CloseTimeUnix = reader.ReadLongAndNext();
+            result.QuoteAssetVolume = reader.ReadDoubleAndNext();
+            result.TradesNumber = reader.ReadIntAndNext();
+            result.BasePurchaseVolume = reader.ReadDoubleAndNext();
+            result.QuotePurchaseVolume = reader.ReadDoubleAndNext();
+
+            return result;
+        }
     }
 
     /// <summary>
-    ///     Нормально конвертирует полученные данные
+    ///     Конвертирует данные в массив объектов
     /// </summary>
-    public class CandleStickDtoConverter : JsonConverter<CandleStickDto>
+    public class CandleStickDtoEnumerableConverter : JsonConverter<IEnumerable<CandlestickDto>>
     {
-        public override bool CanWrite => false;
-
-        public override CandleStickDto ReadJson(
-            JsonReader reader,
-            Type objectType,
-            CandleStickDto existingValue,
-            bool hasExistingValue,
-            JsonSerializer serializer)
+        /// <inheritdoc />
+        public override IEnumerable<CandlestickDto> Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
-            var result = new CandleStickDto();
+            var result = new List<CandlestickDto>();
+            while (reader.Read())
+            {
+                if (reader.TokenType == JsonTokenType.StartArray)
+                {
+                    var newCandleStick = CandlestickDto.Create(ref reader);
 
-            // Load JObject from stream
-            var jArray = JArray.Load(reader);
-            if (jArray is null)
-            {
-                return result;
-            }
-            
-            // TODO: возможно стоит подумать над улучшением
-            var collection = jArray.Values().ToList();
-            for (var i = 0; i < collection.Count; i++)
-            {
-                result.OpenTimeUnix = (long)collection[i++];
-                result.OpenPrice = (double)collection[i++];
-                result.MaxPrice = (double)collection[i++];
-                result.MinPrice = (double)collection[i++];
-                result.ClosePrice = (double)collection[i++];
-                result.Volume = (double)collection[i++];
-                result.CloseTimeUnix = (long)collection[i++];
-                result.QuoteAssetVolume = (double)collection[i++];
-                result.TradesNumber = (int)collection[i++];
-                result.BasePurchaseVolume = (double)collection[i++];
-                result.QuotePurchaseVolume = (double)collection[i++];
-                result.Ignore = (string)collection[i];
+                    result.Add(newCandleStick);
+                }
             }
 
             return result;
         }
 
-        public override void WriteJson(JsonWriter writer, CandleStickDto value, JsonSerializer serializer)
+        /// <inheritdoc />
+        public override void Write(Utf8JsonWriter writer, IEnumerable<CandlestickDto> value, JsonSerializerOptions options)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    /// <summary>
+    ///     Нормально конвертирует полученные данные
+    /// </summary>
+    public class CandleStickDtoConverter : JsonConverter<CandlestickDto>
+    {
+        /// <inheritdoc />
+        public override CandlestickDto Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+        {
+            return CandlestickDto.Create(ref reader);
+        }
+
+        /// <inheritdoc />
+        public override void Write(Utf8JsonWriter writer, CandlestickDto value, JsonSerializerOptions options)
         {
             throw new NotImplementedException();
         }

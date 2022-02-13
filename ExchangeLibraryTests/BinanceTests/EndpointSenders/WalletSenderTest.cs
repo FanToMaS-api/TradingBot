@@ -25,7 +25,7 @@ namespace ExchangeLibraryTests.BinanceTests.EndpointSenders
         /// <summary>
         ///     Тест запроса статуса системы
         /// </summary>
-        [Fact(DisplayName = "Test requesting system status")]
+        [Fact(DisplayName = "Requesting system status Test")]
         public async Task GetSystemStatusAsyncTest()
         {
             var filePath = "../../../BinanceTests/Jsons/Wallet/SYSTEM_STATUS.json";
@@ -43,7 +43,7 @@ namespace ExchangeLibraryTests.BinanceTests.EndpointSenders
         /// <summary>
         ///     Тест запроса информации обо всех монетах
         /// </summary>
-        [Fact(DisplayName = "Test requesting information about all coins")]
+        [Fact(DisplayName = "Requesting information about all coins Test")]
         public async Task GetAllCoinsInformationAsyncTest()
         {
             var filePath = "../../../BinanceTests/Jsons/Wallet/ALL_COINS_INFORMATION.json";
@@ -65,7 +65,7 @@ namespace ExchangeLibraryTests.BinanceTests.EndpointSenders
         /// <summary>
         ///     Тест запроса статуса аккаунта
         /// </summary>
-        [Fact(DisplayName = "Test the request of status of an account request")]
+        [Fact(DisplayName = "The request of status of an account request Test")]
         public async Task GetAccountTraidingStatusAsyncTest()
         {
             var filePath = "../../../BinanceTests/Jsons/Wallet/ACCOUNT_API_TRADING_STATUS.json";
@@ -87,7 +87,7 @@ namespace ExchangeLibraryTests.BinanceTests.EndpointSenders
         /// <summary>
         ///     Тест запроса таксы по всем монетам
         /// </summary>
-        [Fact(DisplayName = "Еest requesting commission for all coins")]
+        [Fact(DisplayName = "Requesting commission for all coins Test")]
         public async Task GetTradeFeeAsyncTest()
         {
             var filePath = "../../../BinanceTests/Jsons/Wallet/TRADE_FEE.json";

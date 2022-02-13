@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json;
+﻿using System.Text.Json.Serialization;
 
 namespace ExchangeLibrary.Binance.DTOs.Wallet
 {
@@ -12,13 +12,13 @@ namespace ExchangeLibrary.Binance.DTOs.Wallet
         /// <summary>
         ///     Обозначение монеты
         /// </summary>
-        [JsonProperty("coin")]
+        [JsonPropertyName("coin")]
         public string Coin { get; set; }
 
         /// <summary>
         ///     Название валюты
         /// </summary>
-        [JsonProperty("name")]
+        [JsonPropertyName("name")]
         public string Name { get; set; }
 
         #endregion

@@ -4,6 +4,7 @@ using ExchangeLibrary.Binance.Client.Impl;
 using ExchangeLibrary.Binance.DTOs.Marketdata;
 using ExchangeLibrary.Binance.EndpointSenders;
 using ExchangeLibrary.Binance.EndpointSenders.Impl;
+using ExchangeLibrary.Binance.Enums;
 using RichardSzalay.MockHttp;
 using System;
 using System.Collections.Generic;
@@ -12,7 +13,6 @@ using System.Linq;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Reflection;
 using Xunit;
 
 namespace ExchangeLibraryTests.BinanceTests.EndpointSenders
@@ -63,171 +63,214 @@ namespace ExchangeLibraryTests.BinanceTests.EndpointSenders
         ///     Пути к файлам и объекты для проверки для запроса 24х часового изменения цены
         /// </summary>
         public static IEnumerable<object[]> DayPriceChangeData =>
-        new List<object[]>
-        {
-            /// тест при запросе информации о паре
-            new object[]
+            new List<object[]>
             {
-                "BNBBTC",
-                "../../../BinanceTests/Jsons/Marketdata/DAY_PRICE_CHANGE_SYMBOL.json",
-               _expectedDayPriceChange
-            },
+                /// тест при запросе информации о паре
+                new object[]
+                {
+                    "BNBBTC",
+                    "../../../BinanceTests/Jsons/Marketdata/DAY_PRICE_CHANGE_SYMBOL.json",
+                   _expectedDayPriceChange
+                },
 
-            /// тест при запросе информации о всех парах
-            new object[]
-            {
-                null,
-                "../../../BinanceTests/Jsons/Marketdata/DAY_PRICE_CHANGE_SYMBOL_IS_NULL.json",
-                _expectedDayPriceChange
-            },
+                /// тест при запросе информации о всех парах
+                new object[]
+                {
+                    null,
+                    "../../../BinanceTests/Jsons/Marketdata/DAY_PRICE_CHANGE_SYMBOL_IS_NULL.json",
+                    _expectedDayPriceChange
+                },
 
-            /// тест при запросе информации о всех парах
-            new object[]
+                /// тест при запросе информации о всех парах
+                new object[]
+                {
+                    "",
+                    "../../../BinanceTests/Jsons/Marketdata/DAY_PRICE_CHANGE_SYMBOL_IS_NULL.json",
+                    _expectedDayPriceChange
+                },
+            };
+
+        /// <summary>
+        ///     Пути к файлам и объекты для проверки для запроса списка свечей по монете
+        /// </summary>
+        public static IEnumerable<object[]> CandleStickData =>
+            new List<object[]>
             {
-                "",
-                "../../../BinanceTests/Jsons/Marketdata/DAY_PRICE_CHANGE_SYMBOL_IS_NULL.json",
-                _expectedDayPriceChange
-            },
-        };
+                new object[]
+                {
+                    "../../../BinanceTests/Jsons/Marketdata/CANDLESTICK_DATA.json",
+                    new CandlestickDto[]
+                    {
+                        new CandlestickDto
+                        {
+                            OpenTimeUnix = 1499040000000,
+                            OpenPrice = 0.01634790,
+                            MaxPrice = 0.80000000,
+                            MinPrice = 0.01575800,
+                            ClosePrice = 0.01577100,
+                            Volume = 148976.11427815,
+                            CloseTimeUnix = 1499644799999,
+                            QuoteAssetVolume = 2434.19055334,
+                            TradesNumber = 308,
+                            BasePurchaseVolume = 1756.87402397,
+                            QuotePurchaseVolume = 28.46694368,
+                        },
+                        new CandlestickDto
+                        {
+                            OpenTimeUnix = 12,
+                            OpenPrice = 0.12,
+                            MaxPrice = 0.12,
+                            MinPrice = 0.12,
+                            ClosePrice = 0.12,
+                            Volume = 12.11427815,
+                            CloseTimeUnix = 12,
+                            QuoteAssetVolume = 12,
+                            TradesNumber = 12,
+                            BasePurchaseVolume = 12.87402397,
+                            QuotePurchaseVolume = 12,
+                        }
+                    }
+                }
+            };
 
         /// <summary>
         ///     Пути к файлам и объекты для проверки для запроса последней цены пары/пар
         /// </summary>
         public static IEnumerable<object[]> SymbolPriceTickerData =>
-        new List<object[]>
-        {
-            /// тест при запросе информации о паре
-            new object[]
+            new List<object[]>
             {
-                "LTCBTC",
-                "../../../BinanceTests/Jsons/Marketdata/SYMBOL_PRICE_TICKER.json",
-                new List<SymbolPriceTickerDto>
+                /// тест при запросе информации о паре
+                new object[]
                 {
-                    new SymbolPriceTickerDto
+                    "LTCBTC",
+                    "../../../BinanceTests/Jsons/Marketdata/SYMBOL_PRICE_TICKER.json",
+                    new List<SymbolPriceTickerDto>
                     {
-                        Symbol = "LTCBTC",
-                        Price = 4.00000200
+                        new SymbolPriceTickerDto
+                        {
+                            Symbol = "LTCBTC",
+                            Price = 4.00000200
+                        }
                     }
-                }
-            },
+                },
 
-            /// тест при запросе информации о всех парах
-            new object[]
-            {
-                null,
-                "../../../BinanceTests/Jsons/Marketdata/SYMBOL_PRICE_TICKERS.json",
-                new List<SymbolPriceTickerDto>
+                /// тест при запросе информации о всех парах
+                new object[]
                 {
-                    new SymbolPriceTickerDto
+                    null,
+                    "../../../BinanceTests/Jsons/Marketdata/SYMBOL_PRICE_TICKERS.json",
+                    new List<SymbolPriceTickerDto>
                     {
-                        Symbol = "LTCBTC",
-                        Price = 4.00000200
-                    },
-                    new SymbolPriceTickerDto
-                    {
-                        Symbol = "ETHBTC",
-                        Price = 0.07946600
-                    },
-                }
-            },
+                        new SymbolPriceTickerDto
+                        {
+                            Symbol = "LTCBTC",
+                            Price = 4.00000200
+                        },
+                        new SymbolPriceTickerDto
+                        {
+                            Symbol = "ETHBTC",
+                            Price = 0.07946600
+                        },
+                    }
+                },
 
-            /// тест при запросе информации о всех парах
-            new object[]
-            {
-                "",
-                "../../../BinanceTests/Jsons/Marketdata/SYMBOL_PRICE_TICKERS.json",
-                new List<SymbolPriceTickerDto>
+                /// тест при запросе информации о всех парах
+                new object[]
                 {
-                    new SymbolPriceTickerDto
+                    "",
+                    "../../../BinanceTests/Jsons/Marketdata/SYMBOL_PRICE_TICKERS.json",
+                    new List<SymbolPriceTickerDto>
                     {
-                        Symbol = "LTCBTC",
-                        Price = 4.00000200
-                    },
-                    new SymbolPriceTickerDto
-                    {
-                        Symbol = "ETHBTC",
-                        Price = 0.07946600
-                    },
-                }
-            },
-        };
+                        new SymbolPriceTickerDto
+                        {
+                            Symbol = "LTCBTC",
+                            Price = 4.00000200
+                        },
+                        new SymbolPriceTickerDto
+                        {
+                            Symbol = "ETHBTC",
+                            Price = 0.07946600
+                        },
+                    }
+                },
+            };
 
         /// <summary>
         ///     Пути к файлам и объекты для проверки для запроса последней цены пары/пар
         /// </summary>
         public static IEnumerable<object[]> SymbolOrderBookTickerData =>
-        new List<object[]>
-        {
-            /// тест при запросе информации о паре
-            new object[]
+            new List<object[]>
             {
-                "LTCBTC",
-                "../../../BinanceTests/Jsons/Marketdata/SYMBOL_ORDER_BOOK_TICKER.json",
-                new List<SymbolOrderBookTickerDto>
+                /// тест при запросе информации о паре
+                new object[]
                 {
-                    new SymbolOrderBookTickerDto
+                    "LTCBTC",
+                    "../../../BinanceTests/Jsons/Marketdata/SYMBOL_ORDER_BOOK_TICKER.json",
+                    new List<SymbolOrderBookTickerDto>
                     {
-                        Symbol = "LTCBTC",
-                        BidPrice = 4.00000000,
-                        BidQty = 431.00000000,
-                        AskPrice = 4.00000200,
-                        AskQty = 9.00000000,
+                        new SymbolOrderBookTickerDto
+                        {
+                            Symbol = "LTCBTC",
+                            BidPrice = 4.00000000,
+                            BidQty = 431.00000000,
+                            AskPrice = 4.00000200,
+                            AskQty = 9.00000000,
+                        }
                     }
-                }
-            },
+                },
 
-            /// тест при запросе информации о всех парах
-            new object[]
-            {
-                null,
-                "../../../BinanceTests/Jsons/Marketdata/SYMBOL_ORDER_BOOK_TICKERS.json",
-                new List<SymbolOrderBookTickerDto>
+                /// тест при запросе информации о всех парах
+                new object[]
                 {
-                    new SymbolOrderBookTickerDto
+                    null,
+                    "../../../BinanceTests/Jsons/Marketdata/SYMBOL_ORDER_BOOK_TICKERS.json",
+                    new List<SymbolOrderBookTickerDto>
                     {
-                        Symbol = "LTCBTC",
-                        BidPrice = 4.00000000,
-                        BidQty = 431.00000000,
-                        AskPrice = 4.00000200,
-                        AskQty = 9.00000000,
-                    },
-                    new SymbolOrderBookTickerDto
-                    {
-                        Symbol = "ETHBTC",
-                        BidPrice = 0.07946700,
-                        BidQty = 9.00000000,
-                        AskPrice = 100000.00000000,
-                        AskQty = 1000.00000000,
-                    },
-                }
-            },
+                        new SymbolOrderBookTickerDto
+                        {
+                            Symbol = "LTCBTC",
+                            BidPrice = 4.00000000,
+                            BidQty = 431.00000000,
+                            AskPrice = 4.00000200,
+                            AskQty = 9.00000000,
+                        },
+                        new SymbolOrderBookTickerDto
+                        {
+                            Symbol = "ETHBTC",
+                            BidPrice = 0.07946700,
+                            BidQty = 9.00000000,
+                            AskPrice = 100000.00000000,
+                            AskQty = 1000.00000000,
+                        },
+                    }
+                },
 
-            /// тест при запросе информации о всех парах
-            new object[]
-            {
-                "",
-                "../../../BinanceTests/Jsons/Marketdata/SYMBOL_ORDER_BOOK_TICKERS.json",
-                new List<SymbolOrderBookTickerDto>
+                /// тест при запросе информации о всех парах
+                new object[]
                 {
-                    new SymbolOrderBookTickerDto
+                    "",
+                    "../../../BinanceTests/Jsons/Marketdata/SYMBOL_ORDER_BOOK_TICKERS.json",
+                    new List<SymbolOrderBookTickerDto>
                     {
-                        Symbol = "LTCBTC",
-                        BidPrice = 4.00000000,
-                        BidQty = 431.00000000,
-                        AskPrice = 4.00000200,
-                        AskQty = 9.00000000,
-                    },
-                    new SymbolOrderBookTickerDto
-                    {
-                        Symbol = "ETHBTC",
-                        BidPrice = 0.07946700,
-                        BidQty = 9.00000000,
-                        AskPrice = 100000.00000000,
-                        AskQty = 1000.00000000,
-                    },
-                }
-            },
-        };
+                        new SymbolOrderBookTickerDto
+                        {
+                            Symbol = "LTCBTC",
+                            BidPrice = 4.00000000,
+                            BidQty = 431.00000000,
+                            AskPrice = 4.00000200,
+                            AskQty = 9.00000000,
+                        },
+                        new SymbolOrderBookTickerDto
+                        {
+                            Symbol = "ETHBTC",
+                            BidPrice = 0.07946700,
+                            BidQty = 9.00000000,
+                            AskPrice = 100000.00000000,
+                            AskQty = 1000.00000000,
+                        },
+                    }
+                },
+            };
 
         #endregion
 
@@ -236,7 +279,7 @@ namespace ExchangeLibraryTests.BinanceTests.EndpointSenders
         /// <summary>
         ///     Тест запроса списка ордеров для конкретной монеты
         /// </summary>
-        [Fact(DisplayName = "Test requesting a list of orders for a specific coin")]
+        [Fact(DisplayName = "Requesting a list of orders for a specific coin Test")]
         public async Task GetOrderBookAsyncTest()
         {
             var filePath = "../../../BinanceTests/Jsons/Marketdata/ORDER_BOOK.json";
@@ -248,18 +291,22 @@ namespace ExchangeLibraryTests.BinanceTests.EndpointSenders
             // Act
             var result = await marketdataSender.GetOrderBookAsync("", cancellationToken: CancellationToken.None);
 
-            Assert.Single(result.Bids);
-            Assert.Single(result.Asks);
+            Assert.Equal(2, result.Bids.Count);
+            Assert.Equal(2, result.Asks.Count);
             Assert.Equal(4.00000000, result.Bids[0].Price);
             Assert.Equal(431.00000000, result.Bids[0].Qty);
+            Assert.Equal(5.00000000, result.Bids[1].Price);
+            Assert.Equal(15.00000000, result.Bids[1].Qty);
             Assert.Equal(4.00000200, result.Asks[0].Price);
             Assert.Equal(12.00000000, result.Asks[0].Qty);
+            Assert.Equal(6.00000200, result.Asks[1].Price);
+            Assert.Equal(18.00000000, result.Asks[1].Qty);
         }
 
         /// <summary>
         ///     Тест запроса списка недавних сделок
         /// </summary>
-        [Fact(DisplayName = "Test recent trades list query")]
+        [Fact(DisplayName = "Recent trades list query Test")]
         public async Task GetRecentTradesAsyncTest()
         {
             var filePath = "../../../BinanceTests/Jsons/Marketdata/RECENT_TRADES.json";
@@ -283,7 +330,7 @@ namespace ExchangeLibraryTests.BinanceTests.EndpointSenders
         /// <summary>
         ///     Тест запроса списка исторических сделок
         /// </summary>
-        [Fact(DisplayName = "Test the request for a list of historical trades")]
+        [Fact(DisplayName = "The request for a list of historical trades Test")]
         public async Task GetOldTradesAsyncTest()
         {
             var filePath = "../../../BinanceTests/Jsons/Marketdata/OLD_TRADES.json";
@@ -307,36 +354,36 @@ namespace ExchangeLibraryTests.BinanceTests.EndpointSenders
         /// <summary>
         ///     Тест запроса списка свечей по монете
         /// </summary>
-        [Fact(DisplayName = "Test request for a list of candlesticks by coin")]
-        public async Task GetCandleStickAsyncTest()
+        [Theory(DisplayName = "Request for a list of candlesticks by coin Test")]
+        [MemberData(nameof(CandleStickData))]
+        public async Task GetCandleStickAsyncTest(string filePath, CandlestickDto[] expected)
         {
-            var filePath = "../../../BinanceTests/Jsons/Marketdata/CANDLESTICK_DATA.json";
             using var client = CreateMockHttpClient(BinanceEndpoints.CANDLESTICK_DATA, filePath);
             IBinanceClient binanceClient = new BinanceClient(client, "", "");
             IMarketdataSender marketdataSender = new MarketdataSender(binanceClient);
 
             // Act
-            var result = (await marketdataSender.GetCandleStickAsync("", Common.Enums.CandleStickIntervalType.OneMinute, cancellationToken: CancellationToken.None)).ToList();
+            var result = (await marketdataSender.GetCandleStickAsync(
+                "",
+                CandleStickIntervalType.OneMinute,
+                cancellationToken: CancellationToken.None))
+                .ToList();
 
-            Assert.Single(result);
-            Assert.Equal(1499040000000, result[0].OpenTimeUnix);
-            Assert.Equal(0.01634790, result[0].OpenPrice);
-            Assert.Equal(0.80000000, result[0].MaxPrice);
-            Assert.Equal(0.01575800, result[0].MinPrice);
-            Assert.Equal(0.01577100, result[0].ClosePrice);
-            Assert.Equal(148976.11427815, result[0].Volume);
-            Assert.Equal(1499644799999, result[0].CloseTimeUnix);
-            Assert.Equal(2434.19055334, result[0].QuoteAssetVolume);
-            Assert.Equal(308, result[0].TradesNumber);
-            Assert.Equal(1756.87402397, result[0].BasePurchaseVolume);
-            Assert.Equal(28.46694368, result[0].QuotePurchaseVolume);
-            Assert.Equal("17928899.62484339", result[0].Ignore);
+            Assert.Equal(2, result.Count);
+            var properties = typeof(CandlestickDto).GetProperties();
+            for (var i = 0; i < expected.Length; i++)
+            {
+                for (var j = 0; j < properties.Length; j++)
+                {
+                    Assert.Equal(properties[j].GetValue(expected[i]), properties[j].GetValue(result[i]));
+                }
+            }
         }
 
         /// <summary>
         ///     Тест запроса текущей средней цены пары
         /// </summary>
-        [Fact(DisplayName = "Test request for the current average price of a pair")]
+        [Fact(DisplayName = "Request for the current average price of a pair Test")]
         public async Task GetAveragePriceAsyncTest()
         {
             var filePath = "../../../BinanceTests/Jsons/Marketdata/AVERAGE_PRICE.json";
@@ -354,7 +401,7 @@ namespace ExchangeLibraryTests.BinanceTests.EndpointSenders
         /// <summary>
         ///     Тест запроса 24х часового изменения цены пары
         /// </summary>
-        [Theory(DisplayName = "Test request for a 24-hour change in the price of a pair")]
+        [Theory(DisplayName = "Request for a 24-hour change in the price of a pair Test")]
         [MemberData(nameof(DayPriceChangeData))]
         public async Task GetDayPriceChangeAsyncTest(string symbol, string filePath, List<DayPriceChangeDto> expectedDtos)
         {
@@ -380,7 +427,7 @@ namespace ExchangeLibraryTests.BinanceTests.EndpointSenders
         /// <summary>
         ///     Тест запроса последней цены пары/пар
         /// </summary>
-        [Theory(DisplayName = "Test requesting the last price of a pair/pairs")]
+        [Theory(DisplayName = "Requesting the last price of a pair/pairs Test")]
         [MemberData(nameof(SymbolPriceTickerData))]
         public async Task GetSymbolPriceTickerAsync(string symbol, string filePath, List<SymbolPriceTickerDto> expectedDtos)
         {
@@ -406,7 +453,7 @@ namespace ExchangeLibraryTests.BinanceTests.EndpointSenders
         /// <summary>
         ///     Тест запроса лучшей цены/количества в стакане для символа или символов
         /// </summary>
-        [Theory(DisplayName = "Test requesting the best price/quantity in the order book for a symbol or symbols")]
+        [Theory(DisplayName = "Requesting the best price/quantity in the order book for a symbol or symbols Test")]
         [MemberData(nameof(SymbolOrderBookTickerData))]
         public async Task GetSymbolOrderBookTickerAsyncAsync(string symbol, string filePath, List<SymbolOrderBookTickerDto> expectedDtos)
         {
