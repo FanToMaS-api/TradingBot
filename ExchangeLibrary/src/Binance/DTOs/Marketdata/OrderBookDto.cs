@@ -1,4 +1,5 @@
-﻿using ExchangeLibrary.Binance.DTOs.WebSocket.Marketdata;
+﻿using Common.JsonConvertWrapper;
+using ExchangeLibrary.Binance.DTOs.WebSocket.Marketdata;
 using ExchangeLibrary.Binance.Enums;
 using System;
 using System.Collections.Generic;
@@ -10,7 +11,7 @@ namespace ExchangeLibrary.Binance.DTOs.Marketdata
     /// <summary>
     ///     Модель книги заказов
     /// </summary>
-    public class OrderBookDto : IMarketdataStreamDto
+    public class OrderBookDto : IMarketdataStreamDto, IHaveMyOwnJsonConverter
     {
         /// <inheritdoc />
         public MarketdataStreamType StreamType => MarketdataStreamType.PartialBookDepthStream;
@@ -33,12 +34,10 @@ namespace ExchangeLibrary.Binance.DTOs.Marketdata
         [JsonPropertyName("asks")]
         public List<PriceQtyPair> Asks { get; set; } = new();
 
-        /// <summary>
-        ///     Создает <see cref="OrderBookDto"/>
-        /// </summary>
-        internal static OrderBookDto CreateOrderBook(ref Utf8JsonReader reader)
+        /// <inheritdoc />
+        public void SetProperties(ref Utf8JsonReader reader, IHaveMyOwnJsonConverter temp)
         {
-            var result = new OrderBookDto();
+            var result = temp as OrderBookDto;
             string lastPropertyName = "";
             while (reader.Read())
             {
@@ -62,8 +61,6 @@ namespace ExchangeLibrary.Binance.DTOs.Marketdata
 
                 PriceQtyPair.CreatePair(ref reader, result, lastPropertyName);
             }
-
-            return result;
         }
     }
 
@@ -104,36 +101,6 @@ namespace ExchangeLibrary.Binance.DTOs.Marketdata
     }
 
     /// <summary>
-    ///     Конвертирует данные в массив объектов
-    /// </summary>
-    public class OrderBookDtoEnumerableConverter : JsonConverter<IEnumerable<OrderBookDto>>
-    {
-        /// <inheritdoc />
-        public override IEnumerable<OrderBookDto> Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
-        {
-            var result = new List<OrderBookDto>();
-            while (reader.Read())
-            {
-                if (reader.TokenType == JsonTokenType.StartArray)
-                {
-                    var orderBook = OrderBookDto.CreateOrderBook(ref reader);
-                    reader.Read();
-
-                    result.Add(orderBook);
-                }
-            }
-
-            return result;
-        }
-
-        /// <inheritdoc />
-        public override void Write(Utf8JsonWriter writer, IEnumerable<OrderBookDto> value, JsonSerializerOptions options)
-        {
-            throw new NotImplementedException();
-        }
-    }
-
-    /// <summary>
     ///     Нормально конвертирует полученные данные
     /// </summary>
     public class OrderBookDtoConverter : JsonConverter<OrderBookDto>
@@ -141,7 +108,10 @@ namespace ExchangeLibrary.Binance.DTOs.Marketdata
         /// <inheritdoc />
         public override OrderBookDto Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
-            return OrderBookDto.CreateOrderBook(ref reader);
+            var orderBook = new OrderBookDto();
+            orderBook.SetProperties(ref reader, orderBook);
+
+            return orderBook;
         }
 
         /// <inheritdoc />

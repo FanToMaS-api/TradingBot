@@ -1,5 +1,6 @@
 ﻿using Common.JsonConvertWrapper;
 using ExchangeLibrary.Binance.Client;
+using ExchangeLibrary.Binance.DTOs;
 using ExchangeLibrary.Binance.DTOs.Marketdata;
 using ExchangeLibrary.Binance.Enums;
 using ExchangeLibrary.Binance.Enums.Helper;
@@ -45,7 +46,7 @@ namespace ExchangeLibrary.Binance.EndpointSenders.Impl
                 },
                 cancellationToken: cancellationToken);
 
-            var converter = new JsonConvertWrapper();
+            var converter = new JsonDeserializerWrapper();
             converter.AddConverter(new OrderBookDtoConverter());
             return converter.Deserialize<OrderBookDto>(result);
         }
@@ -63,7 +64,7 @@ namespace ExchangeLibrary.Binance.EndpointSenders.Impl
                 },
                 cancellationToken: cancellationToken);
 
-            var converter = new JsonConvertWrapper();
+            var converter = new JsonDeserializerWrapper();
             return converter.Deserialize<IEnumerable<RecentTradeDto>>(result);
         }
 
@@ -81,7 +82,7 @@ namespace ExchangeLibrary.Binance.EndpointSenders.Impl
                 },
                 cancellationToken: cancellationToken);
 
-            var converter = new JsonConvertWrapper();
+            var converter = new JsonDeserializerWrapper();
             return converter.Deserialize<IEnumerable<RecentTradeDto>>(result);
         }
 
@@ -113,7 +114,7 @@ namespace ExchangeLibrary.Binance.EndpointSenders.Impl
                 query: parameters,
                 cancellationToken: cancellationToken);
 
-            var converter = new JsonConvertWrapper();
+            var converter = new JsonDeserializerWrapper();
             converter.AddConverter(new CandleStickDtoEnumerableConverter());
             return converter.Deserialize<IEnumerable<CandlestickDto>>(result);
         }
@@ -130,7 +131,7 @@ namespace ExchangeLibrary.Binance.EndpointSenders.Impl
                 },
                 cancellationToken: cancellationToken);
 
-            var converter = new JsonConvertWrapper();
+            var converter = new JsonDeserializerWrapper();
             return converter.Deserialize<AveragePriceDto>(result);
         }
 
@@ -147,7 +148,7 @@ namespace ExchangeLibrary.Binance.EndpointSenders.Impl
                 },
                 cancellationToken: cancellationToken);
 
-            var converter = new JsonConvertWrapper();
+            var converter = new JsonDeserializerWrapper();
             if (!isNull)
             {
                 var result = new List<DayPriceChangeDto>
@@ -174,7 +175,7 @@ namespace ExchangeLibrary.Binance.EndpointSenders.Impl
                 },
                 cancellationToken: cancellationToken);
 
-            var converter = new JsonConvertWrapper();
+            var converter = new JsonDeserializerWrapper();
             if (!isNull)
             {
                 var result = new List<SymbolPriceTickerDto>
@@ -203,7 +204,7 @@ namespace ExchangeLibrary.Binance.EndpointSenders.Impl
                 },
                 cancellationToken: cancellationToken);
 
-            var converter = new JsonConvertWrapper();
+            var converter = new JsonDeserializerWrapper();
             if (!isNull)
             {
                 var result = new List<SymbolOrderBookTickerDto>

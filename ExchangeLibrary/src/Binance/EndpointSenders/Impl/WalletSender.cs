@@ -42,7 +42,7 @@ namespace ExchangeLibrary.Binance.EndpointSenders.Impl
                  HttpMethod.Get,
                  cancellationToken: cancellationToken);
 
-            var converter = new JsonConvertWrapper();
+            var converter = new JsonDeserializerWrapper();
             return converter.Deserialize<SystemStatusDto>(result);
         }
 
@@ -61,7 +61,7 @@ namespace ExchangeLibrary.Binance.EndpointSenders.Impl
                 },
                 cancellationToken: cancellationToken);
 
-            var converter = new JsonConvertWrapper();
+            var converter = new JsonDeserializerWrapper();
             return converter.Deserialize<AccountTraidingStatusDto>(result);
         }
 
@@ -85,7 +85,7 @@ namespace ExchangeLibrary.Binance.EndpointSenders.Impl
                 query: parameters,
                 cancellationToken: cancellationToken);
 
-            var converter = new JsonConvertWrapper();
+            var converter = new JsonDeserializerWrapper();
             return converter.Deserialize<IEnumerable<TradeFeeDto>>(result);
         }
 
@@ -104,7 +104,7 @@ namespace ExchangeLibrary.Binance.EndpointSenders.Impl
                  },
                  cancellationToken: cancellationToken);
 
-            var converter = new JsonConvertWrapper();
+            var converter = new JsonDeserializerWrapper();
             return converter.Deserialize<List<CoinDto>>(result);
         }
 

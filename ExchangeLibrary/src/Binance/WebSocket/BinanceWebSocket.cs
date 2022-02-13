@@ -22,7 +22,7 @@ namespace ExchangeLibrary.Binance.WebSocket
         private readonly List<CancellationTokenRegistration> _onMessageReceivedCancellationTokenRegistrations = new();
         private CancellationTokenSource _loopCancellationTokenSource;
         private readonly Uri _uri;
-        private readonly JsonConvertWrapper _jsonConvertWrapper;
+        private readonly JsonDeserializerWrapper _jsonConvertWrapper;
         private readonly int _receiveBufferSize = 8192;
         private bool _isDisposed;
 
@@ -31,7 +31,7 @@ namespace ExchangeLibrary.Binance.WebSocket
         #region .ctor
 
         /// <inheritdoc cref="BinanceWebSocket"/>>
-        public BinanceWebSocket(IBinanceWebSocketHumble socketHumble, JsonConvertWrapper jsonConvertWrapper, string url)
+        public BinanceWebSocket(IBinanceWebSocketHumble socketHumble, JsonDeserializerWrapper jsonConvertWrapper, string url)
         {
             _jsonConvertWrapper = jsonConvertWrapper;
             _webSocketHumble = socketHumble;

@@ -1,4 +1,6 @@
-﻿using ExchangeLibrary.Binance.Enums;
+﻿using Common.JsonConvertWrapper;
+using ExchangeLibrary.Binance.Enums;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace ExchangeLibrary.Binance.DTOs.WebSocket.Marketdata.Impl
@@ -7,7 +9,7 @@ namespace ExchangeLibrary.Binance.DTOs.WebSocket.Marketdata.Impl
     ///     Модель данных обновления лучшей цены или количества спроса или предложения
     ///     в режиме реального времени для указанного символа
     /// </summary>
-    public class BookTickerStreamDto : IMarketdataStreamDto
+    public class BookTickerStreamDto : IMarketdataStreamDto, IHaveMyOwnJsonConverter
     {
         /// <summary>
         ///     Тип стрима с которого получаем данные
@@ -49,5 +51,42 @@ namespace ExchangeLibrary.Binance.DTOs.WebSocket.Marketdata.Impl
         /// </summary>
         [JsonPropertyName("A")]
         public double BestAskQuantity { get; set; }
+
+        /// <inheritdoc />
+        public void SetProperties(ref Utf8JsonReader reader, IHaveMyOwnJsonConverter result)
+        {
+            var temp = result as BookTickerStreamDto;
+            string lastPropertyName = "";
+            while (reader.Read() && reader.TokenType != JsonTokenType.EndObject)
+            {
+                if (reader.TokenType == JsonTokenType.PropertyName)
+                {
+                    lastPropertyName = reader.GetString();
+                    reader.Read();
+                }
+
+                switch (lastPropertyName)
+                {
+                    case "u":
+                        temp.OrderBookUpdatedId = reader.GetInt64();
+                        continue;
+                    case "s":
+                        temp.Symbol = reader.GetString();
+                        continue;
+                    case "b":
+                        temp.BestBidPrice = double.Parse(reader.GetString());
+                        continue;
+                    case "B":
+                        temp.BestBidQuantity = double.Parse(reader.GetString());
+                        continue;
+                    case "a":
+                        temp.BestAskPrice = double.Parse(reader.GetString());
+                        continue;
+                    case "A":
+                        temp.BestAskQuantity = double.Parse(reader.GetString());
+                        continue;
+                }
+            }
+        }
     }
 }

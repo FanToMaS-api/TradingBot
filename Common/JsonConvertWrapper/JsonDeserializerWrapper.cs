@@ -7,7 +7,7 @@ namespace Common.JsonConvertWrapper
     /// <summary>
     ///     Оболочка для десериализации объектов
     /// </summary>
-    public class JsonConvertWrapper
+    public class JsonDeserializerWrapper
     {
         #region Fields
 
@@ -17,8 +17,8 @@ namespace Common.JsonConvertWrapper
 
         #region .ctor
 
-        /// <inheritdoc cref="JsonConvertWrapper"/>
-        public JsonConvertWrapper()
+        /// <inheritdoc cref="JsonDeserializerWrapper"/>
+        public JsonDeserializerWrapper()
         {
             _jsonSerializerOptions = new JsonSerializerOptions();
             _jsonSerializerOptions.Converters.Add(item: new AutoStringToNumberConverter());

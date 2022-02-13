@@ -32,6 +32,17 @@ namespace Common.JsonConvertWrapper
         /// <summary>
         ///     Считывает занчение и сдвигает позицию reader'a
         /// </summary>
+        public static string ReadStringAndNext(this ref Utf8JsonReader reader)
+        {
+            var res = reader.GetString();
+            reader.Read();
+
+            return res;
+        }
+
+        /// <summary>
+        ///     Считывает занчение и сдвигает позицию reader'a
+        /// </summary>
         public static int ReadIntAndNext(this ref Utf8JsonReader reader)
         {
             var res = reader.GetInt32();

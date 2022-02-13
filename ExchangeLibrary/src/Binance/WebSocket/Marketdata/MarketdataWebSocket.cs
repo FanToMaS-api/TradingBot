@@ -1,6 +1,7 @@
 ﻿using Common.JsonConvertWrapper;
+using Common.JsonConvertWrapper.Converters;
 using ExchangeLibrary.Binance.DTOs.Marketdata;
-using ExchangeLibrary.Binance.DTOs.WebSocket.Marketdata;
+using ExchangeLibrary.Binance.DTOs.WebSocket.Marketdata.Impl;
 using ExchangeLibrary.Binance.Enums;
 using ExchangeLibrary.Binance.Enums.Helper;
 using ExchangeLibrary.Binance.WebSocket.Impl;
@@ -12,14 +13,13 @@ namespace ExchangeLibrary.Binance.WebSocket.Marketdata
     ///     Веб-сокет маркетдаты бинанса
     /// </summary>
     public class MarketdataWebSocket<T> : BinanceWebSocket<T>
-        where T : IMarketdataStreamDto
     {
         private const string BaseUrl = "wss://stream.binance.com:9443";
 
         /// <summary>
         ///     Создать новый запрос на подписку к стриму 
         /// </summary>
-        private MarketdataWebSocket(IBinanceWebSocketHumble webSocketHumble, JsonConvertWrapper jsonConvertWrapper, string url)
+        private MarketdataWebSocket(IBinanceWebSocketHumble webSocketHumble, JsonDeserializerWrapper jsonConvertWrapper, string url)
             : base(webSocketHumble, jsonConvertWrapper, url)
         { }
 
@@ -31,7 +31,7 @@ namespace ExchangeLibrary.Binance.WebSocket.Marketdata
         public MarketdataWebSocket(string symbol, MarketdataStreamType streamType)
         : base(
               new BinanceWebSocketHumble(new ClientWebSocket()),
-              new JsonConvertWrapper(),
+              new JsonDeserializerWrapper(),
               $"{BaseUrl}/ws/{symbol.ToLower()}{streamType.InString()}")
         { }
 
@@ -46,7 +46,7 @@ namespace ExchangeLibrary.Binance.WebSocket.Marketdata
             IBinanceWebSocketHumble webSocketHumble)
         : base(
               webSocketHumble,
-              new JsonConvertWrapper(),
+              new JsonDeserializerWrapper(),
               $"{BaseUrl}/ws/{symbol.ToLower()}{streamType.InString()}")
         { }
 
@@ -57,7 +57,7 @@ namespace ExchangeLibrary.Binance.WebSocket.Marketdata
         public MarketdataWebSocket(string[] streams)
         : base(
               new BinanceWebSocketHumble(new ClientWebSocket()),
-              new JsonConvertWrapper(),
+              new JsonDeserializerWrapper(),
               $"{BaseUrl}/stream?streams={string.Join("/", streams)}")
         { }
 
@@ -66,7 +66,7 @@ namespace ExchangeLibrary.Binance.WebSocket.Marketdata
         /// </summary>
         /// <param name="streams"> Элементы symbol streamType </param>
         public MarketdataWebSocket(string[] streams, IBinanceWebSocketHumble webSocketHumble)
-        : base(webSocketHumble, new JsonConvertWrapper(), BaseUrl + "/stream?streams=" + string.Join("/", streams))
+        : base(webSocketHumble, new JsonDeserializerWrapper(), BaseUrl + "/stream?streams=" + string.Join("/", streams))
         { }
 
         /// <summary>
@@ -79,7 +79,7 @@ namespace ExchangeLibrary.Binance.WebSocket.Marketdata
             CandleStickIntervalType candleStickInterval) =>
             new MarketdataWebSocket<T>(
                 new BinanceWebSocketHumble(new ClientWebSocket()),
-                new JsonConvertWrapper(),
+                new JsonDeserializerWrapper(),
                 $"{BaseUrl}/ws/{symbol.ToLower()}{MarketdataStreamType.CandlestickStream.InString()}{candleStickInterval.GetInterval()}");
 
         /// <summary>
@@ -93,63 +93,95 @@ namespace ExchangeLibrary.Binance.WebSocket.Marketdata
             IBinanceWebSocketHumble webSocketHumble) =>
             new MarketdataWebSocket<T>(
                 webSocketHumble,
-                new JsonConvertWrapper(),
+                new JsonDeserializerWrapper(),
                 $"{BaseUrl}/ws/{symbol.ToLower()}{MarketdataStreamType.CandlestickStream.InString()}{candleStickInterval.GetInterval()}");
 
         /// <summary>
         ///     Получать статистику всех мини-тикеров за 24 часа
         /// </summary>
-        public static MarketdataWebSocket<T> CreateAllMarketMiniTickersStream() =>
-            new MarketdataWebSocket<T>(
+        public static MarketdataWebSocket<T> CreateAllMarketMiniTickersStream()
+        {
+            var converter = new JsonDeserializerWrapper();
+            converter.AddConverter(new EnumerableDeserializer<MiniTickerStreamDto>());
+
+            return new MarketdataWebSocket<T>(
                 new BinanceWebSocketHumble(new ClientWebSocket()),
-                new JsonConvertWrapper(),
+                converter,
                 $"{BaseUrl}/ws/{MarketdataStreamType.AllMarketMiniTickersStream.InString()}");
+        }
 
         /// <summary>
         ///     Получать статистику всех мини-тикеров за 24 часа
         /// </summary>
-        public static MarketdataWebSocket<T> CreateAllMarketMiniTickersStream(IBinanceWebSocketHumble webSocketHumble) =>
-            new MarketdataWebSocket<T>(
-                webSocketHumble,
-                new JsonConvertWrapper(),
-                $"{BaseUrl}/ws/{MarketdataStreamType.AllMarketMiniTickersStream.InString()}");
+        public static MarketdataWebSocket<T> CreateAllMarketMiniTickersStream(IBinanceWebSocketHumble webSocketHumble)
+        {
+            var converter = new JsonDeserializerWrapper();
+            converter.AddConverter(new EnumerableDeserializer<MiniTickerStreamDto>());
+
+            return new MarketdataWebSocket<T>(
+                 webSocketHumble,
+                 converter,
+                 $"{BaseUrl}/ws/{MarketdataStreamType.AllMarketMiniTickersStream.InString()}");
+        }
+
 
         /// <summary>
         ///     Получать статистику всех тикеров за 24 часа
         /// </summary>
-        public static MarketdataWebSocket<T> CreateAllMarketTickersStream() =>
-            new MarketdataWebSocket<T>(
+        public static MarketdataWebSocket<T> CreateAllTickersStream()
+        {
+            var converter = new JsonDeserializerWrapper();
+            converter.AddConverter(new EnumerableDeserializer<TickerStreamDto>());
+
+            return new MarketdataWebSocket<T>(
                 new BinanceWebSocketHumble(new ClientWebSocket()),
-                new JsonConvertWrapper(),
+                converter,
                 $"{BaseUrl}/ws/{MarketdataStreamType.AllMarketTickersStream.InString()}");
+        }
 
         /// <summary>
         ///     Получать статистику всех тикеров за 24 часа
         /// </summary>
-        public static MarketdataWebSocket<T> CreateAllMarketTickersStream(IBinanceWebSocketHumble webSocketHumble) =>
-            new MarketdataWebSocket<T>(
+        public static MarketdataWebSocket<T> CreateAllTickersStream(IBinanceWebSocketHumble webSocketHumble)
+        {
+            var converter = new JsonDeserializerWrapper();
+            converter.AddConverter(new EnumerableDeserializer<TickerStreamDto>());
+
+            return new MarketdataWebSocket<T>(
                 webSocketHumble,
-                new JsonConvertWrapper(),
+                converter,
                 $"{BaseUrl}/ws/{MarketdataStreamType.AllMarketTickersStream.InString()}");
+        }
 
         /// <summary>
         ///     Получать обновления лучшей цены покупки или продажи или количество в режиме реального времени для всех символов
         /// </summary>
-        public static MarketdataWebSocket<T> CreateAllBookTickersStream() =>
-            new MarketdataWebSocket<T>(
-                new BinanceWebSocketHumble(new ClientWebSocket()),
-                new JsonConvertWrapper(),
-                $"{BaseUrl}/ws/{MarketdataStreamType.AllBookTickersStream.InString()}");
+        public static MarketdataWebSocket<T> CreateAllBookTickersStream()
+        {
+            var converter = new JsonDeserializerWrapper();
+            converter.AddConverter(new EnumerableDeserializer<BookTickerStreamDto>());
+
+            return new MarketdataWebSocket<T>(
+               new BinanceWebSocketHumble(new ClientWebSocket()),
+               converter,
+               $"{BaseUrl}/ws/{MarketdataStreamType.AllBookTickersStream.InString()}");
+        }
+
 
         /// <summary>
         ///     Получать обновления лучшей цены покупки или продажи или количество в режиме реального времени для всех символов
         /// </summary>
-        public static MarketdataWebSocket<T> CreateAllBookTickersStream(IBinanceWebSocketHumble webSocketHumble) =>
-            new MarketdataWebSocket<T>(
-                webSocketHumble,
-                new JsonConvertWrapper(),
-                $"{BaseUrl}/ws/{MarketdataStreamType.AllBookTickersStream.InString()}");
+        public static MarketdataWebSocket<T> CreateAllBookTickersStream(
+            IBinanceWebSocketHumble webSocketHumble)
+        {
+            var converter = new JsonDeserializerWrapper();
+            converter.AddConverter(new EnumerableDeserializer<BookTickerStreamDto>());
 
+            return new MarketdataWebSocket<T>(
+               webSocketHumble,
+               converter,
+               $"{BaseUrl}/ws/{MarketdataStreamType.AllBookTickersStream.InString()}");
+        }
 
         /// <summary>
         ///     Получать лучший ордера спроса и предложения
@@ -158,11 +190,11 @@ namespace ExchangeLibrary.Binance.WebSocket.Marketdata
         /// <param name="levels"> Кол-во оредеров. Допустимые значения 5, 10, 20 </param>
         /// <param name="activateFastReceive"> Активировать прием данных раз в 100 миллисекунд </param>
         public static MarketdataWebSocket<T> CreatePartialBookDepthStream(
-            string symbol,
-            int levels = 10,
-            bool activateFastReceive = false)
+                string symbol,
+                int levels = 10,
+                bool activateFastReceive = false)
         {
-            var jsonConverter = new JsonConvertWrapper();
+            var jsonConverter = new JsonDeserializerWrapper();
             jsonConverter.AddConverter(new OrderBookDtoConverter());
             var url = $"{BaseUrl}/ws/{symbol.ToLower()}{MarketdataStreamType.PartialBookDepthStream.InString()}{levels}";
             if (activateFastReceive)
@@ -188,7 +220,7 @@ namespace ExchangeLibrary.Binance.WebSocket.Marketdata
             int levels = 10,
             bool activateFastReceive = false)
         {
-            var jsonConverter = new JsonConvertWrapper();
+            var jsonConverter = new JsonDeserializerWrapper();
             jsonConverter.AddConverter(new OrderBookDtoConverter());
             var url = $"{BaseUrl}/ws/{symbol.ToLower()}{MarketdataStreamType.PartialBookDepthStream.InString()}{levels}";
             if (activateFastReceive)
