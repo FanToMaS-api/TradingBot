@@ -273,6 +273,106 @@ namespace ExchangeLibraryTests.BinanceTests.WebSocket
         }
 
         /// <summary>
+        ///     Тест подписки на <see cref="MarketdataStreamType.TradeStream"/>
+        /// </summary>
+        [Fact(DisplayName = "Trade stream Test")]
+        public async Task SubscriptionTradeStreamTest()
+        {
+            var expected = new SymbolTradeStreamDto
+            {
+                Symbol = "BNBBTC",
+                EventTimeUnix = 123456789,
+                SellerOrderId = 50,
+                BuyerOrderId = 88,
+                Price = 0.001,
+                Quantity = 100,
+                TradeTimeUnix = 123456785,
+                IsMarketMaker = true,
+                TradeId = 12345
+            };
+            var url = "wss://stream.binance.com:9443";
+            var bytes = GetBytes("../../../BinanceTests/Jsons/WebSocket/TradeStream.json");
+            var webSocketHumbleMock = GetMockingBinanceWebHumble(url, bytes);
+            using var webSocket = new MarketdataWebSocket<SymbolTradeStreamDto>(
+                url,
+                MarketdataStreamType.TradeStream,
+                webSocketHumbleMock);
+
+            webSocket.AddOnMessageReceivedFunc(
+                async (actual) =>
+                {
+                    var properties = typeof(SymbolTradeStreamDto).GetProperties();
+                    for (var i = 0; i < properties.Length; i++)
+                    {
+                        Assert.Equal(properties[i].GetValue(expected), properties[i].GetValue(actual));
+                    }
+
+                    await webSocket.DisconnectAsync(CancellationToken.None);
+                },
+                CancellationToken.None);
+
+            // Act
+            await webSocket.ConnectAsync(CancellationToken.None);
+        }
+
+
+        /// <summary>
+        ///     Тест подписки на <see cref="MarketdataStreamType.IndividualSymbolTickerStream"/>
+        /// </summary>
+        [Fact(DisplayName = "Individual symbol ticker stream Test")]
+        public async Task SubscriptionIndividualSymbolTickerStreamTest()
+        {
+            var expected = new TickerStreamDto
+            {
+                Symbol = "BNBBTC",
+                EventTimeUnix = 123456789,
+                Price = 0.0015,
+                PricePercentChange = 250.00,
+                WeightedAveragePrice = 0.0018,
+                FirstPrice = 0.0009,
+                LastPrice = 0.0025,
+                LastQuantity = 10,
+                BestBidPrice = 0.0024,
+                BestBidQuantity = 10,
+                BestAskPrice = 0.0026,
+                BestAskQuantity = 100,
+                OpenPrice = 0.0010,
+                MaxPrice = 0.0025,
+                MinPrice = 0.0010,
+                AllBaseVolume = 10000,
+                AllQuoteVolume = 18,
+                StatisticOpenTimeUnix = 1,
+                StatisticCloseTimeUnix = 86400000,
+                FirstTradeId = 2,
+                LastTradeId = 18150,
+                TradeNumber = 18151
+            };
+            var url = "wss://stream.binance.com:9443";
+            var bytes = GetBytes("../../../BinanceTests/Jsons/WebSocket/IndividualSymbolTickerStream.json");
+            var webSocketHumbleMock = GetMockingBinanceWebHumble(url, bytes);
+            using var webSocket = new MarketdataWebSocket<TickerStreamDto>(
+                url,
+                MarketdataStreamType.IndividualSymbolTickerStream,
+                webSocketHumbleMock);
+
+            webSocket.AddOnMessageReceivedFunc(
+                async (actual) =>
+                {
+                    var properties = typeof(TickerStreamDto).GetProperties();
+                    for (var i = 0; i < properties.Length; i++)
+                    {
+                        Assert.Equal(properties[i].GetValue(expected), properties[i].GetValue(actual));
+                    }
+
+                    await webSocket.DisconnectAsync(CancellationToken.None);
+                },
+                CancellationToken.None);
+
+            // Act
+            await webSocket.ConnectAsync(CancellationToken.None);
+        }
+
+        /// <summary>
         ///     Проверка верной конвертации значений периодов свечей
         /// </summary>
         [Fact(DisplayName = "Candlesticks Interval Convertation Test")]

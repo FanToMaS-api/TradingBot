@@ -69,8 +69,12 @@ namespace ExchangeLibrary.Binance.DTOs.Marketdata
         /// <summary>
         ///     Устанавливает св-ва для <see cref="CandlestickDto"/>
         /// </summary>
-        internal static void SetPropertiesCandleStickDto(ref Utf8JsonReader reader, CandlestickDto result)
+        /// <param name="reader"> Reader с указателем на начало массива с данными о свече </param>
+        internal static CandlestickDto Create(ref Utf8JsonReader reader)
         {
+            var result = new CandlestickDto();
+
+            reader.Read();
             result.OpenTimeUnix = reader.ReadLongAndNext();
             result.OpenPrice = reader.ReadDoubleAndNext();
             result.MaxPrice = reader.ReadDoubleAndNext();
@@ -82,9 +86,14 @@ namespace ExchangeLibrary.Binance.DTOs.Marketdata
             result.TradesNumber = reader.ReadIntAndNext();
             result.BasePurchaseVolume = reader.ReadDoubleAndNext();
             result.QuotePurchaseVolume = reader.ReadDoubleAndNext();
+
+            return result;
         }
     }
 
+    /// <summary>
+    ///     Конвертирует данные в массив объектов
+    /// </summary>
     public class CandleStickDtoEnumerableConverter : JsonConverter<IEnumerable<CandlestickDto>>
     {
         /// <inheritdoc />
@@ -95,9 +104,7 @@ namespace ExchangeLibrary.Binance.DTOs.Marketdata
             {
                 if (reader.TokenType == JsonTokenType.StartArray)
                 {
-                    var newCandleStick = new CandlestickDto();
-                    reader.Read();
-                    CandlestickDto.SetPropertiesCandleStickDto(ref reader, newCandleStick);
+                    var newCandleStick = CandlestickDto.Create(ref reader);
 
                     result.Add(newCandleStick);
                 }
@@ -121,18 +128,7 @@ namespace ExchangeLibrary.Binance.DTOs.Marketdata
         /// <inheritdoc />
         public override CandlestickDto Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
-            var result = new CandlestickDto();
-
-            while (reader.Read())
-            {
-                if (reader.TokenType == JsonTokenType.StartArray)
-                {
-                    reader.Read();
-                    CandlestickDto.SetPropertiesCandleStickDto(ref reader, result);
-                }
-            }
-
-            return result;
+            return CandlestickDto.Create(ref reader);
         }
 
         /// <inheritdoc />

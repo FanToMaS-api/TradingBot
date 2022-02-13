@@ -36,7 +36,13 @@ namespace ExchangeLibrary.Binance.DTOs.WebSocket.Marketdata.Impl
         public double Quantity { get; set; }
 
         /// <summary>
-        ///     Время Id сделки
+        ///     Id сделки
+        /// </summary>
+        [JsonPropertyName("t")]
+        public long TradeId { get; set; }
+
+        /// <summary>
+        ///     Время сделки
         /// </summary>
         [JsonPropertyName("T")]
         public long TradeTimeUnix { get; set; }

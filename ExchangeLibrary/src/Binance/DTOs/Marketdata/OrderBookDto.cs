@@ -32,35 +32,14 @@ namespace ExchangeLibrary.Binance.DTOs.Marketdata
         /// </summary>
         [JsonPropertyName("asks")]
         public List<PriceQtyPair> Asks { get; set; } = new();
-    }
-
-    /// <summary>
-    ///     Модель цены и объема монеты
-    /// </summary>
-    public class PriceQtyPair
-    {
-        /// <summary>
-        ///     Цена монеты
-        /// </summary>
-        public double Price { get; set; }
 
         /// <summary>
-        ///     Объем
+        ///     Создает <see cref="OrderBookDto"/>
         /// </summary>
-        public double Qty { get; set; }
-    }
-
-    /// <summary>
-    ///     Нормально конвертирует полученные данные
-    /// </summary>
-    public class OrderBookDtoConverter : JsonConverter<OrderBookDto>
-    {
-        /// <inheritdoc />
-        public override OrderBookDto Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+        internal static OrderBookDto CreateOrderBook(ref Utf8JsonReader reader)
         {
             var result = new OrderBookDto();
             string lastPropertyName = "";
-
             while (reader.Read())
             {
                 if (reader.TokenType == JsonTokenType.PropertyName)
@@ -81,22 +60,32 @@ namespace ExchangeLibrary.Binance.DTOs.Marketdata
                     continue;
                 }
 
-                CreatePair(ref reader, result, lastPropertyName);
+                PriceQtyPair.CreatePair(ref reader, result, lastPropertyName);
             }
 
             return result;
         }
+    }
 
-        /// <inheritdoc />
-        public override void Write(Utf8JsonWriter writer, OrderBookDto value, JsonSerializerOptions options)
-        {
-            throw new NotImplementedException();
-        }
+    /// <summary>
+    ///     Модель цены и объема монеты
+    /// </summary>
+    public class PriceQtyPair
+    {
+        /// <summary>
+        ///     Цена монеты
+        /// </summary>
+        public double Price { get; set; }
+
+        /// <summary>
+        ///     Объем
+        /// </summary>
+        public double Qty { get; set; }
 
         /// <summary>
         ///     Создает пару и добавляет в нужный массив пар
         /// </summary>
-        private void CreatePair(ref Utf8JsonReader reader, OrderBookDto result, string lastPropertyName)
+        internal static void CreatePair(ref Utf8JsonReader reader, OrderBookDto result, string lastPropertyName)
         {
             var workItem = new PriceQtyPair();
             workItem.Price = double.Parse(reader.GetString());
@@ -111,6 +100,54 @@ namespace ExchangeLibrary.Binance.DTOs.Marketdata
                     result.Asks.Add(workItem);
                     break;
             }
+        }
+    }
+
+    /// <summary>
+    ///     Конвертирует данные в массив объектов
+    /// </summary>
+    public class OrderBookDtoEnumerableConverter : JsonConverter<IEnumerable<OrderBookDto>>
+    {
+        /// <inheritdoc />
+        public override IEnumerable<OrderBookDto> Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+        {
+            var result = new List<OrderBookDto>();
+            while (reader.Read())
+            {
+                if (reader.TokenType == JsonTokenType.StartArray)
+                {
+                    var orderBook = OrderBookDto.CreateOrderBook(ref reader);
+                    reader.Read();
+
+                    result.Add(orderBook);
+                }
+            }
+
+            return result;
+        }
+
+        /// <inheritdoc />
+        public override void Write(Utf8JsonWriter writer, IEnumerable<OrderBookDto> value, JsonSerializerOptions options)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    /// <summary>
+    ///     Нормально конвертирует полученные данные
+    /// </summary>
+    public class OrderBookDtoConverter : JsonConverter<OrderBookDto>
+    {
+        /// <inheritdoc />
+        public override OrderBookDto Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+        {
+            return OrderBookDto.CreateOrderBook(ref reader);
+        }
+
+        /// <inheritdoc />
+        public override void Write(Utf8JsonWriter writer, OrderBookDto value, JsonSerializerOptions options)
+        {
+            throw new NotImplementedException();
         }
     }
 }

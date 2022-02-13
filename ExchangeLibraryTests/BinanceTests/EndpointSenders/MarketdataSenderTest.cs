@@ -363,7 +363,11 @@ namespace ExchangeLibraryTests.BinanceTests.EndpointSenders
             IMarketdataSender marketdataSender = new MarketdataSender(binanceClient);
 
             // Act
-            var result = (await marketdataSender.GetCandleStickAsync("", CandleStickIntervalType.OneMinute, cancellationToken: CancellationToken.None)).ToList();
+            var result = (await marketdataSender.GetCandleStickAsync(
+                "",
+                CandleStickIntervalType.OneMinute,
+                cancellationToken: CancellationToken.None))
+                .ToList();
 
             Assert.Equal(2, result.Count);
             var properties = typeof(CandlestickDto).GetProperties();
