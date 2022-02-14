@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 namespace ExchangeLibrary.Binance.EndpointSenders
 {
     /// <summary>
-    ///     Отвечает за отправку запросов  к конечным точкам Wallet
+    ///     Отвечает за отправку запросов к конечным точкам Wallet
     /// </summary>
     public interface IWalletSender 
     {

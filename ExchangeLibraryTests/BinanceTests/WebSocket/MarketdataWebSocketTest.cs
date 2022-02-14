@@ -203,7 +203,7 @@ namespace ExchangeLibraryTests.BinanceTests.WebSocket
                     KineStartTimeUnix = 123400000,
                     KineStopTimeUnix = 123460000,
                     Symbol = "BNBBTC",
-                    _interval = "1m",
+                    interval = "1m",
                     FirstTradeId = 100,
                     LastTradeId = 200,
                     OpenPrice = 0.0010,

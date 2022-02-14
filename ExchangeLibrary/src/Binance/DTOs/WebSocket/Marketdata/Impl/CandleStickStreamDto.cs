@@ -45,13 +45,13 @@ namespace ExchangeLibrary.Binance.DTOs.WebSocket.Marketdata.Impl
         /// <summary>
         ///     Интервал
         /// </summary>
-        public CandleStickIntervalType Interval => _interval.ConvertToCandleStickIntervalType();
+        public CandleStickIntervalType Interval => interval.ConvertToCandleStickIntervalType();
 
         /// <summary>
         ///     Интервал (нужен для парса json)
         /// </summary>
         [JsonPropertyName("i")]
-        public string _interval { get; set; }
+        public string interval { get; set; }
 
         /// <summary>
         ///     Первое Id сделки
