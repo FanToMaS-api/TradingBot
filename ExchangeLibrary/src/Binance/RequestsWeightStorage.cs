@@ -7,7 +7,7 @@ namespace ExchangeLibrary.Binance
     /// </summary>
     internal class RequestsWeightStorage
     {
-        #region Wallet's requests weight
+        #region Wallet's requests weights
 
         /// <summary>
         ///     Вес запроса статуса системы
@@ -51,7 +51,7 @@ namespace ExchangeLibrary.Binance
 
         #endregion
 
-        #region Marketdata requests weight
+        #region Marketdata requests weights
 
         /// <summary>
         ///     Вес запроса книги ордеров
@@ -141,6 +141,30 @@ namespace ExchangeLibrary.Binance
             {
                 { RequestWeightModel.GetDefaultKey(), 1 },
                 { "null", 2 },
+            });
+
+        #endregion
+
+        #region Spot Account/Trade weights
+
+        /// <summary>
+        ///     Вес запроса на создание нового ТЕСТОВОГО ордера
+        /// </summary>
+        public RequestWeightModel NewTestOrderWeight { get; set; } = new RequestWeightModel(
+            Enums.ApiType.Api,
+            new()
+            {
+                { RequestWeightModel.GetDefaultKey(), 1 }
+            });
+
+        /// <summary>
+        ///     Вес запроса на создание нового ордера
+        /// </summary>
+        public RequestWeightModel NewOrderWeight { get; set; } = new RequestWeightModel(
+            Enums.ApiType.Api,
+            new()
+            {
+                { RequestWeightModel.GetDefaultKey(), 1 }
             });
 
         #endregion

@@ -1,11 +1,11 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace ExchangeLibrary.Binance.DTOs.Wallet
+namespace ExchangeLibrary.Binance.Models.Wallet
 {
     /// <summary>
     ///    Модель трейдинг статуса аккаунта 
     /// </summary>
-    public class AccountTraidingStatusDto
+    public class AccountTraidingStatusModel
     {
         #region Properties
 

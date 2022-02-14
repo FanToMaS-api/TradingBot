@@ -1,12 +1,12 @@
 ﻿using ExchangeLibrary.Binance.Enums;
 using System.Text.Json.Serialization;
 
-namespace ExchangeLibrary.Binance.DTOs.WebSocket.Marketdata.Impl
+namespace ExchangeLibrary.Binance.Models.WebSocket.Marketdata.Impl
 {
     /// <summary>
     ///     Модель данных с потока необработанной торговой информации; у каждой сделки есть уникальный покупатель и продавец
     /// </summary>
-    public class SymbolTradeStreamDto : MarketdataStreamDtoBase, IMarketdataStreamDto
+    public class SymbolTradeStreamModel : MarketdataStreamModelBase, IMarketdataStreamModel
     {
         /// <inheritdoc />
         public MarketdataStreamType StreamType => MarketdataStreamType.TradeStream;

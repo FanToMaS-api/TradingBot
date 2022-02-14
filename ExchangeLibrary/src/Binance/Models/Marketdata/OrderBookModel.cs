@@ -1,17 +1,17 @@
 ﻿using Common.JsonConvertWrapper;
-using ExchangeLibrary.Binance.DTOs.WebSocket.Marketdata;
 using ExchangeLibrary.Binance.Enums;
+using ExchangeLibrary.Binance.Models.WebSocket.Marketdata;
 using System;
 using System.Collections.Generic;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace ExchangeLibrary.Binance.DTOs.Marketdata
+namespace ExchangeLibrary.Binance.Models.Marketdata
 {
     /// <summary>
     ///     Модель книги заказов
     /// </summary>
-    public class OrderBookDto : IMarketdataStreamDto, IHaveMyOwnJsonConverter
+    public class OrderBookModel : IMarketdataStreamModel, IHaveMyOwnJsonConverter
     {
         /// <inheritdoc />
         public MarketdataStreamType StreamType => MarketdataStreamType.PartialBookDepthStream;
@@ -37,7 +37,7 @@ namespace ExchangeLibrary.Binance.DTOs.Marketdata
         /// <inheritdoc />
         public void SetProperties(ref Utf8JsonReader reader, IHaveMyOwnJsonConverter temp)
         {
-            var result = temp as OrderBookDto;
+            var result = temp as OrderBookModel;
             string lastPropertyName = "";
             while (reader.Read())
             {
@@ -82,7 +82,7 @@ namespace ExchangeLibrary.Binance.DTOs.Marketdata
         /// <summary>
         ///     Создает пару и добавляет в нужный массив пар
         /// </summary>
-        internal static void CreatePair(ref Utf8JsonReader reader, OrderBookDto result, string lastPropertyName)
+        internal static void CreatePair(ref Utf8JsonReader reader, OrderBookModel result, string lastPropertyName)
         {
             var workItem = new PriceQtyPair();
             workItem.Price = double.Parse(reader.GetString());
@@ -103,19 +103,19 @@ namespace ExchangeLibrary.Binance.DTOs.Marketdata
     /// <summary>
     ///     Нормально конвертирует полученные данные
     /// </summary>
-    public class OrderBookDtoConverter : JsonConverter<OrderBookDto>
+    public class OrderBookModelConverter : JsonConverter<OrderBookModel>
     {
         /// <inheritdoc />
-        public override OrderBookDto Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+        public override OrderBookModel Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
-            var orderBook = new OrderBookDto();
+            var orderBook = new OrderBookModel();
             orderBook.SetProperties(ref reader, orderBook);
 
             return orderBook;
         }
 
         /// <inheritdoc />
-        public override void Write(Utf8JsonWriter writer, OrderBookDto value, JsonSerializerOptions options)
+        public override void Write(Utf8JsonWriter writer, OrderBookModel value, JsonSerializerOptions options)
         {
             throw new NotImplementedException();
         }

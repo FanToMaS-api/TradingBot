@@ -1,10 +1,10 @@
 using ExchangeLibrary.Binance;
 using ExchangeLibrary.Binance.Client;
 using ExchangeLibrary.Binance.Client.Impl;
-using ExchangeLibrary.Binance.DTOs.Marketdata;
 using ExchangeLibrary.Binance.EndpointSenders;
 using ExchangeLibrary.Binance.EndpointSenders.Impl;
 using ExchangeLibrary.Binance.Enums;
+using ExchangeLibrary.Binance.Models.Marketdata;
 using RichardSzalay.MockHttp;
 using System;
 using System.Collections.Generic;
@@ -27,9 +27,9 @@ namespace ExchangeLibraryTests.BinanceTests.EndpointSenders
         /// <summary>
         ///     ќжидаемый результат выполнени€ запроса 24го изменени€ цены
         /// </summary>
-        private static readonly List<DayPriceChangeDto> _expectedDayPriceChange = new List<DayPriceChangeDto>
+        private static readonly List<DayPriceChangeModel> _expectedDayPriceChange = new List<DayPriceChangeModel>
         {
-            new DayPriceChangeDto
+            new DayPriceChangeModel
             {
                 Symbol = "BNBBTC",
                 PriceChange = -94.99999800,
@@ -99,9 +99,9 @@ namespace ExchangeLibraryTests.BinanceTests.EndpointSenders
                 new object[]
                 {
                     "../../../BinanceTests/Jsons/Marketdata/CANDLESTICK_DATA.json",
-                    new CandlestickDto[]
+                    new CandlestickModel[]
                     {
-                        new CandlestickDto
+                        new CandlestickModel
                         {
                             OpenTimeUnix = 1499040000000,
                             OpenPrice = 0.01634790,
@@ -115,7 +115,7 @@ namespace ExchangeLibraryTests.BinanceTests.EndpointSenders
                             BasePurchaseVolume = 1756.87402397,
                             QuotePurchaseVolume = 28.46694368,
                         },
-                        new CandlestickDto
+                        new CandlestickModel
                         {
                             OpenTimeUnix = 12,
                             OpenPrice = 0.12,
@@ -144,9 +144,9 @@ namespace ExchangeLibraryTests.BinanceTests.EndpointSenders
                 {
                     "LTCBTC",
                     "../../../BinanceTests/Jsons/Marketdata/SYMBOL_PRICE_TICKER.json",
-                    new List<SymbolPriceTickerDto>
+                    new List<SymbolPriceTickerModel>
                     {
-                        new SymbolPriceTickerDto
+                        new SymbolPriceTickerModel
                         {
                             Symbol = "LTCBTC",
                             Price = 4.00000200
@@ -159,14 +159,14 @@ namespace ExchangeLibraryTests.BinanceTests.EndpointSenders
                 {
                     null,
                     "../../../BinanceTests/Jsons/Marketdata/SYMBOL_PRICE_TICKERS.json",
-                    new List<SymbolPriceTickerDto>
+                    new List<SymbolPriceTickerModel>
                     {
-                        new SymbolPriceTickerDto
+                        new SymbolPriceTickerModel
                         {
                             Symbol = "LTCBTC",
                             Price = 4.00000200
                         },
-                        new SymbolPriceTickerDto
+                        new SymbolPriceTickerModel
                         {
                             Symbol = "ETHBTC",
                             Price = 0.07946600
@@ -179,14 +179,14 @@ namespace ExchangeLibraryTests.BinanceTests.EndpointSenders
                 {
                     "",
                     "../../../BinanceTests/Jsons/Marketdata/SYMBOL_PRICE_TICKERS.json",
-                    new List<SymbolPriceTickerDto>
+                    new List<SymbolPriceTickerModel>
                     {
-                        new SymbolPriceTickerDto
+                        new SymbolPriceTickerModel
                         {
                             Symbol = "LTCBTC",
                             Price = 4.00000200
                         },
-                        new SymbolPriceTickerDto
+                        new SymbolPriceTickerModel
                         {
                             Symbol = "ETHBTC",
                             Price = 0.07946600
@@ -206,9 +206,9 @@ namespace ExchangeLibraryTests.BinanceTests.EndpointSenders
                 {
                     "LTCBTC",
                     "../../../BinanceTests/Jsons/Marketdata/SYMBOL_ORDER_BOOK_TICKER.json",
-                    new List<SymbolOrderBookTickerDto>
+                    new List<SymbolOrderBookTickerModel>
                     {
-                        new SymbolOrderBookTickerDto
+                        new SymbolOrderBookTickerModel
                         {
                             Symbol = "LTCBTC",
                             BidPrice = 4.00000000,
@@ -224,9 +224,9 @@ namespace ExchangeLibraryTests.BinanceTests.EndpointSenders
                 {
                     null,
                     "../../../BinanceTests/Jsons/Marketdata/SYMBOL_ORDER_BOOK_TICKERS.json",
-                    new List<SymbolOrderBookTickerDto>
+                    new List<SymbolOrderBookTickerModel>
                     {
-                        new SymbolOrderBookTickerDto
+                        new SymbolOrderBookTickerModel
                         {
                             Symbol = "LTCBTC",
                             BidPrice = 4.00000000,
@@ -234,7 +234,7 @@ namespace ExchangeLibraryTests.BinanceTests.EndpointSenders
                             AskPrice = 4.00000200,
                             AskQty = 9.00000000,
                         },
-                        new SymbolOrderBookTickerDto
+                        new SymbolOrderBookTickerModel
                         {
                             Symbol = "ETHBTC",
                             BidPrice = 0.07946700,
@@ -250,9 +250,9 @@ namespace ExchangeLibraryTests.BinanceTests.EndpointSenders
                 {
                     "",
                     "../../../BinanceTests/Jsons/Marketdata/SYMBOL_ORDER_BOOK_TICKERS.json",
-                    new List<SymbolOrderBookTickerDto>
+                    new List<SymbolOrderBookTickerModel>
                     {
-                        new SymbolOrderBookTickerDto
+                        new SymbolOrderBookTickerModel
                         {
                             Symbol = "LTCBTC",
                             BidPrice = 4.00000000,
@@ -260,7 +260,7 @@ namespace ExchangeLibraryTests.BinanceTests.EndpointSenders
                             AskPrice = 4.00000200,
                             AskQty = 9.00000000,
                         },
-                        new SymbolOrderBookTickerDto
+                        new SymbolOrderBookTickerModel
                         {
                             Symbol = "ETHBTC",
                             BidPrice = 0.07946700,
@@ -356,7 +356,7 @@ namespace ExchangeLibraryTests.BinanceTests.EndpointSenders
         /// </summary>
         [Theory(DisplayName = "Request for a list of candlesticks by coin Test")]
         [MemberData(nameof(CandleStickData))]
-        public async Task GetCandleStickAsyncTest(string filePath, CandlestickDto[] expected)
+        public async Task GetCandleStickAsyncTest(string filePath, CandlestickModel[] expected)
         {
             using var client = CreateMockHttpClient(BinanceEndpoints.CANDLESTICK_DATA, filePath);
             IBinanceClient binanceClient = new BinanceClient(client, "", "");
@@ -370,7 +370,7 @@ namespace ExchangeLibraryTests.BinanceTests.EndpointSenders
                 .ToList();
 
             Assert.Equal(2, result.Count);
-            var properties = typeof(CandlestickDto).GetProperties();
+            var properties = typeof(CandlestickModel).GetProperties();
             for (var i = 0; i < expected.Length; i++)
             {
                 for (var j = 0; j < properties.Length; j++)
@@ -403,7 +403,7 @@ namespace ExchangeLibraryTests.BinanceTests.EndpointSenders
         /// </summary>
         [Theory(DisplayName = "Request for a 24-hour change in the price of a pair Test")]
         [MemberData(nameof(DayPriceChangeData))]
-        public async Task GetDayPriceChangeAsyncTest(string symbol, string filePath, List<DayPriceChangeDto> expectedDtos)
+        public async Task GetDayPriceChangeAsyncTest(string symbol, string filePath, List<DayPriceChangeModel> expectedDtos)
         {
             using var client = CreateMockHttpClient(BinanceEndpoints.DAY_PRICE_CHANGE, filePath);
             IBinanceClient binanceClient = new BinanceClient(client, "", "");
@@ -429,7 +429,7 @@ namespace ExchangeLibraryTests.BinanceTests.EndpointSenders
         /// </summary>
         [Theory(DisplayName = "Requesting the last price of a pair/pairs Test")]
         [MemberData(nameof(SymbolPriceTickerData))]
-        public async Task GetSymbolPriceTickerAsync(string symbol, string filePath, List<SymbolPriceTickerDto> expectedDtos)
+        public async Task GetSymbolPriceTickerAsync(string symbol, string filePath, List<SymbolPriceTickerModel> expectedDtos)
         {
             using var client = CreateMockHttpClient(BinanceEndpoints.SYMBOL_PRICE_TICKER, filePath);
             IBinanceClient binanceClient = new BinanceClient(client, "", "");
@@ -455,7 +455,7 @@ namespace ExchangeLibraryTests.BinanceTests.EndpointSenders
         /// </summary>
         [Theory(DisplayName = "Requesting the best price/quantity in the order book for a symbol or symbols Test")]
         [MemberData(nameof(SymbolOrderBookTickerData))]
-        public async Task GetSymbolOrderBookTickerAsyncAsync(string symbol, string filePath, List<SymbolOrderBookTickerDto> expectedDtos)
+        public async Task GetSymbolOrderBookTickerAsyncAsync(string symbol, string filePath, List<SymbolOrderBookTickerModel> expectedDtos)
         {
             using var client = CreateMockHttpClient(BinanceEndpoints.SYMBOL_ORDER_BOOK_TICKER, filePath);
             IBinanceClient binanceClient = new BinanceClient(client, "", "");

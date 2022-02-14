@@ -1,11 +1,11 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace ExchangeLibrary.Binance.DTOs.Marketdata
+namespace ExchangeLibrary.Binance.Models.Marketdata
 {
     /// <summary>
     ///     Модель недавней сделки
     /// </summary>
-    public class RecentTradeDto
+    public class RecentTradeModel
     {
         /// <summary>
         ///     Уникальный идентификатор

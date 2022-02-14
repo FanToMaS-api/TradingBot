@@ -4,12 +4,12 @@ using Common.JsonConvertWrapper;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace ExchangeLibrary.Binance.DTOs.Marketdata
+namespace ExchangeLibrary.Binance.Models.Marketdata
 {
     /// <summary>
     ///     Модель свечи для монеты
     /// </summary>
-    public class CandlestickDto
+    public class CandlestickModel
     {
         /// <summary>
         ///     Время открытия
@@ -67,12 +67,12 @@ namespace ExchangeLibrary.Binance.DTOs.Marketdata
         public double QuotePurchaseVolume { get; set; }
 
         /// <summary>
-        ///     Устанавливает св-ва для <see cref="CandlestickDto"/>
+        ///     Устанавливает св-ва для <see cref="CandlestickModel"/>
         /// </summary>
         /// <param name="reader"> Reader с указателем на начало массива с данными о свече </param>
-        internal static CandlestickDto Create(ref Utf8JsonReader reader)
+        internal static CandlestickModel Create(ref Utf8JsonReader reader)
         {
-            var result = new CandlestickDto();
+            var result = new CandlestickModel();
 
             reader.Read();
             result.OpenTimeUnix = reader.ReadLongAndNext();
@@ -94,17 +94,17 @@ namespace ExchangeLibrary.Binance.DTOs.Marketdata
     /// <summary>
     ///     Конвертирует данные в массив объектов
     /// </summary>
-    public class CandleStickDtoEnumerableConverter : JsonConverter<IEnumerable<CandlestickDto>>
+    public class CandleStickModelEnumerableConverter : JsonConverter<IEnumerable<CandlestickModel>>
     {
         /// <inheritdoc />
-        public override IEnumerable<CandlestickDto> Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+        public override IEnumerable<CandlestickModel> Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
-            var result = new List<CandlestickDto>();
+            var result = new List<CandlestickModel>();
             while (reader.Read())
             {
                 if (reader.TokenType == JsonTokenType.StartArray)
                 {
-                    var newCandleStick = CandlestickDto.Create(ref reader);
+                    var newCandleStick = CandlestickModel.Create(ref reader);
 
                     result.Add(newCandleStick);
                 }
@@ -114,7 +114,7 @@ namespace ExchangeLibrary.Binance.DTOs.Marketdata
         }
 
         /// <inheritdoc />
-        public override void Write(Utf8JsonWriter writer, IEnumerable<CandlestickDto> value, JsonSerializerOptions options)
+        public override void Write(Utf8JsonWriter writer, IEnumerable<CandlestickModel> value, JsonSerializerOptions options)
         {
             throw new NotImplementedException();
         }
@@ -123,16 +123,16 @@ namespace ExchangeLibrary.Binance.DTOs.Marketdata
     /// <summary>
     ///     Нормально конвертирует полученные данные
     /// </summary>
-    public class CandleStickDtoConverter : JsonConverter<CandlestickDto>
+    public class CandleStickModelConverter : JsonConverter<CandlestickModel>
     {
         /// <inheritdoc />
-        public override CandlestickDto Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+        public override CandlestickModel Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
-            return CandlestickDto.Create(ref reader);
+            return CandlestickModel.Create(ref reader);
         }
 
         /// <inheritdoc />
-        public override void Write(Utf8JsonWriter writer, CandlestickDto value, JsonSerializerOptions options)
+        public override void Write(Utf8JsonWriter writer, CandlestickModel value, JsonSerializerOptions options)
         {
             throw new NotImplementedException();
         }

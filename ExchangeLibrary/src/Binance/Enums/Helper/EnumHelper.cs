@@ -54,6 +54,60 @@
             };
 
         /// <summary>
+        ///     Переводит статус ордера в формате бинанса в удобный для работы <see cref="OrderStatusType"/>
+        /// </summary>
+        public static OrderStatusType ConvertToOrderStatusType(this string statusType) =>
+            statusType switch
+            {
+                "NEW" => OrderStatusType.NEW,
+                "FILLED" => OrderStatusType.FILLED,
+                "PARTIALLY_FILLED" => OrderStatusType.PARTIALLY_FILLED,
+                "EXPIRED" => OrderStatusType.EXPIRED,
+                "CANCELED" => OrderStatusType.CANCELED,
+                "REJECTED" => OrderStatusType.REJECTED,
+                _ => throw new System.Exception($"Failed to convert '{statusType}' to {nameof(OrderStatusType)}"),
+            };
+
+        /// <summary>
+        ///     Переводит время жизни ордера в формате бинанса в удобный для работы <see cref="TimeInForceType"/>
+        /// </summary>
+        public static TimeInForceType ConvertToTimeInForceType(this string type) =>
+            type switch
+            {
+                "GTC" => TimeInForceType.GTC,
+                "FOK" => TimeInForceType.FOK,
+                "IOC" => TimeInForceType.IOC,
+                _ => throw new System.Exception($"Failed to convert '{type}' to {nameof(TimeInForceType)}"),
+            };
+
+        /// <summary>
+        ///     Переводит тип ордера в формате бинанса в удобный для работы <see cref="OrderType"/>
+        /// </summary>
+        public static OrderType ConvertToOrderType(this string type) =>
+            type switch
+            {
+                "LIMIT" => OrderType.LIMIT,
+                "LIMIT_MAKER" => OrderType.LIMIT_MAKER,
+                "MARKET" => OrderType.MARKET,
+                "STOP_LOSS" => OrderType.STOP_LOSS,
+                "STOP_LOSS_LIMIT" => OrderType.STOP_LOSS_LIMIT,
+                "TAKE_PROFIT" => OrderType.TAKE_PROFIT,
+                "TAKE_PROFIT_LIMIT" => OrderType.TAKE_PROFIT_LIMIT,
+                _ => throw new System.Exception($"Failed to convert '{type}' to {nameof(OrderType)}"),
+            };
+
+        /// <summary>
+        ///     Переводит тип ордера в формате бинанса в удобный для работы <see cref="OrderSideType"/>
+        /// </summary>
+        public static OrderSideType ConvertToOrderSideType(this string type) =>
+            type switch
+            {
+                "BUY" => OrderSideType.BUY,
+                "SELL" => OrderSideType.SELL,
+                _ => throw new System.Exception($"Failed to convert '{type}' to {nameof(OrderSideType)}"),
+            };
+
+        /// <summary>
         ///     Возвращает конечную точку для указанной версии API
         /// </summary>
         public static string GetEndPoint(this ApiVersionType type)

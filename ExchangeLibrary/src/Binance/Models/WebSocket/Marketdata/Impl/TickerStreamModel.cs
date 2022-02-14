@@ -3,12 +3,12 @@ using ExchangeLibrary.Binance.Enums;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace ExchangeLibrary.Binance.DTOs.WebSocket.Marketdata.Impl
+namespace ExchangeLibrary.Binance.Models.WebSocket.Marketdata.Impl
 {
     /// <summary>
     ///     Модель статистики бегущего окна за 24 часа для одного символа
     /// </summary>
-    public class TickerStreamDto : MarketdataStreamDtoBase, IMarketdataStreamDto, IHaveMyOwnJsonConverter
+    public class TickerStreamModel : MarketdataStreamModelBase, IMarketdataStreamModel, IHaveMyOwnJsonConverter
     {
         /// <inheritdoc />
         public MarketdataStreamType StreamType => MarketdataStreamType.IndividualSymbolTickerStream;
@@ -136,7 +136,7 @@ namespace ExchangeLibrary.Binance.DTOs.WebSocket.Marketdata.Impl
         /// <inheritdoc />
         public void SetProperties(ref Utf8JsonReader reader, IHaveMyOwnJsonConverter result)
         {
-            var temp = result as TickerStreamDto;
+            var temp = result as TickerStreamModel;
             string lastPropertyName = "";
             while (reader.Read() && reader.TokenType != JsonTokenType.EndObject)
             {

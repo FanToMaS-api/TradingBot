@@ -1,11 +1,11 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace ExchangeLibrary.Binance.DTOs.Marketdata
+namespace ExchangeLibrary.Binance.Models.Marketdata
 {
     /// <summary>
     ///     Модель лучшей цены/кол-ва из стакана для пары
     /// </summary>
-    public class SymbolOrderBookTickerDto
+    public class SymbolOrderBookTickerModel
     {
         /// <summary>
         ///     Название пары

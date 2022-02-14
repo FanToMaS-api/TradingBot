@@ -77,5 +77,19 @@
         public const string SYMBOL_ORDER_BOOK_TICKER = "/api/v3/ticker/bookTicker";
 
         #endregion
+
+        #region Spot Account/Trade
+
+        /// <summary>
+        ///     Отправить новый ТЕСТОВЫЙ ордер
+        /// </summary>
+        public const string NEW_TEST_ORDER = "/api/v3/order/test";
+
+        /// <summary>
+        ///     Отправить новый ордер
+        /// </summary>
+        public const string NEW_ORDER = "/api/v3/order";
+
+        #endregion
     }
 }

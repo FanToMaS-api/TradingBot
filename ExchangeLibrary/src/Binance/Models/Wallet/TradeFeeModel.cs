@@ -1,11 +1,11 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace ExchangeLibrary.Binance.DTOs.Wallet
+namespace ExchangeLibrary.Binance.Models.Wallet
 {
     /// <summary>
     ///     Модель ответа на запрос таксы по коину
     /// </summary>
-    public class TradeFeeDto
+    public class TradeFeeModel
     {
         #region Properties
 

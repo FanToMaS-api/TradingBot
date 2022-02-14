@@ -1,5 +1,5 @@
 ﻿using ExchangeLibrary;
-using ExchangeLibrary.Binance.DTOs.WebSocket.Marketdata.Impl;
+using ExchangeLibrary.Binance.Models.WebSocket.Marketdata.Impl;
 using ExchangeLibrary.Binance.WebSocket.Marketdata;
 using NLog;
 using System;
@@ -23,7 +23,7 @@ namespace TraidingBot
 
             Console.WriteLine(await binance.GetDayPriceChangeAsync(null, cts.Token));
 
-            var webSoket = MarketdataWebSocket<CandlestickStreamDto>.CreateCandlestickStream(
+            var webSoket = MarketdataWebSocket<CandlestickStreamModel>.CreateCandlestickStream(
                 "BNBBTC",
                 ExchangeLibrary.Binance.Enums.CandleStickIntervalType.OneMinute);
 

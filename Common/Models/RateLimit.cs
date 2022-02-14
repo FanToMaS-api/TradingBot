@@ -25,17 +25,17 @@ namespace Common.Models
         /// <summary>
         ///     Тип ограничения скорости
         /// </summary>
-        public RateLimitType Type { get; set; }
+        public RateLimitType Type { get; }
 
         /// <summary>
         ///     Временной интервал, на котором действует ограничение
         /// </summary>
-        public TimeSpan Interval { get; set; }
+        public TimeSpan Interval { get; }
 
         /// <summary>
         ///     Ограничение скорости
         /// </summary>
-        public int Limit { get; set; }
+        public int Limit { get; }
 
         #endregion
 
