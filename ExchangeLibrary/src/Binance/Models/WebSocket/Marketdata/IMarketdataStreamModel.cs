@@ -1,11 +1,11 @@
 ﻿using ExchangeLibrary.Binance.Enums;
 
-namespace ExchangeLibrary.Binance.DTOs.WebSocket.Marketdata
+namespace ExchangeLibrary.Binance.Models.WebSocket.Marketdata
 {
     /// <summary>
     ///     Представляет собой объект данных со стримов маркетдаты
     /// </summary>
-    public interface IMarketdataStreamDto
+    public interface IMarketdataStreamModel
     {
         /// <summary>
         ///     Тип стрима с которого получаем данные

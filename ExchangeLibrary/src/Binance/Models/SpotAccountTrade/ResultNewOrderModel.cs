@@ -1,5 +1,6 @@
 ﻿using ExchangeLibrary.Binance.Enums;
 using ExchangeLibrary.Binance.Enums.Helper;
+using ExchangeLibrary.Binance.Models.SpotAccountTrade;
 using System.Text.Json.Serialization;
 
 namespace ExchangeLibrary.Binance.DTOs.SpotAccountTrade
@@ -7,7 +8,7 @@ namespace ExchangeLibrary.Binance.DTOs.SpotAccountTrade
     /// <summary>
     ///     Модель ответа на отправку нового ордера (содержит основную информацию)
     /// </summary>
-    internal class ResultNewOrderDto : NewOrderDtoBase
+    internal class ResultNewOrderModel : NewOrderModelBase
     {
         /// <summary>
         ///     Цена

@@ -1,11 +1,11 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace ExchangeLibrary.Binance.DTOs.Marketdata
+namespace ExchangeLibrary.Binance.Models.Marketdata
 {
     /// <summary>
     ///     Модель изменения цены за 1 по паре
     /// </summary>
-    public class DayPriceChangeDto
+    public class DayPriceChangeModel
     {
         /// <summary>
         ///     Наименование пары

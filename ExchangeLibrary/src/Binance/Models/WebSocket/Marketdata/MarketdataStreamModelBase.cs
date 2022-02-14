@@ -1,11 +1,11 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace ExchangeLibrary.Binance.DTOs.WebSocket.Marketdata
+namespace ExchangeLibrary.Binance.Models.WebSocket.Marketdata
 {
     /// <summary>
     ///     Базовый класс моделей получаемых со стримов маркетдаты
     /// </summary>
-    public class MarketdataStreamDtoBase
+    public class MarketdataStreamModelBase
     {
         /// <summary>
         ///     Время события

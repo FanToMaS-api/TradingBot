@@ -1,11 +1,8 @@
 ﻿using ExchangeLibrary.Binance.Client;
-using ExchangeLibrary.Binance.DTOs.SpotAccountTrade;
 using ExchangeLibrary.Binance.Enums;
+using ExchangeLibrary.Binance.Models.SpotAccountTrade;
 using NLog;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace ExchangeLibrary.Binance.EndpointSenders.Impl
@@ -33,7 +30,7 @@ namespace ExchangeLibrary.Binance.EndpointSenders.Impl
         #region Public methods
 
         /// <inheritdoc />
-        public async Task<NewOrderDtoBase> SendNewOrderAsync(
+        public async Task<NewOrderModelBase> SendNewOrderAsync(
             string symbol,
             OrderSideType sideType,
             OrderType orderType,
@@ -49,7 +46,7 @@ namespace ExchangeLibrary.Binance.EndpointSenders.Impl
         }
 
         /// <inheritdoc />
-        public async Task<NewOrderDtoBase> SendNewTestOrderAsync(
+        public async Task<NewOrderModelBase> SendNewTestOrderAsync(
             string symbol,
             OrderSideType sideType,
             OrderType orderType,

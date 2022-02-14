@@ -3,13 +3,13 @@ using ExchangeLibrary.Binance.Enums;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace ExchangeLibrary.Binance.DTOs.WebSocket.Marketdata.Impl
+namespace ExchangeLibrary.Binance.Models.WebSocket.Marketdata.Impl
 {
     /// <summary>
     ///     Модель данных обновления лучшей цены или количества спроса или предложения
     ///     в режиме реального времени для указанного символа
     /// </summary>
-    public class BookTickerStreamDto : IMarketdataStreamDto, IHaveMyOwnJsonConverter
+    public class BookTickerStreamModel : IMarketdataStreamModel, IHaveMyOwnJsonConverter
     {
         /// <summary>
         ///     Тип стрима с которого получаем данные
@@ -55,7 +55,7 @@ namespace ExchangeLibrary.Binance.DTOs.WebSocket.Marketdata.Impl
         /// <inheritdoc />
         public void SetProperties(ref Utf8JsonReader reader, IHaveMyOwnJsonConverter result)
         {
-            var temp = result as BookTickerStreamDto;
+            var temp = result as BookTickerStreamModel;
             string lastPropertyName = "";
             while (reader.Read() && reader.TokenType != JsonTokenType.EndObject)
             {

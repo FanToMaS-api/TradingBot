@@ -1,6 +1,6 @@
 ﻿using Common.JsonConvertWrapper;
 using ExchangeLibrary.Binance.Client;
-using ExchangeLibrary.Binance.DTOs.Wallet;
+using ExchangeLibrary.Binance.Models.Wallet;
 using NLog;
 using System;
 using System.Collections.Generic;
@@ -35,7 +35,7 @@ namespace ExchangeLibrary.Binance.EndpointSenders.Impl
         #region Public methods
 
         /// <inheritdoc />
-        public async Task<SystemStatusDto> GetSystemStatusAsync(CancellationToken cancellationToken = default)
+        public async Task<SystemStatusModel> GetSystemStatusAsync(CancellationToken cancellationToken = default)
         {
             var result = await _client.SendPublicAsync(
                  BinanceEndpoints.SYSTEM_STATUS,
@@ -43,11 +43,11 @@ namespace ExchangeLibrary.Binance.EndpointSenders.Impl
                  cancellationToken: cancellationToken);
 
             var converter = new JsonDeserializerWrapper();
-            return converter.Deserialize<SystemStatusDto>(result);
+            return converter.Deserialize<SystemStatusModel>(result);
         }
 
         /// <inheritdoc />
-        public async Task<AccountTraidingStatusDto> GetAccountTraidingStatusAsync(
+        public async Task<AccountTraidingStatusModel> GetAccountTraidingStatusAsync(
             long recvWindow = 5000,
             CancellationToken cancellationToken = default)
         {
@@ -62,11 +62,11 @@ namespace ExchangeLibrary.Binance.EndpointSenders.Impl
                 cancellationToken: cancellationToken);
 
             var converter = new JsonDeserializerWrapper();
-            return converter.Deserialize<AccountTraidingStatusDto>(result);
+            return converter.Deserialize<AccountTraidingStatusModel>(result);
         }
 
         /// <inheritdoc />
-        public async Task<IEnumerable<TradeFeeDto>> GetTradeFeeAsync(
+        public async Task<IEnumerable<TradeFeeModel>> GetTradeFeeAsync(
             string symbol = null,
             long recvWindow = 5000,
             CancellationToken cancellationToken = default)
@@ -86,11 +86,11 @@ namespace ExchangeLibrary.Binance.EndpointSenders.Impl
                 cancellationToken: cancellationToken);
 
             var converter = new JsonDeserializerWrapper();
-            return converter.Deserialize<IEnumerable<TradeFeeDto>>(result);
+            return converter.Deserialize<IEnumerable<TradeFeeModel>>(result);
         }
 
         /// <inheritdoc />
-        public async Task<IEnumerable<CoinDto>> GetAllCoinsInformationAsync(
+        public async Task<IEnumerable<CoinModel>> GetAllCoinsInformationAsync(
             long recvWindow = 5000,
             CancellationToken cancellationToken = default)
         {
@@ -105,7 +105,7 @@ namespace ExchangeLibrary.Binance.EndpointSenders.Impl
                  cancellationToken: cancellationToken);
 
             var converter = new JsonDeserializerWrapper();
-            return converter.Deserialize<List<CoinDto>>(result);
+            return converter.Deserialize<List<CoinModel>>(result);
         }
 
         #endregion

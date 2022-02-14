@@ -1,9 +1,8 @@
 ﻿using Common.JsonConvertWrapper;
 using ExchangeLibrary.Binance.Client;
-using ExchangeLibrary.Binance.DTOs;
-using ExchangeLibrary.Binance.DTOs.Marketdata;
 using ExchangeLibrary.Binance.Enums;
 using ExchangeLibrary.Binance.Enums.Helper;
+using ExchangeLibrary.Binance.Models.Marketdata;
 using NLog;
 using System.Collections.Generic;
 using System.Net.Http;
@@ -34,7 +33,7 @@ namespace ExchangeLibrary.Binance.EndpointSenders.Impl
         #region Public methods
 
         /// <inheritdoc />
-        public async Task<OrderBookDto> GetOrderBookAsync(string symbol, int limit = 100, CancellationToken cancellationToken = default)
+        public async Task<OrderBookModel> GetOrderBookAsync(string symbol, int limit = 100, CancellationToken cancellationToken = default)
         {
             var result = await _client.SendPublicAsync(
                 BinanceEndpoints.ORDER_BOOK,
@@ -47,12 +46,12 @@ namespace ExchangeLibrary.Binance.EndpointSenders.Impl
                 cancellationToken: cancellationToken);
 
             var converter = new JsonDeserializerWrapper();
-            converter.AddConverter(new OrderBookDtoConverter());
-            return converter.Deserialize<OrderBookDto>(result);
+            converter.AddConverter(new OrderBookModelConverter());
+            return converter.Deserialize<OrderBookModel>(result);
         }
 
         /// <inheritdoc />
-        public async Task<IEnumerable<RecentTradeDto>> GetRecentTradesAsync(string symbol, int limit = 500, CancellationToken cancellationToken = default)
+        public async Task<IEnumerable<RecentTradeModel>> GetRecentTradesAsync(string symbol, int limit = 500, CancellationToken cancellationToken = default)
         {
             var result = await _client.SendPublicAsync(
                 BinanceEndpoints.RECENT_TRADES,
@@ -65,11 +64,11 @@ namespace ExchangeLibrary.Binance.EndpointSenders.Impl
                 cancellationToken: cancellationToken);
 
             var converter = new JsonDeserializerWrapper();
-            return converter.Deserialize<IEnumerable<RecentTradeDto>>(result);
+            return converter.Deserialize<IEnumerable<RecentTradeModel>>(result);
         }
 
         /// <inheritdoc />
-        public async Task<IEnumerable<RecentTradeDto>> GetOldTradesAsync(string symbol, long fromId, int limit = 500, CancellationToken cancellationToken = default)
+        public async Task<IEnumerable<RecentTradeModel>> GetOldTradesAsync(string symbol, long fromId, int limit = 500, CancellationToken cancellationToken = default)
         {
             var result = await _client.SendPublicAsync(
                 BinanceEndpoints.OLD_TRADES,
@@ -83,11 +82,11 @@ namespace ExchangeLibrary.Binance.EndpointSenders.Impl
                 cancellationToken: cancellationToken);
 
             var converter = new JsonDeserializerWrapper();
-            return converter.Deserialize<IEnumerable<RecentTradeDto>>(result);
+            return converter.Deserialize<IEnumerable<RecentTradeModel>>(result);
         }
 
         /// <inheritdoc />
-        public async Task<IEnumerable<CandlestickDto>> GetCandleStickAsync(
+        public async Task<IEnumerable<CandlestickModel>> GetCandleStickAsync(
             string symbol,
             CandleStickIntervalType interval,
             long? startTime = null,
@@ -115,12 +114,12 @@ namespace ExchangeLibrary.Binance.EndpointSenders.Impl
                 cancellationToken: cancellationToken);
 
             var converter = new JsonDeserializerWrapper();
-            converter.AddConverter(new CandleStickDtoEnumerableConverter());
-            return converter.Deserialize<IEnumerable<CandlestickDto>>(result);
+            converter.AddConverter(new CandleStickModelEnumerableConverter());
+            return converter.Deserialize<IEnumerable<CandlestickModel>>(result);
         }
 
         /// <inheritdoc />
-        public async Task<AveragePriceDto> GetAveragePriceAsync(string symbol, CancellationToken cancellationToken = default)
+        public async Task<AveragePriceModel> GetAveragePriceAsync(string symbol, CancellationToken cancellationToken = default)
         {
             var result = await _client.SendPublicAsync(
                 BinanceEndpoints.AVERAGE_PRICE,
@@ -132,11 +131,11 @@ namespace ExchangeLibrary.Binance.EndpointSenders.Impl
                 cancellationToken: cancellationToken);
 
             var converter = new JsonDeserializerWrapper();
-            return converter.Deserialize<AveragePriceDto>(result);
+            return converter.Deserialize<AveragePriceModel>(result);
         }
 
         /// <inheritdoc />
-        public async Task<IEnumerable<DayPriceChangeDto>> GetDayPriceChangeAsync(string symbol, CancellationToken cancellationToken = default)
+        public async Task<IEnumerable<DayPriceChangeModel>> GetDayPriceChangeAsync(string symbol, CancellationToken cancellationToken = default)
         {
             var isNull = string.IsNullOrEmpty(symbol);
             var responce = await _client.SendPublicAsync(
@@ -151,19 +150,19 @@ namespace ExchangeLibrary.Binance.EndpointSenders.Impl
             var converter = new JsonDeserializerWrapper();
             if (!isNull)
             {
-                var result = new List<DayPriceChangeDto>
+                var result = new List<DayPriceChangeModel>
                 {
-                    converter.Deserialize<DayPriceChangeDto>(responce)
+                    converter.Deserialize<DayPriceChangeModel>(responce)
                 };
 
                 return result;
             }
 
-            return converter.Deserialize<IEnumerable<DayPriceChangeDto>>(responce);
+            return converter.Deserialize<IEnumerable<DayPriceChangeModel>>(responce);
         }
 
         /// <inheritdoc />
-        public async Task<IEnumerable<SymbolPriceTickerDto>> GetSymbolPriceTickerAsync(string symbol, CancellationToken cancellationToken = default)
+        public async Task<IEnumerable<SymbolPriceTickerModel>> GetSymbolPriceTickerAsync(string symbol, CancellationToken cancellationToken = default)
         {
             var isNull = string.IsNullOrEmpty(symbol);
             var responce = await _client.SendPublicAsync(
@@ -178,19 +177,19 @@ namespace ExchangeLibrary.Binance.EndpointSenders.Impl
             var converter = new JsonDeserializerWrapper();
             if (!isNull)
             {
-                var result = new List<SymbolPriceTickerDto>
+                var result = new List<SymbolPriceTickerModel>
                 {
-                    converter.Deserialize<SymbolPriceTickerDto>(responce)
+                    converter.Deserialize<SymbolPriceTickerModel>(responce)
                 };
 
                 return result;
             }
 
-            return converter.Deserialize<IEnumerable<SymbolPriceTickerDto>>(responce);
+            return converter.Deserialize<IEnumerable<SymbolPriceTickerModel>>(responce);
         }
 
         /// <inheritdoc />
-        public async Task<IEnumerable<SymbolOrderBookTickerDto>> GetSymbolOrderBookTickerAsync(
+        public async Task<IEnumerable<SymbolOrderBookTickerModel>> GetSymbolOrderBookTickerAsync(
             string symbol,
             CancellationToken cancellationToken = default)
         {
@@ -207,15 +206,15 @@ namespace ExchangeLibrary.Binance.EndpointSenders.Impl
             var converter = new JsonDeserializerWrapper();
             if (!isNull)
             {
-                var result = new List<SymbolOrderBookTickerDto>
+                var result = new List<SymbolOrderBookTickerModel>
                 {
-                    converter.Deserialize<SymbolOrderBookTickerDto>(responce)
+                    converter.Deserialize<SymbolOrderBookTickerModel>(responce)
                 };
 
                 return result;
             }
 
-            return converter.Deserialize<IEnumerable<SymbolOrderBookTickerDto>>(responce);
+            return converter.Deserialize<IEnumerable<SymbolOrderBookTickerModel>>(responce);
         }
 
         #endregion

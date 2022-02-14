@@ -2,12 +2,12 @@
 using ExchangeLibrary.Binance.Enums.Helper;
 using System.Text.Json.Serialization;
 
-namespace ExchangeLibrary.Binance.DTOs.WebSocket.Marketdata.Impl
+namespace ExchangeLibrary.Binance.Models.WebSocket.Marketdata.Impl
 {
     /// <summary>
     ///     Модель потока обновления информации о свече пары
     /// </summary>
-    public class CandlestickStreamDto : MarketdataStreamDtoBase, IMarketdataStreamDto
+    public class CandlestickStreamModel : MarketdataStreamModelBase, IMarketdataStreamModel
     {
         /// <inheritdoc />
         public MarketdataStreamType StreamType => MarketdataStreamType.CandlestickStream;
@@ -16,13 +16,13 @@ namespace ExchangeLibrary.Binance.DTOs.WebSocket.Marketdata.Impl
         ///     Данные о свече
         /// </summary>
         [JsonPropertyName("k")]
-        public KlineModelDto Kline { get; set; }
+        public KlineModel Kline { get; set; }
     }
 
     /// <summary>
     ///     Модель данных о свече
     /// </summary>
-    public class KlineModelDto
+    public class KlineModel
     {
         /// <summary>
         ///     Время открытия свечи

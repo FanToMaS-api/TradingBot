@@ -1,9 +1,5 @@
-﻿using ExchangeLibrary.Binance.DTOs.SpotAccountTrade;
-using ExchangeLibrary.Binance.Enums;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using ExchangeLibrary.Binance.Enums;
+using ExchangeLibrary.Binance.Models.SpotAccountTrade;
 using System.Threading.Tasks;
 
 namespace ExchangeLibrary.Binance.EndpointSenders
@@ -26,7 +22,7 @@ namespace ExchangeLibrary.Binance.EndpointSenders
         /// <param name="icebergQty"> Кол-во для ордера-айсберга, если тип ордера LIMIT, STOP_LOSS_LIMIT, или TAKE_PROFIT_LIMIT </param>
         /// <param name="recvWindow"> Кол-во миллисекунд, которое прибавляется к timestamp и формирует окно действия запроса </param>
         /// <param name="orderResponseType"> Информация возврата, если удалось создать ордер. Допустимые значения ACK, RESULT, или FULL, по умолчанию RESULT </param>
-        Task<NewOrderDtoBase> SendNewTestOrderAsync(
+        Task<NewOrderModelBase> SendNewTestOrderAsync(
             string symbol,
             OrderSideType sideType,
             OrderType orderType,
@@ -51,7 +47,7 @@ namespace ExchangeLibrary.Binance.EndpointSenders
         /// <param name="icebergQty"> Кол-во для ордера-айсберга, если тип ордера LIMIT, STOP_LOSS_LIMIT, или TAKE_PROFIT_LIMIT </param>
         /// <param name="recvWindow"> Кол-во миллисекунд, которое прибавляется к timestamp и формирует окно действия запроса </param>
         /// <param name="orderResponseType"> Информация возврата, если удалось создать ордер. Допустимые значения ACK, RESULT, или FULL, по умолчанию RESULT </param>
-        Task<NewOrderDtoBase> SendNewOrderAsync(
+        Task<NewOrderModelBase> SendNewOrderAsync(
             string symbol,
             OrderSideType sideType,
             OrderType orderType,

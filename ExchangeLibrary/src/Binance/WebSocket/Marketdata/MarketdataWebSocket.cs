@@ -1,7 +1,7 @@
 ﻿using Common.JsonConvertWrapper;
 using Common.JsonConvertWrapper.Converters;
-using ExchangeLibrary.Binance.DTOs.Marketdata;
-using ExchangeLibrary.Binance.DTOs.WebSocket.Marketdata.Impl;
+using ExchangeLibrary.Binance.Models.Marketdata;
+using ExchangeLibrary.Binance.Models.WebSocket.Marketdata.Impl;
 using ExchangeLibrary.Binance.Enums;
 using ExchangeLibrary.Binance.Enums.Helper;
 using ExchangeLibrary.Binance.WebSocket.Impl;
@@ -102,7 +102,7 @@ namespace ExchangeLibrary.Binance.WebSocket.Marketdata
         public static MarketdataWebSocket<T> CreateAllMarketMiniTickersStream()
         {
             var converter = new JsonDeserializerWrapper();
-            converter.AddConverter(new EnumerableDeserializer<MiniTickerStreamDto>());
+            converter.AddConverter(new EnumerableDeserializer<MiniTickerStreamModel>());
 
             return new MarketdataWebSocket<T>(
                 new BinanceWebSocketHumble(new ClientWebSocket()),
@@ -116,7 +116,7 @@ namespace ExchangeLibrary.Binance.WebSocket.Marketdata
         public static MarketdataWebSocket<T> CreateAllMarketMiniTickersStream(IBinanceWebSocketHumble webSocketHumble)
         {
             var converter = new JsonDeserializerWrapper();
-            converter.AddConverter(new EnumerableDeserializer<MiniTickerStreamDto>());
+            converter.AddConverter(new EnumerableDeserializer<MiniTickerStreamModel>());
 
             return new MarketdataWebSocket<T>(
                  webSocketHumble,
@@ -131,7 +131,7 @@ namespace ExchangeLibrary.Binance.WebSocket.Marketdata
         public static MarketdataWebSocket<T> CreateAllTickersStream()
         {
             var converter = new JsonDeserializerWrapper();
-            converter.AddConverter(new EnumerableDeserializer<TickerStreamDto>());
+            converter.AddConverter(new EnumerableDeserializer<TickerStreamModel>());
 
             return new MarketdataWebSocket<T>(
                 new BinanceWebSocketHumble(new ClientWebSocket()),
@@ -145,7 +145,7 @@ namespace ExchangeLibrary.Binance.WebSocket.Marketdata
         public static MarketdataWebSocket<T> CreateAllTickersStream(IBinanceWebSocketHumble webSocketHumble)
         {
             var converter = new JsonDeserializerWrapper();
-            converter.AddConverter(new EnumerableDeserializer<TickerStreamDto>());
+            converter.AddConverter(new EnumerableDeserializer<TickerStreamModel>());
 
             return new MarketdataWebSocket<T>(
                 webSocketHumble,
@@ -159,7 +159,7 @@ namespace ExchangeLibrary.Binance.WebSocket.Marketdata
         public static MarketdataWebSocket<T> CreateAllBookTickersStream()
         {
             var converter = new JsonDeserializerWrapper();
-            converter.AddConverter(new EnumerableDeserializer<BookTickerStreamDto>());
+            converter.AddConverter(new EnumerableDeserializer<BookTickerStreamModel>());
 
             return new MarketdataWebSocket<T>(
                new BinanceWebSocketHumble(new ClientWebSocket()),
@@ -175,7 +175,7 @@ namespace ExchangeLibrary.Binance.WebSocket.Marketdata
             IBinanceWebSocketHumble webSocketHumble)
         {
             var converter = new JsonDeserializerWrapper();
-            converter.AddConverter(new EnumerableDeserializer<BookTickerStreamDto>());
+            converter.AddConverter(new EnumerableDeserializer<BookTickerStreamModel>());
 
             return new MarketdataWebSocket<T>(
                webSocketHumble,
@@ -195,7 +195,7 @@ namespace ExchangeLibrary.Binance.WebSocket.Marketdata
                 bool activateFastReceive = false)
         {
             var jsonConverter = new JsonDeserializerWrapper();
-            jsonConverter.AddConverter(new OrderBookDtoConverter());
+            jsonConverter.AddConverter(new OrderBookModelConverter());
             var url = $"{BaseUrl}/ws/{symbol.ToLower()}{MarketdataStreamType.PartialBookDepthStream.InString()}{levels}";
             if (activateFastReceive)
             {
@@ -221,7 +221,7 @@ namespace ExchangeLibrary.Binance.WebSocket.Marketdata
             bool activateFastReceive = false)
         {
             var jsonConverter = new JsonDeserializerWrapper();
-            jsonConverter.AddConverter(new OrderBookDtoConverter());
+            jsonConverter.AddConverter(new OrderBookModelConverter());
             var url = $"{BaseUrl}/ws/{symbol.ToLower()}{MarketdataStreamType.PartialBookDepthStream.InString()}{levels}";
             if (activateFastReceive)
             {

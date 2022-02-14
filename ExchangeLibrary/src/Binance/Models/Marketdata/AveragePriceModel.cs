@@ -1,11 +1,11 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace ExchangeLibrary.Binance.DTOs.Marketdata
+namespace ExchangeLibrary.Binance.Models.Marketdata
 {
     /// <summary>
     ///     Модель средней цены тикера
     /// </summary>
-    public class AveragePriceDto
+    public class AveragePriceModel
     {
         /// <summary>
         ///     Кол-во минут выборки данных средней цены
