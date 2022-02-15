@@ -31,6 +31,7 @@ namespace TraidingBot.Exchanges.Binance
         private readonly IBinanceClient _client;
         private readonly IWalletSender _walletSender;
         private readonly IMarketdataSender _marketdataSender;
+        private readonly ISpotAccountTradeSender _tradeSender;
         private readonly IRedisDatabase _redisDatabase;
         private readonly IMapper _mapper;
         private readonly HttpClient _httpClient;
@@ -51,6 +52,7 @@ namespace TraidingBot.Exchanges.Binance
             _client = new BinanceClient(_httpClient, apiKey, secretKey);
             _walletSender = new WalletSender(_client);
             _marketdataSender = new MarketdataSender(_client);
+            _tradeSender = new SpotAccountTradeSender(_client);
         }
 
         #endregion
@@ -268,6 +270,12 @@ namespace TraidingBot.Exchanges.Binance
 
             return "TODO";
         }
+
+        #endregion
+
+        #region Spot Account/Trade
+
+
 
         #endregion
 

@@ -522,7 +522,7 @@ namespace ExchangeLibraryTests.BinanceTests.WebSocket
 
             for (var i = 0; i < intervalstringViews.Count; i++)
             {
-                Assert.Equal(intervalstringViews[i], intervals[i].GetInterval());
+                Assert.Equal(intervalstringViews[i], intervals[i].ToUrl());
                 Assert.Equal(intervalstringViews[i].ConvertToCandleStickIntervalType(), intervals[i]);
             }
         }

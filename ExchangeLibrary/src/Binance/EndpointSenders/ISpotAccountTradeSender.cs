@@ -1,5 +1,6 @@
 ﻿using ExchangeLibrary.Binance.Enums;
 using ExchangeLibrary.Binance.Models.SpotAccountTrade;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace ExchangeLibrary.Binance.EndpointSenders
@@ -22,7 +23,7 @@ namespace ExchangeLibrary.Binance.EndpointSenders
         /// <param name="icebergQty"> Кол-во для ордера-айсберга, если тип ордера LIMIT, STOP_LOSS_LIMIT, или TAKE_PROFIT_LIMIT </param>
         /// <param name="recvWindow"> Кол-во миллисекунд, которое прибавляется к timestamp и формирует окно действия запроса </param>
         /// <param name="orderResponseType"> Информация возврата, если удалось создать ордер. Допустимые значения ACK, RESULT, или FULL, по умолчанию RESULT </param>
-        Task<NewOrderModelBase> SendNewTestOrderAsync(
+        Task<NewOrderModelBase> SendNewTestOrderAsync<T>(
             string symbol,
             OrderSideType sideType,
             OrderType orderType,
@@ -32,7 +33,9 @@ namespace ExchangeLibrary.Binance.EndpointSenders
             double? stopPrice = null,
             double? icebergQty = null,
             double recvWindow = 5000,
-            OrderResponseType orderResponseType = OrderResponseType.RESULT);
+            OrderResponseType orderResponseType = OrderResponseType.RESULT,
+            CancellationToken cancellationToken = default)
+            where T : NewOrderModelBase;
 
         /// <summary>
         ///     Отправить новый ордер
@@ -47,7 +50,7 @@ namespace ExchangeLibrary.Binance.EndpointSenders
         /// <param name="icebergQty"> Кол-во для ордера-айсберга, если тип ордера LIMIT, STOP_LOSS_LIMIT, или TAKE_PROFIT_LIMIT </param>
         /// <param name="recvWindow"> Кол-во миллисекунд, которое прибавляется к timestamp и формирует окно действия запроса </param>
         /// <param name="orderResponseType"> Информация возврата, если удалось создать ордер. Допустимые значения ACK, RESULT, или FULL, по умолчанию RESULT </param>
-        Task<NewOrderModelBase> SendNewOrderAsync(
+        Task<NewOrderModelBase> SendNewOrderAsync<T>(
             string symbol,
             OrderSideType sideType,
             OrderType orderType,
@@ -57,6 +60,8 @@ namespace ExchangeLibrary.Binance.EndpointSenders
             double? stopPrice = null,
             double? icebergQty = null,
             double recvWindow = 5000,
-            OrderResponseType orderResponseType = OrderResponseType.RESULT);
+            OrderResponseType orderResponseType = OrderResponseType.RESULT,
+            CancellationToken cancellationToken = default)
+            where T : NewOrderModelBase;
     }
 }

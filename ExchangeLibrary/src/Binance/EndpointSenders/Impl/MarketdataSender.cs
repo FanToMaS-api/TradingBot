@@ -98,7 +98,7 @@ namespace ExchangeLibrary.Binance.EndpointSenders.Impl
                 new Dictionary<string, object>
                 {
                     { "symbol", symbol },
-                    { "interval", interval.GetInterval() },
+                    { "interval", interval.ToUrl() },
                     { "limit", limit },
                 };
             if (startTime is not null && endTime is not null)
