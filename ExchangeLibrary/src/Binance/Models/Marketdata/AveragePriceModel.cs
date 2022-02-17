@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace ExchangeLibrary.Binance.Models.Marketdata
+namespace ExchangeLibrary.Binance.Models
 {
     /// <summary>
     ///     Модель средней цены тикера

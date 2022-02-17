@@ -1,6 +1,6 @@
 ﻿using ExchangeLibrary.Binance.Enums;
 
-namespace ExchangeLibrary.Binance.Models.WebSocket.Marketdata
+namespace ExchangeLibrary.Binance.Models
 {
     /// <summary>
     ///     Представляет собой объект данных со стримов маркетдаты

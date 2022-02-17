@@ -1,4 +1,4 @@
-﻿using ExchangeLibrary.Binance.Models.Wallet;
+﻿using ExchangeLibrary.Binance.Models;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;

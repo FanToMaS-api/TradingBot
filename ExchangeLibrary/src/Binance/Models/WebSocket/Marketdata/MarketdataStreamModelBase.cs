@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace ExchangeLibrary.Binance.Models.WebSocket.Marketdata
+namespace ExchangeLibrary.Binance.Models
 {
     /// <summary>
     ///     Базовый класс моделей получаемых со стримов маркетдаты

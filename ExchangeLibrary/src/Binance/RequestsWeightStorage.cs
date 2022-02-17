@@ -148,17 +148,7 @@ namespace ExchangeLibrary.Binance
         #region Spot Account/Trade weights
 
         /// <summary>
-        ///     Вес запроса на создание нового ТЕСТОВОГО ордера
-        /// </summary>
-        public RequestWeightModel NewTestOrderWeight { get; set; } = new RequestWeightModel(
-            Enums.ApiType.Api,
-            new()
-            {
-                { RequestWeightModel.GetDefaultKey(), 1 }
-            });
-
-        /// <summary>
-        ///     Вес запроса на создание нового ордера
+        ///     Вес запроса на создание нового ордера (включая тестовый)
         /// </summary>
         public RequestWeightModel NewOrderWeight { get; set; } = new RequestWeightModel(
             Enums.ApiType.Api,

@@ -1,5 +1,5 @@
 ﻿using ExchangeLibrary.Binance.Enums;
-using ExchangeLibrary.Binance.Models.Marketdata;
+using ExchangeLibrary.Binance.Models;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;

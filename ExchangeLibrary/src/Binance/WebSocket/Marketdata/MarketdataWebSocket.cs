@@ -1,9 +1,8 @@
 ﻿using Common.JsonConvertWrapper;
 using Common.JsonConvertWrapper.Converters;
-using ExchangeLibrary.Binance.Models.Marketdata;
-using ExchangeLibrary.Binance.Models.WebSocket.Marketdata.Impl;
 using ExchangeLibrary.Binance.Enums;
 using ExchangeLibrary.Binance.Enums.Helper;
+using ExchangeLibrary.Binance.Models;
 using ExchangeLibrary.Binance.WebSocket.Impl;
 using System.Net.WebSockets;
 
@@ -32,7 +31,7 @@ namespace ExchangeLibrary.Binance.WebSocket.Marketdata
         : base(
               new BinanceWebSocketHumble(new ClientWebSocket()),
               new JsonDeserializerWrapper(),
-              $"{BaseUrl}/ws/{symbol.ToLower()}{streamType.InString()}")
+              $"{BaseUrl}/ws/{symbol.ToLower()}{streamType.ToUrl()}")
         { }
 
         /// <summary>
@@ -47,7 +46,7 @@ namespace ExchangeLibrary.Binance.WebSocket.Marketdata
         : base(
               webSocketHumble,
               new JsonDeserializerWrapper(),
-              $"{BaseUrl}/ws/{symbol.ToLower()}{streamType.InString()}")
+              $"{BaseUrl}/ws/{symbol.ToLower()}{streamType.ToUrl()}")
         { }
 
         /// <summary>
@@ -80,7 +79,7 @@ namespace ExchangeLibrary.Binance.WebSocket.Marketdata
             new MarketdataWebSocket<T>(
                 new BinanceWebSocketHumble(new ClientWebSocket()),
                 new JsonDeserializerWrapper(),
-                $"{BaseUrl}/ws/{symbol.ToLower()}{MarketdataStreamType.CandlestickStream.InString()}{candleStickInterval.GetInterval()}");
+                $"{BaseUrl}/ws/{symbol.ToLower()}{MarketdataStreamType.CandlestickStream.ToUrl()}{candleStickInterval.ToUrl()}");
 
         /// <summary>
         ///     Подписаться на стрим обновления свечей для пары
@@ -94,7 +93,7 @@ namespace ExchangeLibrary.Binance.WebSocket.Marketdata
             new MarketdataWebSocket<T>(
                 webSocketHumble,
                 new JsonDeserializerWrapper(),
-                $"{BaseUrl}/ws/{symbol.ToLower()}{MarketdataStreamType.CandlestickStream.InString()}{candleStickInterval.GetInterval()}");
+                $"{BaseUrl}/ws/{symbol.ToLower()}{MarketdataStreamType.CandlestickStream.ToUrl()}{candleStickInterval.ToUrl()}");
 
         /// <summary>
         ///     Получать статистику всех мини-тикеров за 24 часа
@@ -107,7 +106,7 @@ namespace ExchangeLibrary.Binance.WebSocket.Marketdata
             return new MarketdataWebSocket<T>(
                 new BinanceWebSocketHumble(new ClientWebSocket()),
                 converter,
-                $"{BaseUrl}/ws/{MarketdataStreamType.AllMarketMiniTickersStream.InString()}");
+                $"{BaseUrl}/ws/{MarketdataStreamType.AllMarketMiniTickersStream.ToUrl()}");
         }
 
         /// <summary>
@@ -121,7 +120,7 @@ namespace ExchangeLibrary.Binance.WebSocket.Marketdata
             return new MarketdataWebSocket<T>(
                  webSocketHumble,
                  converter,
-                 $"{BaseUrl}/ws/{MarketdataStreamType.AllMarketMiniTickersStream.InString()}");
+                 $"{BaseUrl}/ws/{MarketdataStreamType.AllMarketMiniTickersStream.ToUrl()}");
         }
 
 
@@ -136,7 +135,7 @@ namespace ExchangeLibrary.Binance.WebSocket.Marketdata
             return new MarketdataWebSocket<T>(
                 new BinanceWebSocketHumble(new ClientWebSocket()),
                 converter,
-                $"{BaseUrl}/ws/{MarketdataStreamType.AllMarketTickersStream.InString()}");
+                $"{BaseUrl}/ws/{MarketdataStreamType.AllMarketTickersStream.ToUrl()}");
         }
 
         /// <summary>
@@ -150,7 +149,7 @@ namespace ExchangeLibrary.Binance.WebSocket.Marketdata
             return new MarketdataWebSocket<T>(
                 webSocketHumble,
                 converter,
-                $"{BaseUrl}/ws/{MarketdataStreamType.AllMarketTickersStream.InString()}");
+                $"{BaseUrl}/ws/{MarketdataStreamType.AllMarketTickersStream.ToUrl()}");
         }
 
         /// <summary>
@@ -164,7 +163,7 @@ namespace ExchangeLibrary.Binance.WebSocket.Marketdata
             return new MarketdataWebSocket<T>(
                new BinanceWebSocketHumble(new ClientWebSocket()),
                converter,
-               $"{BaseUrl}/ws/{MarketdataStreamType.AllBookTickersStream.InString()}");
+               $"{BaseUrl}/ws/{MarketdataStreamType.AllBookTickersStream.ToUrl()}");
         }
 
 
@@ -180,7 +179,7 @@ namespace ExchangeLibrary.Binance.WebSocket.Marketdata
             return new MarketdataWebSocket<T>(
                webSocketHumble,
                converter,
-               $"{BaseUrl}/ws/{MarketdataStreamType.AllBookTickersStream.InString()}");
+               $"{BaseUrl}/ws/{MarketdataStreamType.AllBookTickersStream.ToUrl()}");
         }
 
         /// <summary>
@@ -196,7 +195,7 @@ namespace ExchangeLibrary.Binance.WebSocket.Marketdata
         {
             var jsonConverter = new JsonDeserializerWrapper();
             jsonConverter.AddConverter(new OrderBookModelConverter());
-            var url = $"{BaseUrl}/ws/{symbol.ToLower()}{MarketdataStreamType.PartialBookDepthStream.InString()}{levels}";
+            var url = $"{BaseUrl}/ws/{symbol.ToLower()}{MarketdataStreamType.PartialBookDepthStream.ToUrl()}{levels}";
             if (activateFastReceive)
             {
                 url += "@100ms";
@@ -222,7 +221,7 @@ namespace ExchangeLibrary.Binance.WebSocket.Marketdata
         {
             var jsonConverter = new JsonDeserializerWrapper();
             jsonConverter.AddConverter(new OrderBookModelConverter());
-            var url = $"{BaseUrl}/ws/{symbol.ToLower()}{MarketdataStreamType.PartialBookDepthStream.InString()}{levels}";
+            var url = $"{BaseUrl}/ws/{symbol.ToLower()}{MarketdataStreamType.PartialBookDepthStream.ToUrl()}{levels}";
             if (activateFastReceive)
             {
                 url += "@100ms";

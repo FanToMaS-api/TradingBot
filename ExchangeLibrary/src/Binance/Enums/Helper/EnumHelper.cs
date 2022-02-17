@@ -6,30 +6,6 @@
     internal static class EnumHelper
     {
         /// <summary>
-        ///     Возвращает период свечи в формате необходимом бинансу
-        /// </summary>
-        public static string GetInterval(this CandleStickIntervalType intervalType) =>
-            intervalType switch
-            {
-                CandleStickIntervalType.OneMinute => "1m",
-                CandleStickIntervalType.ThreeMinutes => "3m",
-                CandleStickIntervalType.FiveMinutes => "5m",
-                CandleStickIntervalType.FifteenMinutes => "15m",
-                CandleStickIntervalType.ThirtyMinutes => "30m",
-                CandleStickIntervalType.OneHour => "1h",
-                CandleStickIntervalType.TwoHour => "2h",
-                CandleStickIntervalType.FourHours => "4h",
-                CandleStickIntervalType.SixHours => "6h",
-                CandleStickIntervalType.EightHours => "8h",
-                CandleStickIntervalType.TwelveHours => "12h",
-                CandleStickIntervalType.OneDay => "1d",
-                CandleStickIntervalType.ThreeDays => "3d",
-                CandleStickIntervalType.OneWeek => "1w",
-                CandleStickIntervalType.OneMonth => "1M",
-                _ => intervalType.ToString(),
-            };
-
-        /// <summary>
         ///     Переводит период свечи в формате бинанса в удобный для работы <see cref="CandleStickIntervalType"/>
         /// </summary>
         public static CandleStickIntervalType ConvertToCandleStickIntervalType(this string intervalType) =>
@@ -110,7 +86,7 @@
         /// <summary>
         ///     Возвращает конечную точку для указанной версии API
         /// </summary>
-        public static string GetEndPoint(this ApiVersionType type)
+        public static string GetEndpoint(this ApiVersionType type)
         {
             return type switch
             {
@@ -140,9 +116,9 @@
         }
 
         /// <summary>
-        ///     Получит строковое представление стрима для запроса
+        ///     Получить строку из типа для отправки запроса бинансу
         /// </summary>
-        public static string InString(this MarketdataStreamType streamType)
+        public static string ToUrl(this MarketdataStreamType streamType)
         {
             return streamType switch
             {
@@ -156,6 +132,89 @@
                 MarketdataStreamType.AllBookTickersStream => "!bookTicker",
                 MarketdataStreamType.PartialBookDepthStream => "@depth",
                 _ => streamType.ToString(),
+            };
+        }
+
+        /// <summary>
+        ///     Возвращает период свечи в формате необходимом бинансу
+        /// </summary>
+        public static string ToUrl(this CandleStickIntervalType intervalType) =>
+            intervalType switch
+            {
+                CandleStickIntervalType.OneMinute => "1m",
+                CandleStickIntervalType.ThreeMinutes => "3m",
+                CandleStickIntervalType.FiveMinutes => "5m",
+                CandleStickIntervalType.FifteenMinutes => "15m",
+                CandleStickIntervalType.ThirtyMinutes => "30m",
+                CandleStickIntervalType.OneHour => "1h",
+                CandleStickIntervalType.TwoHour => "2h",
+                CandleStickIntervalType.FourHours => "4h",
+                CandleStickIntervalType.SixHours => "6h",
+                CandleStickIntervalType.EightHours => "8h",
+                CandleStickIntervalType.TwelveHours => "12h",
+                CandleStickIntervalType.OneDay => "1d",
+                CandleStickIntervalType.ThreeDays => "3d",
+                CandleStickIntervalType.OneWeek => "1w",
+                CandleStickIntervalType.OneMonth => "1M",
+                _ => intervalType.ToString(),
+            };
+
+        /// <summary>
+        ///     Получить строку из типа для отправки запроса бинансу
+        /// </summary>
+        public static string ToUrl(this OrderSideType type)
+        {
+            return type switch
+            {
+                OrderSideType.SELL => "SELL",
+                OrderSideType.BUY => "BUY",
+                _ => type.ToString(),
+            };
+        }
+
+        /// <summary>
+        ///     Получить строку из типа для отправки запроса бинансу
+        /// </summary>
+        public static string ToUrl(this OrderType type)
+        {
+            return type switch
+            {
+                OrderType.LIMIT => "LIMIT",
+                OrderType.LIMIT_MAKER => "LIMIT_MAKER",
+                OrderType.MARKET => "MARKET",
+                OrderType.STOP_LOSS => "STOP_LOSS",
+                OrderType.STOP_LOSS_LIMIT => "STOP_LOSS_LIMIT",
+                OrderType.TAKE_PROFIT => "TAKE_PROFIT",
+                OrderType.TAKE_PROFIT_LIMIT => "TAKE_PROFIT_LIMIT",
+                _ => type.ToString(),
+            };
+        }
+
+        /// <summary>
+        ///     Получить строку из типа для отправки запроса бинансу
+        /// </summary>
+        public static string ToUrl(this TimeInForceType type)
+        {
+            return type switch
+            {
+                TimeInForceType.GTC => "GTC",
+                TimeInForceType.FOK => "FOK",
+                TimeInForceType.IOC => "IOC",
+                _ => type.ToString(),
+            };
+        }
+
+        /// <summary>
+        ///     Получить строку из типа для отправки запроса бинансу
+        /// </summary>
+        public static string ToUrl(this OrderResponseType type)
+        {
+            return type switch
+            {
+                OrderResponseType.ACK => "ACK",
+                OrderResponseType.RESULT => "RESULT",
+                OrderResponseType.FULL => "FULL",
+                _ => type.ToString(),
             };
         }
     }

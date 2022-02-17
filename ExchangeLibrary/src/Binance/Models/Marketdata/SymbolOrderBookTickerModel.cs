@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace ExchangeLibrary.Binance.Models.Marketdata
+namespace ExchangeLibrary.Binance.Models
 {
     /// <summary>
     ///     Модель лучшей цены/кол-ва из стакана для пары

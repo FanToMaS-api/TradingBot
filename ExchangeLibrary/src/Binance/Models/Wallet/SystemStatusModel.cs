@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace ExchangeLibrary.Binance.Models.Wallet
+namespace ExchangeLibrary.Binance.Models
 {
     /// <summary>
     ///     Модель статуса системы

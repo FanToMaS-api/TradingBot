@@ -1,11 +1,11 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace ExchangeLibrary.Binance.Models.SpotAccountTrade
+namespace ExchangeLibrary.Binance.Models
 {
     /// <summary>
-    ///     Базовый класс ответа на запрос о создание нового ордера
+    ///     Модель ответа на отправку нового ордера (содержит полную информацию)
     /// </summary>
-    public abstract class NewOrderModelBase
+    internal class FullOrderResponseModel
     {
         /// <summary>
         ///     Пара

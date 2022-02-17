@@ -1,7 +1,6 @@
 ﻿using ExchangeLibrary.Binance.Enums;
 using ExchangeLibrary.Binance.Enums.Helper;
-using ExchangeLibrary.Binance.Models.Marketdata;
-using ExchangeLibrary.Binance.Models.WebSocket.Marketdata.Impl;
+using ExchangeLibrary.Binance.Models;
 using ExchangeLibrary.Binance.WebSocket;
 using ExchangeLibrary.Binance.WebSocket.Marketdata;
 using NSubstitute;
@@ -522,7 +521,7 @@ namespace ExchangeLibraryTests.BinanceTests.WebSocket
 
             for (var i = 0; i < intervalstringViews.Count; i++)
             {
-                Assert.Equal(intervalstringViews[i], intervals[i].GetInterval());
+                Assert.Equal(intervalstringViews[i], intervals[i].ToUrl());
                 Assert.Equal(intervalstringViews[i].ConvertToCandleStickIntervalType(), intervals[i]);
             }
         }
