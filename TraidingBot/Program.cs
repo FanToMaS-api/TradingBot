@@ -1,5 +1,5 @@
 ﻿using ExchangeLibrary;
-using ExchangeLibrary.Binance.Models.WebSocket.Marketdata.Impl;
+using ExchangeLibrary.Binance.Models;
 using ExchangeLibrary.Binance.WebSocket.Marketdata;
 using NLog;
 using System;
@@ -21,7 +21,13 @@ namespace TraidingBot
             var binance = ExchangeFactory.CreateExchange(ExchangeType.Binance, apiKey, secretKey);
             using var cts = new CancellationTokenSource();
 
-            Console.WriteLine(await binance.GetDayPriceChangeAsync(null, cts.Token));
+            Console.WriteLine(await binance.CreateNewLimitOrderAsync(
+                "ARPABNB",
+                ExchangeLibrary.Binance.Enums.OrderSideType.BUY,
+                ExchangeLibrary.Binance.Enums.TimeInForceType.GTC,
+                0.000205,
+                10000,
+                cancellationToken: cts.Token));
 
             var webSoket = MarketdataWebSocket<CandlestickStreamModel>.CreateCandlestickStream(
                 "BNBBTC",

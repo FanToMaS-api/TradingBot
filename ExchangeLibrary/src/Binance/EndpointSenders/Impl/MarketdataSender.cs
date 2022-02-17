@@ -2,7 +2,7 @@
 using ExchangeLibrary.Binance.Client;
 using ExchangeLibrary.Binance.Enums;
 using ExchangeLibrary.Binance.Enums.Helper;
-using ExchangeLibrary.Binance.Models.Marketdata;
+using ExchangeLibrary.Binance.Models;
 using NLog;
 using System.Collections.Generic;
 using System.Net.Http;

@@ -2,8 +2,7 @@
 using ExchangeLibrary.Binance.Client;
 using ExchangeLibrary.Binance.Enums;
 using ExchangeLibrary.Binance.Enums.Helper;
-using ExchangeLibrary.Binance.Models.SpotAccountTrade;
-using ExchangeLibrary.Binance.Models.SpotAccountTrade.NewOrderQuery;
+using ExchangeLibrary.Binance.Models;
 using NLog;
 using System;
 using System.Collections.Generic;
@@ -36,37 +35,30 @@ namespace ExchangeLibrary.Binance.EndpointSenders.Impl
 
         #region Public methods
 
-        /// TODO: Builder&Director!
         /// <inheritdoc />
-        public async Task<OrderResponseModelBase> SendNewOrderAsync<T>(Builder builder, CancellationToken cancellationToken = default)
-            where T : OrderResponseModelBase
+        public async Task<FullOrderResponseModel> SendNewTestOrderAsync(Dictionary<string, object> query, CancellationToken cancellationToken = default)
         {
-            var queryModel = builder.GetResult();
-
             var result = await _client.SendSignedAsync(
                 BinanceEndpoints.NEW_TEST_ORDER,
                 HttpMethod.Post,
-                query: queryModel.GetQuery(),
+                query: query,
                 cancellationToken: cancellationToken);
 
             var converter = new JsonDeserializerWrapper();
-            return converter.Deserialize<T>(result);
+            return converter.Deserialize<FullOrderResponseModel>(result);
         }
 
         /// <inheritdoc />
-        public async Task<OrderResponseModelBase> SendNewTestOrderAsync<T>(Builder builder, CancellationToken cancellationToken = default)
-            where T : OrderResponseModelBase
+        public async Task<FullOrderResponseModel> SendNewOrderAsync(Dictionary<string, object> query, CancellationToken cancellationToken = default)
         {
-            var queryModel = builder.GetResult();
-
             var result = await _client.SendSignedAsync(
-                BinanceEndpoints.NEW_TEST_ORDER,
+                BinanceEndpoints.NEW_ORDER,
                 HttpMethod.Post,
-                query: queryModel.GetQuery(),
+                query: query,
                 cancellationToken: cancellationToken);
 
             var converter = new JsonDeserializerWrapper();
-            return converter.Deserialize<T>(result);
+            return converter.Deserialize<FullOrderResponseModel>(result);
         }
 
         #endregion

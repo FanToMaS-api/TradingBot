@@ -275,7 +275,251 @@ namespace TraidingBot.Exchanges.Binance
 
         #region Spot Account/Trade
 
+        /// <inheritdoc />
+        public async Task<string> CreateNewLimitOrderAsync(
+            string symbol,
+            OrderSideType sideType,
+            TimeInForceType forceType,
+            double price,
+            double quantity,
+            long recvWindow = 5000,
+            bool isTest = true,
+            CancellationToken cancellationToken = default)
+        {
+            var requestWeight = _requestsWeightStorage.NewOrderWeight;
+            if (CheckLimit(requestWeight.Type, out var rateLimit))
+            {
+                throw new TooManyRequestsException(rateLimit.Expiration, rateLimit.Value, rateLimit.Key);
+            }
 
+            var builder = new Builder();
+            builder.SetOrderType(OrderType.LIMIT);
+            builder.SetOrderSideType(sideType);
+            builder.SetSymbol(symbol);
+            builder.SetTimeInForce(forceType);
+            builder.SetPrice(price);
+            builder.SetQuantity(quantity);
+            builder.SetRecvWindow(recvWindow);
+            var query = builder.GetResult().GetQuery();
+
+            var result = isTest
+                ? await _tradeSender.SendNewTestOrderAsync(query, cancellationToken)
+                : await _tradeSender.SendNewOrderAsync(query, cancellationToken);
+
+            IncrementCallsMade(requestWeight, RequestWeightModel.GetDefaultKey());
+
+            return "TODO";
+        }
+
+        /// <inheritdoc />
+        public async Task<string> CreateNewMarketOrderAsync(
+            string symbol,
+            OrderSideType sideType,
+            double quantity,
+            long recvWindow = 5000,
+            bool isTest = true,
+            CancellationToken cancellationToken = default)
+        {
+            var requestWeight = _requestsWeightStorage.NewOrderWeight;
+            if (CheckLimit(requestWeight.Type, out var rateLimit))
+            {
+                throw new TooManyRequestsException(rateLimit.Expiration, rateLimit.Value, rateLimit.Key);
+            }
+
+            var builder = new Builder();
+            builder.SetOrderType(OrderType.MARKET);
+            builder.SetOrderSideType(sideType);
+            builder.SetSymbol(symbol);
+            builder.SetQuantity(quantity);
+            builder.SetRecvWindow(recvWindow);
+            var query = builder.GetResult().GetQuery();
+
+            var result = isTest
+                ? await _tradeSender.SendNewTestOrderAsync(query, cancellationToken)
+                : await _tradeSender.SendNewOrderAsync(query, cancellationToken);
+
+            IncrementCallsMade(requestWeight, RequestWeightModel.GetDefaultKey());
+
+            return "TODO";
+        }
+
+        /// <inheritdoc />
+        public async Task<string> CreateNewStopLossOrderAsync(
+            string symbol,
+            OrderSideType sideType,
+            double quantity,
+            double stopPrice,
+            long recvWindow = 5000,
+            bool isTest = true,
+            CancellationToken cancellationToken = default)
+        {
+            var requestWeight = _requestsWeightStorage.NewOrderWeight;
+            if (CheckLimit(requestWeight.Type, out var rateLimit))
+            {
+                throw new TooManyRequestsException(rateLimit.Expiration, rateLimit.Value, rateLimit.Key);
+            }
+
+            var builder = new Builder();
+            builder.SetOrderType(OrderType.STOP_LOSS);
+            builder.SetOrderSideType(sideType);
+            builder.SetSymbol(symbol);
+            builder.SetStopPrice(stopPrice);
+            builder.SetQuantity(quantity);
+            builder.SetRecvWindow(recvWindow);
+            var query = builder.GetResult().GetQuery();
+
+            var result = isTest
+                ? await _tradeSender.SendNewTestOrderAsync(query, cancellationToken)
+                : await _tradeSender.SendNewOrderAsync(query, cancellationToken);
+
+            IncrementCallsMade(requestWeight, RequestWeightModel.GetDefaultKey());
+
+            return "TODO";
+        }
+
+        /// <inheritdoc />
+        public async Task<string> CreateNewStopLossLimitOrderAsync(
+            string symbol,
+            OrderSideType sideType,
+            TimeInForceType forceType,
+            double price,
+            double quantity,
+            double stopPrice,
+            long recvWindow = 5000,
+            bool isTest = true,
+            CancellationToken cancellationToken = default)
+        {
+            var requestWeight = _requestsWeightStorage.NewOrderWeight;
+            if (CheckLimit(requestWeight.Type, out var rateLimit))
+            {
+                throw new TooManyRequestsException(rateLimit.Expiration, rateLimit.Value, rateLimit.Key);
+            }
+
+            var builder = new Builder();
+            builder.SetOrderType(OrderType.STOP_LOSS_LIMIT);
+            builder.SetOrderSideType(sideType);
+            builder.SetSymbol(symbol);
+            builder.SetTimeInForce(forceType);
+            builder.SetPrice(price);
+            builder.SetQuantity(quantity);
+            builder.SetStopPrice(stopPrice);
+            builder.SetRecvWindow(recvWindow);
+            var query = builder.GetResult().GetQuery();
+
+            var result = isTest
+                ? await _tradeSender.SendNewTestOrderAsync(query, cancellationToken)
+                : await _tradeSender.SendNewOrderAsync(query, cancellationToken);
+
+            IncrementCallsMade(requestWeight, RequestWeightModel.GetDefaultKey());
+
+            return "TODO";
+        }
+
+        /// <inheritdoc />
+        public async Task<string> CreateNewTakeProfitOrderAsync(
+            string symbol,
+            OrderSideType sideType,
+            double quantity,
+            double stopPrice,
+            long recvWindow = 5000,
+            bool isTest = true,
+            CancellationToken cancellationToken = default)
+        {
+            var requestWeight = _requestsWeightStorage.NewOrderWeight;
+            if (CheckLimit(requestWeight.Type, out var rateLimit))
+            {
+                throw new TooManyRequestsException(rateLimit.Expiration, rateLimit.Value, rateLimit.Key);
+            }
+
+            var builder = new Builder();
+            builder.SetOrderType(OrderType.TAKE_PROFIT);
+            builder.SetOrderSideType(sideType);
+            builder.SetSymbol(symbol);
+            builder.SetQuantity(quantity);
+            builder.SetStopPrice(stopPrice);
+            builder.SetRecvWindow(recvWindow);
+            var query = builder.GetResult().GetQuery();
+
+            var result = isTest
+                ? await _tradeSender.SendNewTestOrderAsync(query, cancellationToken)
+                : await _tradeSender.SendNewOrderAsync(query, cancellationToken);
+
+            IncrementCallsMade(requestWeight, RequestWeightModel.GetDefaultKey());
+
+            return "TODO";
+        }
+
+        /// <inheritdoc />
+        public async Task<string> CreateNewTakeProfitLimitOrderAsync(
+            string symbol,
+            OrderSideType sideType,
+            TimeInForceType forceType,
+            double price,
+            double quantity,
+            double stopPrice,
+            long recvWindow = 5000,
+            bool isTest = true,
+            CancellationToken cancellationToken = default)
+        {
+            var requestWeight = _requestsWeightStorage.NewOrderWeight;
+            if (CheckLimit(requestWeight.Type, out var rateLimit))
+            {
+                throw new TooManyRequestsException(rateLimit.Expiration, rateLimit.Value, rateLimit.Key);
+            }
+
+            var builder = new Builder();
+            builder.SetOrderType(OrderType.TAKE_PROFIT_LIMIT);
+            builder.SetOrderSideType(sideType);
+            builder.SetSymbol(symbol);
+            builder.SetTimeInForce(forceType);
+            builder.SetPrice(price);
+            builder.SetQuantity(quantity);
+            builder.SetStopPrice(stopPrice);
+            builder.SetRecvWindow(recvWindow);
+            var query = builder.GetResult().GetQuery();
+
+            var result = isTest
+                ? await _tradeSender.SendNewTestOrderAsync(query, cancellationToken)
+                : await _tradeSender.SendNewOrderAsync(query, cancellationToken);
+
+            IncrementCallsMade(requestWeight, RequestWeightModel.GetDefaultKey());
+
+            return "TODO";
+        }
+
+        /// <inheritdoc />
+        public async Task<string> CreateNewLimitMakerOrderAsync(
+            string symbol,
+            OrderSideType sideType,
+            double price,
+            double quantity,
+            long recvWindow = 5000,
+            bool isTest = true,
+            CancellationToken cancellationToken = default)
+        {
+            var requestWeight = _requestsWeightStorage.NewOrderWeight;
+            if (CheckLimit(requestWeight.Type, out var rateLimit))
+            {
+                throw new TooManyRequestsException(rateLimit.Expiration, rateLimit.Value, rateLimit.Key);
+            }
+
+            var builder = new Builder();
+            builder.SetOrderType(OrderType.LIMIT_MAKER);
+            builder.SetOrderSideType(sideType);
+            builder.SetSymbol(symbol);
+            builder.SetPrice(price);
+            builder.SetQuantity(quantity);
+            builder.SetRecvWindow(recvWindow);
+            var query = builder.GetResult().GetQuery();
+
+            var result = isTest
+                ? await _tradeSender.SendNewTestOrderAsync(query, cancellationToken)
+                : await _tradeSender.SendNewOrderAsync(query, cancellationToken);
+
+            IncrementCallsMade(requestWeight, RequestWeightModel.GetDefaultKey());
+
+            return "TODO";
+        }
 
         #endregion
 

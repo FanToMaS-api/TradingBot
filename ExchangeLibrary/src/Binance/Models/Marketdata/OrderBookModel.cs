@@ -1,12 +1,11 @@
 ﻿using Common.JsonConvertWrapper;
 using ExchangeLibrary.Binance.Enums;
-using ExchangeLibrary.Binance.Models.WebSocket.Marketdata;
 using System;
 using System.Collections.Generic;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace ExchangeLibrary.Binance.Models.Marketdata
+namespace ExchangeLibrary.Binance.Models
 {
     /// <summary>
     ///     Модель книги заказов

@@ -1,6 +1,6 @@
 ﻿using Common.JsonConvertWrapper;
 using ExchangeLibrary.Binance.Client;
-using ExchangeLibrary.Binance.Models.Wallet;
+using ExchangeLibrary.Binance.Models;
 using NLog;
 using System;
 using System.Collections.Generic;

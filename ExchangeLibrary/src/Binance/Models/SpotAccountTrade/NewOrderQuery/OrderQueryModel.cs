@@ -4,74 +4,83 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
-namespace ExchangeLibrary.Binance.Models.SpotAccountTrade.NewOrderQuery
+namespace ExchangeLibrary.Binance.Models
 {
     /// <summary>
     ///     Модель запроса на создание нового ордера
     /// </summary>
     internal class OrderQueryModel
     {
+        #region .ctor
+
+        /// <<inheritdoc cref="OrderQueryModel"/>
+        public OrderQueryModel()
+        {
+            Symbol = new OrderParamWrapper("symbol", false, true);
+            SideType = new OrderParamWrapper("side", false, true);
+            OrderType = new OrderParamWrapper("type", false, true);
+            TimeInForce = new OrderParamWrapper("timeInForce", false, true);
+            Price = new OrderParamWrapper("price", false, true);
+            Quantity = new OrderParamWrapper("quantity", false, true);
+            StopPrice = new OrderParamWrapper("stopPrice", false, true);
+            IcebergQty = new OrderParamWrapper("icebergQty", false, true);
+            RecvWindow = new OrderParamWrapper("recvWindow", false, true);
+            OrderResponseType = new OrderParamWrapper("newOrderRespType", false, true);
+            TimeStamp = new OrderParamWrapper("timestamp", false, true);
+        }
+
+        #endregion
+
         #region Properties
 
         /// <summary>
         ///     Пара
         /// </summary>
-        [OrderParam("symbol", false, true)]
-        public string Symbol { get; set; }
+        public OrderParamWrapper Symbol { get; set; }
 
         /// <inheritdoc cref="OrderSideType"/>
-        [OrderParam("side", false, true)]
-        public OrderSideType SideType { get; set; }
+        public OrderParamWrapper SideType { get; set; }
 
         /// <inheritdoc cref="OrderType"/>
-        [OrderParam("type", false, true)]
-        public OrderType OrderType { get; set; }
+        public OrderParamWrapper OrderType { get; set; }
 
         /// <inheritdoc cref="TimeInForceType"/>
-        [OrderParam("timeInForce", false, true)]
-        public TimeInForceType TimeInForce { get; set; }
+        public OrderParamWrapper TimeInForce { get; set; }
 
         /// <summary>
         ///     Цена
         /// </summary>
-        [OrderParam("price", false, true)]
-        public double? Price { get; set; }
+        public OrderParamWrapper Price { get; set; }
 
         /// <summary>
         ///     Кол-во
         /// </summary>
-        [OrderParam("quantity", false, true)]
-        public double? Quantity { get; set; }
+        public OrderParamWrapper Quantity { get; set; }
 
         /// <summary>
         ///     Стоп цена
         /// </summary>
-        [OrderParam("stopPrice", false, true)]
-        public double? StopPrice { get; set; }
+        public OrderParamWrapper StopPrice { get; set; }
 
         /// <summary>
         ///     Кол-во для ордера-айсберга
         /// </summary>
-        [OrderParam("icebergQty", false, true)]
-        public double? IcebergQty { get; set; }
+        public OrderParamWrapper IcebergQty { get; set; }
 
         /// <summary>
         ///     Кол-во миллисекунд, которое прибавляется к timestamp и формирует окно действия запроса
         /// </summary>
-        [OrderParam("recvWindow", false, true)]
-        public double RecvWindow { get; set; }
+        public OrderParamWrapper RecvWindow { get; set; }
 
         /// <summary>
         ///     Информация возврата, если удалось создать ордер
         /// </summary>
-        [OrderParam("newOrderRespType", false, true)]
-        public OrderResponseType OrderResponseType { get; set; }
+        public OrderParamWrapper OrderResponseType { get; set; }
 
         /// <summary>
         ///     Время отправки
         /// </summary>
-        [OrderParam("timeStamp", false, true)]
-        public long TimeStamp { get; set; }
+        public OrderParamWrapper TimeStamp { get; set; }
 
         #endregion
 
@@ -84,14 +93,14 @@ namespace ExchangeLibrary.Binance.Models.SpotAccountTrade.NewOrderQuery
         {
             var neededParams = typeof(OrderQueryModel)
                 .GetProperties()
-                .Where(v => v.GetCustomAttribute<OrderParamAttribute>().IsUse)
+                .Where(_ => ((OrderParamWrapper)_.GetValue(this)).IsUse)
                 .ToArray();
 
             var query = new Dictionary<string, object>();
             foreach (var param in neededParams)
             {
-                var attribute = param.GetCustomAttribute<OrderParamAttribute>();
-                query[attribute.Url] = attribute.Value;
+                var paramWrapper = (OrderParamWrapper)param.GetValue(this);
+                query[paramWrapper.Url] = paramWrapper.ValueStr;
             }
 
             return query;

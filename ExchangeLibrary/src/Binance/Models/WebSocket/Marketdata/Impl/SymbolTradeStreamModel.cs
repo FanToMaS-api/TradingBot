@@ -1,7 +1,7 @@
 ﻿using ExchangeLibrary.Binance.Enums;
 using System.Text.Json.Serialization;
 
-namespace ExchangeLibrary.Binance.Models.WebSocket.Marketdata.Impl
+namespace ExchangeLibrary.Binance.Models
 {
     /// <summary>
     ///     Модель данных с потока необработанной торговой информации; у каждой сделки есть уникальный покупатель и продавец

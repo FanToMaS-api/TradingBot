@@ -1,6 +1,6 @@
 ﻿using ExchangeLibrary.Binance.Enums;
 
-namespace ExchangeLibrary.Binance.Models.SpotAccountTrade.NewOrderQuery
+namespace ExchangeLibrary.Binance.Models
 {
     /// <summary>
     ///     Интерфйес строителя запросов по созданию новых ордеров

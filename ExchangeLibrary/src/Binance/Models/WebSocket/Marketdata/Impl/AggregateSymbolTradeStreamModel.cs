@@ -1,7 +1,7 @@
 ﻿using ExchangeLibrary.Binance.Enums;
 using System.Text.Json.Serialization;
 
-namespace ExchangeLibrary.Binance.Models.WebSocket.Marketdata.Impl
+namespace ExchangeLibrary.Binance.Models
 {
     /// <summary>
     ///     Модель данных с потока торговой информации, которая агрегируется для одного ордера тейкера

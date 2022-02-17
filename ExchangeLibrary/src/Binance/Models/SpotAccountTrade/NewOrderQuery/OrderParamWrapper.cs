@@ -1,16 +1,16 @@
 ﻿using System;
 
-namespace ExchangeLibrary.Binance.Models.SpotAccountTrade.NewOrderQuery
+namespace ExchangeLibrary.Binance.Models
 {
     /// <summary>
-    ///     Атрибут, для параметров запроса
+    ///     Оболочка для параметров запроса
     /// </summary>
-    internal class OrderParamAttribute : Attribute
+    internal class OrderParamWrapper
     {
         /// <summary>
         ///     Обозначение св-ва в запросе
         /// </summary>
-        public string Url { get; set; }
+        public string Url { get; }
 
         /// <summary>
         ///     Показывает нужен ли параметр в текущем запросе
@@ -26,13 +26,13 @@ namespace ExchangeLibrary.Binance.Models.SpotAccountTrade.NewOrderQuery
         /// <summary>
         ///     Значение в запросе
         /// </summary>
-        public string Value { get; set; }
+        public string ValueStr { get; set; }
 
-        /// <<inheritdoc cref="OrderParamAttribute"/>
+        /// <<inheritdoc cref="OrderParamWrapper"/>
         /// <param name="url"> Обозначение св-ва в запросе </param>
         /// <param name="isUse"> Показывает нужен ли параметр в текущем запросе </param>
         /// <param name="canSet"> Показывает можем ли создавать этот параметр </param>
-        public OrderParamAttribute(string url, bool isUse, bool canSet)
+        public OrderParamWrapper(string url, bool isUse, bool canSet)
         {
             Url = url;
             IsUse = isUse;

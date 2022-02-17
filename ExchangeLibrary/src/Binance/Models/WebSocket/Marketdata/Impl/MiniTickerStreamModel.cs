@@ -3,7 +3,7 @@ using ExchangeLibrary.Binance.Enums;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace ExchangeLibrary.Binance.Models.WebSocket.Marketdata.Impl
+namespace ExchangeLibrary.Binance.Models
 {
     /// <summary>
     ///     Модель индивидуального потока мини-тикера символа

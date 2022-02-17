@@ -85,5 +85,100 @@ namespace ExchangeLibrary
         ///     Возвращает лучшую цену/количество в стакане для символа или символов
         /// </summary>
         Task<string> GetSymbolOrderBookTickerAsync(string symbol, CancellationToken cancellationToken = default);
+
+        /// <summary>
+        ///     Создать новый <see cref="OrderType.LIMIT"/> ордер
+        /// </summary>
+        /// <param name="isTest"> Тестовый ли запрос </param>
+        Task<string> CreateNewLimitOrderAsync(
+            string symbol, 
+            OrderSideType sideType,
+            TimeInForceType forceType,
+            double price,
+            double quantity,
+            long recvWindow = 5000,
+            bool isTest = true,
+            CancellationToken cancellationToken = default);
+
+        /// <summary>
+        ///     Создать новый <see cref="OrderType.MARKET"/> ордер
+        /// </summary>
+        /// <param name="isTest"> Тестовый ли запрос </param>
+        Task<string> CreateNewMarketOrderAsync(
+            string symbol,
+            OrderSideType sideType,
+            double quantity,
+            long recvWindow = 5000,
+            bool isTest = true,
+            CancellationToken cancellationToken = default);
+
+        /// <summary>
+        ///     Создать новый <see cref="OrderType.STOP_LOSS"/> ордер
+        /// </summary>
+        /// <param name="isTest"> Тестовый ли запрос </param>
+        Task<string> CreateNewStopLossOrderAsync(
+            string symbol,
+            OrderSideType sideType,
+            double quantity,
+            double stopPrice,
+            long recvWindow = 5000,
+            bool isTest = true,
+            CancellationToken cancellationToken = default);
+
+        /// <summary>
+        ///     Создать новый <see cref="OrderType.STOP_LOSS_LIMIT"/> ордер
+        /// </summary>
+        /// <param name="isTest"> Тестовый ли запрос </param>
+        Task<string> CreateNewStopLossLimitOrderAsync(
+            string symbol,
+            OrderSideType sideType,
+            TimeInForceType forceType,
+            double price,
+            double quantity,
+            double stopPrice,
+            long recvWindow = 5000,
+            bool isTest = true,
+            CancellationToken cancellationToken = default);
+
+        /// <summary>
+        ///     Создать новый <see cref="OrderType.TAKE_PROFIT"/> ордер
+        /// </summary>
+        /// <param name="isTest"> Тестовый ли запрос </param>
+        Task<string> CreateNewTakeProfitOrderAsync(
+            string symbol,
+            OrderSideType sideType,
+            double quantity,
+            double stopPrice,
+            long recvWindow = 5000,
+            bool isTest = true,
+            CancellationToken cancellationToken = default);
+
+        /// <summary>
+        ///     Создать новый <see cref="OrderType.TAKE_PROFIT_LIMIT"/> ордер
+        /// </summary>
+        /// <param name="isTest"> Тестовый ли запрос </param>
+        Task<string> CreateNewTakeProfitLimitOrderAsync(
+            string symbol,
+            OrderSideType sideType,
+            TimeInForceType forceType,
+            double price,
+            double quantity,
+            double stopPrice,
+            long recvWindow = 5000,
+            bool isTest = true,
+            CancellationToken cancellationToken = default);
+
+        /// <summary>
+        ///     Создать новый <see cref="OrderType.LIMIT_MAKER"/> ордер
+        /// </summary>
+        /// <param name="isTest"> Тестовый ли запрос </param>
+        Task<string> CreateNewLimitMakerOrderAsync(
+            string symbol,
+            OrderSideType sideType,
+            double price,
+            double quantity,
+            long recvWindow = 5000,
+            bool isTest = true,
+            CancellationToken cancellationToken = default);
     }
 }

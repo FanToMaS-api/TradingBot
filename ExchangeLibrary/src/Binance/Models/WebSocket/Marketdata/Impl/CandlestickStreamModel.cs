@@ -2,7 +2,7 @@
 using ExchangeLibrary.Binance.Enums.Helper;
 using System.Text.Json.Serialization;
 
-namespace ExchangeLibrary.Binance.Models.WebSocket.Marketdata.Impl
+namespace ExchangeLibrary.Binance.Models
 {
     /// <summary>
     ///     Модель потока обновления информации о свече пары

@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
-namespace ExchangeLibrary.Binance.Models.SpotAccountTrade.NewOrderQuery
+namespace ExchangeLibrary.Binance.Models
 {
     /// <summary>
     ///     Строитель запрсоов новых ордеров
@@ -18,6 +18,13 @@ namespace ExchangeLibrary.Binance.Models.SpotAccountTrade.NewOrderQuery
         private static readonly Logger Log = LogManager.GetCurrentClassLogger();
 
         private OrderQueryModel _newQueryModel;
+
+        #endregion
+
+        #region .ctor
+
+        /// <inheritdoc cref="Builder"/>
+        public Builder() => _newQueryModel = new OrderQueryModel();
 
         #endregion
 
@@ -36,8 +43,8 @@ namespace ExchangeLibrary.Binance.Models.SpotAccountTrade.NewOrderQuery
                 return;
             }
 
-            _newQueryModel.Price = price.Value;
-            SetIsUse(nameof(OrderQueryModel.Price), true, price.ToString());
+            _newQueryModel.Price.IsUse = true;
+            _newQueryModel.Price.ValueStr = price.Value.ToString();
         }
 
         /// <inheritdoc />
@@ -50,53 +57,53 @@ namespace ExchangeLibrary.Binance.Models.SpotAccountTrade.NewOrderQuery
                 return;
             }
 
-            _newQueryModel.Quantity = quantity.Value;
-            SetIsUse(nameof(OrderQueryModel.Quantity), true, quantity.ToString());
+            _newQueryModel.Quantity.IsUse = true;
+            _newQueryModel.Quantity.ValueStr = quantity.Value.ToString();
         }
 
         /// <inheritdoc />
         public void SetIcebergQuantity(double? icebergQty)
         {
-            if (icebergQty is null || icebergQty <= 0 || IsCanSet(nameof(OrderQueryModel.IcebergQty)))
+            if (icebergQty is null || icebergQty <= 0 || !_newQueryModel.IcebergQty.CanSet)
             {
                 Log.Warn($"Failed to set icebergQty with value={icebergQty}");
 
                 return;
             }
 
-            _newQueryModel.IcebergQty = icebergQty.Value;
-            SetIsUse(nameof(OrderQueryModel.IcebergQty), true, icebergQty.ToString());
+            _newQueryModel.IcebergQty.IsUse = true;
+            _newQueryModel.IcebergQty.ValueStr = icebergQty.Value.ToString();
 
             SetTimeInForce(TimeInForceType.GTC);
-            SetCanSet(nameof(OrderQueryModel.TimeInForce), false);
+            _newQueryModel.TimeInForce.CanSet = false;
         }
 
         /// <inheritdoc />
         public void SetOrderResponseType(OrderResponseType orderResponseType)
         {
-            if (IsCanSet(nameof(OrderQueryModel.OrderResponseType)))
+            if (!_newQueryModel.OrderResponseType.CanSet)
             {
                 Log.Warn($"Failed to set OrderResponseType with value={orderResponseType}, because IsCanSet=False");
 
                 return;
             }
 
-            _newQueryModel.OrderResponseType = orderResponseType;
-            SetIsUse(nameof(OrderQueryModel.OrderResponseType), true, orderResponseType.ToUrl());
+            _newQueryModel.OrderResponseType.IsUse = true;
+            _newQueryModel.OrderResponseType.ValueStr = orderResponseType.ToUrl();
         }
 
         /// <inheritdoc />
         public void SetOrderSideType(OrderSideType sideType)
         {
-            if (IsCanSet(nameof(OrderQueryModel.SideType)))
+            if (!_newQueryModel.SideType.CanSet)
             {
                 Log.Warn($"Failed to set OrderSideType with value={sideType}, because IsCanSet=False");
 
                 return;
             }
 
-            _newQueryModel.SideType = sideType;
-            SetIsUse(nameof(OrderQueryModel.SideType), true, sideType.ToUrl());
+            _newQueryModel.SideType.IsUse = true;
+            _newQueryModel.SideType.ValueStr = sideType.ToUrl();
         }
 
         /// <inheritdoc />
@@ -106,29 +113,29 @@ namespace ExchangeLibrary.Binance.Models.SpotAccountTrade.NewOrderQuery
             SetStopPrice(orderType);
             SetIcebergQty(orderType);
 
-            _newQueryModel.OrderType = orderType;
-            SetIsUse(nameof(OrderQueryModel.OrderType), true, orderType.ToUrl());
+            _newQueryModel.OrderType.IsUse = true;
+            _newQueryModel.OrderType.ValueStr = orderType.ToUrl();
         }
 
         /// <inheritdoc />
         public void SetRecvWindow(long recvWindow)
         {
-            _newQueryModel.RecvWindow = recvWindow;
-            SetIsUse(nameof(OrderQueryModel.RecvWindow), true, recvWindow.ToString());
+            _newQueryModel.RecvWindow.IsUse = true;
+            _newQueryModel.RecvWindow.ValueStr = recvWindow.ToString();
         }
 
         /// <inheritdoc />
         public void SetStopPrice(double? stopPrice)
         {
-            if (stopPrice is null || stopPrice <= 0 || IsCanSet(nameof(OrderQueryModel.StopPrice)))
+            if (stopPrice is null || stopPrice <= 0 || !_newQueryModel.StopPrice.CanSet)
             {
                 Log.Warn($"Failed to set stop price with value={stopPrice}");
 
                 return;
             }
 
-            _newQueryModel.StopPrice = stopPrice.Value;
-            SetIsUse(nameof(OrderQueryModel.StopPrice), true, stopPrice.ToString());
+            _newQueryModel.StopPrice.IsUse = true;
+            _newQueryModel.StopPrice.ValueStr = stopPrice.Value.ToString();
         }
 
         /// <inheritdoc />
@@ -139,22 +146,22 @@ namespace ExchangeLibrary.Binance.Models.SpotAccountTrade.NewOrderQuery
                 throw new ArgumentNullException(nameof(symbol));
             }
 
-            _newQueryModel.Symbol = symbol;
-            SetIsUse(nameof(OrderQueryModel.Symbol), true, symbol);
+            _newQueryModel.Symbol.IsUse = true;
+            _newQueryModel.Symbol.ValueStr = symbol;
         }
 
         /// <inheritdoc />
         public void SetTimeInForce(TimeInForceType timeInForce)
         {
-            if (IsCanSet(nameof(OrderQueryModel.TimeInForce)))
+            if (!_newQueryModel.TimeInForce.CanSet)
             {
                 Log.Warn($"Failed to set time in force, because IsCanSet=False");
 
                 return;
             }
 
-            _newQueryModel.TimeInForce = timeInForce;
-            SetIsUse(nameof(OrderQueryModel.TimeInForce), true, timeInForce.ToUrl());
+            _newQueryModel.TimeInForce.IsUse = true;
+            _newQueryModel.TimeInForce.ValueStr = timeInForce.ToString();
         }
 
         /// <summary>
@@ -162,8 +169,8 @@ namespace ExchangeLibrary.Binance.Models.SpotAccountTrade.NewOrderQuery
         /// </summary>
         public void SetTimeStamp()
         {
-            _newQueryModel.TimeStamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
-            SetIsUse(nameof(OrderQueryModel.TimeInForce), true, _newQueryModel.TimeStamp.ToString());
+            _newQueryModel.TimeStamp.IsUse = true;
+            _newQueryModel.TimeStamp.ValueStr = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds().ToString();
         }
 
         /// <summary>
@@ -187,11 +194,11 @@ namespace ExchangeLibrary.Binance.Models.SpotAccountTrade.NewOrderQuery
             if (orderType == OrderType.LIMIT || orderType == OrderType.MARKET)
             {
                 SetOrderResponseType(OrderResponseType.FULL);
-                SetCanSet(nameof(OrderQueryModel.OrderResponseType), false);
+                _newQueryModel.OrderResponseType.CanSet = false;
                 return;
             }
 
-            SetCanSet(nameof(OrderQueryModel.OrderResponseType), true);
+            _newQueryModel.OrderResponseType.CanSet = true;
         }
 
         /// <summary>
@@ -208,11 +215,11 @@ namespace ExchangeLibrary.Binance.Models.SpotAccountTrade.NewOrderQuery
             };
             if (!stopPriceOrderTypes.Any(_ => _ == orderType))
             {
-                SetCanSet(nameof(OrderQueryModel.StopPrice), false);
+                _newQueryModel.StopPrice.CanSet = false;
                 return;
             }
 
-            SetCanSet(nameof(OrderQueryModel.StopPrice), true);
+            _newQueryModel.StopPrice.CanSet = true;
         }
 
         /// <summary>
@@ -228,56 +235,11 @@ namespace ExchangeLibrary.Binance.Models.SpotAccountTrade.NewOrderQuery
             };
             if (!icebergQtyOrderTypes.Any(_ => _ == orderType))
             {
-                SetCanSet(nameof(OrderQueryModel.IcebergQty), false);
+                _newQueryModel.IcebergQty.CanSet = false;
                 return;
             }
 
-            SetCanSet(nameof(OrderQueryModel.IcebergQty), true);
-        }
-
-        /// <summary>
-        ///     Устанавливает значение атрибутов <see cref="OrderParamAttribute.IsUse"/>
-        ///     и <see cref="OrderParamAttribute.Value"/> в необходимые значения
-        /// </summary>
-        private void SetIsUse(string nameOfProperty, bool isUse, string value)
-        {
-            var property = typeof(OrderQueryModel)
-                .GetProperties()
-                .Where(_ => _.Name == nameOfProperty)
-                .First();
-
-            var attribute = property.GetCustomAttribute<OrderParamAttribute>();
-            attribute.IsUse = isUse;
-            if (!string.IsNullOrEmpty(value))
-            {
-                attribute.Value = value;
-            }
-        }
-
-        /// <summary>
-        ///     Устанавливает значение атрибута <see cref="OrderParamAttribute.CanSet"/> в необходимое значение
-        /// </summary>
-        private void SetCanSet(string nameOfProperty, bool value)
-        {
-            var property = typeof(OrderQueryModel)
-                .GetProperties()
-                .Where(_ => _.Name == nameOfProperty)
-                .First();
-
-            property.GetCustomAttribute<OrderParamAttribute>().CanSet = value;
-        }
-
-        /// <summary>
-        ///     Возвращает значение атрибута <see cref="OrderParamAttribute.CanSet"/>
-        /// </summary>
-        private bool IsCanSet(string nameOfProperty)
-        {
-            var property = typeof(OrderQueryModel)
-                .GetProperties()
-                .Where(_ => _.Name == nameOfProperty)
-                .First();
-
-            return property.GetCustomAttribute<OrderParamAttribute>().CanSet;
+            _newQueryModel.IcebergQty.CanSet = true;
         }
 
         #endregion

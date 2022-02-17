@@ -1,9 +1,8 @@
 ﻿using Common.JsonConvertWrapper;
 using Common.JsonConvertWrapper.Converters;
-using ExchangeLibrary.Binance.Models.Marketdata;
-using ExchangeLibrary.Binance.Models.WebSocket.Marketdata.Impl;
 using ExchangeLibrary.Binance.Enums;
 using ExchangeLibrary.Binance.Enums.Helper;
+using ExchangeLibrary.Binance.Models;
 using ExchangeLibrary.Binance.WebSocket.Impl;
 using System.Net.WebSockets;
 
