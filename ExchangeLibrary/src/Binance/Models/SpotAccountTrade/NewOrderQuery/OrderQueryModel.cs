@@ -87,7 +87,7 @@ namespace ExchangeLibrary.Binance.Models
         #region Public methods
 
         /// <summary>
-        ///     Возвращает словрь параметров для запроса
+        ///     Возвращает словарь параметров для запроса
         /// </summary>
         public Dictionary<string, object> GetQuery()
         {

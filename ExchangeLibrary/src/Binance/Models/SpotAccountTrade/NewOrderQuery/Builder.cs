@@ -4,12 +4,11 @@ using NLog;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 
 namespace ExchangeLibrary.Binance.Models
 {
     /// <summary>
-    ///     Строитель запрсоов новых ордеров
+    ///     Строитель запрсов новых ордеров
     /// </summary>
     internal class Builder : IBuilder
     {
@@ -83,7 +82,7 @@ namespace ExchangeLibrary.Binance.Models
         {
             if (!_newQueryModel.OrderResponseType.CanSet)
             {
-                Log.Warn($"Failed to set OrderResponseType with value={orderResponseType}, because IsCanSet=False");
+                Log.Warn($"Failed to set OrderResponseType with value={orderResponseType}, because it is not allowed");
 
                 return;
             }
@@ -97,7 +96,7 @@ namespace ExchangeLibrary.Binance.Models
         {
             if (!_newQueryModel.SideType.CanSet)
             {
-                Log.Warn($"Failed to set OrderSideType with value={sideType}, because IsCanSet=False");
+                Log.Warn($"Failed to set OrderSideType with value={sideType}, because it is not allowed");
 
                 return;
             }
@@ -155,7 +154,7 @@ namespace ExchangeLibrary.Binance.Models
         {
             if (!_newQueryModel.TimeInForce.CanSet)
             {
-                Log.Warn($"Failed to set time in force, because IsCanSet=False");
+                Log.Warn($"Failed to set time in force, because it is not allowed");
 
                 return;
             }
@@ -178,6 +177,8 @@ namespace ExchangeLibrary.Binance.Models
         /// </summary>
         public OrderQueryModel GetResult()
         {
+            // Принудительно ставлю полный ответ на запрос
+            SetOrderResponseType(OrderResponseType.FULL);
             SetTimeStamp();
             return _newQueryModel;
         }
