@@ -3,6 +3,7 @@ using ExchangeLibrary.Binance.Client;
 using ExchangeLibrary.Binance.Enums;
 using ExchangeLibrary.Binance.Enums.Helper;
 using ExchangeLibrary.Binance.Models.SpotAccountTrade;
+using ExchangeLibrary.Binance.Models.SpotAccountTrade.NewOrderQuery;
 using NLog;
 using System;
 using System.Collections.Generic;
@@ -37,36 +38,15 @@ namespace ExchangeLibrary.Binance.EndpointSenders.Impl
 
         /// TODO: Builder&Director!
         /// <inheritdoc />
-        public async Task<NewOrderModelBase> SendNewOrderAsync<T>(
-            string symbol,
-            OrderSideType sideType,
-            OrderType orderType,
-            TimeInForceType timeInForce = TimeInForceType.GTC,
-            double? price = null,
-            double? quantity = null,
-            double? stopPrice = null,
-            double? icebergQty = null,
-            double recvWindow = 5000,
-            OrderResponseType orderResponseType = OrderResponseType.RESULT,
-            CancellationToken cancellationToken = default)
-            where T : NewOrderModelBase
+        public async Task<OrderResponseModelBase> SendNewOrderAsync<T>(Builder builder, CancellationToken cancellationToken = default)
+            where T : OrderResponseModelBase
         {
-            var query = CreateNewOrderRequestParams(
-                symbol,
-                sideType,
-                orderType,
-                timeInForce,
-                price,
-                quantity,
-                stopPrice,
-                icebergQty,
-                recvWindow,
-                orderResponseType);
+            var queryModel = builder.GetResult();
 
             var result = await _client.SendSignedAsync(
                 BinanceEndpoints.NEW_TEST_ORDER,
                 HttpMethod.Post,
-                query: query,
+                query: queryModel.GetQuery(),
                 cancellationToken: cancellationToken);
 
             var converter = new JsonDeserializerWrapper();
@@ -74,21 +54,19 @@ namespace ExchangeLibrary.Binance.EndpointSenders.Impl
         }
 
         /// <inheritdoc />
-        public async Task<NewOrderModelBase> SendNewTestOrderAsync<T>(
-            string symbol,
-            OrderSideType sideType,
-            OrderType orderType,
-            TimeInForceType timeInForce = TimeInForceType.GTC,
-            double? price = null,
-            double? quantity = null,
-            double? stopPrice = null,
-            double? icebergQty = null,
-            double recvWindow = 5000,
-            OrderResponseType orderResponseType = OrderResponseType.RESULT,
-            CancellationToken cancellationToken = default)
-            where T : NewOrderModelBase
+        public async Task<OrderResponseModelBase> SendNewTestOrderAsync<T>(Builder builder, CancellationToken cancellationToken = default)
+            where T : OrderResponseModelBase
         {
-            throw new NotImplementedException();
+            var queryModel = builder.GetResult();
+
+            var result = await _client.SendSignedAsync(
+                BinanceEndpoints.NEW_TEST_ORDER,
+                HttpMethod.Post,
+                query: queryModel.GetQuery(),
+                cancellationToken: cancellationToken);
+
+            var converter = new JsonDeserializerWrapper();
+            return converter.Deserialize<T>(result);
         }
 
         #endregion

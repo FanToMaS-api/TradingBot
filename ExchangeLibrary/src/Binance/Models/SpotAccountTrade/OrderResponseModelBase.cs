@@ -5,7 +5,7 @@ namespace ExchangeLibrary.Binance.Models.SpotAccountTrade
     /// <summary>
     ///     Базовый класс ответа на запрос о создание нового ордера
     /// </summary>
-    public abstract class NewOrderModelBase
+    public abstract class OrderResponseModelBase
     {
         /// <summary>
         ///     Пара

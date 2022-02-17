@@ -8,7 +8,7 @@ namespace ExchangeLibrary.Binance.DTOs.SpotAccountTrade
     /// <summary>
     ///     Модель ответа на отправку нового ордера (содержит основную информацию)
     /// </summary>
-    internal class ResultNewOrderModel : NewOrderModelBase
+    internal class ResultOrderResponseModel : OrderResponseModelBase
     {
         /// <summary>
         ///     Цена
