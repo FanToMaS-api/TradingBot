@@ -35,12 +35,12 @@
         public static OrderStatusType ConvertToOrderStatusType(this string statusType) =>
             statusType switch
             {
-                "NEW" => OrderStatusType.NEW,
-                "FILLED" => OrderStatusType.FILLED,
-                "PARTIALLY_FILLED" => OrderStatusType.PARTIALLY_FILLED,
-                "EXPIRED" => OrderStatusType.EXPIRED,
-                "CANCELED" => OrderStatusType.CANCELED,
-                "REJECTED" => OrderStatusType.REJECTED,
+                "NEW" => OrderStatusType.New,
+                "FILLED" => OrderStatusType.Filled,
+                "PARTIALLY_FILLED" => OrderStatusType.PartiallyFilled,
+                "EXPIRED" => OrderStatusType.Expired,
+                "CANCELED" => OrderStatusType.Canceled,
+                "REJECTED" => OrderStatusType.Rejected,
                 _ => throw new System.Exception($"Failed to convert '{statusType}' to {nameof(OrderStatusType)}"),
             };
 
@@ -62,13 +62,13 @@
         public static OrderType ConvertToOrderType(this string type) =>
             type switch
             {
-                "LIMIT" => OrderType.LIMIT,
-                "LIMIT_MAKER" => OrderType.LIMIT_MAKER,
-                "MARKET" => OrderType.MARKET,
-                "STOP_LOSS" => OrderType.STOP_LOSS,
-                "STOP_LOSS_LIMIT" => OrderType.STOP_LOSS_LIMIT,
-                "TAKE_PROFIT" => OrderType.TAKE_PROFIT,
-                "TAKE_PROFIT_LIMIT" => OrderType.TAKE_PROFIT_LIMIT,
+                "LIMIT" => OrderType.Limit,
+                "LIMIT_MAKER" => OrderType.LimitMaker,
+                "MARKET" => OrderType.Market,
+                "STOP_LOSS" => OrderType.StopLoss,
+                "STOP_LOSS_LIMIT" => OrderType.StopLossLimit,
+                "TAKE_PROFIT" => OrderType.TakeProfit,
+                "TAKE_PROFIT_LIMIT" => OrderType.TakeProfitLimit,
                 _ => throw new System.Exception($"Failed to convert '{type}' to {nameof(OrderType)}"),
             };
 
@@ -78,8 +78,8 @@
         public static OrderSideType ConvertToOrderSideType(this string type) =>
             type switch
             {
-                "BUY" => OrderSideType.BUY,
-                "SELL" => OrderSideType.SELL,
+                "BUY" => OrderSideType.Buy,
+                "SELL" => OrderSideType.Sell,
                 _ => throw new System.Exception($"Failed to convert '{type}' to {nameof(OrderSideType)}"),
             };
 
@@ -166,8 +166,8 @@
         {
             return type switch
             {
-                OrderSideType.SELL => "SELL",
-                OrderSideType.BUY => "BUY",
+                OrderSideType.Sell => "SELL",
+                OrderSideType.Buy => "BUY",
                 _ => type.ToString(),
             };
         }
@@ -179,13 +179,13 @@
         {
             return type switch
             {
-                OrderType.LIMIT => "LIMIT",
-                OrderType.LIMIT_MAKER => "LIMIT_MAKER",
-                OrderType.MARKET => "MARKET",
-                OrderType.STOP_LOSS => "STOP_LOSS",
-                OrderType.STOP_LOSS_LIMIT => "STOP_LOSS_LIMIT",
-                OrderType.TAKE_PROFIT => "TAKE_PROFIT",
-                OrderType.TAKE_PROFIT_LIMIT => "TAKE_PROFIT_LIMIT",
+                OrderType.Limit => "LIMIT",
+                OrderType.LimitMaker => "LIMIT_MAKER",
+                OrderType.Market => "MARKET",
+                OrderType.StopLoss => "STOP_LOSS",
+                OrderType.StopLossLimit => "STOP_LOSS_LIMIT",
+                OrderType.TakeProfit => "TAKE_PROFIT",
+                OrderType.TakeProfitLimit => "TAKE_PROFIT_LIMIT",
                 _ => type.ToString(),
             };
         }
@@ -211,9 +211,9 @@
         {
             return type switch
             {
-                OrderResponseType.ACK => "ACK",
-                OrderResponseType.RESULT => "RESULT",
-                OrderResponseType.FULL => "FULL",
+                OrderResponseType.Ack => "ACK",
+                OrderResponseType.Result => "RESULT",
+                OrderResponseType.Full => "FULL",
                 _ => type.ToString(),
             };
         }

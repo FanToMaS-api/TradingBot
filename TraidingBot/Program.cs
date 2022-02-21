@@ -1,4 +1,5 @@
 ﻿using ExchangeLibrary;
+using ExchangeLibrary.Binance;
 using ExchangeLibrary.Binance.Models;
 using ExchangeLibrary.Binance.WebSocket.Marketdata;
 using NLog;
@@ -18,15 +19,16 @@ namespace TraidingBot
         {
             var apiKey = ConfigurationManager.AppSettings.Get(ConfigKeys.API_KEY);
             var secretKey = ConfigurationManager.AppSettings.Get(ConfigKeys.SECRET_KEY);
-            var binance = ExchangeFactory.CreateExchange(ExchangeType.Binance, apiKey, secretKey);
+            var binanceOptions = new BinanceExchangeOptions() { ApiKey = apiKey, SecretKey = secretKey };
+            var binance = ExchangeFactory.CreateExchange(ExchangeType.Binance, binanceOptions);
             using var cts = new CancellationTokenSource();
 
             Console.WriteLine(await binance.CreateNewLimitOrderAsync(
                 "ARPABNB",
-                ExchangeLibrary.Binance.Enums.OrderSideType.BUY,
+                ExchangeLibrary.Binance.Enums.OrderSideType.Buy,
                 ExchangeLibrary.Binance.Enums.TimeInForceType.GTC,
                 0.000205,
-                10000,
+                100,
                 cancellationToken: cts.Token));
 
             var webSoket = MarketdataWebSocket<CandlestickStreamModel>.CreateCandlestickStream(

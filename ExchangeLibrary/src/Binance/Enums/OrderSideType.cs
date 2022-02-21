@@ -8,11 +8,11 @@
         /// <summary>
         ///     Купить
         /// </summary>
-        BUY,
+        Buy,
 
         /// <summary>
         ///     Продать
         /// </summary>
-        SELL
+        Sell
     }
 }

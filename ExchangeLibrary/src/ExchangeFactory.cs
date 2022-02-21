@@ -1,4 +1,5 @@
-﻿using TraidingBot.Exchanges.Binance;
+﻿using ExchangeLibrary.Binance;
+using TraidingBot.Exchanges.Binance;
 
 namespace ExchangeLibrary
 {
@@ -10,11 +11,11 @@ namespace ExchangeLibrary
         /// <summary>
         ///     Создать биржу по типу
         /// </summary>
-        public static IExchange CreateExchange(ExchangeType exchangeType, string apiKey, string secretKey)
+        public static IExchange CreateExchange(ExchangeType exchangeType, OptionsBase options)
         {
             return exchangeType switch
             {
-                ExchangeType.Binance => new BinanceExchange(apiKey, secretKey, null), // TODO
+                ExchangeType.Binance => new BinanceExchange((BinanceExchangeOptions)options, null), // TODO Mapper
                 _ => throw new System.Exception("Unexpected Type")
             };
         }

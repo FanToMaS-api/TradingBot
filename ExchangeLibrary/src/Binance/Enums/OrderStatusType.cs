@@ -1,38 +1,38 @@
 ﻿namespace ExchangeLibrary.Binance.Enums
 {
     /// <summary>
-    ///     Статус заказа
+    ///     Статус ордера
     /// </summary>
     public enum OrderStatusType
     {
         /// <summary>
-        ///     Заказ был принят
+        ///     Ордер был принят
         /// </summary>
-        NEW,
+        New,
 
         /// <summary>
-        ///     Часть заказа выполнена
+        ///     Часть ордера выполнена
         /// </summary>
-        PARTIALLY_FILLED,
+        PartiallyFilled,
 
         /// <summary>
-        ///     Заказ выполнен
+        ///     Ордер выполнен
         /// </summary>
-        FILLED,
+        Filled,
 
         /// <summary>
-        ///     Заказ был отменен пользователем
+        ///     Ордер был отменен пользователем
         /// </summary>
-        CANCELED,
+        Canceled,
 
         /// <summary>
-        ///     Заказ не принят
+        ///     Ордер не принят
         /// </summary>
-        REJECTED,
+        Rejected,
 
         /// <summary>
-        ///     Заказ был отменен
+        ///     Ордер был отменен
         /// </summary>
-        EXPIRED
+        Expired
     }
 }

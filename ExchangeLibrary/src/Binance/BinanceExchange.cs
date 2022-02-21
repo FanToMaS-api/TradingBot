@@ -11,6 +11,7 @@ using ExchangeLibrary.Binance.EndpointSenders.Impl;
 using ExchangeLibrary.Binance.Enums;
 using ExchangeLibrary.Binance.Exceptions;
 using ExchangeLibrary.Binance.Models;
+using ExchangeLibrary.Binance.WebSocket.Marketdata;
 using NLog;
 using System;
 using System.Collections.Generic;
@@ -44,12 +45,12 @@ namespace TraidingBot.Exchanges.Binance
         #region .ctor
 
         /// <inheritdoc cref="BinanceExchange"/>
-        public BinanceExchange(string apiKey, string secretKey, IMapper mapper)
+        public BinanceExchange(BinanceExchangeOptions exchangeOptions, IMapper mapper)
         {
             _httpClient = new();
             _mapper = mapper;
             _redisDatabase = new RedisDatabase();
-            _client = new BinanceClient(_httpClient, apiKey, secretKey);
+            _client = new BinanceClient(_httpClient, exchangeOptions.ApiKey, exchangeOptions.SecretKey);
             _walletSender = new WalletSender(_client);
             _marketdataSender = new MarketdataSender(_client);
             _tradeSender = new SpotAccountTradeSender(_client);
@@ -293,7 +294,7 @@ namespace TraidingBot.Exchanges.Binance
             }
 
             var builder = new Builder();
-            builder.SetOrderType(OrderType.LIMIT);
+            builder.SetOrderType(OrderType.Limit);
             builder.SetOrderSideType(sideType);
             builder.SetSymbol(symbol);
             builder.SetTimeInForce(forceType);
@@ -327,7 +328,7 @@ namespace TraidingBot.Exchanges.Binance
             }
 
             var builder = new Builder();
-            builder.SetOrderType(OrderType.MARKET);
+            builder.SetOrderType(OrderType.Market);
             builder.SetOrderSideType(sideType);
             builder.SetSymbol(symbol);
             builder.SetQuantity(quantity);
@@ -360,7 +361,7 @@ namespace TraidingBot.Exchanges.Binance
             }
 
             var builder = new Builder();
-            builder.SetOrderType(OrderType.STOP_LOSS);
+            builder.SetOrderType(OrderType.StopLoss);
             builder.SetOrderSideType(sideType);
             builder.SetSymbol(symbol);
             builder.SetStopPrice(stopPrice);
@@ -396,7 +397,7 @@ namespace TraidingBot.Exchanges.Binance
             }
 
             var builder = new Builder();
-            builder.SetOrderType(OrderType.STOP_LOSS_LIMIT);
+            builder.SetOrderType(OrderType.StopLossLimit);
             builder.SetOrderSideType(sideType);
             builder.SetSymbol(symbol);
             builder.SetTimeInForce(forceType);
@@ -432,7 +433,7 @@ namespace TraidingBot.Exchanges.Binance
             }
 
             var builder = new Builder();
-            builder.SetOrderType(OrderType.TAKE_PROFIT);
+            builder.SetOrderType(OrderType.TakeProfit);
             builder.SetOrderSideType(sideType);
             builder.SetSymbol(symbol);
             builder.SetQuantity(quantity);
@@ -468,7 +469,7 @@ namespace TraidingBot.Exchanges.Binance
             }
 
             var builder = new Builder();
-            builder.SetOrderType(OrderType.TAKE_PROFIT_LIMIT);
+            builder.SetOrderType(OrderType.TakeProfitLimit);
             builder.SetOrderSideType(sideType);
             builder.SetSymbol(symbol);
             builder.SetTimeInForce(forceType);
@@ -504,7 +505,7 @@ namespace TraidingBot.Exchanges.Binance
             }
 
             var builder = new Builder();
-            builder.SetOrderType(OrderType.LIMIT_MAKER);
+            builder.SetOrderType(OrderType.LimitMaker);
             builder.SetOrderSideType(sideType);
             builder.SetSymbol(symbol);
             builder.SetPrice(price);

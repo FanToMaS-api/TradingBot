@@ -11,6 +11,8 @@ namespace ExchangeLibrary
     /// </summary>
     public interface IExchange
     {
+        #region Wallet
+
         /// <summary>
         ///     Вернуть статус системы
         /// </summary>
@@ -31,6 +33,10 @@ namespace ExchangeLibrary
         /// </summary>
         /// <param name="symbol"> Обозначение монеты </param>
         Task<string> GetTradeFeeAsync(string symbol = null, long recvWindow = 5000, CancellationToken cancellationToken = default);
+
+        #endregion
+
+        #region Marketdata
 
         /// <summary>
         ///     Получить книгу ордеров по определенной паре
@@ -86,12 +92,16 @@ namespace ExchangeLibrary
         /// </summary>
         Task<string> GetSymbolOrderBookTickerAsync(string symbol, CancellationToken cancellationToken = default);
 
+        #endregion
+
+        #region Spot Account/Trade
+
         /// <summary>
-        ///     Создать новый <see cref="OrderType.LIMIT"/> ордер
+        ///     Создать новый <see cref="OrderType.Limit"/> ордер
         /// </summary>
         /// <param name="isTest"> Тестовый ли запрос </param>
         Task<string> CreateNewLimitOrderAsync(
-            string symbol, 
+            string symbol,
             OrderSideType sideType,
             TimeInForceType forceType,
             double price,
@@ -101,7 +111,7 @@ namespace ExchangeLibrary
             CancellationToken cancellationToken = default);
 
         /// <summary>
-        ///     Создать новый <see cref="OrderType.MARKET"/> ордер
+        ///     Создать новый <see cref="OrderType.Market"/> ордер
         /// </summary>
         /// <param name="isTest"> Тестовый ли запрос </param>
         Task<string> CreateNewMarketOrderAsync(
@@ -113,7 +123,7 @@ namespace ExchangeLibrary
             CancellationToken cancellationToken = default);
 
         /// <summary>
-        ///     Создать новый <see cref="OrderType.STOP_LOSS"/> ордер
+        ///     Создать новый <see cref="OrderType.StopLoss"/> ордер
         /// </summary>
         /// <param name="isTest"> Тестовый ли запрос </param>
         Task<string> CreateNewStopLossOrderAsync(
@@ -126,7 +136,7 @@ namespace ExchangeLibrary
             CancellationToken cancellationToken = default);
 
         /// <summary>
-        ///     Создать новый <see cref="OrderType.STOP_LOSS_LIMIT"/> ордер
+        ///     Создать новый <see cref="OrderType.StopLossLimit"/> ордер
         /// </summary>
         /// <param name="isTest"> Тестовый ли запрос </param>
         Task<string> CreateNewStopLossLimitOrderAsync(
@@ -141,7 +151,7 @@ namespace ExchangeLibrary
             CancellationToken cancellationToken = default);
 
         /// <summary>
-        ///     Создать новый <see cref="OrderType.TAKE_PROFIT"/> ордер
+        ///     Создать новый <see cref="OrderType.TakeProfit"/> ордер
         /// </summary>
         /// <param name="isTest"> Тестовый ли запрос </param>
         Task<string> CreateNewTakeProfitOrderAsync(
@@ -154,7 +164,7 @@ namespace ExchangeLibrary
             CancellationToken cancellationToken = default);
 
         /// <summary>
-        ///     Создать новый <see cref="OrderType.TAKE_PROFIT_LIMIT"/> ордер
+        ///     Создать новый <see cref="OrderType.TakeProfitLimit"/> ордер
         /// </summary>
         /// <param name="isTest"> Тестовый ли запрос </param>
         Task<string> CreateNewTakeProfitLimitOrderAsync(
@@ -169,7 +179,7 @@ namespace ExchangeLibrary
             CancellationToken cancellationToken = default);
 
         /// <summary>
-        ///     Создать новый <see cref="OrderType.LIMIT_MAKER"/> ордер
+        ///     Создать новый <see cref="OrderType.LimitMaker"/> ордер
         /// </summary>
         /// <param name="isTest"> Тестовый ли запрос </param>
         Task<string> CreateNewLimitMakerOrderAsync(
@@ -180,5 +190,7 @@ namespace ExchangeLibrary
             long recvWindow = 5000,
             bool isTest = true,
             CancellationToken cancellationToken = default);
+
+        #endregion
     }
 }

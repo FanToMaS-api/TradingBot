@@ -178,7 +178,7 @@ namespace ExchangeLibrary.Binance.Models
         public OrderQueryModel GetResult()
         {
             // Принудительно ставлю полный ответ на запрос
-            SetOrderResponseType(OrderResponseType.FULL);
+            SetOrderResponseType(OrderResponseType.Full);
             SetTimeStamp();
             return _newQueryModel;
         }
@@ -192,9 +192,9 @@ namespace ExchangeLibrary.Binance.Models
         /// </summary>
         private void SetOrderResponseType(OrderType orderType)
         {
-            if (orderType == OrderType.LIMIT || orderType == OrderType.MARKET)
+            if (orderType == OrderType.Limit || orderType == OrderType.Market)
             {
-                SetOrderResponseType(OrderResponseType.FULL);
+                SetOrderResponseType(OrderResponseType.Full);
                 _newQueryModel.OrderResponseType.CanSet = false;
                 return;
             }
@@ -209,10 +209,10 @@ namespace ExchangeLibrary.Binance.Models
         {
             var stopPriceOrderTypes = new List<OrderType>()
             {
-                OrderType.STOP_LOSS,
-                OrderType.STOP_LOSS_LIMIT,
-                OrderType.TAKE_PROFIT,
-                OrderType.TAKE_PROFIT_LIMIT
+                OrderType.StopLoss,
+                OrderType.StopLossLimit,
+                OrderType.TakeProfit,
+                OrderType.TakeProfitLimit
             };
             if (!stopPriceOrderTypes.Any(_ => _ == orderType))
             {
@@ -230,9 +230,9 @@ namespace ExchangeLibrary.Binance.Models
         {
             var icebergQtyOrderTypes = new List<OrderType>()
             {
-                OrderType.LIMIT,
-                OrderType.STOP_LOSS_LIMIT,
-                OrderType.TAKE_PROFIT_LIMIT
+                OrderType.Limit,
+                OrderType.StopLossLimit,
+                OrderType.TakeProfitLimit
             };
             if (!icebergQtyOrderTypes.Any(_ => _ == orderType))
             {

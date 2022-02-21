@@ -147,7 +147,8 @@ namespace ExchangeLibrary.Binance.WebSocket
                         var content = Encoding.UTF8.GetString(buffer.Slice(0, receiveResult.Count).ToArray());
                         _onMessageReceivedFunctions.ForEach(func =>
                         {
-                            var task = func(_jsonConvertWrapper.Deserialize<T>(content));
+                            var data = _jsonConvertWrapper.Deserialize<T>(content);
+                            var task = func(data);
                             CheckTaskException(task);
                         });
                     }
