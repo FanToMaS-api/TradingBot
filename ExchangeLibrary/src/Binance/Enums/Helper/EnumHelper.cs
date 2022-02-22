@@ -3,7 +3,7 @@
     /// <summary>
     ///     Расширяет enum'ы
     /// </summary>
-    internal static class EnumHelper
+    public static class EnumHelper
     {
         /// <summary>
         ///     Переводит период свечи в формате бинанса в удобный для работы <see cref="CandleStickIntervalType"/>

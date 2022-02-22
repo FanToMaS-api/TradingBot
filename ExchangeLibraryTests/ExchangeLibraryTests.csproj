@@ -25,4 +25,10 @@
     <ProjectReference Include="..\ExchangeLibrary\ExchangeLibrary.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="BinanceTests\Jsons\Marketdata\AVERAGE_PRICE.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>

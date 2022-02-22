@@ -1,4 +1,6 @@
-﻿using ExchangeLibrary.Binance.Enums;
+﻿using Common.JsonConvertWrapper;
+using Common.JsonConvertWrapper.Converters;
+using ExchangeLibrary.Binance.Enums;
 using ExchangeLibrary.Binance.Enums.Helper;
 using ExchangeLibrary.Binance.Models;
 using ExchangeLibrary.Binance.WebSocket;
@@ -96,14 +98,16 @@ namespace ExchangeLibraryTests.BinanceTests.WebSocket
             var url = "wss://stream.binance.com:9443";
             var bytes = GetBytes("../../../BinanceTests/Jsons/WebSocket/AggregateTradeStreams.json");
             var webSocketHumbleMock = GetMockingBinanceWebHumble(url, bytes);
-            using var webSocket = new MarketdataWebSocket<AggregateSymbolTradeStreamModel>(
+            using var webSocket = new MarketdataWebSocket(
                 url,
                 MarketdataStreamType.AggregateTradeStream,
                 webSocketHumbleMock);
+            var converter = new JsonDeserializerWrapper();
 
             webSocket.AddOnMessageReceivedFunc(
-                async (actual) =>
+                async (content) =>
                 {
+                    var actual = converter.Deserialize<AggregateSymbolTradeStreamModel>(content);
                     var properties = typeof(AggregateSymbolTradeStreamModel).GetProperties();
                     for (var i = 0; i < properties.Length; i++)
                     {
@@ -129,14 +133,16 @@ namespace ExchangeLibraryTests.BinanceTests.WebSocket
             var url = "wss://stream.binance.com:9443";
             var bytes = GetBytes("../../../BinanceTests/Jsons/WebSocket/IndividualSymbolBookTickerStream.json");
             var webSocketHumbleMock = GetMockingBinanceWebHumble(url, bytes);
-            using var webSocket = new MarketdataWebSocket<BookTickerStreamModel>(
+            using var webSocket = new MarketdataWebSocket(
                 url,
                 MarketdataStreamType.IndividualSymbolBookTickerStream,
                 webSocketHumbleMock);
+            var converter = new JsonDeserializerWrapper();
 
             webSocket.AddOnMessageReceivedFunc(
-                async (actual) =>
+                async (content) =>
                 {
+                    var actual = converter.Deserialize<BookTickerStreamModel>(content);
                     var properties = typeof(BookTickerStreamModel).GetProperties();
                     for (var i = 0; i < properties.Length; i++)
                     {
@@ -160,11 +166,14 @@ namespace ExchangeLibraryTests.BinanceTests.WebSocket
             var url = "wss://stream.binance.com:9443";
             var bytes = GetBytes("../../../BinanceTests/Jsons/WebSocket/AllBookTickersStream.json");
             var webSocketHumbleMock = GetMockingBinanceWebHumble(url, bytes);
-            using var webSocket = MarketdataWebSocket<IEnumerable<BookTickerStreamModel>>.CreateAllBookTickersStream(webSocketHumbleMock);
+            using var webSocket = MarketdataWebSocket.CreateAllBookTickersStream(webSocketHumbleMock);
+            var converter = new JsonDeserializerWrapper();
+            converter.AddConverter(new EnumerableDeserializer<BookTickerStreamModel>());
 
             webSocket.AddOnMessageReceivedFunc(
-                async (actual) =>
+                async (content) =>
                 {
+                    var actual = converter.Deserialize<IEnumerable<BookTickerStreamModel>>(content);
                     var properties = typeof(BookTickerStreamModel).GetProperties();
                     var actualList = actual.ToList();
                     for (var j = 0; j < actualList.Count; j++)
@@ -220,14 +229,16 @@ namespace ExchangeLibraryTests.BinanceTests.WebSocket
             var url = "wss://stream.binance.com:9443";
             var bytes = GetBytes("../../../BinanceTests/Jsons/WebSocket/CandlestickStream.json");
             var webSocketHumbleMock = GetMockingBinanceWebHumble(url, bytes);
-            using var webSocket = MarketdataWebSocket<CandlestickStreamModel>.CreateCandlestickStream(
+            using var webSocket = MarketdataWebSocket.CreateCandlestickStream(
                 url,
                 CandleStickIntervalType.OneMinute,
                 webSocketHumbleMock);
+            var converter = new JsonDeserializerWrapper();
 
             webSocket.AddOnMessageReceivedFunc(
-                async (actual) =>
+                async (content) =>
                 {
+                    var actual = converter.Deserialize<CandlestickStreamModel>(content);
                     Assert.Equal(expected.EventTimeUnix, actual.EventTimeUnix);
                     Assert.Equal(expected.Symbol, actual.Symbol);
 
@@ -258,14 +269,16 @@ namespace ExchangeLibraryTests.BinanceTests.WebSocket
             var url = "wss://stream.binance.com:9443";
             var bytes = GetBytes("../../../BinanceTests/Jsons/WebSocket/IndividualSymbolMiniTickerStream.json");
             var webSocketHumbleMock = GetMockingBinanceWebHumble(url, bytes);
-            using var webSocket = new MarketdataWebSocket<MiniTickerStreamModel>(
+            using var webSocket = new MarketdataWebSocket(
                 url,
                 MarketdataStreamType.IndividualSymbolMiniTickerStream,
                 webSocketHumbleMock);
+            var converter = new JsonDeserializerWrapper();
 
             webSocket.AddOnMessageReceivedFunc(
-                async (actual) =>
+                async (content) =>
                 {
+                    var actual = converter.Deserialize<MiniTickerStreamModel>(content);
                     var properties = typeof(MiniTickerStreamModel).GetProperties();
                     for (var i = 0; i < properties.Length; i++)
                     {
@@ -289,14 +302,17 @@ namespace ExchangeLibraryTests.BinanceTests.WebSocket
             var url = "wss://stream.binance.com:9443";
             var bytes = GetBytes("../../../BinanceTests/Jsons/WebSocket/AllMarketMiniTickersStream.json");
             var webSocketHumbleMock = GetMockingBinanceWebHumble(url, bytes);
-            using var webSocket = MarketdataWebSocket<IEnumerable<MiniTickerStreamModel>>.CreateAllMarketMiniTickersStream(webSocketHumbleMock);
+            using var webSocket = MarketdataWebSocket.CreateAllMarketMiniTickersStream(webSocketHumbleMock);
+            var converter = new JsonDeserializerWrapper();
+            converter.AddConverter(new EnumerableDeserializer<MiniTickerStreamModel>());
 
             webSocket.AddOnMessageReceivedFunc(
-                async (actual) =>
+                async (content) =>
                 {
+                    var actual = converter.Deserialize<IEnumerable<MiniTickerStreamModel>>(content);
                     var properties = typeof(MiniTickerStreamModel).GetProperties();
                     var actualList = actual.ToList();
-                    for(var j = 0; j < actualList.Count; j++)
+                    for (var j = 0; j < actualList.Count; j++)
                     {
                         for (var i = 0; i < properties.Length; i++)
                         {
@@ -353,13 +369,17 @@ namespace ExchangeLibraryTests.BinanceTests.WebSocket
             var url = "wss://stream.binance.com:9443";
             var bytes = GetBytes("../../../BinanceTests/Jsons/WebSocket/PartialBookDepthStream.json");
             var webSocketHumbleMock = GetMockingBinanceWebHumble(url, bytes);
-            using var webSocket = MarketdataWebSocket<OrderBookModel>.CreatePartialBookDepthStream(
+            using var webSocket = MarketdataWebSocket.CreatePartialBookDepthStream(
                 url,
                 webSocketHumbleMock);
 
+            var converter = new JsonDeserializerWrapper();
+            converter.AddConverter(new OrderBookModelConverter());
+
             webSocket.AddOnMessageReceivedFunc(
-                async (actual) =>
+                async (content) =>
                 {
+                    var actual = converter.Deserialize<OrderBookModel>(content);
                     Assert.Equal(expected.Bids.Count, actual.Bids.Count);
                     Assert.Equal(expected.Asks.Count, actual.Asks.Count);
                     Assert.Equal(expected.LastUpdateId, actual.LastUpdateId);
@@ -401,14 +421,16 @@ namespace ExchangeLibraryTests.BinanceTests.WebSocket
             var url = "wss://stream.binance.com:9443";
             var bytes = GetBytes("../../../BinanceTests/Jsons/WebSocket/TradeStream.json");
             var webSocketHumbleMock = GetMockingBinanceWebHumble(url, bytes);
-            using var webSocket = new MarketdataWebSocket<SymbolTradeStreamModel>(
+            using var webSocket = new MarketdataWebSocket(
                 url,
                 MarketdataStreamType.TradeStream,
                 webSocketHumbleMock);
+            var converter = new JsonDeserializerWrapper();
 
             webSocket.AddOnMessageReceivedFunc(
-                async (actual) =>
+                async (content) =>
                 {
+                    var actual = converter.Deserialize<SymbolTradeStreamModel>(content);
                     var properties = typeof(SymbolTradeStreamModel).GetProperties();
                     for (var i = 0; i < properties.Length; i++)
                     {
@@ -434,14 +456,16 @@ namespace ExchangeLibraryTests.BinanceTests.WebSocket
             var url = "wss://stream.binance.com:9443";
             var bytes = GetBytes("../../../BinanceTests/Jsons/WebSocket/IndividualSymbolTickerStream.json");
             var webSocketHumbleMock = GetMockingBinanceWebHumble(url, bytes);
-            using var webSocket = new MarketdataWebSocket<TickerStreamModel>(
+            using var webSocket = new MarketdataWebSocket(
                 url,
                 MarketdataStreamType.IndividualSymbolTickerStream,
                 webSocketHumbleMock);
+            var converter = new JsonDeserializerWrapper();
 
             webSocket.AddOnMessageReceivedFunc(
-                async (actual) =>
+                async (content) =>
                 {
+                    var actual = converter.Deserialize<TickerStreamModel>(content);
                     var properties = typeof(TickerStreamModel).GetProperties();
                     for (var i = 0; i < properties.Length; i++)
                     {
@@ -465,12 +489,15 @@ namespace ExchangeLibraryTests.BinanceTests.WebSocket
             var url = "wss://stream.binance.com:9443";
             var bytes = GetBytes("../../../BinanceTests/Jsons/WebSocket/AllMarketTickersStream.json");
             var webSocketHumbleMock = GetMockingBinanceWebHumble(url, bytes);
-            using var webSocket = MarketdataWebSocket<IEnumerable<TickerStreamModel>>.CreateAllTickersStream(
+            using var webSocket = MarketdataWebSocket.CreateAllTickersStream(
                 webSocketHumbleMock);
+            var converter = new JsonDeserializerWrapper();
+            converter.AddConverter(new EnumerableDeserializer<TickerStreamModel>());
 
             webSocket.AddOnMessageReceivedFunc(
-                async (actual) =>
+                async (content) =>
                 {
+                    var actual = converter.Deserialize<IEnumerable<TickerStreamModel>>(content);
                     var actualList = actual.ToList();
                     var properties = typeof(TickerStreamModel).GetProperties();
                     for (var j = 0; j < actualList.Count; j++)

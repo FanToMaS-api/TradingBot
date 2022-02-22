@@ -1,5 +1,7 @@
-﻿using ExchangeLibrary;
+﻿using Common.JsonConvertWrapper;
+using ExchangeLibrary;
 using ExchangeLibrary.Binance;
+using ExchangeLibrary.Binance.Enums.Helper;
 using ExchangeLibrary.Binance.Models;
 using ExchangeLibrary.Binance.WebSocket.Marketdata;
 using NLog;
@@ -31,22 +33,16 @@ namespace TraidingBot
                 100,
                 cancellationToken: cts.Token));
 
-            var webSoket = MarketdataWebSocket<CandlestickStreamModel>.CreateCandlestickStream(
+            await binance.SubscribeCandlestickStreamAsync<string>(
                 "BNBBTC",
-                ExchangeLibrary.Binance.Enums.CandleStickIntervalType.OneMinute);
-
-            webSoket.AddOnMessageReceivedFunc(
-                _ =>
-                {
-                    Console.WriteLine($"Interval: {_.Kline.Interval} Open Price: {_.Kline.OpenPrice} Close Price: {_.Kline.ClosePrice}");
-                    return Task.CompletedTask;
-                },
-                cts.Token);
-
-            await webSoket.ConnectAsync(cts.Token);
+                ExchangeLibrary.Binance.Enums.CandleStickIntervalType.OneMinute.ToUrl(),
+                 _ =>
+                 {
+                     return Task.CompletedTask;
+                 },
+                 cts.Token);
 
             await Task.Delay(70000);
-            webSoket.Dispose();
         }
     }
 }
