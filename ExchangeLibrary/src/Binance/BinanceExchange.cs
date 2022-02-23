@@ -50,15 +50,29 @@ namespace TraidingBot.Exchanges.Binance
         #region .ctor
 
         /// <inheritdoc cref="BinanceExchange"/>
-        public BinanceExchange(BinanceExchangeOptions exchangeOptions, IMapper mapper)
+        public BinanceExchange(BinanceExchangeOptions exchangeOptions)
         {
             _httpClient = new();
-            _mapper = mapper;
             _redisDatabase = new RedisDatabase();
             _client = new BinanceClient(_httpClient, exchangeOptions.ApiKey, exchangeOptions.SecretKey);
             _walletSender = new WalletSender(_client);
             _marketdataSender = new MarketdataSender(_client);
             _tradeSender = new SpotAccountTradeSender(_client);
+        }
+
+        /// <inheritdoc cref="BinanceExchange"/>
+        public BinanceExchange(
+            IWalletSender walletSender,
+            IMarketdataSender marketdataSender,
+            ISpotAccountTradeSender tradeSender,
+            IRedisDatabase redisDatabase,
+            IMapper mapper)
+        {
+            _redisDatabase = redisDatabase;
+            _walletSender = walletSender;
+            _marketdataSender = marketdataSender;
+            _tradeSender = tradeSender;
+            _mapper = mapper;
         }
 
         #endregion

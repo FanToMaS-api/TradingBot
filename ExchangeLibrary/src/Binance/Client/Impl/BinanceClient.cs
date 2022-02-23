@@ -73,7 +73,7 @@ namespace ExchangeLibrary.Binance.Client.Impl
 
             if (query is not null)
             {
-                queryStringBuilder = BinanceUrlHelper.BuildQueryString(query, queryStringBuilder);
+                BinanceUrlHelper.BuildQueryString(query, queryStringBuilder);
             }
 
             var signature = BinanceUrlHelper.Sign(queryStringBuilder.ToString(), _apiSecret);

@@ -1,12 +1,8 @@
 ﻿using Common.JsonConvertWrapper;
 using ExchangeLibrary.Binance.Client;
-using ExchangeLibrary.Binance.Enums;
-using ExchangeLibrary.Binance.Enums.Helper;
 using ExchangeLibrary.Binance.Models;
 using NLog;
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
@@ -19,6 +15,7 @@ namespace ExchangeLibrary.Binance.EndpointSenders.Impl
         #region Fields
 
         private readonly IBinanceClient _client;
+        private readonly JsonDeserializerWrapper _converter;
         private readonly ILogger _logger = LogManager.GetCurrentClassLogger();
 
         #endregion
@@ -29,6 +26,8 @@ namespace ExchangeLibrary.Binance.EndpointSenders.Impl
         public SpotAccountTradeSender(IBinanceClient client)
         {
             _client = client;
+            _converter = new JsonDeserializerWrapper();
+            _converter.AddConverter(new FullOrderResponseModelConverter());
         }
 
         #endregion
@@ -44,8 +43,7 @@ namespace ExchangeLibrary.Binance.EndpointSenders.Impl
                 query: query,
                 cancellationToken: cancellationToken);
 
-            var converter = new JsonDeserializerWrapper();
-            return converter.Deserialize<FullOrderResponseModel>(result);
+            return _converter.Deserialize<FullOrderResponseModel>(result);
         }
 
         /// <inheritdoc />
@@ -57,8 +55,7 @@ namespace ExchangeLibrary.Binance.EndpointSenders.Impl
                 query: query,
                 cancellationToken: cancellationToken);
 
-            var converter = new JsonDeserializerWrapper();
-            return converter.Deserialize<FullOrderResponseModel>(result);
+            return _converter.Deserialize<FullOrderResponseModel>(result);
         }
 
         #endregion

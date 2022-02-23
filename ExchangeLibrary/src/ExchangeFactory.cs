@@ -15,7 +15,7 @@ namespace ExchangeLibrary
         {
             return exchangeType switch
             {
-                ExchangeType.Binance => new BinanceExchange((BinanceExchangeOptions)options, null), // TODO Mapper
+                ExchangeType.Binance => new BinanceExchange((BinanceExchangeOptions)options), // TODO Mapper
                 _ => throw new System.Exception("Unexpected Type")
             };
         }

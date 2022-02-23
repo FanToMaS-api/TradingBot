@@ -1,6 +1,8 @@
 ﻿using ExchangeLibrary.Binance.Enums;
 using ExchangeLibrary.Binance.Enums.Helper;
+using System;
 using System.Collections.Generic;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace ExchangeLibrary.Binance.Models
@@ -8,7 +10,7 @@ namespace ExchangeLibrary.Binance.Models
     /// <summary>
     ///     Модель ответа на отправку нового ордера (содержит полную информацию)
     /// </summary>
-    internal class FullOrderResponseModel
+    public class FullOrderResponseModel
     {
         /// <summary>
         ///     Пара
@@ -26,7 +28,7 @@ namespace ExchangeLibrary.Binance.Models
         ///     Id клиентского ордера
         /// </summary>
         [JsonPropertyName("clientOrderId")]
-        public long ClientOrderId { get; set; }
+        public string ClientOrderId { get; set; }
 
         /// <summary>
         ///     Время исполнения транзакции
@@ -67,49 +69,86 @@ namespace ExchangeLibrary.Binance.Models
         /// <summary>
         ///     Статус выполнения ордера
         /// </summary>
-        public OrderStatusType Status => status.ConvertToOrderStatusType();
-
-        /// <summary>
-        ///     Статус выполнения ордера (нужен для парса)
-        /// </summary>
-        [JsonPropertyName("status")]
-        public string status { get; set; }
+        public OrderStatusType Status { get; set; }
 
         /// <summary>
         ///     Время жизни ордера
         /// </summary>
-        public TimeInForceType TimeInForce => timeInForce.ConvertToTimeInForceType();
-
-        /// <summary>
-        ///     Время жизни ордера
-        /// </summary>
-        [JsonPropertyName("timeInForce")]
-        public string timeInForce { get; set; }
+        public TimeInForceType TimeInForce { get; set; }
 
         /// <summary>
         ///     Тип ордера
         /// </summary>
-        public OrderType OrderType => orderType.ConvertToOrderType();
-
-        /// <summary>
-        ///     Тип ордера
-        /// </summary>
-        [JsonPropertyName("type")]
-        public string orderType { get; set; }
+        public OrderType OrderType { get; set; }
 
         /// <summary>
         ///     Тип ордера (покупка, продажа)
         /// </summary>
-        public OrderSideType OrderSide => side.ConvertToOrderSideType();
-
-        /// <summary>
-        ///     Тип ордера (покупка, продажа)
-        /// </summary>
-        [JsonPropertyName("side")]
-        public string side { get; set; }
+        public OrderSideType OrderSide { get; set; }
 
         [JsonPropertyName("fills")]
-        public IEnumerable<FillModel> Fills { get; set; }
+        public List<FillModel> Fills { get; set; } = new();
+
+        /// <inheritdoc />
+        public void SetProperties(ref Utf8JsonReader reader)
+        {
+            while (reader.Read())
+            {
+                if (reader.TokenType == JsonTokenType.PropertyName)
+                {
+                    var propertyName = reader.GetString();
+                    reader.Read();
+
+                    switch (propertyName)
+                    {
+                        case "symbol":
+                            Symbol = reader.GetString();
+                            continue;
+                        case "orderId":
+                            OrderId = reader.GetInt64();
+                            continue;
+                        case "clientOrderId":
+                            ClientOrderId = reader.GetString();
+                            continue;
+                        case "transactTime":
+                            TransactTimeUnix = reader.GetInt64();
+                            continue;
+                        case "orderListId":
+                            OrderListId = reader.GetInt64();
+                            continue;
+                        case "price":
+                            Price = double.Parse(reader.GetString());
+                            continue;
+                        case "origQty":
+                            OrigQty = double.Parse(reader.GetString());
+                            continue;
+                        case "executedQty":
+                            ExecutedQty = double.Parse(reader.GetString());
+                            continue;
+                        case "cummulativeQuoteQty":
+                            СumulativeQuoteQty = double.Parse(reader.GetString());
+                            continue;
+                        case "status":
+                            Status = reader.GetString().ConvertToOrderStatusType();
+                            continue;
+                        case "timeInForce":
+                            TimeInForce = reader.GetString().ConvertToTimeInForceType();
+                            continue;
+                        case "type":
+                            OrderType = reader.GetString().ConvertToOrderType();
+                            continue;
+                        case "side":
+                            OrderSide = reader.GetString().ConvertToOrderSideType();
+                            continue;
+                    }
+                }
+
+                if (reader.TokenType == JsonTokenType.StartObject)
+                {
+                    FillModel.CreateFillModel(ref reader, this);
+                }
+            }
+        }
     }
 
     /// <summary>
@@ -146,5 +185,68 @@ namespace ExchangeLibrary.Binance.Models
         /// </summary>
         [JsonPropertyName("tradeId")]
         public long TradeId { get; set; }
+
+        /// <summary>
+        ///     Создает новую модель и добавляет в нужный массив пар
+        /// </summary>
+        internal static void CreateFillModel(ref Utf8JsonReader reader, FullOrderResponseModel result)
+        {
+            var workItem = new FillModel();
+            while (reader.Read())
+            {
+                if (reader.TokenType == JsonTokenType.PropertyName)
+                {
+                    var propertyName = reader.GetString();
+                    reader.Read();
+
+                    switch (propertyName)
+                    {
+                        case "price":
+                            workItem.Price = double.Parse(reader.GetString());
+                            continue;
+                        case "qty":
+                            workItem.Quantity = double.Parse(reader.GetString());
+                            continue;
+                        case "commission":
+                            workItem.Commission = double.Parse(reader.GetString());
+                            continue;
+                        case "commissionAsset":
+                            workItem.CommissionAsset = reader.GetString();
+                            continue;
+                        case "tradeId":
+                            workItem.TradeId = reader.GetInt64();
+                            continue;
+                    }
+                }
+
+                if (reader.TokenType == JsonTokenType.EndObject)
+                {
+                    break;
+                }
+            }
+
+            result.Fills.Add(workItem);
+        }
+    }
+
+    /// <summary>
+    ///     Нормально конвертирует полученные данные
+    /// </summary>
+    public class FullOrderResponseModelConverter : JsonConverter<FullOrderResponseModel>
+    {
+        /// <inheritdoc />
+        public override FullOrderResponseModel Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+        {
+            var orderBook = new FullOrderResponseModel();
+            orderBook.SetProperties(ref reader);
+
+            return orderBook;
+        }
+
+        /// <inheritdoc />
+        public override void Write(Utf8JsonWriter writer, FullOrderResponseModel value, JsonSerializerOptions options)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
