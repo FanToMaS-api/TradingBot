@@ -72,7 +72,7 @@ namespace ExchangeLibrary.Binance.WebSocket.Marketdata
         /// <param name="candleStickInterval"> Временной интервал изменения свечи </param>
         public static MarketdataWebSocket CreateCandlestickStream(
             string symbol,
-            CandleStickIntervalType candleStickInterval) =>
+            CandlestickIntervalType candleStickInterval) =>
             new MarketdataWebSocket(
                 new BinanceWebSocketHumble(new ClientWebSocket()),
                 $"{BaseUrl}/ws/{symbol.ToLower()}{MarketdataStreamType.CandlestickStream.ToUrl()}{candleStickInterval.ToUrl()}");
@@ -84,7 +84,7 @@ namespace ExchangeLibrary.Binance.WebSocket.Marketdata
         /// <param name="candleStickInterval"> Временной интервал изменения свечи </param>
         public static MarketdataWebSocket CreateCandlestickStream(
             string symbol,
-            CandleStickIntervalType candleStickInterval,
+            CandlestickIntervalType candleStickInterval,
             IBinanceWebSocketHumble webSocketHumble) =>
             new MarketdataWebSocket(
                 webSocketHumble,

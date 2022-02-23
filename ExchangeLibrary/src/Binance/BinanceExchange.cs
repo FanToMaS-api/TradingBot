@@ -19,7 +19,6 @@ using ExchangeLibrary.Binance.WebSocket.Marketdata;
 using NLog;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
@@ -104,7 +103,10 @@ namespace TraidingBot.Exchanges.Binance
                 throw new TooManyRequestsException(rateLimit.Expiration, rateLimit.Value, rateLimit.Key);
             }
 
-            var result = await _walletSender.GetAccountTraidingStatusAsync(recvWindow, cancellationToken);
+            var builder = new Builder();
+            builder.SetRecvWindow(recvWindow);
+            var query = builder.GetResult().GetQuery();
+            var result = await _walletSender.GetAccountTraidingStatusAsync(query, cancellationToken);
 
             IncrementCallsMade(requestWeight, RequestWeightModel.GetDefaultKey());
 
@@ -123,7 +125,11 @@ namespace TraidingBot.Exchanges.Binance
                 throw new TooManyRequestsException(rateLimit.Expiration, rateLimit.Value, rateLimit.Key);
             }
 
-            var result = await _walletSender.GetTradeFeeAsync(symbol, recvWindow, cancellationToken);
+            var builder = new Builder();
+            builder.SetSymbol(symbol);
+            builder.SetRecvWindow(recvWindow);
+            var query = builder.GetResult().GetQuery();
+            var result = await _walletSender.GetTradeFeeAsync(query, cancellationToken);
 
             IncrementCallsMade(requestWeight, RequestWeightModel.GetDefaultKey());
 
@@ -139,7 +145,10 @@ namespace TraidingBot.Exchanges.Binance
                 throw new TooManyRequestsException(rateLimit.Expiration, rateLimit.Value, rateLimit.Key);
             }
 
-            var result = await _walletSender.GetAllCoinsInformationAsync(recvWindow, cancellationToken);
+            var builder = new Builder();
+            builder.SetRecvWindow(recvWindow);
+            var query = builder.GetResult().GetQuery();
+            var result = await _walletSender.GetAllCoinsInformationAsync(query, cancellationToken);
 
             IncrementCallsMade(requestWeight, RequestWeightModel.GetDefaultKey());
 
@@ -159,7 +168,11 @@ namespace TraidingBot.Exchanges.Binance
                 throw new TooManyRequestsException(rateLimit.Expiration, rateLimit.Value, rateLimit.Key);
             }
 
-            var result = await _marketdataSender.GetOrderBookAsync(symbol, limit, cancellationToken);
+            var builder = new Builder();
+            builder.SetSymbol(symbol);
+            builder.SetLimit(limit);
+            var query = builder.GetResult().GetQuery();
+            var result = await _marketdataSender.GetOrderBookAsync(query, cancellationToken);
 
             IncrementCallsMade(requestWeight, limit.ToString());
 
@@ -175,7 +188,11 @@ namespace TraidingBot.Exchanges.Binance
                 throw new TooManyRequestsException(rateLimit.Expiration, rateLimit.Value, rateLimit.Key);
             }
 
-            var result = await _marketdataSender.GetRecentTradesAsync(symbol, limit, cancellationToken);
+            var builder = new Builder();
+            builder.SetSymbol(symbol);
+            builder.SetLimit(limit);
+            var query = builder.GetResult().GetQuery();
+            var result = await _marketdataSender.GetRecentTradesAsync(query, cancellationToken);
 
             IncrementCallsMade(requestWeight, RequestWeightModel.GetDefaultKey());
 
@@ -195,7 +212,12 @@ namespace TraidingBot.Exchanges.Binance
                 throw new TooManyRequestsException(rateLimit.Expiration, rateLimit.Value, rateLimit.Key);
             }
 
-            var result = await _marketdataSender.GetOldTradesAsync(symbol, fromId, limit, cancellationToken);
+            var builder = new Builder();
+            builder.SetSymbol(symbol);
+            builder.SetLimit(limit);
+            builder.SetFromId(fromId);
+            var query = builder.GetResult().GetQuery();
+            var result = await _marketdataSender.GetOldTradesAsync(query, cancellationToken);
 
             IncrementCallsMade(requestWeight, RequestWeightModel.GetDefaultKey());
 
@@ -203,9 +225,9 @@ namespace TraidingBot.Exchanges.Binance
         }
 
         /// <inheritdoc />
-        public async Task<string> GetCandleStickAsync(
+        public async Task<string> GetCandlstickAsync(
             string symbol,
-            CandleStickIntervalType interval,
+            string interval,
             long? startTime = null,
             long? endTime = null,
             int limit = 500,
@@ -217,7 +239,14 @@ namespace TraidingBot.Exchanges.Binance
                 throw new TooManyRequestsException(rateLimit.Expiration, rateLimit.Value, rateLimit.Key);
             }
 
-            var result = await _marketdataSender.GetCandleStickAsync(symbol, interval, startTime, endTime, limit, cancellationToken);
+            var builder = new Builder();
+            builder.SetSymbol(symbol);
+            builder.SetLimit(limit);
+            builder.SetCandlestickInterval(interval);
+            builder.SetStartTime(startTime);
+            builder.SetEndTime(endTime);
+            var query = builder.GetResult().GetQuery();
+            var result = await _marketdataSender.GetCandlestickAsync(query, cancellationToken);
 
             IncrementCallsMade(requestWeight, RequestWeightModel.GetDefaultKey());
 
@@ -232,8 +261,10 @@ namespace TraidingBot.Exchanges.Binance
             {
                 throw new TooManyRequestsException(rateLimit.Expiration, rateLimit.Value, rateLimit.Key);
             }
-
-            var result = await _marketdataSender.GetAveragePriceAsync(symbol, cancellationToken);
+            var builder = new Builder();
+            builder.SetSymbol(symbol);
+            var query = builder.GetResult().GetQuery();
+            var result = await _marketdataSender.GetAveragePriceAsync(query, cancellationToken);
 
             IncrementCallsMade(requestWeight, RequestWeightModel.GetDefaultKey());
 
@@ -289,6 +320,164 @@ namespace TraidingBot.Exchanges.Binance
             IncrementCallsMade(requestWeight, key);
 
             return "TODO";
+        }
+
+        #endregion
+
+        #region Marketdata Streams
+
+        /// <inheritdoc />
+        public async Task SubscribeNewStreamAsync<T>(
+            string symbol,
+            Func<T, Task> onMessageReceivedFunc,
+            MarketdataStreamType streamType,
+            CancellationToken cancellationToken = default)
+        {
+            var webSoket = new MarketdataWebSocket(symbol, streamType);
+            webSoket.OnClosed += OnCloseHandler;
+            var converter = new JsonDeserializerWrapper();
+
+            webSoket.AddOnMessageReceivedFunc(
+               content =>
+               {
+                   IMarketdataStreamModel model = streamType switch
+                   {
+                       MarketdataStreamType.AggregateTradeStream => converter.Deserialize<AggregateSymbolTradeStreamModel>(content),
+                       MarketdataStreamType.IndividualSymbolBookTickerStream => converter.Deserialize<BookTickerStreamModel>(content),
+                       MarketdataStreamType.IndividualSymbolMiniTickerStream => converter.Deserialize<MiniTickerStreamModel>(content),
+                       MarketdataStreamType.TradeStream => converter.Deserialize<SymbolTradeStreamModel>(content),
+                       MarketdataStreamType.IndividualSymbolTickerStream => converter.Deserialize<TickerStreamModel>(content),
+                       _ => throw new InvalidOperationException($"Unknow Marketdata Stream Type {streamType}. " +
+                       "Failed to deserialize content")
+                   };
+
+                   var neededModel = _mapper.Map<T>(model);
+                   onMessageReceivedFunc?.Invoke(neededModel);
+                   return Task.CompletedTask;
+               },
+               cancellationToken);
+
+            await webSoket.ConnectAsync(cancellationToken);
+        }
+
+        /// <inheritdoc />
+        public async Task SubscribeCandlestickStreamAsync<T>(
+            string symbol,
+            string candleStickInterval,
+            Func<T, Task> onMessageReceivedFunc,
+            CancellationToken cancellationToken = default)
+        {
+            var interval = candleStickInterval.ConvertToCandleStickIntervalType();
+            var webSoket = MarketdataWebSocket.CreateCandlestickStream(symbol, interval);
+            webSoket.OnClosed += OnCloseHandler;
+            var converter = new JsonDeserializerWrapper();
+
+            webSoket.AddOnMessageReceivedFunc(
+               content =>
+               {
+                   var model = converter.Deserialize<CandlestickStreamModel>(content);
+                   var neededModel = _mapper.Map<T>(model);
+                   onMessageReceivedFunc?.Invoke(neededModel);
+                   return Task.CompletedTask;
+               },
+               cancellationToken);
+
+            await webSoket.ConnectAsync(cancellationToken);
+        }
+
+        /// <inheritdoc />
+        public async Task SubscribeAllMarketTickersStreamAsync<T>(
+            Func<T, Task> onMessageReceivedFunc,
+            CancellationToken cancellationToken = default)
+        {
+            var webSoket = MarketdataWebSocket.CreateAllMarketMiniTickersStream();
+            webSoket.OnClosed += OnCloseHandler;
+            var converter = new JsonDeserializerWrapper();
+            converter.AddConverter(new EnumerableDeserializer<TickerStreamModel>());
+
+            webSoket.AddOnMessageReceivedFunc(
+               content =>
+               {
+                   var model = converter.Deserialize<IEnumerable<TickerStreamModel>>(content);
+                   var neededModel = _mapper.Map<T>(model);
+                   onMessageReceivedFunc?.Invoke(neededModel);
+                   return Task.CompletedTask;
+               },
+               cancellationToken);
+
+            await webSoket.ConnectAsync(cancellationToken);
+        }
+
+        /// <inheritdoc />
+        public async Task SubscribeAllBookTickersStreamAsync<T>(
+            Func<T, Task> onMessageReceivedFunc,
+            CancellationToken cancellationToken = default)
+        {
+            var webSoket = MarketdataWebSocket.CreateAllBookTickersStream();
+            webSoket.OnClosed += OnCloseHandler;
+            var converter = new JsonDeserializerWrapper();
+            converter.AddConverter(new EnumerableDeserializer<BookTickerStreamModel>());
+
+            webSoket.AddOnMessageReceivedFunc(
+               content =>
+               {
+                   var model = converter.Deserialize<IEnumerable<BookTickerStreamModel>>(content);
+                   var neededModel = _mapper.Map<T>(model);
+                   onMessageReceivedFunc?.Invoke(neededModel);
+                   return Task.CompletedTask;
+               },
+               cancellationToken);
+
+            await webSoket.ConnectAsync(cancellationToken);
+        }
+
+        /// <inheritdoc />
+        public async Task SubscribeAllMarketMiniTickersStreamAsync<T>(
+            Func<T, Task> onMessageReceivedFunc,
+            CancellationToken cancellationToken = default)
+        {
+            var webSoket = MarketdataWebSocket.CreateAllMarketMiniTickersStream();
+            webSoket.OnClosed += OnCloseHandler;
+            var converter = new JsonDeserializerWrapper();
+            converter.AddConverter(new EnumerableDeserializer<MiniTickerStreamModel>());
+
+            webSoket.AddOnMessageReceivedFunc(
+               content =>
+               {
+                   var model = converter.Deserialize<IEnumerable<MiniTickerStreamModel>>(content);
+                   var neededModel = _mapper.Map<T>(model);
+                   onMessageReceivedFunc?.Invoke(neededModel);
+                   return Task.CompletedTask;
+               },
+               cancellationToken);
+
+            await webSoket.ConnectAsync(cancellationToken);
+        }
+
+        /// <inheritdoc />
+        public async Task SubscribePartialBookDepthStreamAsync<T>(
+            string symbol,
+            Func<T, Task> onMessageReceivedFunc,
+            int levels = 10,
+            bool activateFastReceive = false,
+            CancellationToken cancellationToken = default)
+        {
+            var webSoket = MarketdataWebSocket.CreatePartialBookDepthStream(symbol, levels, activateFastReceive);
+            webSoket.OnClosed += OnCloseHandler;
+            var converter = new JsonDeserializerWrapper();
+            converter.AddConverter(new OrderBookModelConverter());
+
+            webSoket.AddOnMessageReceivedFunc(
+               content =>
+               {
+                   var model = converter.Deserialize<OrderBookModel>(content);
+                   var neededModel = _mapper.Map<T>(model);
+                   onMessageReceivedFunc?.Invoke(neededModel);
+                   return Task.CompletedTask;
+               },
+               cancellationToken);
+
+            await webSoket.ConnectAsync(cancellationToken);
         }
 
         #endregion
@@ -541,162 +730,56 @@ namespace TraidingBot.Exchanges.Binance
             return "TODO";
         }
 
-        #endregion
-
-        #region Marketdata Streams
-
         /// <inheritdoc />
-        public async Task SubscribeNewStreamAsync<T>(
+        public async Task<string> CancelOrderAsync(
             string symbol,
-            Func<T, Task> onMessageReceivedFunc,
-            MarketdataStreamType streamType,
+            long? orderId = null,
+            string origClientOrderId = null,
+            long recvWindow = 5000,
             CancellationToken cancellationToken = default)
         {
-            var webSoket = new MarketdataWebSocket(symbol, streamType);
-            webSoket.OnClosed += OnCloseHandler;
-            var converter = new JsonDeserializerWrapper();
+            var requestWeight = _requestsWeightStorage.CancelOrderWeight;
+            if (CheckLimit(requestWeight.Type, out var rateLimit))
+            {
+                throw new TooManyRequestsException(rateLimit.Expiration, rateLimit.Value, rateLimit.Key);
+            }
 
-            webSoket.AddOnMessageReceivedFunc(
-               content =>
-               {
-                   IMarketdataStreamModel model = streamType switch
-                   {
-                       MarketdataStreamType.AggregateTradeStream => converter.Deserialize<AggregateSymbolTradeStreamModel>(content),
-                       MarketdataStreamType.IndividualSymbolBookTickerStream => converter.Deserialize<BookTickerStreamModel>(content),
-                       MarketdataStreamType.IndividualSymbolMiniTickerStream => converter.Deserialize<MiniTickerStreamModel>(content),
-                       MarketdataStreamType.TradeStream => converter.Deserialize<SymbolTradeStreamModel>(content),
-                       MarketdataStreamType.IndividualSymbolTickerStream => converter.Deserialize<TickerStreamModel>(content),
-                       _ => throw new InvalidOperationException($"Unknow Marketdata Stream Type {streamType}. " +
-                       "Failed to deserialize content")
-                   };
+            var builder = new Builder();
+            builder.SetSymbol(symbol);
+            builder.SetOrderId(orderId);
+            builder.SetOrigClientOrderId(origClientOrderId);
+            builder.SetRecvWindow(recvWindow);
+            var query = builder.GetResult().GetQuery();
 
-                   var neededModel = _mapper.Map<T>(model);
-                   onMessageReceivedFunc?.Invoke(neededModel);
-                   return Task.CompletedTask;
-               },
-               cancellationToken);
+            var result = await _tradeSender.CancelOrderAsync(query, cancellationToken);
 
-            await webSoket.ConnectAsync(cancellationToken);
+            IncrementCallsMade(requestWeight, RequestWeightModel.GetDefaultKey());
+
+            return "TODO";
         }
 
         /// <inheritdoc />
-        public async Task SubscribeCandlestickStreamAsync<T>(
+        public async Task<string> CancelAllOrdersAsync(
             string symbol,
-            string candleStickInterval,
-            Func<T, Task> onMessageReceivedFunc,
+            long recvWindow = 5000,
             CancellationToken cancellationToken = default)
         {
-            var interval = candleStickInterval.ConvertToCandleStickIntervalType();
-            var webSoket = MarketdataWebSocket.CreateCandlestickStream(symbol, interval);
-            webSoket.OnClosed += OnCloseHandler;
-            var converter = new JsonDeserializerWrapper();
+            var requestWeight = _requestsWeightStorage.CancelOrderWeight;
+            if (CheckLimit(requestWeight.Type, out var rateLimit))
+            {
+                throw new TooManyRequestsException(rateLimit.Expiration, rateLimit.Value, rateLimit.Key);
+            }
 
-            webSoket.AddOnMessageReceivedFunc(
-               content =>
-               {
-                   var model = converter.Deserialize<CandlestickStreamModel>(content);
-                   var neededModel = _mapper.Map<T>(model);
-                   onMessageReceivedFunc?.Invoke(neededModel);
-                   return Task.CompletedTask;
-               },
-               cancellationToken);
+            var builder = new Builder();
+            builder.SetSymbol(symbol);
+            builder.SetRecvWindow(recvWindow);
+            var query = builder.GetResult().GetQuery();
 
-            await webSoket.ConnectAsync(cancellationToken);
-        }
+            var result = await _tradeSender.CancelAllOrdersAsync(query, cancellationToken);
 
-        /// <inheritdoc />
-        public async Task SubscribeAllMarketTickersStreamAsync<T>(
-            Func<T, Task> onMessageReceivedFunc,
-            CancellationToken cancellationToken = default)
-        {
-            var webSoket = MarketdataWebSocket.CreateAllMarketMiniTickersStream();
-            webSoket.OnClosed += OnCloseHandler;
-            var converter = new JsonDeserializerWrapper();
-            converter.AddConverter(new EnumerableDeserializer<TickerStreamModel>());
+            IncrementCallsMade(requestWeight, RequestWeightModel.GetDefaultKey());
 
-            webSoket.AddOnMessageReceivedFunc(
-               content =>
-               {
-                   var model = converter.Deserialize<IEnumerable<TickerStreamModel>>(content);
-                   var neededModel = _mapper.Map<T>(model);
-                   onMessageReceivedFunc?.Invoke(neededModel);
-                   return Task.CompletedTask;
-               },
-               cancellationToken);
-
-            await webSoket.ConnectAsync(cancellationToken);
-        }
-
-        /// <inheritdoc />
-        public async Task SubscribeAllBookTickersStreamAsync<T>(
-            Func<T, Task> onMessageReceivedFunc,
-            CancellationToken cancellationToken = default)
-        {
-            var webSoket = MarketdataWebSocket.CreateAllBookTickersStream();
-            webSoket.OnClosed += OnCloseHandler;
-            var converter = new JsonDeserializerWrapper();
-            converter.AddConverter(new EnumerableDeserializer<BookTickerStreamModel>());
-
-            webSoket.AddOnMessageReceivedFunc(
-               content =>
-               {
-                   var model = converter.Deserialize<IEnumerable<BookTickerStreamModel>>(content);
-                   var neededModel = _mapper.Map<T>(model);
-                   onMessageReceivedFunc?.Invoke(neededModel);
-                   return Task.CompletedTask;
-               },
-               cancellationToken);
-
-            await webSoket.ConnectAsync(cancellationToken);
-        }
-
-        /// <inheritdoc />
-        public async Task SubscribeAllMarketMiniTickersStreamAsync<T>(
-            Func<T, Task> onMessageReceivedFunc,
-            CancellationToken cancellationToken = default)
-        {
-            var webSoket = MarketdataWebSocket.CreateAllMarketMiniTickersStream();
-            webSoket.OnClosed += OnCloseHandler;
-            var converter = new JsonDeserializerWrapper();
-            converter.AddConverter(new EnumerableDeserializer<MiniTickerStreamModel>());
-
-            webSoket.AddOnMessageReceivedFunc(
-               content =>
-               {
-                   var model = converter.Deserialize<IEnumerable<MiniTickerStreamModel>>(content);
-                   var neededModel = _mapper.Map<T>(model);
-                   onMessageReceivedFunc?.Invoke(neededModel);
-                   return Task.CompletedTask;
-               },
-               cancellationToken);
-
-            await webSoket.ConnectAsync(cancellationToken);
-        }
-
-        /// <inheritdoc />
-        public async Task SubscribePartialBookDepthStreamAsync<T>(
-            string symbol,
-            Func<T, Task> onMessageReceivedFunc,
-            int levels = 10,
-            bool activateFastReceive = false,
-            CancellationToken cancellationToken = default)
-        {
-            var webSoket = MarketdataWebSocket.CreatePartialBookDepthStream(symbol, levels, activateFastReceive);
-            webSoket.OnClosed += OnCloseHandler;
-            var converter = new JsonDeserializerWrapper();
-            converter.AddConverter(new OrderBookModelConverter());
-
-            webSoket.AddOnMessageReceivedFunc(
-               content =>
-               {
-                   var model = converter.Deserialize<OrderBookModel>(content);
-                   var neededModel = _mapper.Map<T>(model);
-                   onMessageReceivedFunc?.Invoke(neededModel);
-                   return Task.CompletedTask;
-               },
-               cancellationToken);
-
-            await webSoket.ConnectAsync(cancellationToken);
+            return "TODO";
         }
 
         #endregion

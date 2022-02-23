@@ -58,6 +58,31 @@ namespace ExchangeLibrary.Binance.EndpointSenders.Impl
             return _converter.Deserialize<FullOrderResponseModel>(result);
         }
 
+        /// <inheritdoc />
+        public async Task<CancelOrderResponseModel> CancelOrderAsync(Dictionary<string, object> query, CancellationToken cancellationToken = default)
+        {
+            var result = await _client.SendSignedAsync(
+                BinanceEndpoints.CANCEL_ORDER,
+                HttpMethod.Delete,
+                query: query,
+                cancellationToken: cancellationToken);
+
+            return _converter.Deserialize<CancelOrderResponseModel>(result);
+        }
+
+        /// <inheritdoc />
+        public async Task<CancelOrderResponseModel> CancelAllOrdersAsync(Dictionary<string, object> query, CancellationToken cancellationToken = default)
+        {
+            var result = await _client.SendSignedAsync(
+                BinanceEndpoints.CANCEL_All_ORDERS,
+                HttpMethod.Delete,
+                query: query,
+                cancellationToken: cancellationToken);
+
+            // TODO: Здесь нужно придумать модель
+            return _converter.Deserialize<CancelOrderResponseModel>(result);
+        }
+
         #endregion
     }
 }

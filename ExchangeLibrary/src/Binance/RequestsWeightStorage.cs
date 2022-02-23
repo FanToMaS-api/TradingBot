@@ -157,6 +157,16 @@ namespace ExchangeLibrary.Binance
                 { RequestWeightModel.GetDefaultKey(), 1 }
             });
 
+        /// <summary>
+        ///     Вес запроса на отмену активного ордера по паре (включая отмену всех оредров по паре)
+        /// </summary>
+        public RequestWeightModel CancelOrderWeight { get; set; } = new RequestWeightModel(
+            Enums.ApiType.Api,
+            new()
+            {
+                { RequestWeightModel.GetDefaultKey(), 1 }
+            });
+
         #endregion
     }
 }

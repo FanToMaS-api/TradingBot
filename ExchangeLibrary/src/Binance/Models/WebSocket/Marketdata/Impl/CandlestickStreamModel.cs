@@ -45,7 +45,7 @@ namespace ExchangeLibrary.Binance.Models
         /// <summary>
         ///     Интервал
         /// </summary>
-        public CandleStickIntervalType Interval => interval.ConvertToCandleStickIntervalType();
+        public CandlestickIntervalType Interval => interval.ConvertToCandleStickIntervalType();
 
         /// <summary>
         ///     Интервал (нужен для парса json)

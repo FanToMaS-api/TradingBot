@@ -1,7 +1,5 @@
 ﻿using Common.JsonConvertWrapper;
 using ExchangeLibrary.Binance.Client;
-using ExchangeLibrary.Binance.Enums;
-using ExchangeLibrary.Binance.Enums.Helper;
 using ExchangeLibrary.Binance.Models;
 using NLog;
 using System.Collections.Generic;
@@ -33,16 +31,12 @@ namespace ExchangeLibrary.Binance.EndpointSenders.Impl
         #region Public methods
 
         /// <inheritdoc />
-        public async Task<OrderBookModel> GetOrderBookAsync(string symbol, int limit = 100, CancellationToken cancellationToken = default)
+        public async Task<OrderBookModel> GetOrderBookAsync(Dictionary<string, object> query, CancellationToken cancellationToken = default)
         {
             var result = await _client.SendPublicAsync(
                 BinanceEndpoints.ORDER_BOOK,
                 HttpMethod.Get,
-                query: new Dictionary<string, object>
-                {
-                    { "symbol", symbol },
-                    { "limit", limit },
-                },
+                query: query,
                 cancellationToken: cancellationToken);
 
             var converter = new JsonDeserializerWrapper();
@@ -51,16 +45,12 @@ namespace ExchangeLibrary.Binance.EndpointSenders.Impl
         }
 
         /// <inheritdoc />
-        public async Task<IEnumerable<RecentTradeModel>> GetRecentTradesAsync(string symbol, int limit = 500, CancellationToken cancellationToken = default)
+        public async Task<IEnumerable<RecentTradeModel>> GetRecentTradesAsync(Dictionary<string, object> query, CancellationToken cancellationToken = default)
         {
             var result = await _client.SendPublicAsync(
                 BinanceEndpoints.RECENT_TRADES,
                 HttpMethod.Get,
-                query: new Dictionary<string, object>
-                {
-                    { "symbol", symbol },
-                    { "limit", limit },
-                },
+                query: query,
                 cancellationToken: cancellationToken);
 
             var converter = new JsonDeserializerWrapper();
@@ -68,17 +58,12 @@ namespace ExchangeLibrary.Binance.EndpointSenders.Impl
         }
 
         /// <inheritdoc />
-        public async Task<IEnumerable<RecentTradeModel>> GetOldTradesAsync(string symbol, long fromId, int limit = 500, CancellationToken cancellationToken = default)
+        public async Task<IEnumerable<RecentTradeModel>> GetOldTradesAsync(Dictionary<string, object> query, CancellationToken cancellationToken = default)
         {
             var result = await _client.SendPublicAsync(
                 BinanceEndpoints.OLD_TRADES,
                 HttpMethod.Get,
-                query: new Dictionary<string, object>
-                {
-                    { "symbol", symbol },
-                    { "limit", limit },
-                    { "fromId", fromId },
-                },
+                query: query,
                 cancellationToken: cancellationToken);
 
             var converter = new JsonDeserializerWrapper();
@@ -86,31 +71,14 @@ namespace ExchangeLibrary.Binance.EndpointSenders.Impl
         }
 
         /// <inheritdoc />
-        public async Task<IEnumerable<CandlestickModel>> GetCandleStickAsync(
-            string symbol,
-            CandleStickIntervalType interval,
-            long? startTime = null,
-            long? endTime = null,
-            int limit = 500,
+        public async Task<IEnumerable<CandlestickModel>> GetCandlestickAsync(
+            Dictionary<string, object> query,
             CancellationToken cancellationToken = default)
         {
-            var parameters =
-                new Dictionary<string, object>
-                {
-                    { "symbol", symbol },
-                    { "interval", interval.ToUrl() },
-                    { "limit", limit },
-                };
-            if (startTime is not null && endTime is not null)
-            {
-                parameters["startTime"] = startTime;
-                parameters["endTime"] = endTime;
-            }
-
             var result = await _client.SendPublicAsync(
                 BinanceEndpoints.CANDLESTICK_DATA,
                 HttpMethod.Get,
-                query: parameters,
+                query: query,
                 cancellationToken: cancellationToken);
 
             var converter = new JsonDeserializerWrapper();
@@ -119,15 +87,12 @@ namespace ExchangeLibrary.Binance.EndpointSenders.Impl
         }
 
         /// <inheritdoc />
-        public async Task<AveragePriceModel> GetAveragePriceAsync(string symbol, CancellationToken cancellationToken = default)
+        public async Task<AveragePriceModel> GetAveragePriceAsync(Dictionary<string, object> query, CancellationToken cancellationToken = default)
         {
             var result = await _client.SendPublicAsync(
                 BinanceEndpoints.AVERAGE_PRICE,
                 HttpMethod.Get,
-                query: new Dictionary<string, object>
-                {
-                    { "symbol", symbol },
-                },
+                query: query,
                 cancellationToken: cancellationToken);
 
             var converter = new JsonDeserializerWrapper();

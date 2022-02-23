@@ -1,8 +1,6 @@
 ﻿using ExchangeLibrary.Binance.Enums;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 
 namespace ExchangeLibrary.Binance.Models
 {
@@ -27,6 +25,13 @@ namespace ExchangeLibrary.Binance.Models
             RecvWindow = new OrderParamWrapper("recvWindow", false, true);
             OrderResponseType = new OrderParamWrapper("newOrderRespType", false, true);
             TimeStamp = new OrderParamWrapper("timestamp", false, true);
+            OrderId = new OrderParamWrapper("orderId", false, true);
+            OrigClientOrderId = new OrderParamWrapper("origClientOrderId", false, true);
+            Limit = new OrderParamWrapper("limit", false, true);
+            FromId = new OrderParamWrapper("fromId", false, true);
+            StartTime = new OrderParamWrapper("startTime", false, true);
+            EndTime = new OrderParamWrapper("endTime", false, true);
+            CandlestickInterval = new OrderParamWrapper("interval", false, true);
         }
 
         #endregion
@@ -56,6 +61,41 @@ namespace ExchangeLibrary.Binance.Models
         ///     Кол-во
         /// </summary>
         public OrderParamWrapper Quantity { get; set; }
+
+        /// <summary>
+        ///     Id ордера
+        /// </summary>
+        public OrderParamWrapper OrderId { get; set; }
+
+        /// <summary>
+        ///     Время начала построения свечей (для выгрузки)
+        /// </summary>
+        public OrderParamWrapper StartTime { get; set; }
+
+        /// <summary>
+        ///     Тип периода свечи
+        /// </summary>
+        public OrderParamWrapper CandlestickInterval { get; set; }
+
+        /// <summary>
+        ///     Окончание периода построения свечей (для выгрузки)
+        /// </summary>
+        public OrderParamWrapper EndTime { get; set; }
+
+        /// <summary>
+        ///     Глубина запроса (лимит выдачи данных)
+        /// </summary>
+        public OrderParamWrapper Limit { get; set; }
+
+        /// <summary>
+        ///     Нижняя граница по id для выгрузки данных
+        /// </summary>
+        public OrderParamWrapper FromId { get; set; }
+
+        /// <summary>
+        ///     Идентификатор заказа клиента
+        /// </summary>
+        public OrderParamWrapper OrigClientOrderId { get; set; }
 
         /// <summary>
         ///     Стоп цена

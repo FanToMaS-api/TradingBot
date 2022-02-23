@@ -18,17 +18,17 @@ namespace ExchangeLibrary.Binance.EndpointSenders
         /// <summary>
         ///     Вернуть статус аккаунта
         /// </summary>
-        Task<AccountTraidingStatusModel> GetAccountTraidingStatusAsync(long recvWindow = 5000, CancellationToken cancellationToken = default);
+        Task<AccountTraidingStatusModel> GetAccountTraidingStatusAsync(Dictionary<string, object> query, CancellationToken cancellationToken = default);
 
         /// <summary>
         ///     Получить всю информацию о монетах
         /// </summary>
-        Task<IEnumerable<CoinModel>> GetAllCoinsInformationAsync(long recvWindow = 5000, CancellationToken cancellationToken = default);
+        Task<IEnumerable<CoinModel>> GetAllCoinsInformationAsync(Dictionary<string, object> query, CancellationToken cancellationToken = default);
 
         /// <summary>
         ///     Запрос таксы по всем парам или по конктретной
         /// </summary>
         /// <param name="symbol"> Наименование конкретной пары </param>
-        Task<IEnumerable<TradeFeeModel>> GetTradeFeeAsync(string symbol = null, long recvWindow = 5000, CancellationToken cancellationToken = default);
+        Task<IEnumerable<TradeFeeModel>> GetTradeFeeAsync(Dictionary<string, object> query, CancellationToken cancellationToken = default);
     }
 }

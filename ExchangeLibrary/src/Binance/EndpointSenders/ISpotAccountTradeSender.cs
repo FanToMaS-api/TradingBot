@@ -19,5 +19,15 @@ namespace ExchangeLibrary.Binance.EndpointSenders
         ///     Отправить новый ордер
         /// </summary>  
         Task<FullOrderResponseModel> SendNewOrderAsync(Dictionary<string, object> query, CancellationToken cancellationToken = default);
+
+        /// <summary>
+        ///     Отменить ордер
+        /// </summary>
+        Task<CancelOrderResponseModel> CancelOrderAsync(Dictionary<string, object> query, CancellationToken cancellationToken = default);
+
+        /// <summary>
+        ///     Отменить все ордера по определенной паре
+        /// </summary>
+        Task<CancelOrderResponseModel> CancelAllOrdersAsync(Dictionary<string, object> query, CancellationToken cancellationToken = default);
     }
 }

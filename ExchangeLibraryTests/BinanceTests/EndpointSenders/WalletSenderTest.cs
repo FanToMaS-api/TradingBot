@@ -51,7 +51,7 @@ namespace ExchangeLibraryTests.BinanceTests.EndpointSenders
             IWalletSender walletEndpointSender = new WalletSender(binanceClient);
 
             // Act
-            var result = (await walletEndpointSender.GetAllCoinsInformationAsync(7000, CancellationToken.None))
+            var result = (await walletEndpointSender.GetAllCoinsInformationAsync(null, CancellationToken.None))
                 .ToList();
 
             Assert.Equal(2, result.Count);
@@ -73,7 +73,7 @@ namespace ExchangeLibraryTests.BinanceTests.EndpointSenders
             IWalletSender walletEndpointSender = new WalletSender(binanceClient);
 
             // Act
-            var result = await walletEndpointSender.GetAccountTraidingStatusAsync(7000, CancellationToken.None);
+            var result = await walletEndpointSender.GetAccountTraidingStatusAsync(null, CancellationToken.None);
 
             Assert.True(result.Data.IsLocked);
             Assert.Equal(123, result.Data.PlannedRecoverTimeUnix);
@@ -95,7 +95,7 @@ namespace ExchangeLibraryTests.BinanceTests.EndpointSenders
             IWalletSender walletEndpointSender = new WalletSender(binanceClient);
 
             // Act
-            var result = (await walletEndpointSender.GetTradeFeeAsync()).ToList();
+            var result = (await walletEndpointSender.GetTradeFeeAsync(null)).ToList();
 
             Assert.Equal(2, result.Count);
             Assert.Equal("ADABNB", result[0].Coin);

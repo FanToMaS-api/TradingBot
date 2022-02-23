@@ -285,7 +285,7 @@ namespace ExchangeLibraryTests.BinanceTests.EndpointSenders
             IMarketdataSender marketdataSender = new MarketdataSender(binanceClient);
 
             // Act
-            var result = await marketdataSender.GetOrderBookAsync("", cancellationToken: CancellationToken.None);
+            var result = await marketdataSender.GetOrderBookAsync(null, cancellationToken: CancellationToken.None);
 
             Assert.Equal(2, result.Bids.Count);
             Assert.Equal(2, result.Asks.Count);
@@ -311,7 +311,7 @@ namespace ExchangeLibraryTests.BinanceTests.EndpointSenders
             IMarketdataSender marketdataSender = new MarketdataSender(binanceClient);
 
             // Act
-            var result = (await marketdataSender.GetRecentTradesAsync("", cancellationToken: CancellationToken.None)).ToList();
+            var result = (await marketdataSender.GetRecentTradesAsync(null, cancellationToken: CancellationToken.None)).ToList();
 
             Assert.Single(result);
             Assert.Equal(28457, result[0].Id);
@@ -335,7 +335,7 @@ namespace ExchangeLibraryTests.BinanceTests.EndpointSenders
             IMarketdataSender marketdataSender = new MarketdataSender(binanceClient);
 
             // Act
-            var result = (await marketdataSender.GetOldTradesAsync("", 1000, cancellationToken: CancellationToken.None)).ToList();
+            var result = (await marketdataSender.GetOldTradesAsync(null, cancellationToken: CancellationToken.None)).ToList();
 
             Assert.Single(result);
             Assert.Equal(28457, result[0].Id);
@@ -359,10 +359,7 @@ namespace ExchangeLibraryTests.BinanceTests.EndpointSenders
             IMarketdataSender marketdataSender = new MarketdataSender(binanceClient);
 
             // Act
-            var result = (await marketdataSender.GetCandleStickAsync(
-                "",
-                CandleStickIntervalType.OneMinute,
-                cancellationToken: CancellationToken.None))
+            var result = (await marketdataSender.GetCandlestickAsync(null, cancellationToken: CancellationToken.None))
                 .ToList();
 
             Assert.Equal(2, result.Count);
@@ -388,7 +385,7 @@ namespace ExchangeLibraryTests.BinanceTests.EndpointSenders
             IMarketdataSender marketdataSender = new MarketdataSender(binanceClient);
 
             // Act
-            var result = await marketdataSender.GetAveragePriceAsync("", cancellationToken: CancellationToken.None);
+            var result = await marketdataSender.GetAveragePriceAsync(null, cancellationToken: CancellationToken.None);
 
             Assert.Equal(5, result.Mins);
             Assert.Equal(9.35751834, result.AveragePrice);

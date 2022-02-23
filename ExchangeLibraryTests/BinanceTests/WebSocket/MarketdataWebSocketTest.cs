@@ -231,7 +231,7 @@ namespace ExchangeLibraryTests.BinanceTests.WebSocket
             var webSocketHumbleMock = GetMockingBinanceWebHumble(url, bytes);
             using var webSocket = MarketdataWebSocket.CreateCandlestickStream(
                 url,
-                CandleStickIntervalType.OneMinute,
+                CandlestickIntervalType.OneMinute,
                 webSocketHumbleMock);
             var converter = new JsonDeserializerWrapper();
 
@@ -526,24 +526,24 @@ namespace ExchangeLibraryTests.BinanceTests.WebSocket
         {
             var intervalstringViews = new List<string>
             { "1m", "3m", "5m", "15m", "30m", "1h", "2h", "4h", "6h", "8h", "12h", "1d", "3d", "1w", "1M" };
-            var intervals = new List<CandleStickIntervalType>
+            var intervals = new List<CandlestickIntervalType>
             {
 
-                CandleStickIntervalType.OneMinute,
-                CandleStickIntervalType.ThreeMinutes,
-                CandleStickIntervalType.FiveMinutes,
-                CandleStickIntervalType.FifteenMinutes,
-                CandleStickIntervalType.ThirtyMinutes,
-                CandleStickIntervalType.OneHour,
-                CandleStickIntervalType.TwoHour,
-                CandleStickIntervalType.FourHours,
-                CandleStickIntervalType.SixHours,
-                CandleStickIntervalType.EightHours,
-                CandleStickIntervalType.TwelveHours,
-                CandleStickIntervalType.OneDay,
-                CandleStickIntervalType.ThreeDays,
-                CandleStickIntervalType.OneWeek,
-                CandleStickIntervalType.OneMonth
+                CandlestickIntervalType.OneMinute,
+                CandlestickIntervalType.ThreeMinutes,
+                CandlestickIntervalType.FiveMinutes,
+                CandlestickIntervalType.FifteenMinutes,
+                CandlestickIntervalType.ThirtyMinutes,
+                CandlestickIntervalType.OneHour,
+                CandlestickIntervalType.TwoHour,
+                CandlestickIntervalType.FourHours,
+                CandlestickIntervalType.SixHours,
+                CandlestickIntervalType.EightHours,
+                CandlestickIntervalType.TwelveHours,
+                CandlestickIntervalType.OneDay,
+                CandlestickIntervalType.ThreeDays,
+                CandlestickIntervalType.OneWeek,
+                CandlestickIntervalType.OneMonth
             };
 
             for (var i = 0; i < intervalstringViews.Count; i++)

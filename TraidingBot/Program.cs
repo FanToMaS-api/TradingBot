@@ -35,7 +35,7 @@ namespace TraidingBot
 
             await binance.SubscribeCandlestickStreamAsync<string>(
                 "BNBBTC",
-                ExchangeLibrary.Binance.Enums.CandleStickIntervalType.OneMinute.ToUrl(),
+                ExchangeLibrary.Binance.Enums.CandlestickIntervalType.OneMinute.ToUrl(),
                  _ =>
                  {
                      return Task.CompletedTask;

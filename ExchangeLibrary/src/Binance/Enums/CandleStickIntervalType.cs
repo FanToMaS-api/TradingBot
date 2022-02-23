@@ -3,7 +3,7 @@
     /// <summary>
     ///     Типы периодов свечей
     /// </summary>
-    public enum CandleStickIntervalType
+    public enum CandlestickIntervalType
     {
         /// <summary>
         ///     1 минута

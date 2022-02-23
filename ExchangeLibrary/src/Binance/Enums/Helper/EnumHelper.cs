@@ -6,27 +6,27 @@
     public static class EnumHelper
     {
         /// <summary>
-        ///     Переводит период свечи в формате бинанса в удобный для работы <see cref="CandleStickIntervalType"/>
+        ///     Переводит период свечи в формате бинанса в удобный для работы <see cref="CandlestickIntervalType"/>
         /// </summary>
-        public static CandleStickIntervalType ConvertToCandleStickIntervalType(this string intervalType) =>
+        public static CandlestickIntervalType ConvertToCandleStickIntervalType(this string intervalType) =>
             intervalType switch
             {
-                "1m" => CandleStickIntervalType.OneMinute,
-                "3m" => CandleStickIntervalType.ThreeMinutes,
-                "5m" => CandleStickIntervalType.FiveMinutes,
-                "15m" => CandleStickIntervalType.FifteenMinutes,
-                "30m" => CandleStickIntervalType.ThirtyMinutes,
-                "1h" => CandleStickIntervalType.OneHour,
-                "2h" => CandleStickIntervalType.TwoHour,
-                "4h" => CandleStickIntervalType.FourHours,
-                "6h" => CandleStickIntervalType.SixHours,
-                "8h" => CandleStickIntervalType.EightHours,
-                "12h" => CandleStickIntervalType.TwelveHours,
-                "1d" => CandleStickIntervalType.OneDay,
-                "3d" => CandleStickIntervalType.ThreeDays,
-                "1w" => CandleStickIntervalType.OneWeek,
-                "1M" => CandleStickIntervalType.OneMonth,
-                _ => throw new System.Exception($"Failed to convert '{intervalType}' to {nameof(CandleStickIntervalType)}"),
+                "1m" => CandlestickIntervalType.OneMinute,
+                "3m" => CandlestickIntervalType.ThreeMinutes,
+                "5m" => CandlestickIntervalType.FiveMinutes,
+                "15m" => CandlestickIntervalType.FifteenMinutes,
+                "30m" => CandlestickIntervalType.ThirtyMinutes,
+                "1h" => CandlestickIntervalType.OneHour,
+                "2h" => CandlestickIntervalType.TwoHour,
+                "4h" => CandlestickIntervalType.FourHours,
+                "6h" => CandlestickIntervalType.SixHours,
+                "8h" => CandlestickIntervalType.EightHours,
+                "12h" => CandlestickIntervalType.TwelveHours,
+                "1d" => CandlestickIntervalType.OneDay,
+                "3d" => CandlestickIntervalType.ThreeDays,
+                "1w" => CandlestickIntervalType.OneWeek,
+                "1M" => CandlestickIntervalType.OneMonth,
+                _ => throw new System.Exception($"Failed to convert '{intervalType}' to {nameof(CandlestickIntervalType)}"),
             };
 
         /// <summary>
@@ -138,24 +138,24 @@
         /// <summary>
         ///     Возвращает период свечи в формате необходимом бинансу
         /// </summary>
-        public static string ToUrl(this CandleStickIntervalType intervalType) =>
+        public static string ToUrl(this CandlestickIntervalType intervalType) =>
             intervalType switch
             {
-                CandleStickIntervalType.OneMinute => "1m",
-                CandleStickIntervalType.ThreeMinutes => "3m",
-                CandleStickIntervalType.FiveMinutes => "5m",
-                CandleStickIntervalType.FifteenMinutes => "15m",
-                CandleStickIntervalType.ThirtyMinutes => "30m",
-                CandleStickIntervalType.OneHour => "1h",
-                CandleStickIntervalType.TwoHour => "2h",
-                CandleStickIntervalType.FourHours => "4h",
-                CandleStickIntervalType.SixHours => "6h",
-                CandleStickIntervalType.EightHours => "8h",
-                CandleStickIntervalType.TwelveHours => "12h",
-                CandleStickIntervalType.OneDay => "1d",
-                CandleStickIntervalType.ThreeDays => "3d",
-                CandleStickIntervalType.OneWeek => "1w",
-                CandleStickIntervalType.OneMonth => "1M",
+                CandlestickIntervalType.OneMinute => "1m",
+                CandlestickIntervalType.ThreeMinutes => "3m",
+                CandlestickIntervalType.FiveMinutes => "5m",
+                CandlestickIntervalType.FifteenMinutes => "15m",
+                CandlestickIntervalType.ThirtyMinutes => "30m",
+                CandlestickIntervalType.OneHour => "1h",
+                CandlestickIntervalType.TwoHour => "2h",
+                CandlestickIntervalType.FourHours => "4h",
+                CandlestickIntervalType.SixHours => "6h",
+                CandlestickIntervalType.EightHours => "8h",
+                CandlestickIntervalType.TwelveHours => "12h",
+                CandlestickIntervalType.OneDay => "1d",
+                CandlestickIntervalType.ThreeDays => "3d",
+                CandlestickIntervalType.OneWeek => "1w",
+                CandlestickIntervalType.OneMonth => "1M",
                 _ => intervalType.ToString(),
             };
 

@@ -61,6 +61,107 @@ namespace ExchangeLibrary.Binance.Models
         }
 
         /// <inheritdoc />
+        public void SetOrderId(long? orderId)
+        {
+            if (orderId is null || orderId <= 0)
+            {
+                Log.Warn($"Failed to set orderId with value={orderId}");
+
+                return;
+            }
+
+            _newQueryModel.OrderId.IsUse = true;
+            _newQueryModel.OrderId.ValueStr = orderId.Value.ToString();
+        }
+
+        /// <inheritdoc />
+        public void SetStartTime(long? startTime)
+        {
+            if (startTime is null || startTime <= 0)
+            {
+                Log.Warn($"Failed to set startTime with value={startTime}");
+
+                return;
+            }
+
+            _newQueryModel.StartTime.IsUse = true;
+            _newQueryModel.StartTime.ValueStr = startTime.Value.ToString();
+        }
+
+        /// <inheritdoc />
+        public void SetCandlestickInterval(string candlestickInterval)
+        {
+            // выдает ошибку если неверное значение
+            var interval = candlestickInterval.ConvertToCandleStickIntervalType();
+
+            _newQueryModel.CandlestickInterval.IsUse = true;
+            _newQueryModel.CandlestickInterval.ValueStr = interval.ToUrl();
+        }
+
+        /// <inheritdoc />
+        public void SetCandlestickInterval(CandlestickIntervalType candlestickInterval)
+        {
+            _newQueryModel.CandlestickInterval.IsUse = true;
+            _newQueryModel.CandlestickInterval.ValueStr = candlestickInterval.ToUrl();
+        }
+
+        /// <inheritdoc />
+        public void SetEndTime(long? endTime)
+        {
+            if (endTime is null || endTime <= 0 || !_newQueryModel.StartTime.IsUse)
+            {
+                Log.Warn($"Failed to set endTime with value={endTime}");
+
+                return;
+            }
+
+            _newQueryModel.EndTime.IsUse = true;
+            _newQueryModel.EndTime.ValueStr = endTime.Value.ToString();
+        }
+
+        /// <inheritdoc />
+        public void SetLimit(int? limit)
+        {
+            if (limit is null || limit <= 0)
+            {
+                Log.Warn($"Failed to set limit with value={limit}");
+
+                return;
+            }
+
+            _newQueryModel.Limit.IsUse = true;
+            _newQueryModel.Limit.ValueStr = limit.Value.ToString();
+        }
+
+        /// <inheritdoc />
+        public void SetFromId(long? fromId)
+        {
+            if (fromId is null || fromId <= 0)
+            {
+                Log.Warn($"Failed to set fromId with value={fromId}");
+
+                return;
+            }
+
+            _newQueryModel.FromId.IsUse = true;
+            _newQueryModel.FromId.ValueStr = fromId.Value.ToString();
+        }
+
+        /// <inheritdoc />
+        public void SetOrigClientOrderId(string origClientOrderId)
+        {
+            if (string.IsNullOrEmpty(origClientOrderId))
+            {
+                Log.Warn($"Failed to set origClientOrderId with value={origClientOrderId}");
+
+                return;
+            }
+
+            _newQueryModel.OrigClientOrderId.IsUse = true;
+            _newQueryModel.OrigClientOrderId.ValueStr = origClientOrderId;
+        }
+
+        /// <inheritdoc />
         public void SetIcebergQuantity(double? icebergQty)
         {
             if (icebergQty is null || icebergQty <= 0 || !_newQueryModel.IcebergQty.CanSet)
