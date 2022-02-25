@@ -8,7 +8,7 @@ namespace ExchangeLibrary.Binance.Models
     /// <summary>
     ///     Модель статистики бегущего окна за 24 часа для одного символа
     /// </summary>
-    public class TickerStreamModel : MarketdataStreamModelBase, IMarketdataStreamModel, IHaveMyOwnJsonConverter
+    internal class TickerStreamModel : MarketdataStreamModelBase, IMarketdataStreamModel, IHaveMyOwnJsonConverter
     {
         /// <inheritdoc />
         public MarketdataStreamType StreamType => MarketdataStreamType.IndividualSymbolTickerStream;

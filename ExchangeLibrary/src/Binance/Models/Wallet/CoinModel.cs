@@ -5,7 +5,7 @@ namespace ExchangeLibrary.Binance.Models
     /// <summary>
     ///     Модель монеты
     /// </summary>
-    public class CoinModel
+    internal class CoinModel
     {
         #region Properties
 

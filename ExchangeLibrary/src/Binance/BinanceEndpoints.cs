@@ -1,7 +1,9 @@
-﻿namespace ExchangeLibrary.Binance
+﻿using System.Net.Http;
+
+namespace ExchangeLibrary.Binance
 {
     /// <summary>
-    ///     Сожаржит все конечные точки Binance
+    ///     Содержит все конечные точки Binance
     /// </summary>
     public static class BinanceEndpoints
     {
@@ -81,14 +83,24 @@
         #region Spot Account/Trade
 
         /// <summary>
-        ///     Отправить новый ТЕСТОВЫЙ ордер
+        ///     Отправить новый ТЕСТОВЫЙ ордер <see cref="HttpMethod.Post"/>
         /// </summary>
         public const string NEW_TEST_ORDER = "/api/v3/order/test";
 
         /// <summary>
-        ///     Отправить новый ордер
+        ///     Отправить новый ордер <see cref="HttpMethod.Post"/>
         /// </summary>
         public const string NEW_ORDER = "/api/v3/order";
+
+        /// <summary>
+        ///     Отменить ордер по опред паре <see cref="HttpMethod.Delete"/>
+        /// </summary>
+        public const string CANCEL_ORDER = "/api/v3/order";
+
+        /// <summary>
+        ///     Отменить все ордера по опред паре <see cref="HttpMethod.Delete"/>
+        /// </summary>
+        public const string CANCEL_All_ORDERS = "/api/v3/openOrders";
 
         #endregion
     }

@@ -5,7 +5,7 @@ namespace ExchangeLibrary.Binance.Exceptions
     /// <summary>
     ///     Исключение о превышении количества запросов
     /// </summary>
-    public sealed class TooManyRequestsException : Exception
+    internal sealed class TooManyRequestsException : Exception
     {
         #region .ctor
 

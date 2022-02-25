@@ -8,7 +8,7 @@ namespace ExchangeLibrary.Binance.WebSocket
     /// <summary>
     ///     Обработчик веб-сокетов Binance
     /// </summary>
-    public interface IBinanceWebSocketHumble : IDisposable
+    internal interface IBinanceWebSocketHumble : IDisposable
     {
         /// <inheritdoc cref="WebSocket.State"/>
         WebSocketState State { get; }

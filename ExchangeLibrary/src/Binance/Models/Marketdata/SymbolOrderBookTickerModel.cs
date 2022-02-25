@@ -5,7 +5,7 @@ namespace ExchangeLibrary.Binance.Models
     /// <summary>
     ///     Модель лучшей цены/кол-ва из стакана для пары
     /// </summary>
-    public class SymbolOrderBookTickerModel
+    internal class SymbolOrderBookTickerModel
     {
         /// <summary>
         ///     Название пары

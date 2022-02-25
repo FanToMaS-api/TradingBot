@@ -19,7 +19,7 @@ namespace ExchangeLibraryTests.BinanceTests.EndpointSenders
     /// </summary>
     public class WalletSenderTest
     {
-        #region Public methods
+        #region Tests
 
         /// <summary>
         ///     Тест запроса статуса системы
@@ -28,7 +28,7 @@ namespace ExchangeLibraryTests.BinanceTests.EndpointSenders
         public async Task GetSystemStatusAsyncTest()
         {
             var filePath = "../../../BinanceTests/Jsons/Wallet/SYSTEM_STATUS.json";
-            using var client = CreateMockHttpClient(BinanceEndpoints.SYSTEM_STATUS, filePath);
+            using var client = TestHelper.CreateMockHttpClient(BinanceEndpoints.SYSTEM_STATUS, filePath);
             IBinanceClient binanceClient = new BinanceClient(client, "", "");
             IWalletSender walletEndpointSender = new WalletSender(binanceClient);
 
@@ -46,12 +46,12 @@ namespace ExchangeLibraryTests.BinanceTests.EndpointSenders
         public async Task GetAllCoinsInformationAsyncTest()
         {
             var filePath = "../../../BinanceTests/Jsons/Wallet/ALL_COINS_INFORMATION.json";
-            using var client = CreateMockHttpClient(BinanceEndpoints.ALL_COINS_INFORMATION, filePath);
+            using var client = TestHelper.CreateMockHttpClient(BinanceEndpoints.ALL_COINS_INFORMATION, filePath);
             IBinanceClient binanceClient = new BinanceClient(client, "testApiKey", "testSecretKey");
             IWalletSender walletEndpointSender = new WalletSender(binanceClient);
 
             // Act
-            var result = (await walletEndpointSender.GetAllCoinsInformationAsync(7000, CancellationToken.None))
+            var result = (await walletEndpointSender.GetAllCoinsInformationAsync(null, CancellationToken.None))
                 .ToList();
 
             Assert.Equal(2, result.Count);
@@ -68,12 +68,12 @@ namespace ExchangeLibraryTests.BinanceTests.EndpointSenders
         public async Task GetAccountTraidingStatusAsyncTest()
         {
             var filePath = "../../../BinanceTests/Jsons/Wallet/ACCOUNT_API_TRADING_STATUS.json";
-            using var client = CreateMockHttpClient(BinanceEndpoints.ACCOUNT_API_TRADING_STATUS, filePath);
+            using var client = TestHelper.CreateMockHttpClient(BinanceEndpoints.ACCOUNT_API_TRADING_STATUS, filePath);
             IBinanceClient binanceClient = new BinanceClient(client, "testApiKey", "testSecretKey");
             IWalletSender walletEndpointSender = new WalletSender(binanceClient);
 
             // Act
-            var result = await walletEndpointSender.GetAccountTraidingStatusAsync(7000, CancellationToken.None);
+            var result = await walletEndpointSender.GetAccountTraidingStatusAsync(null, CancellationToken.None);
 
             Assert.True(result.Data.IsLocked);
             Assert.Equal(123, result.Data.PlannedRecoverTimeUnix);
@@ -90,12 +90,12 @@ namespace ExchangeLibraryTests.BinanceTests.EndpointSenders
         public async Task GetTradeFeeAsyncTest()
         {
             var filePath = "../../../BinanceTests/Jsons/Wallet/TRADE_FEE.json";
-            using var client = CreateMockHttpClient(BinanceEndpoints.TRADE_FEE, filePath);
+            using var client = TestHelper.CreateMockHttpClient(BinanceEndpoints.TRADE_FEE, filePath);
             IBinanceClient binanceClient = new BinanceClient(client, "testApiKey", "testSecretKey");
             IWalletSender walletEndpointSender = new WalletSender(binanceClient);
 
             // Act
-            var result = (await walletEndpointSender.GetTradeFeeAsync()).ToList();
+            var result = (await walletEndpointSender.GetTradeFeeAsync(null)).ToList();
 
             Assert.Equal(2, result.Count);
             Assert.Equal("ADABNB", result[0].Coin);
@@ -104,26 +104,6 @@ namespace ExchangeLibraryTests.BinanceTests.EndpointSenders
             Assert.Equal("BNBBTC", result[1].Coin);
             Assert.Equal(0.003, result[1].MakerCommission);
             Assert.Equal(0.004, result[1].TakerCommission);
-        }
-
-        #endregion
-
-        #region Private methods
-
-        /// <summary>
-        ///     Создает мок HttpClient
-        /// </summary>
-        /// <param name="filePath"> Путь к файлу с json-response </param>
-        /// <returns></returns>
-        private HttpClient CreateMockHttpClient(string url, string filePath)
-        {
-            var basePath = AppDomain.CurrentDomain.BaseDirectory;
-            var path = Path.Combine(basePath, filePath);
-            var json = File.ReadAllText(path);
-            using var mockHttp = new MockHttpMessageHandler();
-            mockHttp.When(url).Respond("application/json", json);
-
-            return new HttpClient(mockHttp);
         }
 
         #endregion

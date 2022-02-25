@@ -5,12 +5,8 @@ using ExchangeLibrary.Binance.EndpointSenders;
 using ExchangeLibrary.Binance.EndpointSenders.Impl;
 using ExchangeLibrary.Binance.Enums;
 using ExchangeLibrary.Binance.Models;
-using RichardSzalay.MockHttp;
-using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
@@ -274,7 +270,7 @@ namespace ExchangeLibraryTests.BinanceTests.EndpointSenders
 
         #endregion
 
-        #region Public methods
+        #region Tests
 
         /// <summary>
         ///     Тест запроса списка ордеров для конкретной монеты
@@ -284,12 +280,12 @@ namespace ExchangeLibraryTests.BinanceTests.EndpointSenders
         {
             var filePath = "../../../BinanceTests/Jsons/Marketdata/ORDER_BOOK.json";
 
-            using var client = CreateMockHttpClient(BinanceEndpoints.ORDER_BOOK, filePath);
+            using var client = TestHelper.CreateMockHttpClient(BinanceEndpoints.ORDER_BOOK, filePath);
             IBinanceClient binanceClient = new BinanceClient(client, "", "");
             IMarketdataSender marketdataSender = new MarketdataSender(binanceClient);
 
             // Act
-            var result = await marketdataSender.GetOrderBookAsync("", cancellationToken: CancellationToken.None);
+            var result = await marketdataSender.GetOrderBookAsync(null, cancellationToken: CancellationToken.None);
 
             Assert.Equal(2, result.Bids.Count);
             Assert.Equal(2, result.Asks.Count);
@@ -310,12 +306,12 @@ namespace ExchangeLibraryTests.BinanceTests.EndpointSenders
         public async Task GetRecentTradesAsyncTest()
         {
             var filePath = "../../../BinanceTests/Jsons/Marketdata/RECENT_TRADES.json";
-            using var client = CreateMockHttpClient(BinanceEndpoints.RECENT_TRADES, filePath);
+            using var client = TestHelper.CreateMockHttpClient(BinanceEndpoints.RECENT_TRADES, filePath);
             IBinanceClient binanceClient = new BinanceClient(client, "", "");
             IMarketdataSender marketdataSender = new MarketdataSender(binanceClient);
 
             // Act
-            var result = (await marketdataSender.GetRecentTradesAsync("", cancellationToken: CancellationToken.None)).ToList();
+            var result = (await marketdataSender.GetRecentTradesAsync(null, cancellationToken: CancellationToken.None)).ToList();
 
             Assert.Single(result);
             Assert.Equal(28457, result[0].Id);
@@ -334,12 +330,12 @@ namespace ExchangeLibraryTests.BinanceTests.EndpointSenders
         public async Task GetOldTradesAsyncTest()
         {
             var filePath = "../../../BinanceTests/Jsons/Marketdata/OLD_TRADES.json";
-            using var client = CreateMockHttpClient(BinanceEndpoints.OLD_TRADES, filePath);
+            using var client = TestHelper.CreateMockHttpClient(BinanceEndpoints.OLD_TRADES, filePath);
             IBinanceClient binanceClient = new BinanceClient(client, "", "");
             IMarketdataSender marketdataSender = new MarketdataSender(binanceClient);
 
             // Act
-            var result = (await marketdataSender.GetOldTradesAsync("", 1000, cancellationToken: CancellationToken.None)).ToList();
+            var result = (await marketdataSender.GetOldTradesAsync(null, cancellationToken: CancellationToken.None)).ToList();
 
             Assert.Single(result);
             Assert.Equal(28457, result[0].Id);
@@ -356,17 +352,14 @@ namespace ExchangeLibraryTests.BinanceTests.EndpointSenders
         /// </summary>
         [Theory(DisplayName = "Request for a list of candlesticks by coin Test")]
         [MemberData(nameof(CandleStickData))]
-        public async Task GetCandleStickAsyncTest(string filePath, CandlestickModel[] expected)
+        internal async Task GetCandleStickAsyncTest(string filePath, CandlestickModel[] expected)
         {
-            using var client = CreateMockHttpClient(BinanceEndpoints.CANDLESTICK_DATA, filePath);
+            using var client = TestHelper.CreateMockHttpClient(BinanceEndpoints.CANDLESTICK_DATA, filePath);
             IBinanceClient binanceClient = new BinanceClient(client, "", "");
             IMarketdataSender marketdataSender = new MarketdataSender(binanceClient);
 
             // Act
-            var result = (await marketdataSender.GetCandleStickAsync(
-                "",
-                CandleStickIntervalType.OneMinute,
-                cancellationToken: CancellationToken.None))
+            var result = (await marketdataSender.GetCandlestickAsync(null, cancellationToken: CancellationToken.None))
                 .ToList();
 
             Assert.Equal(2, result.Count);
@@ -387,12 +380,12 @@ namespace ExchangeLibraryTests.BinanceTests.EndpointSenders
         public async Task GetAveragePriceAsyncTest()
         {
             var filePath = "../../../BinanceTests/Jsons/Marketdata/AVERAGE_PRICE.json";
-            using var client = CreateMockHttpClient(BinanceEndpoints.AVERAGE_PRICE, filePath);
+            using var client = TestHelper.CreateMockHttpClient(BinanceEndpoints.AVERAGE_PRICE, filePath);
             IBinanceClient binanceClient = new BinanceClient(client, "", "");
             IMarketdataSender marketdataSender = new MarketdataSender(binanceClient);
 
             // Act
-            var result = await marketdataSender.GetAveragePriceAsync("", cancellationToken: CancellationToken.None);
+            var result = await marketdataSender.GetAveragePriceAsync(null, cancellationToken: CancellationToken.None);
 
             Assert.Equal(5, result.Mins);
             Assert.Equal(9.35751834, result.AveragePrice);
@@ -403,9 +396,9 @@ namespace ExchangeLibraryTests.BinanceTests.EndpointSenders
         /// </summary>
         [Theory(DisplayName = "Request for a 24-hour change in the price of a pair Test")]
         [MemberData(nameof(DayPriceChangeData))]
-        public async Task GetDayPriceChangeAsyncTest(string symbol, string filePath, List<DayPriceChangeModel> expectedDtos)
+        internal async Task GetDayPriceChangeAsyncTest(string symbol, string filePath, List<DayPriceChangeModel> expectedDtos)
         {
-            using var client = CreateMockHttpClient(BinanceEndpoints.DAY_PRICE_CHANGE, filePath);
+            using var client = TestHelper.CreateMockHttpClient(BinanceEndpoints.DAY_PRICE_CHANGE, filePath);
             IBinanceClient binanceClient = new BinanceClient(client, "", "");
             IMarketdataSender marketdataSender = new MarketdataSender(binanceClient);
 
@@ -429,9 +422,9 @@ namespace ExchangeLibraryTests.BinanceTests.EndpointSenders
         /// </summary>
         [Theory(DisplayName = "Requesting the last price of a pair/pairs Test")]
         [MemberData(nameof(SymbolPriceTickerData))]
-        public async Task GetSymbolPriceTickerAsync(string symbol, string filePath, List<SymbolPriceTickerModel> expectedDtos)
+        internal async Task GetSymbolPriceTickerAsync(string symbol, string filePath, List<SymbolPriceTickerModel> expectedDtos)
         {
-            using var client = CreateMockHttpClient(BinanceEndpoints.SYMBOL_PRICE_TICKER, filePath);
+            using var client = TestHelper.CreateMockHttpClient(BinanceEndpoints.SYMBOL_PRICE_TICKER, filePath);
             IBinanceClient binanceClient = new BinanceClient(client, "", "");
             IMarketdataSender marketdataSender = new MarketdataSender(binanceClient);
 
@@ -455,9 +448,9 @@ namespace ExchangeLibraryTests.BinanceTests.EndpointSenders
         /// </summary>
         [Theory(DisplayName = "Requesting the best price/quantity in the order book for a symbol or symbols Test")]
         [MemberData(nameof(SymbolOrderBookTickerData))]
-        public async Task GetSymbolOrderBookTickerAsyncAsync(string symbol, string filePath, List<SymbolOrderBookTickerModel> expectedDtos)
+        internal async Task GetSymbolOrderBookTickerAsyncAsync(string symbol, string filePath, List<SymbolOrderBookTickerModel> expectedDtos)
         {
-            using var client = CreateMockHttpClient(BinanceEndpoints.SYMBOL_ORDER_BOOK_TICKER, filePath);
+            using var client = TestHelper.CreateMockHttpClient(BinanceEndpoints.SYMBOL_ORDER_BOOK_TICKER, filePath);
             IBinanceClient binanceClient = new BinanceClient(client, "", "");
             IMarketdataSender marketdataSender = new MarketdataSender(binanceClient);
 
@@ -474,26 +467,6 @@ namespace ExchangeLibraryTests.BinanceTests.EndpointSenders
                     Assert.Equal(property.GetValue(dto), property.GetValue(actual));
                 }
             }
-        }
-
-        #endregion
-
-        #region Private methods
-
-        /// <summary>
-        ///     Создает мок HttpClient
-        /// </summary>
-        /// <param name="filePath"> Путь к файлу с json-response </param>
-        /// <returns></returns>
-        private HttpClient CreateMockHttpClient(string url, string filePath)
-        {
-            var basePath = AppDomain.CurrentDomain.BaseDirectory;
-            var path = Path.Combine(basePath, filePath);
-            var json = File.ReadAllText(path);
-            using var mockHttp = new MockHttpMessageHandler();
-            mockHttp.When(url).Respond("application/json", json);
-
-            return new HttpClient(mockHttp);
         }
 
         #endregion

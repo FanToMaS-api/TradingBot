@@ -8,7 +8,7 @@ namespace ExchangeLibrary.Binance.Models
     /// <summary>
     ///     Модель индивидуального потока мини-тикера символа
     /// </summary>
-    public class MiniTickerStreamModel : MarketdataStreamModelBase, IMarketdataStreamModel, IHaveMyOwnJsonConverter
+    internal class MiniTickerStreamModel : MarketdataStreamModelBase, IMarketdataStreamModel, IHaveMyOwnJsonConverter
     {
         /// <inheritdoc />
         public MarketdataStreamType StreamType => MarketdataStreamType.IndividualSymbolMiniTickerStream;

@@ -1,5 +1,4 @@
-﻿using Common.JsonConvertWrapper;
-using NLog;
+﻿using NLog;
 using System;
 using System.Collections.Generic;
 using System.Net.WebSockets;
@@ -12,17 +11,16 @@ namespace ExchangeLibrary.Binance.WebSocket
     /// <summary>
     ///     Оболочка над Binance websocket
     /// </summary>
-    public class BinanceWebSocket<T> : IDisposable
+    internal class BinanceWebSocket : IDisposable
     {
         #region Fields
 
         private static readonly Logger Log = LogManager.GetCurrentClassLogger();
         private readonly IBinanceWebSocketHumble _webSocketHumble;
-        private readonly List<Func<T, Task>> _onMessageReceivedFunctions = new();
+        private readonly List<Func<string, Task>> _onMessageReceivedFunctions = new();
         private readonly List<CancellationTokenRegistration> _onMessageReceivedCancellationTokenRegistrations = new();
         private CancellationTokenSource _loopCancellationTokenSource;
         private readonly Uri _uri;
-        private readonly JsonDeserializerWrapper _jsonConvertWrapper;
         private readonly int _receiveBufferSize = 8192;
         private bool _isDisposed;
 
@@ -31,9 +29,8 @@ namespace ExchangeLibrary.Binance.WebSocket
         #region .ctor
 
         /// <inheritdoc cref="BinanceWebSocket"/>>
-        public BinanceWebSocket(IBinanceWebSocketHumble socketHumble, JsonDeserializerWrapper jsonConvertWrapper, string url)
+        public BinanceWebSocket(IBinanceWebSocketHumble socketHumble, string url)
         {
-            _jsonConvertWrapper = jsonConvertWrapper;
             _webSocketHumble = socketHumble;
             _uri = new Uri(url);
         }
@@ -45,7 +42,7 @@ namespace ExchangeLibrary.Binance.WebSocket
         /// <summary>
         ///     Событие, возникающее при закрытии веб-сокета
         /// </summary>
-        public EventHandler OnClosed { get; set; }
+        public Func<BinanceWebSocket, CancellationToken, Task> OnClosed { get; set; }
 
         #endregion
 
@@ -90,7 +87,7 @@ namespace ExchangeLibrary.Binance.WebSocket
         /// <summary>
         ///     Добавляет обработчик на получение ответа от сокета 
         /// </summary>
-        public void AddOnMessageReceivedFunc(Func<T, Task> onMessageReceivedFunc, CancellationToken cancellationToken)
+        public void AddOnMessageReceivedFunc(Func<string, Task> onMessageReceivedFunc, CancellationToken cancellationToken)
         {
             _onMessageReceivedFunctions.Add(onMessageReceivedFunc);
 
@@ -117,6 +114,9 @@ namespace ExchangeLibrary.Binance.WebSocket
                 cancellationToken);
         }
 
+        /// <inheritdoc />
+        public override string ToString() => $"Stream on this url: '{_uri}'";
+
         #endregion
 
         #region Private methods
@@ -139,7 +139,7 @@ namespace ExchangeLibrary.Binance.WebSocket
                         if (receiveResult.MessageType == WebSocketMessageType.Close)
                         {
                             Log.Error($"The web socket has been closed");
-                            OnClosed?.Invoke(this, null);
+                            OnClosed?.Invoke(this, cancellationToken);
 
                             break;
                         }
@@ -147,7 +147,7 @@ namespace ExchangeLibrary.Binance.WebSocket
                         var content = Encoding.UTF8.GetString(buffer.Slice(0, receiveResult.Count).ToArray());
                         _onMessageReceivedFunctions.ForEach(func =>
                         {
-                            var task = func(_jsonConvertWrapper.Deserialize<T>(content));
+                            var task = func(content);
                             CheckTaskException(task);
                         });
                     }

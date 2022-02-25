@@ -5,7 +5,7 @@ namespace ExchangeLibrary.Binance.Models
     /// <summary>
     ///     Модель средней цены тикера
     /// </summary>
-    public class AveragePriceModel
+    internal class AveragePriceModel
     {
         /// <summary>
         ///     Кол-во минут выборки данных средней цены

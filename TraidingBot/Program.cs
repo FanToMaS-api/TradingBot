@@ -1,4 +1,7 @@
-﻿using ExchangeLibrary;
+﻿using Common.JsonConvertWrapper;
+using ExchangeLibrary;
+using ExchangeLibrary.Binance;
+using ExchangeLibrary.Binance.Enums.Helper;
 using ExchangeLibrary.Binance.Models;
 using ExchangeLibrary.Binance.WebSocket.Marketdata;
 using NLog;
@@ -18,33 +21,28 @@ namespace TraidingBot
         {
             var apiKey = ConfigurationManager.AppSettings.Get(ConfigKeys.API_KEY);
             var secretKey = ConfigurationManager.AppSettings.Get(ConfigKeys.SECRET_KEY);
-            var binance = ExchangeFactory.CreateExchange(ExchangeType.Binance, apiKey, secretKey);
+            var binanceOptions = new BinanceExchangeOptions() { ApiKey = apiKey, SecretKey = secretKey };
+            var binance = ExchangeFactory.CreateExchange(ExchangeType.Binance, binanceOptions);
             using var cts = new CancellationTokenSource();
 
             Console.WriteLine(await binance.CreateNewLimitOrderAsync(
                 "ARPABNB",
-                ExchangeLibrary.Binance.Enums.OrderSideType.BUY,
-                ExchangeLibrary.Binance.Enums.TimeInForceType.GTC,
+                "BUY",
+                "GTC",
                 0.000205,
-                10000,
+                100,
                 cancellationToken: cts.Token));
 
-            var webSoket = MarketdataWebSocket<CandlestickStreamModel>.CreateCandlestickStream(
+            await binance.SubscribeCandlestickStreamAsync<string>(
                 "BNBBTC",
-                ExchangeLibrary.Binance.Enums.CandleStickIntervalType.OneMinute);
-
-            webSoket.AddOnMessageReceivedFunc(
-                _ =>
-                {
-                    Console.WriteLine($"Interval: {_.Kline.Interval} Open Price: {_.Kline.OpenPrice} Close Price: {_.Kline.ClosePrice}");
-                    return Task.CompletedTask;
-                },
-                cts.Token);
-
-            await webSoket.ConnectAsync(cts.Token);
+                "1m",
+                 _ =>
+                 {
+                     return Task.CompletedTask;
+                 },
+                 cts.Token);
 
             await Task.Delay(70000);
-            webSoket.Dispose();
         }
     }
 }

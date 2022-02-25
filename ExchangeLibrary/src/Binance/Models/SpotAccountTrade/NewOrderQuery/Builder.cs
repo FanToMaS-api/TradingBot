@@ -4,12 +4,11 @@ using NLog;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 
 namespace ExchangeLibrary.Binance.Models
 {
     /// <summary>
-    ///     Строитель запрсоов новых ордеров
+    ///     Строитель запрсов новых ордеров
     /// </summary>
     internal class Builder : IBuilder
     {
@@ -62,6 +61,107 @@ namespace ExchangeLibrary.Binance.Models
         }
 
         /// <inheritdoc />
+        public void SetOrderId(long? orderId)
+        {
+            if (orderId is null || orderId <= 0)
+            {
+                Log.Warn($"Failed to set orderId with value={orderId}");
+
+                return;
+            }
+
+            _newQueryModel.OrderId.IsUse = true;
+            _newQueryModel.OrderId.ValueStr = orderId.Value.ToString();
+        }
+
+        /// <inheritdoc />
+        public void SetStartTime(long? startTime)
+        {
+            if (startTime is null || startTime <= 0)
+            {
+                Log.Warn($"Failed to set startTime with value={startTime}");
+
+                return;
+            }
+
+            _newQueryModel.StartTime.IsUse = true;
+            _newQueryModel.StartTime.ValueStr = startTime.Value.ToString();
+        }
+
+        /// <inheritdoc />
+        public void SetCandlestickInterval(string candlestickInterval)
+        {
+            // выдает ошибку если неверное значение
+            var interval = candlestickInterval.ConvertToCandleStickIntervalType();
+
+            _newQueryModel.CandlestickInterval.IsUse = true;
+            _newQueryModel.CandlestickInterval.ValueStr = interval.ToUrl();
+        }
+
+        /// <inheritdoc />
+        public void SetCandlestickInterval(CandlestickIntervalType candlestickInterval)
+        {
+            _newQueryModel.CandlestickInterval.IsUse = true;
+            _newQueryModel.CandlestickInterval.ValueStr = candlestickInterval.ToUrl();
+        }
+
+        /// <inheritdoc />
+        public void SetEndTime(long? endTime)
+        {
+            if (endTime is null || endTime <= 0 || !_newQueryModel.StartTime.IsUse)
+            {
+                Log.Warn($"Failed to set endTime with value={endTime}");
+
+                return;
+            }
+
+            _newQueryModel.EndTime.IsUse = true;
+            _newQueryModel.EndTime.ValueStr = endTime.Value.ToString();
+        }
+
+        /// <inheritdoc />
+        public void SetLimit(int? limit)
+        {
+            if (limit is null || limit <= 0)
+            {
+                Log.Warn($"Failed to set limit with value={limit}");
+
+                return;
+            }
+
+            _newQueryModel.Limit.IsUse = true;
+            _newQueryModel.Limit.ValueStr = limit.Value.ToString();
+        }
+
+        /// <inheritdoc />
+        public void SetFromId(long? fromId)
+        {
+            if (fromId is null || fromId <= 0)
+            {
+                Log.Warn($"Failed to set fromId with value={fromId}");
+
+                return;
+            }
+
+            _newQueryModel.FromId.IsUse = true;
+            _newQueryModel.FromId.ValueStr = fromId.Value.ToString();
+        }
+
+        /// <inheritdoc />
+        public void SetOrigClientOrderId(string origClientOrderId)
+        {
+            if (string.IsNullOrEmpty(origClientOrderId))
+            {
+                Log.Warn($"Failed to set origClientOrderId with value={origClientOrderId}");
+
+                return;
+            }
+
+            _newQueryModel.OrigClientOrderId.IsUse = true;
+            _newQueryModel.OrigClientOrderId.ValueStr = origClientOrderId;
+        }
+
+        /// <inheritdoc />
         public void SetIcebergQuantity(double? icebergQty)
         {
             if (icebergQty is null || icebergQty <= 0 || !_newQueryModel.IcebergQty.CanSet)
@@ -83,7 +183,7 @@ namespace ExchangeLibrary.Binance.Models
         {
             if (!_newQueryModel.OrderResponseType.CanSet)
             {
-                Log.Warn($"Failed to set OrderResponseType with value={orderResponseType}, because IsCanSet=False");
+                Log.Warn($"Failed to set OrderResponseType with value={orderResponseType}, because it is not allowed");
 
                 return;
             }
@@ -97,13 +197,40 @@ namespace ExchangeLibrary.Binance.Models
         {
             if (!_newQueryModel.SideType.CanSet)
             {
-                Log.Warn($"Failed to set OrderSideType with value={sideType}, because IsCanSet=False");
+                Log.Warn($"Failed to set OrderSideType with value={sideType}, because it is not allowed");
 
                 return;
             }
 
             _newQueryModel.SideType.IsUse = true;
             _newQueryModel.SideType.ValueStr = sideType.ToUrl();
+        }
+
+        /// <inheritdoc />
+        public void SetOrderSideType(string side)
+        {
+            var sideType = side.ConvertToOrderSideType();
+            if (!_newQueryModel.SideType.CanSet)
+            {
+                Log.Warn($"Failed to set OrderSideType with value={sideType}, because it is not allowed");
+
+                return;
+            }
+
+            _newQueryModel.SideType.IsUse = true;
+            _newQueryModel.SideType.ValueStr = sideType.ToUrl();
+        }
+
+        /// <inheritdoc />
+        public void SetOrderType(string order)
+        {
+            var orderType = order.ConvertToOrderType();
+            SetOrderResponseType(orderType);
+            SetStopPrice(orderType);
+            SetIcebergQty(orderType);
+
+            _newQueryModel.OrderType.IsUse = true;
+            _newQueryModel.OrderType.ValueStr = orderType.ToUrl();
         }
 
         /// <inheritdoc />
@@ -151,17 +278,32 @@ namespace ExchangeLibrary.Binance.Models
         }
 
         /// <inheritdoc />
-        public void SetTimeInForce(TimeInForceType timeInForce)
+        public void SetTimeInForce(string timeInForce)
         {
+            var timeInForceType = timeInForce.ConvertToTimeInForceType();
             if (!_newQueryModel.TimeInForce.CanSet)
             {
-                Log.Warn($"Failed to set time in force, because IsCanSet=False");
+                Log.Warn($"Failed to set time in force, because it is not allowed");
 
                 return;
             }
 
             _newQueryModel.TimeInForce.IsUse = true;
-            _newQueryModel.TimeInForce.ValueStr = timeInForce.ToString();
+            _newQueryModel.TimeInForce.ValueStr = timeInForceType.ToUrl();
+        }
+
+        /// <inheritdoc />
+        public void SetTimeInForce(TimeInForceType timeInForce)
+        {
+            if (!_newQueryModel.TimeInForce.CanSet)
+            {
+                Log.Warn($"Failed to set time in force, because it is not allowed");
+
+                return;
+            }
+
+            _newQueryModel.TimeInForce.IsUse = true;
+            _newQueryModel.TimeInForce.ValueStr = timeInForce.ToUrl();
         }
 
         /// <summary>
@@ -178,6 +320,8 @@ namespace ExchangeLibrary.Binance.Models
         /// </summary>
         public OrderQueryModel GetResult()
         {
+            // Принудительно ставлю полный ответ на запрос
+            SetOrderResponseType(OrderResponseType.Full);
             SetTimeStamp();
             return _newQueryModel;
         }
@@ -191,9 +335,9 @@ namespace ExchangeLibrary.Binance.Models
         /// </summary>
         private void SetOrderResponseType(OrderType orderType)
         {
-            if (orderType == OrderType.LIMIT || orderType == OrderType.MARKET)
+            if (orderType == OrderType.Limit || orderType == OrderType.Market)
             {
-                SetOrderResponseType(OrderResponseType.FULL);
+                SetOrderResponseType(OrderResponseType.Full);
                 _newQueryModel.OrderResponseType.CanSet = false;
                 return;
             }
@@ -208,10 +352,10 @@ namespace ExchangeLibrary.Binance.Models
         {
             var stopPriceOrderTypes = new List<OrderType>()
             {
-                OrderType.STOP_LOSS,
-                OrderType.STOP_LOSS_LIMIT,
-                OrderType.TAKE_PROFIT,
-                OrderType.TAKE_PROFIT_LIMIT
+                OrderType.StopLoss,
+                OrderType.StopLossLimit,
+                OrderType.TakeProfit,
+                OrderType.TakeProfitLimit
             };
             if (!stopPriceOrderTypes.Any(_ => _ == orderType))
             {
@@ -229,9 +373,9 @@ namespace ExchangeLibrary.Binance.Models
         {
             var icebergQtyOrderTypes = new List<OrderType>()
             {
-                OrderType.LIMIT,
-                OrderType.STOP_LOSS_LIMIT,
-                OrderType.TAKE_PROFIT_LIMIT
+                OrderType.Limit,
+                OrderType.StopLossLimit,
+                OrderType.TakeProfitLimit
             };
             if (!icebergQtyOrderTypes.Any(_ => _ == orderType))
             {

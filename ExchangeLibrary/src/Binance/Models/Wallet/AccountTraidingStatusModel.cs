@@ -5,7 +5,7 @@ namespace ExchangeLibrary.Binance.Models
     /// <summary>
     ///    Модель трейдинг статуса аккаунта 
     /// </summary>
-    public class AccountTraidingStatusModel
+    internal class AccountTraidingStatusModel
     {
         #region Properties
 
@@ -21,7 +21,7 @@ namespace ExchangeLibrary.Binance.Models
     /// <summary>
     ///     API trading status detail
     /// </summary>
-    public class DataDto
+    internal class DataDto
     {
         #region Properties
 
@@ -55,7 +55,7 @@ namespace ExchangeLibrary.Binance.Models
     /// <summary>
     ///     Содержит инфу об ордерах 
     /// </summary>
-    public class TriggerConditionDto
+    internal class TriggerConditionDto
     {
         /// <summary>
         ///     Количество ордеров GCR

@@ -9,7 +9,7 @@ namespace ExchangeLibrary.Binance.Models
     ///     Модель данных обновления лучшей цены или количества спроса или предложения
     ///     в режиме реального времени для указанного символа
     /// </summary>
-    public class BookTickerStreamModel : IMarketdataStreamModel, IHaveMyOwnJsonConverter
+    internal class BookTickerStreamModel : IMarketdataStreamModel, IHaveMyOwnJsonConverter
     {
         /// <summary>
         ///     Тип стрима с которого получаем данные

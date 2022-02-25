@@ -28,6 +28,46 @@ namespace ExchangeLibrary.Binance.Models
         void SetQuantity(double? quantity);
 
         /// <summary>
+        ///     Установить id ордера (для отмены)
+        /// </summary>
+        void SetOrderId(long? orderId);
+
+        /// <summary>
+        ///     Установить время начала построения свечей (для выгрузки)
+        /// </summary>
+        void SetStartTime(long? startTime);
+
+        /// <summary>
+        ///     Установить интервал свечи
+        /// </summary>
+        void SetCandlestickInterval(string candlestickIntervalType);
+
+        /// <summary>
+        ///     Установить интервал свечи
+        /// </summary>
+        void SetCandlestickInterval(CandlestickIntervalType candlestickInterval);
+
+        /// <summary>
+        ///     Установить окончание периода построения свечей (для выгрузки)
+        /// </summary>
+        void SetEndTime(long? endTime);
+
+        /// <summary>
+        ///     Установить глубину запроса (лимит выдачи данных)
+        /// </summary>
+        void SetLimit(int? limit);
+
+        /// <summary>
+        ///     Установить нижнюю границу по id для выгрузки данных
+        /// </summary>
+        void SetFromId(long? fromId);
+
+        /// <summary>
+        ///     Установить Идентификатор заказа клиента
+        /// </summary>
+        void SetOrigClientOrderId(string origClientOrderId);
+
+        /// <summary>
         ///     Установить стоп цену
         /// </summary>
         void SetStopPrice(double? stopPrice);
@@ -35,7 +75,17 @@ namespace ExchangeLibrary.Binance.Models
         /// <summary>
         ///     Установить тип ордера
         /// </summary>
+        void SetOrderType(string orderType);
+
+        /// <summary>
+        ///     Установить тип ордера
+        /// </summary>
         void SetOrderType(OrderType orderType);
+
+        /// <summary>
+        ///     Установить тип ордера (покупка, продажа)
+        /// </summary>
+        void SetOrderSideType(string sideType);
 
         /// <summary>
         ///     Установить тип ордера (покупка, продажа)

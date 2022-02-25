@@ -6,28 +6,48 @@
     internal static class EnumHelper
     {
         /// <summary>
-        ///     Переводит период свечи в формате бинанса в удобный для работы <see cref="CandleStickIntervalType"/>
+        ///     Переводит период свечи в формате бинанса в удобный для работы <see cref="CandlestickIntervalType"/>
         /// </summary>
-        public static CandleStickIntervalType ConvertToCandleStickIntervalType(this string intervalType) =>
+        public static CandlestickIntervalType ConvertToCandleStickIntervalType(this string intervalType) =>
             intervalType switch
             {
-                "1m" => CandleStickIntervalType.OneMinute,
-                "3m" => CandleStickIntervalType.ThreeMinutes,
-                "5m" => CandleStickIntervalType.FiveMinutes,
-                "15m" => CandleStickIntervalType.FifteenMinutes,
-                "30m" => CandleStickIntervalType.ThirtyMinutes,
-                "1h" => CandleStickIntervalType.OneHour,
-                "2h" => CandleStickIntervalType.TwoHour,
-                "4h" => CandleStickIntervalType.FourHours,
-                "6h" => CandleStickIntervalType.SixHours,
-                "8h" => CandleStickIntervalType.EightHours,
-                "12h" => CandleStickIntervalType.TwelveHours,
-                "1d" => CandleStickIntervalType.OneDay,
-                "3d" => CandleStickIntervalType.ThreeDays,
-                "1w" => CandleStickIntervalType.OneWeek,
-                "1M" => CandleStickIntervalType.OneMonth,
-                _ => throw new System.Exception($"Failed to convert '{intervalType}' to {nameof(CandleStickIntervalType)}"),
+                "1m" => CandlestickIntervalType.OneMinute,
+                "3m" => CandlestickIntervalType.ThreeMinutes,
+                "5m" => CandlestickIntervalType.FiveMinutes,
+                "15m" => CandlestickIntervalType.FifteenMinutes,
+                "30m" => CandlestickIntervalType.ThirtyMinutes,
+                "1h" => CandlestickIntervalType.OneHour,
+                "2h" => CandlestickIntervalType.TwoHour,
+                "4h" => CandlestickIntervalType.FourHours,
+                "6h" => CandlestickIntervalType.SixHours,
+                "8h" => CandlestickIntervalType.EightHours,
+                "12h" => CandlestickIntervalType.TwelveHours,
+                "1d" => CandlestickIntervalType.OneDay,
+                "3d" => CandlestickIntervalType.ThreeDays,
+                "1w" => CandlestickIntervalType.OneWeek,
+                "1M" => CandlestickIntervalType.OneMonth,
+                _ => throw new System.Exception($"Failed to convert '{intervalType}' to {nameof(CandlestickIntervalType)}"),
             };
+
+        /// <summary>
+        ///     Переводит тип стрима в формате бинанса в удобный для работы <see cref="MarketdataStreamType"/>
+        /// </summary>
+        public static MarketdataStreamType ConvertToMarketdataStreamType(this string streamType)
+        {
+            return streamType switch
+            {
+                "@trade" => MarketdataStreamType.TradeStream,
+                "@kline_" => MarketdataStreamType.CandlestickStream,
+                "@miniTicker" => MarketdataStreamType.IndividualSymbolMiniTickerStream,
+                "@aggTrade" => MarketdataStreamType.AggregateTradeStream,
+                "!miniTicker@arr" => MarketdataStreamType.AllMarketMiniTickersStream,
+                "@ticker" => MarketdataStreamType.IndividualSymbolTickerStream,
+                "!ticker@arr" => MarketdataStreamType.AllMarketTickersStream,
+                "!bookTicker" => MarketdataStreamType.AllBookTickersStream,
+                "@depth" => MarketdataStreamType.PartialBookDepthStream,
+                _ => throw new System.Exception($"Failed to convert '{streamType}' to {nameof(MarketdataStreamType)}"),
+            };
+        }
 
         /// <summary>
         ///     Переводит статус ордера в формате бинанса в удобный для работы <see cref="OrderStatusType"/>
@@ -35,12 +55,12 @@
         public static OrderStatusType ConvertToOrderStatusType(this string statusType) =>
             statusType switch
             {
-                "NEW" => OrderStatusType.NEW,
-                "FILLED" => OrderStatusType.FILLED,
-                "PARTIALLY_FILLED" => OrderStatusType.PARTIALLY_FILLED,
-                "EXPIRED" => OrderStatusType.EXPIRED,
-                "CANCELED" => OrderStatusType.CANCELED,
-                "REJECTED" => OrderStatusType.REJECTED,
+                "NEW" => OrderStatusType.New,
+                "FILLED" => OrderStatusType.Filled,
+                "PARTIALLY_FILLED" => OrderStatusType.PartiallyFilled,
+                "EXPIRED" => OrderStatusType.Expired,
+                "CANCELED" => OrderStatusType.Canceled,
+                "REJECTED" => OrderStatusType.Rejected,
                 _ => throw new System.Exception($"Failed to convert '{statusType}' to {nameof(OrderStatusType)}"),
             };
 
@@ -62,13 +82,13 @@
         public static OrderType ConvertToOrderType(this string type) =>
             type switch
             {
-                "LIMIT" => OrderType.LIMIT,
-                "LIMIT_MAKER" => OrderType.LIMIT_MAKER,
-                "MARKET" => OrderType.MARKET,
-                "STOP_LOSS" => OrderType.STOP_LOSS,
-                "STOP_LOSS_LIMIT" => OrderType.STOP_LOSS_LIMIT,
-                "TAKE_PROFIT" => OrderType.TAKE_PROFIT,
-                "TAKE_PROFIT_LIMIT" => OrderType.TAKE_PROFIT_LIMIT,
+                "LIMIT" => OrderType.Limit,
+                "LIMIT_MAKER" => OrderType.LimitMaker,
+                "MARKET" => OrderType.Market,
+                "STOP_LOSS" => OrderType.StopLoss,
+                "STOP_LOSS_LIMIT" => OrderType.StopLossLimit,
+                "TAKE_PROFIT" => OrderType.TakeProfit,
+                "TAKE_PROFIT_LIMIT" => OrderType.TakeProfitLimit,
                 _ => throw new System.Exception($"Failed to convert '{type}' to {nameof(OrderType)}"),
             };
 
@@ -78,8 +98,8 @@
         public static OrderSideType ConvertToOrderSideType(this string type) =>
             type switch
             {
-                "BUY" => OrderSideType.BUY,
-                "SELL" => OrderSideType.SELL,
+                "BUY" => OrderSideType.Buy,
+                "SELL" => OrderSideType.Sell,
                 _ => throw new System.Exception($"Failed to convert '{type}' to {nameof(OrderSideType)}"),
             };
 
@@ -138,24 +158,24 @@
         /// <summary>
         ///     Возвращает период свечи в формате необходимом бинансу
         /// </summary>
-        public static string ToUrl(this CandleStickIntervalType intervalType) =>
+        public static string ToUrl(this CandlestickIntervalType intervalType) =>
             intervalType switch
             {
-                CandleStickIntervalType.OneMinute => "1m",
-                CandleStickIntervalType.ThreeMinutes => "3m",
-                CandleStickIntervalType.FiveMinutes => "5m",
-                CandleStickIntervalType.FifteenMinutes => "15m",
-                CandleStickIntervalType.ThirtyMinutes => "30m",
-                CandleStickIntervalType.OneHour => "1h",
-                CandleStickIntervalType.TwoHour => "2h",
-                CandleStickIntervalType.FourHours => "4h",
-                CandleStickIntervalType.SixHours => "6h",
-                CandleStickIntervalType.EightHours => "8h",
-                CandleStickIntervalType.TwelveHours => "12h",
-                CandleStickIntervalType.OneDay => "1d",
-                CandleStickIntervalType.ThreeDays => "3d",
-                CandleStickIntervalType.OneWeek => "1w",
-                CandleStickIntervalType.OneMonth => "1M",
+                CandlestickIntervalType.OneMinute => "1m",
+                CandlestickIntervalType.ThreeMinutes => "3m",
+                CandlestickIntervalType.FiveMinutes => "5m",
+                CandlestickIntervalType.FifteenMinutes => "15m",
+                CandlestickIntervalType.ThirtyMinutes => "30m",
+                CandlestickIntervalType.OneHour => "1h",
+                CandlestickIntervalType.TwoHour => "2h",
+                CandlestickIntervalType.FourHours => "4h",
+                CandlestickIntervalType.SixHours => "6h",
+                CandlestickIntervalType.EightHours => "8h",
+                CandlestickIntervalType.TwelveHours => "12h",
+                CandlestickIntervalType.OneDay => "1d",
+                CandlestickIntervalType.ThreeDays => "3d",
+                CandlestickIntervalType.OneWeek => "1w",
+                CandlestickIntervalType.OneMonth => "1M",
                 _ => intervalType.ToString(),
             };
 
@@ -166,8 +186,8 @@
         {
             return type switch
             {
-                OrderSideType.SELL => "SELL",
-                OrderSideType.BUY => "BUY",
+                OrderSideType.Sell => "SELL",
+                OrderSideType.Buy => "BUY",
                 _ => type.ToString(),
             };
         }
@@ -179,13 +199,13 @@
         {
             return type switch
             {
-                OrderType.LIMIT => "LIMIT",
-                OrderType.LIMIT_MAKER => "LIMIT_MAKER",
-                OrderType.MARKET => "MARKET",
-                OrderType.STOP_LOSS => "STOP_LOSS",
-                OrderType.STOP_LOSS_LIMIT => "STOP_LOSS_LIMIT",
-                OrderType.TAKE_PROFIT => "TAKE_PROFIT",
-                OrderType.TAKE_PROFIT_LIMIT => "TAKE_PROFIT_LIMIT",
+                OrderType.Limit => "LIMIT",
+                OrderType.LimitMaker => "LIMIT_MAKER",
+                OrderType.Market => "MARKET",
+                OrderType.StopLoss => "STOP_LOSS",
+                OrderType.StopLossLimit => "STOP_LOSS_LIMIT",
+                OrderType.TakeProfit => "TAKE_PROFIT",
+                OrderType.TakeProfitLimit => "TAKE_PROFIT_LIMIT",
                 _ => type.ToString(),
             };
         }
@@ -211,9 +231,9 @@
         {
             return type switch
             {
-                OrderResponseType.ACK => "ACK",
-                OrderResponseType.RESULT => "RESULT",
-                OrderResponseType.FULL => "FULL",
+                OrderResponseType.Ack => "ACK",
+                OrderResponseType.Result => "RESULT",
+                OrderResponseType.Full => "FULL",
                 _ => type.ToString(),
             };
         }

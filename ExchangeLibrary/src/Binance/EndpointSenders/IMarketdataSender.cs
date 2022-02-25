@@ -1,5 +1,4 @@
-﻿using ExchangeLibrary.Binance.Enums;
-using ExchangeLibrary.Binance.Models;
+﻿using ExchangeLibrary.Binance.Models;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -9,7 +8,7 @@ namespace ExchangeLibrary.Binance.EndpointSenders
     /// <summary>
     ///     Отвечает за отправку запросов к конечным точкам маркетадаты
     /// </summary>
-    public interface IMarketdataSender
+    internal interface IMarketdataSender
     {
         /// <summary>
         ///     Получить ордера из стакана по определенной монете
@@ -27,14 +26,14 @@ namespace ExchangeLibrary.Binance.EndpointSenders
         ///     10 - 1000;
         ///     50 - 5000;
         /// </remarks>
-        Task<OrderBookModel> GetOrderBookAsync(string symbol, int limit = 100, CancellationToken cancellationToken = default);
+        Task<OrderBookModel> GetOrderBookAsync(Dictionary<string, object> query, CancellationToken cancellationToken = default);
 
         /// <summary>
         ///     Возвращает последние сделки по паре
         /// </summary>
         /// <param name="symbol"> Пара </param>
         /// <param name="limit"> Кол-во сделок (максимум 1000, по умолчанию 500) </param>
-        Task<IEnumerable<RecentTradeModel>> GetRecentTradesAsync(string symbol, int limit = 500, CancellationToken cancellationToken = default);
+        Task<IEnumerable<RecentTradeModel>> GetRecentTradesAsync(Dictionary<string, object> query, CancellationToken cancellationToken = default);
 
         /// <summary>
         ///     Возвращает исторические сделки по паре
@@ -42,7 +41,7 @@ namespace ExchangeLibrary.Binance.EndpointSenders
         /// <param name="symbol"> Пара </param>
         /// <param name="fromId"> Нижняя граница выгрузки </param>
         /// <param name="limit"> Кол-во сделок (максимум 1000, по умолчанию 500) </param>
-        Task<IEnumerable<RecentTradeModel>> GetOldTradesAsync(string symbol, long fromId, int limit = 500, CancellationToken cancellationToken = default);
+        Task<IEnumerable<RecentTradeModel>> GetOldTradesAsync(Dictionary<string, object> query, CancellationToken cancellationToken = default);
 
         /// <summary>
         ///     Возвращает свечи по определенной паре
@@ -52,18 +51,12 @@ namespace ExchangeLibrary.Binance.EndpointSenders
         /// <param name="startTime"> Время начала построения </param>
         /// <param name="endTime"> Окончание периода </param>
         /// <param name="limit"> Кол-во свечей (максимум 1000, по умолчанию 500) </param>
-        Task<IEnumerable<CandlestickModel>> GetCandleStickAsync(
-            string symbol,
-            CandleStickIntervalType interval,
-            long? startTime = null,
-            long? endTime = null,
-            int limit = 500,
-            CancellationToken cancellationToken = default);
+        Task<IEnumerable<CandlestickModel>> GetCandlestickAsync(Dictionary<string, object> query, CancellationToken cancellationToken = default);
 
         /// <summary>
         ///     Возвращает текущую среднюю цену пары
         /// </summary>
-        Task<AveragePriceModel> GetAveragePriceAsync(string symbol, CancellationToken cancellationToken = default);
+        Task<AveragePriceModel> GetAveragePriceAsync(Dictionary<string, object> query, CancellationToken cancellationToken = default);
 
         /// <summary>
         ///     Возвращает 24 статистику о цене для пары или для всех пар (если <code><paramref name="symbol" /> = null or ""</code>)

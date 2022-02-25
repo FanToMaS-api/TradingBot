@@ -3,7 +3,7 @@
     /// <summary>
     ///     Типы ордеров
     /// </summary>
-    public enum OrderType
+    internal enum OrderType
     {
         ///     Информация о типах ордеров
         /// Ордера типа LIMIT_MAKER – это ордера типа обычного LIMIT, но они отклонятся,
@@ -23,7 +23,7 @@
         /// <remarks>
         ///     https://www.binance.com/en/support/faq/360033779452#:~:text=to%20learn%20more.-,Limit%20Order,-What%20is%20a
         /// </remarks>
-        LIMIT,
+        Limit,
 
         /// <summary>
         ///     Рыночные ордера сопоставляются немедленно по лучшей доступной цене.
@@ -32,7 +32,7 @@
         /// <remarks>
         ///     https://www.binance.com/en/support/faq/360033779452#:~:text=to%20learn%20more.-,Market%20Order,-What%20is%20a
         /// </remarks>
-        MARKET,
+        Market,
 
         /// <summary>
         ///     Условный ордер в течение установленного периода времени,
@@ -42,17 +42,17 @@
         /// <remarks>
         ///     https://www.binance.com/en/support/faq/360033779452#:~:text=to%20learn%20more.-,Stop%20Limit%20Order,-What%20is%20a
         /// </remarks>
-        STOP_LOSS,
+        StopLoss,
 
         /// <summary>
-        ///     Подобно <see cref="STOP_LOSS"/>, рыночный стоп-ордер использует стоп-цену для запуска сделки.
+        ///     Подобно <see cref="StopLoss"/>, рыночный стоп-ордер использует стоп-цену для запуска сделки.
         ///     Однако при достижении стоп-цены активируется рыночный ордер.
         ///     Обязательные поля запроса на создание: timeInForce, quantity, price, stopPrice
         /// </summary>
         /// <remarks>
         ///     https://www.binance.com/en/support/faq/360033779452#:~:text=to%20learn%20more.-,Stop%20Market%20Order,-What%20is%20a
         /// </remarks>
-        STOP_LOSS_LIMIT,
+        StopLossLimit,
 
         /// <summary>
         ///     Размещает заранее установленный ордер на определенный процент от рыночной цены, когда рынок колеблется
@@ -61,7 +61,7 @@
         /// <remarks>
         ///     https://www.binance.com/en/support/faq/360033779452#:~:text=to%20learn%20more.-,Trailing%20Stop%20Order,-What%20is%20a
         /// </remarks>
-        TAKE_PROFIT,
+        TakeProfit,
 
         /// <summary>
         ///     Заказы Post Only добавляются в книгу заказов, когда вы размещаете заказ, но они не выполняются немедленно
@@ -70,7 +70,7 @@
         /// <remarks>
         ///     https://www.binance.com/en/support/faq/360033779452#:~:text=to%20learn%20more.-,Post%20Only%20Order,-What%20is%20a
         /// </remarks>
-        TAKE_PROFIT_LIMIT,
+        TakeProfitLimit,
 
         /// <summary>
         ///     Вы можете установить цену тейк-профита или стоп-лосса перед открытием позиции. 
@@ -80,6 +80,6 @@
         /// <remarks>
         ///     https://www.binance.com/en/support/faq/360033779452#:~:text=not%20executed%20immediately.-,Limit%20TP/SL%20Order,-(Strategy%20Order)
         /// </remarks>
-        LIMIT_MAKER,
+        LimitMaker,
     }
 }

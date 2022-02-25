@@ -18,8 +18,8 @@ namespace ExchangeLibrary.Binance.Models
         public bool IsUse { get; set; }
 
         /// <summary>
-        ///     Показывает можем ли создавать этот параметр
-        ///     (Для определенных типов запросов некоторые параметры - лишние)
+        ///     Показывает можем ли устанавливать этот параметр
+        ///     (Для определенных типов запросов некоторые параметры лишние)
         /// </summary>
         public bool CanSet { get; set; }
 
@@ -31,7 +31,7 @@ namespace ExchangeLibrary.Binance.Models
         /// <<inheritdoc cref="OrderParamWrapper"/>
         /// <param name="url"> Обозначение св-ва в запросе </param>
         /// <param name="isUse"> Показывает нужен ли параметр в текущем запросе </param>
-        /// <param name="canSet"> Показывает можем ли создавать этот параметр </param>
+        /// <param name="canSet"> Показывает можем ли устанавливать этот параметр </param>
         public OrderParamWrapper(string url, bool isUse, bool canSet)
         {
             Url = url;

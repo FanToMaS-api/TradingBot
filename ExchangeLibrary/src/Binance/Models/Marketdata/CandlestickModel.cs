@@ -9,7 +9,7 @@ namespace ExchangeLibrary.Binance.Models
     /// <summary>
     ///     Модель свечи для монеты
     /// </summary>
-    public class CandlestickModel
+    internal class CandlestickModel
     {
         /// <summary>
         ///     Время открытия
@@ -94,7 +94,7 @@ namespace ExchangeLibrary.Binance.Models
     /// <summary>
     ///     Конвертирует данные в массив объектов
     /// </summary>
-    public class CandleStickModelEnumerableConverter : JsonConverter<IEnumerable<CandlestickModel>>
+    internal class CandleStickModelEnumerableConverter : JsonConverter<IEnumerable<CandlestickModel>>
     {
         /// <inheritdoc />
         public override IEnumerable<CandlestickModel> Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
@@ -123,7 +123,7 @@ namespace ExchangeLibrary.Binance.Models
     /// <summary>
     ///     Нормально конвертирует полученные данные
     /// </summary>
-    public class CandleStickModelConverter : JsonConverter<CandlestickModel>
+    internal class CandleStickModelConverter : JsonConverter<CandlestickModel>
     {
         /// <inheritdoc />
         public override CandlestickModel Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)

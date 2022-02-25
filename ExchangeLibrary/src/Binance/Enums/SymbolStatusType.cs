@@ -3,7 +3,7 @@
     /// <summary>
     ///     Состояния символа
     /// </summary>
-    public enum SymbolStatusType
+    internal enum SymbolStatusType
     {
         /// <summary>
         ///     TODO: найти документацию
