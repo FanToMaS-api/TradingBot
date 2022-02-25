@@ -1,4 +1,5 @@
 ﻿using Common.JsonConvertWrapper;
+using Common.JsonConvertWrapper.Converters;
 using ExchangeLibrary.Binance.Client;
 using ExchangeLibrary.Binance.Models;
 using NLog;
@@ -28,6 +29,7 @@ namespace ExchangeLibrary.Binance.EndpointSenders.Impl
             _client = client;
             _converter = new JsonDeserializerWrapper();
             _converter.AddConverter(new FullOrderResponseModelConverter());
+            _converter.AddConverter(new EnumerableDeserializer<FullOrderResponseModel>());
         }
 
         #endregion
@@ -59,7 +61,7 @@ namespace ExchangeLibrary.Binance.EndpointSenders.Impl
         }
 
         /// <inheritdoc />
-        public async Task<CancelOrderResponseModel> CancelOrderAsync(Dictionary<string, object> query, CancellationToken cancellationToken = default)
+        public async Task<FullOrderResponseModel> CancelOrderAsync(Dictionary<string, object> query, CancellationToken cancellationToken = default)
         {
             var result = await _client.SendSignedAsync(
                 BinanceEndpoints.CANCEL_ORDER,
@@ -67,11 +69,11 @@ namespace ExchangeLibrary.Binance.EndpointSenders.Impl
                 query: query,
                 cancellationToken: cancellationToken);
 
-            return _converter.Deserialize<CancelOrderResponseModel>(result);
+            return _converter.Deserialize<FullOrderResponseModel>(result);
         }
 
         /// <inheritdoc />
-        public async Task<CancelOrderResponseModel> CancelAllOrdersAsync(Dictionary<string, object> query, CancellationToken cancellationToken = default)
+        public async Task<IEnumerable<FullOrderResponseModel>> CancelAllOrdersAsync(Dictionary<string, object> query, CancellationToken cancellationToken = default)
         {
             var result = await _client.SendSignedAsync(
                 BinanceEndpoints.CANCEL_All_ORDERS,
@@ -79,8 +81,8 @@ namespace ExchangeLibrary.Binance.EndpointSenders.Impl
                 query: query,
                 cancellationToken: cancellationToken);
 
-            // TODO: Здесь нужно придумать модель
-            return _converter.Deserialize<CancelOrderResponseModel>(result);
+            // (TODO: OCO ордера не обрабатываются)
+            return _converter.Deserialize<IEnumerable<FullOrderResponseModel>>(result);
         }
 
         #endregion

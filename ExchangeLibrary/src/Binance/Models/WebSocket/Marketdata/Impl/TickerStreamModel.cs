@@ -134,9 +134,8 @@ namespace ExchangeLibrary.Binance.Models
         public long TradeNumber { get; set; }
 
         /// <inheritdoc />
-        public void SetProperties(ref Utf8JsonReader reader, IHaveMyOwnJsonConverter result)
+        public void SetProperties(ref Utf8JsonReader reader)
         {
-            var temp = result as TickerStreamModel;
             string lastPropertyName = "";
             while (reader.Read() && reader.TokenType != JsonTokenType.EndObject)
             {
@@ -149,70 +148,70 @@ namespace ExchangeLibrary.Binance.Models
                 switch (lastPropertyName)
                 {
                     case "s":
-                        temp.Symbol = reader.GetString();
+                        Symbol = reader.GetString();
                         continue;
                     case "E":
-                        temp.EventTimeUnix = reader.GetInt64();
+                        EventTimeUnix = reader.GetInt64();
                         continue;
                     case "p":
-                        temp.Price = double.Parse(reader.GetString());
+                        Price = double.Parse(reader.GetString());
                         continue;
                     case "P":
-                        temp.PricePercentChange = double.Parse(reader.GetString());
+                        PricePercentChange = double.Parse(reader.GetString());
                         continue;
                     case "w":
-                        temp.WeightedAveragePrice = double.Parse(reader.GetString());
+                        WeightedAveragePrice = double.Parse(reader.GetString());
                         continue;
                     case "x":
-                        temp.FirstPrice = double.Parse(reader.GetString());
+                        FirstPrice = double.Parse(reader.GetString());
                         continue;
                     case "c":
-                        temp.LastPrice = double.Parse(reader.GetString());
+                        LastPrice = double.Parse(reader.GetString());
                         continue;
                     case "Q":
-                        temp.LastQuantity = double.Parse(reader.GetString());
+                        LastQuantity = double.Parse(reader.GetString());
                         continue;
                     case "b":
-                        temp.BestBidPrice = double.Parse(reader.GetString());
+                        BestBidPrice = double.Parse(reader.GetString());
                         continue;
                     case "B":
-                        temp.BestBidQuantity = double.Parse(reader.GetString());
+                        BestBidQuantity = double.Parse(reader.GetString());
                         continue;
                     case "a":
-                        temp.BestAskPrice = double.Parse(reader.GetString());
+                        BestAskPrice = double.Parse(reader.GetString());
                         continue;
                     case "A":
-                        temp.BestAskQuantity = double.Parse(reader.GetString());
+                        BestAskQuantity = double.Parse(reader.GetString());
                         continue;
                     case "o":
-                        temp.OpenPrice = double.Parse(reader.GetString());
+                        OpenPrice = double.Parse(reader.GetString());
                         continue;
                     case "l":
-                        temp.MinPrice = double.Parse(reader.GetString());
+                        MinPrice = double.Parse(reader.GetString());
                         continue;
                     case "h":
-                        temp.MaxPrice = double.Parse(reader.GetString());
+                        MaxPrice = double.Parse(reader.GetString());
                         continue;
                     case "v":
-                        temp.AllBaseVolume = double.Parse(reader.GetString());
+                        AllBaseVolume = double.Parse(reader.GetString());
                         continue;
                     case "q":
-                        temp.AllQuoteVolume = double.Parse(reader.GetString());
+                        AllQuoteVolume = double.Parse(reader.GetString());
                         continue;
                     case "O":
-                        temp.StatisticOpenTimeUnix = reader.GetInt64();
+                        StatisticOpenTimeUnix = reader.GetInt64();
                         continue;
                     case "C":
-                        temp.StatisticCloseTimeUnix = reader.GetInt64();
+                        StatisticCloseTimeUnix = reader.GetInt64();
                         continue;
                     case "F":
-                        temp.FirstTradeId = reader.GetInt64();
+                        FirstTradeId = reader.GetInt64();
                         continue;
                     case "L":
-                        temp.LastTradeId = reader.GetInt64();
+                        LastTradeId = reader.GetInt64();
                         continue;
                     case "n":
-                        temp.TradeNumber = reader.GetInt64();
+                        TradeNumber = reader.GetInt64();
                         continue;
                 }
             }

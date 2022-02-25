@@ -11,6 +11,6 @@ namespace Common.JsonConvertWrapper
         ///     Наполняет объект св-ми из json readr'a
         /// </summary>
         /// <param name="reader"> Reader с указателем на начало объекта </param>
-        public void SetProperties(ref Utf8JsonReader reader, IHaveMyOwnJsonConverter result);
+        public void SetProperties(ref Utf8JsonReader reader);
     }
 }
