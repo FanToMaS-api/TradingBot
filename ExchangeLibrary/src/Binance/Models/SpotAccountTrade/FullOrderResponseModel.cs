@@ -1,4 +1,5 @@
-﻿using ExchangeLibrary.Binance.Enums;
+﻿using Common.JsonConvertWrapper;
+using ExchangeLibrary.Binance.Enums;
 using ExchangeLibrary.Binance.Enums.Helper;
 using System;
 using System.Collections.Generic;
@@ -10,61 +11,60 @@ namespace ExchangeLibrary.Binance.Models
     /// <summary>
     ///     Модель ответа на отправку нового ордера (содержит полную информацию)
     /// </summary>
-    internal class FullOrderResponseModel
+    internal class FullOrderResponseModel : IHaveMyOwnJsonConverter
     {
         /// <summary>
         ///     Пара
         /// </summary>
-        [JsonPropertyName("symbol")]
         public string Symbol { get; set; }
 
         /// <summary>
         ///     Id ордера
         /// </summary>
-        [JsonPropertyName("orderId")]
         public long OrderId { get; set; }
 
         /// <summary>
         ///     Id клиентского ордера
         /// </summary>
-        [JsonPropertyName("clientOrderId")]
         public string ClientOrderId { get; set; }
 
         /// <summary>
         ///     Время исполнения транзакции
         /// </summary>
-        [JsonPropertyName("transactTime")]
+        /// /// <remarks>
+        ///     При отмене ордера не присутствует в ответе
+        /// </remarks>
         public long TransactTimeUnix { get; set; }
 
         /// <summary>
         ///     Если не OCO значение будет -1 всегда
         /// </summary>
-        [JsonPropertyName("orderListId")]
         public long OrderListId { get; set; }
 
         /// <summary>
         ///     Цена
         /// </summary>
-        [JsonPropertyName("price")]
         public double Price { get; set; }
 
         /// <summary>
         ///     Запрошенное кол-во
         /// </summary>
-        [JsonPropertyName("origQty")]
         public double OrigQty { get; set; }
 
         /// <summary>
         ///     Исполненное кол-во
         /// </summary>
-        [JsonPropertyName("executedQty")]
         public double ExecutedQty { get; set; }
 
         /// <summary>
         ///     Кол-во совокупной котировки
         /// </summary>
-        [JsonPropertyName("cummulativeQuoteQty")]
-        public double СumulativeQuoteQty { get; set; }
+        public double CumulativeQuoteQty { get; set; }
+
+        /// <summary>
+        ///     Id клиентского ордера, заполняется только в случае отемеры ордера (тот, который дал пользователь?)
+        /// </summary>
+        public string OrigClientOrderId { get; set; }
 
         /// <summary>
         ///     Статус выполнения ордера
@@ -86,7 +86,12 @@ namespace ExchangeLibrary.Binance.Models
         /// </summary>
         public OrderSideType OrderSide { get; set; }
 
-        [JsonPropertyName("fills")]
+        /// <summary>
+        ///     Части заполнения ордера
+        /// </summary>
+        /// <remarks>
+        ///     При отмене ордера не присутствует в ответе
+        /// </remarks>
         public List<FillModel> Fills { get; set; } = new();
 
         /// <inheritdoc />
@@ -94,6 +99,11 @@ namespace ExchangeLibrary.Binance.Models
         {
             while (reader.Read())
             {
+                if (reader.TokenType == JsonTokenType.EndObject)
+                {
+                    break;
+                }
+
                 if (reader.TokenType == JsonTokenType.PropertyName)
                 {
                     var propertyName = reader.GetString();
@@ -125,8 +135,11 @@ namespace ExchangeLibrary.Binance.Models
                         case "executedQty":
                             ExecutedQty = double.Parse(reader.GetString());
                             continue;
+                        case "origClientOrderId":
+                            OrigClientOrderId = reader.GetString();
+                            continue;
                         case "cummulativeQuoteQty":
-                            СumulativeQuoteQty = double.Parse(reader.GetString());
+                            CumulativeQuoteQty = double.Parse(reader.GetString());
                             continue;
                         case "status":
                             Status = reader.GetString().ConvertToOrderStatusType();

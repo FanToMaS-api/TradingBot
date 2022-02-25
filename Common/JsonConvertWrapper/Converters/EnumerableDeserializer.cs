@@ -20,7 +20,7 @@ namespace Common.JsonConvertWrapper.Converters
                 if (reader.TokenType == JsonTokenType.StartObject)
                 {
                     T obj = new();
-                    obj.SetProperties(ref reader, obj);
+                    obj.SetProperties(ref reader);
 
                     result.Add(obj);
                 }

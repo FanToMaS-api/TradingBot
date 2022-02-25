@@ -53,9 +53,8 @@ namespace ExchangeLibrary.Binance.Models
         public double BestAskQuantity { get; set; }
 
         /// <inheritdoc />
-        public void SetProperties(ref Utf8JsonReader reader, IHaveMyOwnJsonConverter result)
+        public void SetProperties(ref Utf8JsonReader reader)
         {
-            var temp = result as BookTickerStreamModel;
             string lastPropertyName = "";
             while (reader.Read() && reader.TokenType != JsonTokenType.EndObject)
             {
@@ -68,22 +67,22 @@ namespace ExchangeLibrary.Binance.Models
                 switch (lastPropertyName)
                 {
                     case "u":
-                        temp.OrderBookUpdatedId = reader.GetInt64();
+                        OrderBookUpdatedId = reader.GetInt64();
                         continue;
                     case "s":
-                        temp.Symbol = reader.GetString();
+                        Symbol = reader.GetString();
                         continue;
                     case "b":
-                        temp.BestBidPrice = double.Parse(reader.GetString());
+                        BestBidPrice = double.Parse(reader.GetString());
                         continue;
                     case "B":
-                        temp.BestBidQuantity = double.Parse(reader.GetString());
+                        BestBidQuantity = double.Parse(reader.GetString());
                         continue;
                     case "a":
-                        temp.BestAskPrice = double.Parse(reader.GetString());
+                        BestAskPrice = double.Parse(reader.GetString());
                         continue;
                     case "A":
-                        temp.BestAskQuantity = double.Parse(reader.GetString());
+                        BestAskQuantity = double.Parse(reader.GetString());
                         continue;
                 }
             }

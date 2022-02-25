@@ -34,9 +34,8 @@ namespace ExchangeLibrary.Binance.Models
         public List<PriceQtyPair> Asks { get; set; } = new();
 
         /// <inheritdoc />
-        public void SetProperties(ref Utf8JsonReader reader, IHaveMyOwnJsonConverter temp)
+        public void SetProperties(ref Utf8JsonReader reader)
         {
-            var result = temp as OrderBookModel;
             string lastPropertyName = "";
             while (reader.Read())
             {
@@ -48,7 +47,7 @@ namespace ExchangeLibrary.Binance.Models
                     switch (lastPropertyName)
                     {
                         case "lastUpdateId":
-                            result.LastUpdateId = reader.GetInt64();
+                            LastUpdateId = reader.GetInt64();
                             continue;
                     }
                 }
@@ -58,7 +57,7 @@ namespace ExchangeLibrary.Binance.Models
                     continue;
                 }
 
-                PriceQtyPair.CreatePair(ref reader, result, lastPropertyName);
+                PriceQtyPair.CreatePair(ref reader, this, lastPropertyName);
             }
         }
     }
@@ -108,7 +107,7 @@ namespace ExchangeLibrary.Binance.Models
         public override OrderBookModel Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
             var orderBook = new OrderBookModel();
-            orderBook.SetProperties(ref reader, orderBook);
+            orderBook.SetProperties(ref reader);
 
             return orderBook;
         }
