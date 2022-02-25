@@ -3,7 +3,7 @@
 namespace ExchangeLibrary.Binance
 {
     /// <summary>
-    ///     Сожаржит все конечные точки Binance
+    ///     Содержит все конечные точки Binance
     /// </summary>
     public static class BinanceEndpoints
     {

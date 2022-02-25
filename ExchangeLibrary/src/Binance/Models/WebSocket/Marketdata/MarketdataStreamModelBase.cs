@@ -5,7 +5,7 @@ namespace ExchangeLibrary.Binance.Models
     /// <summary>
     ///     Базовый класс моделей получаемых со стримов маркетдаты
     /// </summary>
-    public class MarketdataStreamModelBase
+    internal class MarketdataStreamModelBase
     {
         /// <summary>
         ///     Время события

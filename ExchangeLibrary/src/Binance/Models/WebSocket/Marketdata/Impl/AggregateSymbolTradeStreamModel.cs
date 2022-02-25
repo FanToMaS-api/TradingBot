@@ -6,7 +6,7 @@ namespace ExchangeLibrary.Binance.Models
     /// <summary>
     ///     Модель данных с потока торговой информации, которая агрегируется для одного ордера тейкера
     /// </summary>
-    public class AggregateSymbolTradeStreamModel : MarketdataStreamModelBase, IMarketdataStreamModel
+    internal class AggregateSymbolTradeStreamModel : MarketdataStreamModelBase, IMarketdataStreamModel
     {
         /// <inheritdoc />
         public MarketdataStreamType StreamType => MarketdataStreamType.AggregateTradeStream;

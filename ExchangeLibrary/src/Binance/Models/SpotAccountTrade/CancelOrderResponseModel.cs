@@ -11,5 +11,6 @@ namespace ExchangeLibrary.Binance.Models
     /// </summary>
     internal class CancelOrderResponseModel
     {
+        // TODO:
     }
 }

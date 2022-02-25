@@ -7,7 +7,7 @@ namespace ExchangeLibrary.Binance.Models
     /// <summary>
     ///     Модель потока обновления информации о свече пары
     /// </summary>
-    public class CandlestickStreamModel : MarketdataStreamModelBase, IMarketdataStreamModel
+    internal class CandlestickStreamModel : MarketdataStreamModelBase, IMarketdataStreamModel
     {
         /// <inheritdoc />
         public MarketdataStreamType StreamType => MarketdataStreamType.CandlestickStream;
@@ -22,7 +22,7 @@ namespace ExchangeLibrary.Binance.Models
     /// <summary>
     ///     Модель данных о свече
     /// </summary>
-    public class KlineModel
+    internal class KlineModel
     {
         /// <summary>
         ///     Время открытия свечи

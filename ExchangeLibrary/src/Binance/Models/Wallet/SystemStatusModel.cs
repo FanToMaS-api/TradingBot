@@ -5,7 +5,7 @@ namespace ExchangeLibrary.Binance.Models
     /// <summary>
     ///     Модель статуса системы
     /// </summary>
-    public class SystemStatusModel
+    internal class SystemStatusModel
     {
         #region Properties
 

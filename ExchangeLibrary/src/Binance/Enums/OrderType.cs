@@ -3,7 +3,7 @@
     /// <summary>
     ///     Типы ордеров
     /// </summary>
-    public enum OrderType
+    internal enum OrderType
     {
         ///     Информация о типах ордеров
         /// Ордера типа LIMIT_MAKER – это ордера типа обычного LIMIT, но они отклонятся,

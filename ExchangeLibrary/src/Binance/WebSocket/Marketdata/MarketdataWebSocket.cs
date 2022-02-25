@@ -11,7 +11,7 @@ namespace ExchangeLibrary.Binance.WebSocket.Marketdata
     /// <summary>
     ///     Веб-сокет маркетдаты бинанса
     /// </summary>
-    public class MarketdataWebSocket : BinanceWebSocket
+    internal class MarketdataWebSocket : BinanceWebSocket
     {
         private const string BaseUrl = "wss://stream.binance.com:9443";
 

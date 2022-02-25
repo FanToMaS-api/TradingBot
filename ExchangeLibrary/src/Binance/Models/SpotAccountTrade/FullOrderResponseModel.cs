@@ -10,7 +10,7 @@ namespace ExchangeLibrary.Binance.Models
     /// <summary>
     ///     Модель ответа на отправку нового ордера (содержит полную информацию)
     /// </summary>
-    public class FullOrderResponseModel
+    internal class FullOrderResponseModel
     {
         /// <summary>
         ///     Пара
@@ -232,7 +232,7 @@ namespace ExchangeLibrary.Binance.Models
     /// <summary>
     ///     Нормально конвертирует полученные данные
     /// </summary>
-    public class FullOrderResponseModelConverter : JsonConverter<FullOrderResponseModel>
+    internal class FullOrderResponseModelConverter : JsonConverter<FullOrderResponseModel>
     {
         /// <inheritdoc />
         public override FullOrderResponseModel Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)

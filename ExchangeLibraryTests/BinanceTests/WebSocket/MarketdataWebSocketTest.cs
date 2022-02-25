@@ -575,7 +575,7 @@ namespace ExchangeLibraryTests.BinanceTests.WebSocket
         /// </summary>
         /// <param name="url"> url подписки на стрим </param>
         /// <param name="bytes"> Данные </param>
-        public IBinanceWebSocketHumble GetMockingBinanceWebHumble(string url, byte[] bytes)
+        internal IBinanceWebSocketHumble GetMockingBinanceWebHumble(string url, byte[] bytes)
         {
             var binanceWebSocketHumble = Substitute.For<IBinanceWebSocketHumble>();
             binanceWebSocketHumble.ConnectAsync(new Uri(url), CancellationToken.None).Returns(Task.CompletedTask);

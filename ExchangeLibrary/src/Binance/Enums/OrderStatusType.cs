@@ -3,7 +3,7 @@
     /// <summary>
     ///     Статус ордера
     /// </summary>
-    public enum OrderStatusType
+    internal enum OrderStatusType
     {
         /// <summary>
         ///     Ордер был принят

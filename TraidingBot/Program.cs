@@ -27,15 +27,15 @@ namespace TraidingBot
 
             Console.WriteLine(await binance.CreateNewLimitOrderAsync(
                 "ARPABNB",
-                ExchangeLibrary.Binance.Enums.OrderSideType.Buy,
-                ExchangeLibrary.Binance.Enums.TimeInForceType.GTC,
+                "BUY",
+                "GTC",
                 0.000205,
                 100,
                 cancellationToken: cts.Token));
 
             await binance.SubscribeCandlestickStreamAsync<string>(
                 "BNBBTC",
-                ExchangeLibrary.Binance.Enums.CandlestickIntervalType.OneMinute.ToUrl(),
+                "1m",
                  _ =>
                  {
                      return Task.CompletedTask;

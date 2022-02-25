@@ -207,6 +207,33 @@ namespace ExchangeLibrary.Binance.Models
         }
 
         /// <inheritdoc />
+        public void SetOrderSideType(string side)
+        {
+            var sideType = side.ConvertToOrderSideType();
+            if (!_newQueryModel.SideType.CanSet)
+            {
+                Log.Warn($"Failed to set OrderSideType with value={sideType}, because it is not allowed");
+
+                return;
+            }
+
+            _newQueryModel.SideType.IsUse = true;
+            _newQueryModel.SideType.ValueStr = sideType.ToUrl();
+        }
+
+        /// <inheritdoc />
+        public void SetOrderType(string order)
+        {
+            var orderType = order.ConvertToOrderType();
+            SetOrderResponseType(orderType);
+            SetStopPrice(orderType);
+            SetIcebergQty(orderType);
+
+            _newQueryModel.OrderType.IsUse = true;
+            _newQueryModel.OrderType.ValueStr = orderType.ToUrl();
+        }
+
+        /// <inheritdoc />
         public void SetOrderType(OrderType orderType)
         {
             SetOrderResponseType(orderType);
@@ -251,6 +278,21 @@ namespace ExchangeLibrary.Binance.Models
         }
 
         /// <inheritdoc />
+        public void SetTimeInForce(string timeInForce)
+        {
+            var timeInForceType = timeInForce.ConvertToTimeInForceType();
+            if (!_newQueryModel.TimeInForce.CanSet)
+            {
+                Log.Warn($"Failed to set time in force, because it is not allowed");
+
+                return;
+            }
+
+            _newQueryModel.TimeInForce.IsUse = true;
+            _newQueryModel.TimeInForce.ValueStr = timeInForceType.ToUrl();
+        }
+
+        /// <inheritdoc />
         public void SetTimeInForce(TimeInForceType timeInForce)
         {
             if (!_newQueryModel.TimeInForce.CanSet)
@@ -261,7 +303,7 @@ namespace ExchangeLibrary.Binance.Models
             }
 
             _newQueryModel.TimeInForce.IsUse = true;
-            _newQueryModel.TimeInForce.ValueStr = timeInForce.ToString();
+            _newQueryModel.TimeInForce.ValueStr = timeInForce.ToUrl();
         }
 
         /// <summary>

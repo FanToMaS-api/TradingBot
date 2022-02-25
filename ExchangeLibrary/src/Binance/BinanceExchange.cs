@@ -330,9 +330,10 @@ namespace TraidingBot.Exchanges.Binance
         public async Task SubscribeNewStreamAsync<T>(
             string symbol,
             Func<T, Task> onMessageReceivedFunc,
-            MarketdataStreamType streamType,
+            string stream,
             CancellationToken cancellationToken = default)
         {
+            var streamType = stream.ConvertToMarketdataStreamType();
             var webSoket = new MarketdataWebSocket(symbol, streamType);
             webSoket.OnClosed += OnCloseHandler;
             var converter = new JsonDeserializerWrapper();
@@ -487,8 +488,8 @@ namespace TraidingBot.Exchanges.Binance
         /// <inheritdoc />
         public async Task<string> CreateNewLimitOrderAsync(
             string symbol,
-            OrderSideType sideType,
-            TimeInForceType forceType,
+            string sideType,
+            string forceType,
             double price,
             double quantity,
             long recvWindow = 5000,
@@ -523,7 +524,7 @@ namespace TraidingBot.Exchanges.Binance
         /// <inheritdoc />
         public async Task<string> CreateNewMarketOrderAsync(
             string symbol,
-            OrderSideType sideType,
+            string sideType,
             double quantity,
             long recvWindow = 5000,
             bool isTest = true,
@@ -555,7 +556,7 @@ namespace TraidingBot.Exchanges.Binance
         /// <inheritdoc />
         public async Task<string> CreateNewStopLossOrderAsync(
             string symbol,
-            OrderSideType sideType,
+            string sideType,
             double quantity,
             double stopPrice,
             long recvWindow = 5000,
@@ -589,8 +590,8 @@ namespace TraidingBot.Exchanges.Binance
         /// <inheritdoc />
         public async Task<string> CreateNewStopLossLimitOrderAsync(
             string symbol,
-            OrderSideType sideType,
-            TimeInForceType forceType,
+            string sideType,
+            string forceType,
             double price,
             double quantity,
             double stopPrice,
@@ -627,7 +628,7 @@ namespace TraidingBot.Exchanges.Binance
         /// <inheritdoc />
         public async Task<string> CreateNewTakeProfitOrderAsync(
             string symbol,
-            OrderSideType sideType,
+            string sideType,
             double quantity,
             double stopPrice,
             long recvWindow = 5000,
@@ -661,8 +662,8 @@ namespace TraidingBot.Exchanges.Binance
         /// <inheritdoc />
         public async Task<string> CreateNewTakeProfitLimitOrderAsync(
             string symbol,
-            OrderSideType sideType,
-            TimeInForceType forceType,
+            string sideType,
+            string forceType,
             double price,
             double quantity,
             double stopPrice,
@@ -699,7 +700,7 @@ namespace TraidingBot.Exchanges.Binance
         /// <inheritdoc />
         public async Task<string> CreateNewLimitMakerOrderAsync(
             string symbol,
-            OrderSideType sideType,
+            string sideType,
             double price,
             double quantity,
             long recvWindow = 5000,

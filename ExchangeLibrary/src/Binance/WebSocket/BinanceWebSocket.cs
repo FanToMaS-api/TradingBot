@@ -1,5 +1,4 @@
-﻿using Common.JsonConvertWrapper;
-using NLog;
+﻿using NLog;
 using System;
 using System.Collections.Generic;
 using System.Net.WebSockets;
@@ -12,7 +11,7 @@ namespace ExchangeLibrary.Binance.WebSocket
     /// <summary>
     ///     Оболочка над Binance websocket
     /// </summary>
-    public class BinanceWebSocket : IDisposable
+    internal class BinanceWebSocket : IDisposable
     {
         #region Fields
 

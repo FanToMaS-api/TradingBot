@@ -108,7 +108,7 @@ namespace ExchangeLibrary
         Task SubscribeNewStreamAsync<T>(
             string symbol,
             Func<T, Task> onMessageReceivedFunc,
-            MarketdataStreamType streamType,
+            string streamType,
             CancellationToken cancellationToken = default);
 
         /// <summary>
@@ -177,8 +177,8 @@ namespace ExchangeLibrary
         /// <param name="isTest"> Тестовый ли запрос </param>
         Task<string> CreateNewLimitOrderAsync(
             string symbol,
-            OrderSideType sideType,
-            TimeInForceType forceType,
+            string sideType,
+            string forceType,
             double price,
             double quantity,
             long recvWindow = 5000,
@@ -191,7 +191,7 @@ namespace ExchangeLibrary
         /// <param name="isTest"> Тестовый ли запрос </param>
         Task<string> CreateNewMarketOrderAsync(
             string symbol,
-            OrderSideType sideType,
+            string sideType,
             double quantity,
             long recvWindow = 5000,
             bool isTest = true,
@@ -203,7 +203,7 @@ namespace ExchangeLibrary
         /// <param name="isTest"> Тестовый ли запрос </param>
         Task<string> CreateNewStopLossOrderAsync(
             string symbol,
-            OrderSideType sideType,
+            string sideType,
             double quantity,
             double stopPrice,
             long recvWindow = 5000,
@@ -216,8 +216,8 @@ namespace ExchangeLibrary
         /// <param name="isTest"> Тестовый ли запрос </param>
         Task<string> CreateNewStopLossLimitOrderAsync(
             string symbol,
-            OrderSideType sideType,
-            TimeInForceType forceType,
+            string sideType,
+            string forceType,
             double price,
             double quantity,
             double stopPrice,
@@ -231,7 +231,7 @@ namespace ExchangeLibrary
         /// <param name="isTest"> Тестовый ли запрос </param>
         Task<string> CreateNewTakeProfitOrderAsync(
             string symbol,
-            OrderSideType sideType,
+            string sideType,
             double quantity,
             double stopPrice,
             long recvWindow = 5000,
@@ -244,8 +244,8 @@ namespace ExchangeLibrary
         /// <param name="isTest"> Тестовый ли запрос </param>
         Task<string> CreateNewTakeProfitLimitOrderAsync(
             string symbol,
-            OrderSideType sideType,
-            TimeInForceType forceType,
+            string sideType,
+            string forceType,
             double price,
             double quantity,
             double stopPrice,
@@ -259,7 +259,7 @@ namespace ExchangeLibrary
         /// <param name="isTest"> Тестовый ли запрос </param>
         Task<string> CreateNewLimitMakerOrderAsync(
             string symbol,
-            OrderSideType sideType,
+            string sideType,
             double price,
             double quantity,
             long recvWindow = 5000,

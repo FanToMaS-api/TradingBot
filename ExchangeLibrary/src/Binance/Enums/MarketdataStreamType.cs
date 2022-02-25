@@ -3,7 +3,7 @@
     /// <summary>
     ///     Тип стрима с маркетдаты
     /// </summary>
-    public enum MarketdataStreamType
+    internal enum MarketdataStreamType
     {
         /// <summary>
         ///     Поток торговой информации, которая агрегируется для одного ордера тейкера

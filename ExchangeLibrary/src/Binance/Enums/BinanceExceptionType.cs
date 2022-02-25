@@ -3,7 +3,7 @@
     /// <summary>
     ///     Типы исключений возникающий при работе с Binance
     /// </summary>
-    public enum BinanceExceptionType
+    internal enum BinanceExceptionType
     {
         /// <summary>
         ///     Неверно сформированный запрос на стороне клиента. StatusCode: 4XX, кроме 403, 429, 418 - они определяются другим типом

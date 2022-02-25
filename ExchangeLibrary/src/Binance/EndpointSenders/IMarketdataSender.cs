@@ -1,5 +1,4 @@
-﻿using ExchangeLibrary.Binance.Enums;
-using ExchangeLibrary.Binance.Models;
+﻿using ExchangeLibrary.Binance.Models;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -9,7 +8,7 @@ namespace ExchangeLibrary.Binance.EndpointSenders
     /// <summary>
     ///     Отвечает за отправку запросов к конечным точкам маркетадаты
     /// </summary>
-    public interface IMarketdataSender
+    internal interface IMarketdataSender
     {
         /// <summary>
         ///     Получить ордера из стакана по определенной монете

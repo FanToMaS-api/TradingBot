@@ -5,7 +5,7 @@ namespace ExchangeLibrary.Binance.Models
     /// <summary>
     ///     Модель изменения цены за 1 по паре
     /// </summary>
-    public class DayPriceChangeModel
+    internal class DayPriceChangeModel
     {
         /// <summary>
         ///     Наименование пары

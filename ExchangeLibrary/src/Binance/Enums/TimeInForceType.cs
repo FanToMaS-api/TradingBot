@@ -3,7 +3,7 @@
     /// <summary>
     ///     Сколько ордер будет активен пока не истечет
     /// </summary>
-    public enum TimeInForceType
+    internal enum TimeInForceType
     {
         /// <summary>
         ///     Good Til Canceled - ордер будет висеть до тех пор, пока его не отменят (по-умолчанию)

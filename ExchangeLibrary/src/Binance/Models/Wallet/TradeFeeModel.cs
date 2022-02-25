@@ -5,7 +5,7 @@ namespace ExchangeLibrary.Binance.Models
     /// <summary>
     ///     Модель ответа на запрос таксы по коину
     /// </summary>
-    public class TradeFeeModel
+    internal class TradeFeeModel
     {
         #region Properties
 

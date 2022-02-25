@@ -5,7 +5,7 @@ namespace ExchangeLibrary.Binance.Models
     /// <summary>
     ///     Модель недавней сделки
     /// </summary>
-    public class RecentTradeModel
+    internal class RecentTradeModel
     {
         /// <summary>
         ///     Уникальный идентификатор

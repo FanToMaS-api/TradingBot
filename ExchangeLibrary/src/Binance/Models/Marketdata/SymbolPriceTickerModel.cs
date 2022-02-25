@@ -5,7 +5,7 @@ namespace ExchangeLibrary.Binance.Models
     /// <summary>
     ///     Модель текущей цены пары
     /// </summary>
-    public class SymbolPriceTickerModel
+    internal class SymbolPriceTickerModel
     {
         /// <summary>
         ///     Название пары

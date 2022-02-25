@@ -10,7 +10,7 @@ namespace ExchangeLibrary.Binance.Models
     /// <summary>
     ///     Модель книги заказов
     /// </summary>
-    public class OrderBookModel : IMarketdataStreamModel, IHaveMyOwnJsonConverter
+    internal class OrderBookModel : IMarketdataStreamModel, IHaveMyOwnJsonConverter
     {
         /// <inheritdoc />
         public MarketdataStreamType StreamType => MarketdataStreamType.PartialBookDepthStream;
@@ -102,7 +102,7 @@ namespace ExchangeLibrary.Binance.Models
     /// <summary>
     ///     Нормально конвертирует полученные данные
     /// </summary>
-    public class OrderBookModelConverter : JsonConverter<OrderBookModel>
+    internal class OrderBookModelConverter : JsonConverter<OrderBookModel>
     {
         /// <inheritdoc />
         public override OrderBookModel Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)

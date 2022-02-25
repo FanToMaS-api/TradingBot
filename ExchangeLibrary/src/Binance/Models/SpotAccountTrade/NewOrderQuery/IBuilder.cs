@@ -75,7 +75,17 @@ namespace ExchangeLibrary.Binance.Models
         /// <summary>
         ///     Установить тип ордера
         /// </summary>
+        void SetOrderType(string orderType);
+
+        /// <summary>
+        ///     Установить тип ордера
+        /// </summary>
         void SetOrderType(OrderType orderType);
+
+        /// <summary>
+        ///     Установить тип ордера (покупка, продажа)
+        /// </summary>
+        void SetOrderSideType(string sideType);
 
         /// <summary>
         ///     Установить тип ордера (покупка, продажа)

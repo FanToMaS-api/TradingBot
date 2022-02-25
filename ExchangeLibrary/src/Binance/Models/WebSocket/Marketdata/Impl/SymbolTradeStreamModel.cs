@@ -6,7 +6,7 @@ namespace ExchangeLibrary.Binance.Models
     /// <summary>
     ///     Модель данных с потока необработанной торговой информации; у каждой сделки есть уникальный покупатель и продавец
     /// </summary>
-    public class SymbolTradeStreamModel : MarketdataStreamModelBase, IMarketdataStreamModel
+    internal class SymbolTradeStreamModel : MarketdataStreamModelBase, IMarketdataStreamModel
     {
         /// <inheritdoc />
         public MarketdataStreamType StreamType => MarketdataStreamType.TradeStream;

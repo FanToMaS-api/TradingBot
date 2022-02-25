@@ -5,7 +5,7 @@ namespace ExchangeLibrary.Binance.Models
     /// <summary>
     ///     Представляет собой объект данных со стримов маркетдаты
     /// </summary>
-    public interface IMarketdataStreamModel
+    internal interface IMarketdataStreamModel
     {
         /// <summary>
         ///     Тип стрима с которого получаем данные

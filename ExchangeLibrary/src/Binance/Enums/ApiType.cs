@@ -3,7 +3,7 @@
     /// <summary>
     ///     Тип конечной точки
     /// </summary>
-    public enum ApiType
+    internal enum ApiType
     {
         /// <summary>
         ///     Сервер API

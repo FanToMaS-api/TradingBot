@@ -3,7 +3,7 @@
     /// <summary>
     ///     Расширяет enum'ы
     /// </summary>
-    public static class EnumHelper
+    internal static class EnumHelper
     {
         /// <summary>
         ///     Переводит период свечи в формате бинанса в удобный для работы <see cref="CandlestickIntervalType"/>
@@ -28,6 +28,26 @@
                 "1M" => CandlestickIntervalType.OneMonth,
                 _ => throw new System.Exception($"Failed to convert '{intervalType}' to {nameof(CandlestickIntervalType)}"),
             };
+
+        /// <summary>
+        ///     Переводит тип стрима в формате бинанса в удобный для работы <see cref="MarketdataStreamType"/>
+        /// </summary>
+        public static MarketdataStreamType ConvertToMarketdataStreamType(this string streamType)
+        {
+            return streamType switch
+            {
+                "@trade" => MarketdataStreamType.TradeStream,
+                "@kline_" => MarketdataStreamType.CandlestickStream,
+                "@miniTicker" => MarketdataStreamType.IndividualSymbolMiniTickerStream,
+                "@aggTrade" => MarketdataStreamType.AggregateTradeStream,
+                "!miniTicker@arr" => MarketdataStreamType.AllMarketMiniTickersStream,
+                "@ticker" => MarketdataStreamType.IndividualSymbolTickerStream,
+                "!ticker@arr" => MarketdataStreamType.AllMarketTickersStream,
+                "!bookTicker" => MarketdataStreamType.AllBookTickersStream,
+                "@depth" => MarketdataStreamType.PartialBookDepthStream,
+                _ => throw new System.Exception($"Failed to convert '{streamType}' to {nameof(MarketdataStreamType)}"),
+            };
+        }
 
         /// <summary>
         ///     Переводит статус ордера в формате бинанса в удобный для работы <see cref="OrderStatusType"/>

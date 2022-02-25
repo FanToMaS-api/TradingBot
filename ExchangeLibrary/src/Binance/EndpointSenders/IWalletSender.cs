@@ -8,7 +8,7 @@ namespace ExchangeLibrary.Binance.EndpointSenders
     /// <summary>
     ///     Отвечает за отправку запросов к конечным точкам Wallet
     /// </summary>
-    public interface IWalletSender 
+    internal interface IWalletSender 
     {
         /// <summary>
         ///     Вернуть статус системы

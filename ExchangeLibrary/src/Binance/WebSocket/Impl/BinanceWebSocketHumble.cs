@@ -8,7 +8,7 @@ namespace ExchangeLibrary.Binance.WebSocket.Impl
     /// <summary>
     ///     Скромный объект для Binance над <see cref="ClientWebSocket" />
     /// </summary>
-    public class BinanceWebSocketHumble : IBinanceWebSocketHumble
+    internal class BinanceWebSocketHumble : IBinanceWebSocketHumble
     {
         #region Fields
 
