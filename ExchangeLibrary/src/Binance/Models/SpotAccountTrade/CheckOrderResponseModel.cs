@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Common.JsonConvertWrapper;
+using System;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -7,7 +8,7 @@ namespace ExchangeLibrary.Binance.Models
     /// <summary>
     ///     Модель ответа на запрос состояния ордера
     /// </summary>
-    internal class CheckOrderResponseModel : OrderResponseModelBase
+    internal class CheckOrderResponseModel : OrderResponseModelBase, IHaveMyOwnJsonConverter
     {
         /// <summary>
         ///     Стоп цена

@@ -32,6 +32,7 @@ namespace ExchangeLibrary.Binance.EndpointSenders.Impl
             _converter.AddConverter(new CancelOrderResponseModelConverter());
             _converter.AddConverter(new CheckOrderResponseModelConverter());
             _converter.AddConverter(new EnumerableDeserializer<CancelOrderResponseModel>());
+            _converter.AddConverter(new EnumerableDeserializer<CheckOrderResponseModel>());
         }
 
         #endregion
@@ -92,11 +93,23 @@ namespace ExchangeLibrary.Binance.EndpointSenders.Impl
         {
             var result = await _client.SendSignedAsync(
                 BinanceEndpoints.CHECK_ORDER,
-                HttpMethod.Delete,
+                HttpMethod.Get,
                 query: query,
                 cancellationToken: cancellationToken);
 
             return _converter.Deserialize<CheckOrderResponseModel>(result);
+        }
+
+        /// <inheritdoc />
+        public async Task<IEnumerable<CheckOrderResponseModel>> CheckAllOpenOrdersAsync(Dictionary<string, object> query, CancellationToken cancellationToken = default)
+        {
+            var result = await _client.SendSignedAsync(
+                BinanceEndpoints.CHECK_ALL_OPEN_ORDERS,
+                HttpMethod.Get,
+                query: query,
+                cancellationToken: cancellationToken);
+
+            return _converter.Deserialize<IEnumerable<CheckOrderResponseModel>>(result);
         }
 
         #endregion

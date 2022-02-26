@@ -21,7 +21,7 @@ namespace ExchangeLibraryTests.BinanceTests.EndpointSenders
     {
         #region Fields
 
-        private FullOrderResponseModel _expectedResponse = new FullOrderResponseModel
+        private FullOrderResponseModel _expectedResponse = new()
         {
             Symbol = "BTCUSDT",
             OrderId = 28,
@@ -79,6 +79,29 @@ namespace ExchangeLibraryTests.BinanceTests.EndpointSenders
                     TradeId = 60
                 },
             }
+        };
+
+        private CheckOrderResponseModel _expectedCheckOrderResponse = new()
+        {
+            Symbol = "LTCBTC",
+            ClientOrderId = "myOrder1",
+            OrderId = 1,
+            OrderListId = -1,
+            Price = 0.1,
+            OrigQty = 1.0,
+            ExecutedQty = 0.0,
+            CumulativeQuoteQty = 0.1,
+            Status = OrderStatusType.New,
+            TimeInForce = TimeInForceType.GTC,
+            OrderType = OrderType.Limit,
+            OrderSide = OrderSideType.Buy,
+            StopPrice = 0.001,
+            IcebergQty = 0.002,
+            TimeUnix = 1499827319559,
+            UpdateTimeUnix = 1499827319559,
+            IsWorking = true,
+            OrigQuoteOrderQty = 0.000300,
+
         };
 
         #endregion
@@ -281,24 +304,47 @@ namespace ExchangeLibraryTests.BinanceTests.EndpointSenders
             // Act
             var result = await tradeSender.CheckOrderAsync(query, cancellationToken: CancellationToken.None);
 
-            Assert.Equal("LTCBTC", result.Symbol);
-            Assert.Equal("myOrder1", result.ClientOrderId);
-            Assert.Equal(1, result.OrderId);
-            Assert.Equal(-1, result.OrderListId);
-            Assert.Equal(0.1, result.Price);
-            Assert.Equal(1.0, result.OrigQty);
-            Assert.Equal(0.0, result.ExecutedQty);
-            Assert.Equal(0.1, result.CumulativeQuoteQty);
-            Assert.Equal(OrderStatusType.New, result.Status);
-            Assert.Equal(TimeInForceType.GTC, result.TimeInForce);
-            Assert.Equal(OrderType.Limit, result.OrderType);
-            Assert.Equal(OrderSideType.Buy, result.OrderSide);
-            Assert.Equal(0.001, result.StopPrice);
-            Assert.Equal(0.002, result.IcebergQty);
-            Assert.Equal(1499827319559, result.TimeUnix);
-            Assert.Equal(1499827319559, result.UpdateTimeUnix);
-            Assert.True(result.IsWorking);
-            Assert.Equal(0.000300, result.OrigQuoteOrderQty);
+            var properties = typeof(CheckOrderResponseModel).GetProperties();
+            for (var i = 0; i < properties.Length; i++)
+            {
+                Assert.Equal(properties[i].GetValue(_expectedCheckOrderResponse), properties[i].GetValue(result));
+            }
+        }
+
+        /// <summary>
+        ///     Тест запроса состояния всех открытых оредров (или по опред паре)
+        /// </summary>
+        [Fact(DisplayName = "Request to check all open orders Test")]
+        public async Task CheckAllOpenOrdersAsyncTest()
+        {
+            var filePath = "../../../BinanceTests/Jsons/SpotAccountTrade/CheckAllOpenOrdersResponse.json";
+            var builder = new Builder();
+            builder.SetSymbol("LTCBTC");
+            builder.SetRecvWindow(5000);
+            var query = builder.GetResult().GetQuery();
+            var url = CreateSignUrl(BinanceEndpoints.CHECK_ALL_OPEN_ORDERS, query, "apiSecretKey");
+
+            using var client = TestHelper.CreateMockHttpClient(url, filePath);
+            IBinanceClient binanceClient = new BinanceClient(client, "", "apiSecretKey");
+            ISpotAccountTradeSender tradeSender = new SpotAccountTradeSender(binanceClient);
+
+            // Act
+            var result = (await tradeSender.CheckAllOpenOrdersAsync(query, cancellationToken: CancellationToken.None)).ToList();
+
+            var properties = typeof(CheckOrderResponseModel).GetProperties();
+            Assert.Equal(2, result.Count);
+            for (var j = 0; j < 2; j++)
+            {
+                for (var i = 0; i < properties.Length; i++)
+                {
+                    Assert.Equal(properties[i].GetValue(_expectedCheckOrderResponse), properties[i].GetValue(result[j]));
+                }
+
+                // изменение данных тут, чтобы не плодить объекты
+                _expectedCheckOrderResponse.ClientOrderId = "1";
+                _expectedCheckOrderResponse.OrigQuoteOrderQty = 15;
+                _expectedCheckOrderResponse.Symbol = "asd";
+            }
         }
 
         #endregion
