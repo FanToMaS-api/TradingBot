@@ -34,5 +34,10 @@ namespace ExchangeLibrary.Binance.EndpointSenders
         ///     Проверить текущее состояние ордера
         /// </summary>
         Task<CheckOrderResponseModel> CheckOrderAsync(Dictionary<string, object> query, CancellationToken cancellationToken = default);
+
+        /// <summary>
+        ///     Проверить статус всех открытых ордеров (или всех ордеров по конкретному символу)
+        /// </summary>
+        Task<IEnumerable<CheckOrderResponseModel>> CheckAllOpenOrdersAsync(Dictionary<string, object> query, CancellationToken cancellationToken = default);
     }
 }

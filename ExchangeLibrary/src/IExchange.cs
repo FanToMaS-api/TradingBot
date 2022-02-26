@@ -294,6 +294,15 @@ namespace ExchangeLibrary
             long recvWindow = 5000,
             CancellationToken cancellationToken = default);
 
+        /// <summary>
+        ///     Проверить сосотояние всех открытов ордеров (или ордеров по паре)
+        /// </summary>
+        /// <param name="symbol"> Возможно null </param>
+        Task<string> CheckAllOpenOrdersAsync(
+            string symbol,
+            long recvWindow = 5000,
+            CancellationToken cancellationToken = default);
+
         #endregion
     }
 }

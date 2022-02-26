@@ -826,6 +826,35 @@ namespace TraidingBot.Exchanges.Binance
             return "TODO";
         }
 
+        /// <inheritdoc />
+        public async Task<string> CheckAllOpenOrdersAsync(
+            string symbol,
+            long recvWindow = 5000,
+            CancellationToken cancellationToken = default)
+        {
+            var requestWeight = _requestsWeightStorage.CheckAllOpenOrdersWeight;
+            if (CheckLimit(requestWeight.Type, out var rateLimit))
+            {
+                throw new TooManyRequestsException(rateLimit.Expiration, rateLimit.Value, rateLimit.Key);
+            }
+
+            var builder = new Builder();
+            builder.SetRecvWindow(recvWindow);
+            var isSymbolOmitted = string.IsNullOrEmpty(symbol);
+            if (!isSymbolOmitted)
+            {
+                builder.SetSymbol(symbol);
+            }
+
+            var query = builder.GetResult().GetQuery();
+            var result = await _tradeSender.CheckAllOpenOrdersAsync(query, cancellationToken);
+
+            var key = isSymbolOmitted ? "null" : RequestWeightModel.GetDefaultKey();
+            IncrementCallsMade(requestWeight, key);
+
+            return "TODO";
+        }
+
         #endregion
 
         #region Private methods
