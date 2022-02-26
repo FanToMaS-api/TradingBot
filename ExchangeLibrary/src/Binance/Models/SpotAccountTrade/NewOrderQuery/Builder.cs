@@ -33,9 +33,9 @@ namespace ExchangeLibrary.Binance.Models
         public void Reset() => _newQueryModel = new OrderQueryModel();
 
         /// <inheritdoc />
-        public void SetPrice(double? price)
+        public void SetPrice(double price)
         {
-            if (price is null || price <= 0)
+            if (price <= 0)
             {
                 Log.Warn($"Failed to set price with value={price}");
 
@@ -43,13 +43,13 @@ namespace ExchangeLibrary.Binance.Models
             }
 
             _newQueryModel.Price.IsUse = true;
-            _newQueryModel.Price.ValueStr = price.Value.ToString();
+            _newQueryModel.Price.ValueStr = price.ToString();
         }
 
         /// <inheritdoc />
-        public void SetQuantity(double? quantity)
+        public void SetQuantity(double quantity)
         {
-            if (quantity is null || quantity <= 0)
+            if (quantity <= 0)
             {
                 Log.Warn($"Failed to set quantity with value={quantity}");
 
@@ -57,13 +57,13 @@ namespace ExchangeLibrary.Binance.Models
             }
 
             _newQueryModel.Quantity.IsUse = true;
-            _newQueryModel.Quantity.ValueStr = quantity.Value.ToString();
+            _newQueryModel.Quantity.ValueStr = quantity.ToString();
         }
 
         /// <inheritdoc />
-        public void SetOrderId(long? orderId)
+        public void SetOrderId(long orderId)
         {
-            if (orderId is null || orderId <= 0)
+            if (orderId <= 0)
             {
                 Log.Warn($"Failed to set orderId with value={orderId}");
 
@@ -71,13 +71,13 @@ namespace ExchangeLibrary.Binance.Models
             }
 
             _newQueryModel.OrderId.IsUse = true;
-            _newQueryModel.OrderId.ValueStr = orderId.Value.ToString();
+            _newQueryModel.OrderId.ValueStr = orderId.ToString();
         }
 
         /// <inheritdoc />
-        public void SetStartTime(long? startTime)
+        public void SetStartTime(long startTime)
         {
-            if (startTime is null || startTime <= 0)
+            if (startTime <= 0)
             {
                 Log.Warn($"Failed to set startTime with value={startTime}");
 
@@ -85,7 +85,7 @@ namespace ExchangeLibrary.Binance.Models
             }
 
             _newQueryModel.StartTime.IsUse = true;
-            _newQueryModel.StartTime.ValueStr = startTime.Value.ToString();
+            _newQueryModel.StartTime.ValueStr = startTime.ToString();
         }
 
         /// <inheritdoc />
@@ -106,9 +106,9 @@ namespace ExchangeLibrary.Binance.Models
         }
 
         /// <inheritdoc />
-        public void SetEndTime(long? endTime)
+        public void SetEndTime(long endTime)
         {
-            if (endTime is null || endTime <= 0 || !_newQueryModel.StartTime.IsUse)
+            if (endTime <= 0 || !_newQueryModel.StartTime.IsUse)
             {
                 Log.Warn($"Failed to set endTime with value={endTime}");
 
@@ -116,13 +116,13 @@ namespace ExchangeLibrary.Binance.Models
             }
 
             _newQueryModel.EndTime.IsUse = true;
-            _newQueryModel.EndTime.ValueStr = endTime.Value.ToString();
+            _newQueryModel.EndTime.ValueStr = endTime.ToString();
         }
 
         /// <inheritdoc />
-        public void SetLimit(int? limit)
+        public void SetLimit(int limit)
         {
-            if (limit is null || limit <= 0)
+            if (limit <= 0)
             {
                 Log.Warn($"Failed to set limit with value={limit}");
 
@@ -130,13 +130,13 @@ namespace ExchangeLibrary.Binance.Models
             }
 
             _newQueryModel.Limit.IsUse = true;
-            _newQueryModel.Limit.ValueStr = limit.Value.ToString();
+            _newQueryModel.Limit.ValueStr = limit.ToString();
         }
 
         /// <inheritdoc />
-        public void SetFromId(long? fromId)
+        public void SetFromId(long fromId)
         {
-            if (fromId is null || fromId <= 0)
+            if (fromId <= 0)
             {
                 Log.Warn($"Failed to set fromId with value={fromId}");
 
@@ -144,7 +144,7 @@ namespace ExchangeLibrary.Binance.Models
             }
 
             _newQueryModel.FromId.IsUse = true;
-            _newQueryModel.FromId.ValueStr = fromId.Value.ToString();
+            _newQueryModel.FromId.ValueStr = fromId.ToString();
         }
 
         /// <inheritdoc />
@@ -162,9 +162,9 @@ namespace ExchangeLibrary.Binance.Models
         }
 
         /// <inheritdoc />
-        public void SetIcebergQuantity(double? icebergQty)
+        public void SetIcebergQuantity(double icebergQty)
         {
-            if (icebergQty is null || icebergQty <= 0 || !_newQueryModel.IcebergQty.CanSet)
+            if (icebergQty <= 0 || !_newQueryModel.IcebergQty.CanSet)
             {
                 Log.Warn($"Failed to set icebergQty with value={icebergQty}");
 
@@ -172,7 +172,7 @@ namespace ExchangeLibrary.Binance.Models
             }
 
             _newQueryModel.IcebergQty.IsUse = true;
-            _newQueryModel.IcebergQty.ValueStr = icebergQty.Value.ToString();
+            _newQueryModel.IcebergQty.ValueStr = icebergQty.ToString();
 
             SetTimeInForce(TimeInForceType.GTC);
             _newQueryModel.TimeInForce.CanSet = false;
@@ -252,9 +252,9 @@ namespace ExchangeLibrary.Binance.Models
         }
 
         /// <inheritdoc />
-        public void SetStopPrice(double? stopPrice)
+        public void SetStopPrice(double stopPrice)
         {
-            if (stopPrice is null || stopPrice <= 0 || !_newQueryModel.StopPrice.CanSet)
+            if (stopPrice <= 0 || !_newQueryModel.StopPrice.CanSet)
             {
                 Log.Warn($"Failed to set stop price with value={stopPrice}");
 
@@ -262,7 +262,7 @@ namespace ExchangeLibrary.Binance.Models
             }
 
             _newQueryModel.StopPrice.IsUse = true;
-            _newQueryModel.StopPrice.ValueStr = stopPrice.Value.ToString();
+            _newQueryModel.StopPrice.ValueStr = stopPrice.ToString();
         }
 
         /// <inheritdoc />

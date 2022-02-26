@@ -31,7 +31,6 @@ namespace ExchangeLibraryTests.BinanceTests.EndpointSenders
             Price = 0.00000001,
             OrigQty = 10.00000000,
             ExecutedQty = 10.1,
-            OrigClientOrderId = null,
             CumulativeQuoteQty = 10.2,
             Status = OrderStatusType.Filled,
             TimeInForce = TimeInForceType.GTC,
@@ -93,22 +92,15 @@ namespace ExchangeLibraryTests.BinanceTests.EndpointSenders
         public async Task SendNewTestOrderAsyncTest()
         {
             var filePath = "../../../BinanceTests/Jsons/SpotAccountTrade/NewOrderResponse.json";
-            var urlSb = new StringBuilder();
-            var query = new Dictionary<string, object>
-            {
-                { "recvWindow", 5000 },
-                { "timeStamp", 5789 },
-                { "symbol", "ARPABNB" },
-                { "t", "1m" },
-            };
-
-            BinanceUrlHelper.BuildQueryString(query, urlSb);
-            var signature = BinanceUrlHelper.Sign(urlSb.ToString(), "");
-            urlSb.Append($"&signature={signature}");
-            var requestUrl = $"https://api.binance.com{BinanceEndpoints.NEW_TEST_ORDER}?{urlSb}";
+            var builder = new Builder();
+            builder.SetSymbol("ARPABNB");
+            builder.SetRecvWindow(5000);
+            builder.SetCandlestickInterval("1m");
+            var query = builder.GetResult().GetQuery();
+            var requestUrl = CreateSignUrl(BinanceEndpoints.NEW_TEST_ORDER, query, "apiSecretKey");
 
             using var client = TestHelper.CreateMockHttpClient(requestUrl, filePath);
-            IBinanceClient binanceClient = new BinanceClient(client, "", "");
+            IBinanceClient binanceClient = new BinanceClient(client, "", "apiSecretKey");
             ISpotAccountTradeSender tradeSender = new SpotAccountTradeSender(binanceClient);
 
             // Act
@@ -144,19 +136,12 @@ namespace ExchangeLibraryTests.BinanceTests.EndpointSenders
         public async Task SendNewOrderAsyncTest()
         {
             var filePath = "../../../BinanceTests/Jsons/SpotAccountTrade/NewOrderResponse.json";
-            var urlSb = new StringBuilder();
-            var query = new Dictionary<string, object>
-            {
-                { "recvWindow", 5000 },
-                { "timeStamp", 5789 },
-                { "symbol", "ARPABNB" },
-                { "t", "1m" },
-            };
-
-            BinanceUrlHelper.BuildQueryString(query, urlSb);
-            var signature = BinanceUrlHelper.Sign(urlSb.ToString(), "apiSecretKey");
-            urlSb.Append($"&signature={signature}");
-            var requestUrl = $"https://api.binance.com{BinanceEndpoints.NEW_ORDER}?{urlSb}";
+            var builder = new Builder();
+            builder.SetSymbol("ARPABNB");
+            builder.SetRecvWindow(5000);
+            builder.SetCandlestickInterval("1m");
+            var query = builder.GetResult().GetQuery();
+            var requestUrl = CreateSignUrl(BinanceEndpoints.NEW_ORDER, query, "apiSecretKey");
 
             using var client = TestHelper.CreateMockHttpClient(requestUrl, filePath);
             IBinanceClient binanceClient = new BinanceClient(client, "", "apiSecretKey");
@@ -195,19 +180,12 @@ namespace ExchangeLibraryTests.BinanceTests.EndpointSenders
         public async Task CancelOrderAsyncTest()
         {
             var filePath = "../../../BinanceTests/Jsons/SpotAccountTrade/CancelOrderResponse.json";
-            var urlSb = new StringBuilder();
-            var query = new Dictionary<string, object>
-            {
-                { "recvWindow", 5000 },
-                { "timeStamp", 5789 },
-                { "symbol", "LTCBTC" },
-                { "orderId", "4" },
-            };
-
-            BinanceUrlHelper.BuildQueryString(query, urlSb);
-            var signature = BinanceUrlHelper.Sign(urlSb.ToString(), "apiSecretKey");
-            urlSb.Append($"&signature={signature}");
-            var requestUrl = $"https://api.binance.com{BinanceEndpoints.CANCEL_ORDER}?{urlSb}";
+            var builder = new Builder();
+            builder.SetSymbol("LTCBTC");
+            builder.SetRecvWindow(5000);
+            builder.SetOrderId(4);
+            var query = builder.GetResult().GetQuery();
+            var requestUrl = CreateSignUrl(BinanceEndpoints.CANCEL_ORDER, query, "apiSecretKey");
 
             using var client = TestHelper.CreateMockHttpClient(requestUrl, filePath);
             IBinanceClient binanceClient = new BinanceClient(client, "", "apiSecretKey");
@@ -238,19 +216,12 @@ namespace ExchangeLibraryTests.BinanceTests.EndpointSenders
         public async Task CancelAllOrdersAsyncTest()
         {
             var filePath = "../../../BinanceTests/Jsons/SpotAccountTrade/CancelAllOrdersResponse.json";
-            var urlSb = new StringBuilder();
-            var query = new Dictionary<string, object>
-            {
-                { "recvWindow", 5000 },
-                { "timeStamp", 5789 },
-                { "symbol", "LTCBTC" },
-                { "orderId", "4" },
-            };
-
-            BinanceUrlHelper.BuildQueryString(query, urlSb);
-            var signature = BinanceUrlHelper.Sign(urlSb.ToString(), "apiSecretKey");
-            urlSb.Append($"&signature={signature}");
-            var requestUrl = $"https://api.binance.com{BinanceEndpoints.CANCEL_All_ORDERS}?{urlSb}";
+            var builder = new Builder();
+            builder.SetSymbol("LTCBTC");
+            builder.SetRecvWindow(5000);
+            builder.SetOrderId(4);
+            var query = builder.GetResult().GetQuery();
+            var requestUrl = CreateSignUrl(BinanceEndpoints.CANCEL_All_ORDERS, query, "apiSecretKey");
 
             using var client = TestHelper.CreateMockHttpClient(requestUrl, filePath);
             IBinanceClient binanceClient = new BinanceClient(client, "", "apiSecretKey");
@@ -258,7 +229,7 @@ namespace ExchangeLibraryTests.BinanceTests.EndpointSenders
 
             // Act
             var result = (await tradeSender.CancelAllOrdersAsync(query, cancellationToken: CancellationToken.None)).ToList();
-            
+
             Assert.Equal(2, result.Count);
             Assert.Equal("BTCUSDT", result[0].Symbol);
             Assert.Equal("E6APeyTJvkMvLMYMqu1KQ4", result[0].OrigClientOrderId);
@@ -287,6 +258,64 @@ namespace ExchangeLibraryTests.BinanceTests.EndpointSenders
             Assert.Equal(TimeInForceType.GTC, result[1].TimeInForce);
             Assert.Equal(OrderType.Market, result[1].OrderType);
             Assert.Equal(OrderSideType.Buy, result[1].OrderSide);
+        }
+
+        /// <summary>
+        ///     Тест запроса состояния ордера по паре
+        /// </summary>
+        [Fact(DisplayName = "Request to check the order Test")]
+        public async Task CheckOrderAsyncTest()
+        {
+            var filePath = "../../../BinanceTests/Jsons/SpotAccountTrade/CheckOrderResponse.json";
+            var builder = new Builder();
+            builder.SetSymbol("LTCBTC");
+            builder.SetRecvWindow(5000);
+            builder.SetOrderId(1);
+            var query = builder.GetResult().GetQuery();
+            var url = CreateSignUrl(BinanceEndpoints.CHECK_ORDER, query, "apiSecretKey");
+
+            using var client = TestHelper.CreateMockHttpClient(url, filePath);
+            IBinanceClient binanceClient = new BinanceClient(client, "", "apiSecretKey");
+            ISpotAccountTradeSender tradeSender = new SpotAccountTradeSender(binanceClient);
+
+            // Act
+            var result = await tradeSender.CheckOrderAsync(query, cancellationToken: CancellationToken.None);
+
+            Assert.Equal("LTCBTC", result.Symbol);
+            Assert.Equal("myOrder1", result.ClientOrderId);
+            Assert.Equal(1, result.OrderId);
+            Assert.Equal(-1, result.OrderListId);
+            Assert.Equal(0.1, result.Price);
+            Assert.Equal(1.0, result.OrigQty);
+            Assert.Equal(0.0, result.ExecutedQty);
+            Assert.Equal(0.1, result.CumulativeQuoteQty);
+            Assert.Equal(OrderStatusType.New, result.Status);
+            Assert.Equal(TimeInForceType.GTC, result.TimeInForce);
+            Assert.Equal(OrderType.Limit, result.OrderType);
+            Assert.Equal(OrderSideType.Buy, result.OrderSide);
+            Assert.Equal(0.001, result.StopPrice);
+            Assert.Equal(0.002, result.IcebergQty);
+            Assert.Equal(1499827319559, result.TimeUnix);
+            Assert.Equal(1499827319559, result.UpdateTimeUnix);
+            Assert.True(result.IsWorking);
+            Assert.Equal(0.000300, result.OrigQuoteOrderQty);
+        }
+
+        #endregion
+
+        #region Private methods
+
+        /// <summary>
+        ///     Создает подписанный Url-запрос
+        /// </summary>
+        private string CreateSignUrl(string endPoint, Dictionary<string, object> query, string apiSecretKey)
+        {
+            var urlSb = new StringBuilder();
+            BinanceUrlHelper.BuildQueryString(query, urlSb);
+            var signature = BinanceUrlHelper.Sign(urlSb.ToString(), apiSecretKey);
+            urlSb.Append($"&signature={signature}");
+
+            return $"https://api.binance.com{endPoint}?{urlSb}";
         }
 
         #endregion

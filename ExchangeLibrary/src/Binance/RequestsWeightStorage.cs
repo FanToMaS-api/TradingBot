@@ -167,6 +167,16 @@ namespace ExchangeLibrary.Binance
                 { RequestWeightModel.GetDefaultKey(), 1 }
             });
 
+        /// <summary>
+        ///     Вес запроса на проверку состояния ордера по паре
+        /// </summary>
+        public RequestWeightModel CheckOrderWeight { get; set; } = new RequestWeightModel(
+            Enums.ApiType.Api,
+            new()
+            {
+                { RequestWeightModel.GetDefaultKey(), 2 }
+            });
+
         #endregion
     }
 }

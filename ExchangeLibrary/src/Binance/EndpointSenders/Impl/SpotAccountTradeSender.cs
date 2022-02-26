@@ -29,7 +29,9 @@ namespace ExchangeLibrary.Binance.EndpointSenders.Impl
             _client = client;
             _converter = new JsonDeserializerWrapper();
             _converter.AddConverter(new FullOrderResponseModelConverter());
-            _converter.AddConverter(new EnumerableDeserializer<FullOrderResponseModel>());
+            _converter.AddConverter(new CancelOrderResponseModelConverter());
+            _converter.AddConverter(new CheckOrderResponseModelConverter());
+            _converter.AddConverter(new EnumerableDeserializer<CancelOrderResponseModel>());
         }
 
         #endregion
@@ -61,7 +63,7 @@ namespace ExchangeLibrary.Binance.EndpointSenders.Impl
         }
 
         /// <inheritdoc />
-        public async Task<FullOrderResponseModel> CancelOrderAsync(Dictionary<string, object> query, CancellationToken cancellationToken = default)
+        public async Task<CancelOrderResponseModel> CancelOrderAsync(Dictionary<string, object> query, CancellationToken cancellationToken = default)
         {
             var result = await _client.SendSignedAsync(
                 BinanceEndpoints.CANCEL_ORDER,
@@ -69,11 +71,11 @@ namespace ExchangeLibrary.Binance.EndpointSenders.Impl
                 query: query,
                 cancellationToken: cancellationToken);
 
-            return _converter.Deserialize<FullOrderResponseModel>(result);
+            return _converter.Deserialize<CancelOrderResponseModel>(result);
         }
 
         /// <inheritdoc />
-        public async Task<IEnumerable<FullOrderResponseModel>> CancelAllOrdersAsync(Dictionary<string, object> query, CancellationToken cancellationToken = default)
+        public async Task<IEnumerable<CancelOrderResponseModel>> CancelAllOrdersAsync(Dictionary<string, object> query, CancellationToken cancellationToken = default)
         {
             var result = await _client.SendSignedAsync(
                 BinanceEndpoints.CANCEL_All_ORDERS,
@@ -82,7 +84,19 @@ namespace ExchangeLibrary.Binance.EndpointSenders.Impl
                 cancellationToken: cancellationToken);
 
             // (TODO: OCO ордера не обрабатываются)
-            return _converter.Deserialize<IEnumerable<FullOrderResponseModel>>(result);
+            return _converter.Deserialize<IEnumerable<CancelOrderResponseModel>>(result);
+        }
+
+        /// <inheritdoc />
+        public async Task<CheckOrderResponseModel> CheckOrderAsync(Dictionary<string, object> query, CancellationToken cancellationToken = default)
+        {
+            var result = await _client.SendSignedAsync(
+                BinanceEndpoints.CHECK_ORDER,
+                HttpMethod.Delete,
+                query: query,
+                cancellationToken: cancellationToken);
+
+            return _converter.Deserialize<CheckOrderResponseModel>(result);
         }
 
         #endregion

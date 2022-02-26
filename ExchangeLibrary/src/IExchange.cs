@@ -284,6 +284,16 @@ namespace ExchangeLibrary
             long recvWindow = 5000,
             CancellationToken cancellationToken = default);
 
+        /// <summary>
+        ///     Проверить состояние ордера по паре
+        /// </summary>
+        Task<string> CheckOrderAsync(
+            string symbol,
+            long? orderId = null,
+            string origClientOrderId = null,
+            long recvWindow = 5000,
+            CancellationToken cancellationToken = default);
+
         #endregion
     }
 }

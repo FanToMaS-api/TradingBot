@@ -23,11 +23,16 @@ namespace ExchangeLibrary.Binance.EndpointSenders
         /// <summary>
         ///     Отменить ордер
         /// </summary>
-        Task<FullOrderResponseModel> CancelOrderAsync(Dictionary<string, object> query, CancellationToken cancellationToken = default);
+        Task<CancelOrderResponseModel> CancelOrderAsync(Dictionary<string, object> query, CancellationToken cancellationToken = default);
 
         /// <summary>
         ///     Отменить все ордера по определенной паре
         /// </summary>
-        Task<IEnumerable<FullOrderResponseModel>> CancelAllOrdersAsync(Dictionary<string, object> query, CancellationToken cancellationToken = default);
+        Task<IEnumerable<CancelOrderResponseModel>> CancelAllOrdersAsync(Dictionary<string, object> query, CancellationToken cancellationToken = default);
+
+        /// <summary>
+        ///     Проверить текущее состояние ордера
+        /// </summary>
+        Task<CheckOrderResponseModel> CheckOrderAsync(Dictionary<string, object> query, CancellationToken cancellationToken = default);
     }
 }

@@ -102,12 +102,13 @@ namespace ExchangeLibrary.Binance.Models
             var result = new List<CandlestickModel>();
             while (reader.Read())
             {
-                if (reader.TokenType == JsonTokenType.StartArray)
+                if (reader.TokenType != JsonTokenType.StartArray)
                 {
-                    var newCandleStick = CandlestickModel.Create(ref reader);
-
-                    result.Add(newCandleStick);
+                    continue;
                 }
+
+                var newCandleStick = CandlestickModel.Create(ref reader);
+                result.Add(newCandleStick);
             }
 
             return result;
