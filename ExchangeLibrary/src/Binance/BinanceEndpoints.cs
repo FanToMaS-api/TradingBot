@@ -102,6 +102,11 @@ namespace ExchangeLibrary.Binance
         /// </summary>
         public const string CANCEL_All_ORDERS = "/api/v3/openOrders";
 
+        /// <summary>
+        ///     Проверить статус оредар по символу <see cref="HttpMethod.Get"/>
+        /// </summary>
+        public const string CHECK_ORDER = "/api/v3/order";
+
         #endregion
     }
 }

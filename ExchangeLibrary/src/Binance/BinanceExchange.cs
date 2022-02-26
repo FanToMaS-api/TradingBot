@@ -243,8 +243,16 @@ namespace TraidingBot.Exchanges.Binance
             builder.SetSymbol(symbol);
             builder.SetLimit(limit);
             builder.SetCandlestickInterval(interval);
-            builder.SetStartTime(startTime);
-            builder.SetEndTime(endTime);
+            if (startTime.HasValue)
+            {
+                builder.SetStartTime(startTime.Value);
+            }
+
+            if (endTime.HasValue)
+            {
+                builder.SetEndTime(endTime.Value);
+            }
+
             var query = builder.GetResult().GetQuery();
             var result = await _marketdataSender.GetCandlestickAsync(query, cancellationToken);
 
@@ -747,9 +755,13 @@ namespace TraidingBot.Exchanges.Binance
 
             var builder = new Builder();
             builder.SetSymbol(symbol);
-            builder.SetOrderId(orderId);
             builder.SetOrigClientOrderId(origClientOrderId);
             builder.SetRecvWindow(recvWindow);
+            if (orderId.HasValue)
+            {
+                builder.SetOrderId(orderId.Value);
+            }
+
             var query = builder.GetResult().GetQuery();
 
             var result = await _tradeSender.CancelOrderAsync(query, cancellationToken);
@@ -777,6 +789,37 @@ namespace TraidingBot.Exchanges.Binance
             var query = builder.GetResult().GetQuery();
 
             var result = await _tradeSender.CancelAllOrdersAsync(query, cancellationToken);
+
+            IncrementCallsMade(requestWeight, RequestWeightModel.GetDefaultKey());
+
+            return "TODO";
+        }
+
+        /// <inheritdoc />
+        public async Task<string> CheckOrderAsync(
+            string symbol,
+            long? orderId = null,
+            string origClientOrderId = null,
+            long recvWindow = 5000,
+            CancellationToken cancellationToken = default)
+        {
+            var requestWeight = _requestsWeightStorage.CheckOrderWeight;
+            if (CheckLimit(requestWeight.Type, out var rateLimit))
+            {
+                throw new TooManyRequestsException(rateLimit.Expiration, rateLimit.Value, rateLimit.Key);
+            }
+
+            var builder = new Builder();
+            builder.SetSymbol(symbol);
+            builder.SetOrigClientOrderId(origClientOrderId);
+            builder.SetRecvWindow(recvWindow);
+            if (orderId.HasValue)
+            {
+                builder.SetOrderId(orderId.Value);
+            }
+
+            var query = builder.GetResult().GetQuery();
+            var result = await _tradeSender.CheckOrderAsync(query, cancellationToken);
 
             IncrementCallsMade(requestWeight, RequestWeightModel.GetDefaultKey());
 

@@ -20,22 +20,22 @@ namespace ExchangeLibrary.Binance.Models
         /// <summary>
         ///     Установить цену
         /// </summary>
-        void SetPrice(double? price);
+        void SetPrice(double price);
 
         /// <summary>
         ///     Установить кол-во
         /// </summary>
-        void SetQuantity(double? quantity);
+        void SetQuantity(double quantity);
 
         /// <summary>
         ///     Установить id ордера (для отмены)
         /// </summary>
-        void SetOrderId(long? orderId);
+        void SetOrderId(long orderId);
 
         /// <summary>
         ///     Установить время начала построения свечей (для выгрузки)
         /// </summary>
-        void SetStartTime(long? startTime);
+        void SetStartTime(long startTime);
 
         /// <summary>
         ///     Установить интервал свечи
@@ -50,17 +50,17 @@ namespace ExchangeLibrary.Binance.Models
         /// <summary>
         ///     Установить окончание периода построения свечей (для выгрузки)
         /// </summary>
-        void SetEndTime(long? endTime);
+        void SetEndTime(long endTime);
 
         /// <summary>
         ///     Установить глубину запроса (лимит выдачи данных)
         /// </summary>
-        void SetLimit(int? limit);
+        void SetLimit(int limit);
 
         /// <summary>
         ///     Установить нижнюю границу по id для выгрузки данных
         /// </summary>
-        void SetFromId(long? fromId);
+        void SetFromId(long fromId);
 
         /// <summary>
         ///     Установить Идентификатор заказа клиента
@@ -70,7 +70,7 @@ namespace ExchangeLibrary.Binance.Models
         /// <summary>
         ///     Установить стоп цену
         /// </summary>
-        void SetStopPrice(double? stopPrice);
+        void SetStopPrice(double stopPrice);
 
         /// <summary>
         ///     Установить тип ордера
@@ -95,7 +95,7 @@ namespace ExchangeLibrary.Binance.Models
         /// <summary>
         ///     Установить кол-во для айсберг-ордера
         /// </summary>
-        void SetIcebergQuantity(double? icebergQty);
+        void SetIcebergQuantity(double icebergQty);
 
         /// <summary>
         ///     Установить сколько ордер будет активен
