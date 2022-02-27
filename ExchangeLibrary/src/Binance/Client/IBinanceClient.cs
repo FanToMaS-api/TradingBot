@@ -8,7 +8,7 @@ namespace ExchangeLibrary.Binance.Client
     /// <summary>
     ///     Базовый клиент Binance для разделов REST API.
     /// </summary>
-    public interface IBinanceClient
+    internal interface IBinanceClient
     {
         /// <summary>
         ///     Отправить запрос без подписи

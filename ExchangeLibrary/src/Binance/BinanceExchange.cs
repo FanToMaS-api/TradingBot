@@ -1,5 +1,7 @@
 ﻿using AutoMapper;
 using Common.Enums;
+using Common.JsonConvertWrapper;
+using Common.JsonConvertWrapper.Converters;
 using Common.Models;
 using Common.Redis;
 using ExchangeLibrary;
@@ -9,8 +11,11 @@ using ExchangeLibrary.Binance.Client.Impl;
 using ExchangeLibrary.Binance.EndpointSenders;
 using ExchangeLibrary.Binance.EndpointSenders.Impl;
 using ExchangeLibrary.Binance.Enums;
+using ExchangeLibrary.Binance.Enums.Helper;
 using ExchangeLibrary.Binance.Exceptions;
 using ExchangeLibrary.Binance.Models;
+using ExchangeLibrary.Binance.WebSocket;
+using ExchangeLibrary.Binance.WebSocket.Marketdata;
 using NLog;
 using System;
 using System.Collections.Generic;
@@ -31,6 +36,7 @@ namespace TraidingBot.Exchanges.Binance
         private readonly IBinanceClient _client;
         private readonly IWalletSender _walletSender;
         private readonly IMarketdataSender _marketdataSender;
+        private readonly ISpotAccountTradeSender _tradeSender;
         private readonly IRedisDatabase _redisDatabase;
         private readonly IMapper _mapper;
         private readonly HttpClient _httpClient;
@@ -43,14 +49,29 @@ namespace TraidingBot.Exchanges.Binance
         #region .ctor
 
         /// <inheritdoc cref="BinanceExchange"/>
-        public BinanceExchange(string apiKey, string secretKey, IMapper mapper)
+        public BinanceExchange(BinanceExchangeOptions exchangeOptions)
         {
             _httpClient = new();
-            _mapper = mapper;
             _redisDatabase = new RedisDatabase();
-            _client = new BinanceClient(_httpClient, apiKey, secretKey);
+            _client = new BinanceClient(_httpClient, exchangeOptions.ApiKey, exchangeOptions.SecretKey);
             _walletSender = new WalletSender(_client);
             _marketdataSender = new MarketdataSender(_client);
+            _tradeSender = new SpotAccountTradeSender(_client);
+        }
+
+        /// <inheritdoc cref="BinanceExchange"/>
+        public BinanceExchange(
+            IWalletSender walletSender,
+            IMarketdataSender marketdataSender,
+            ISpotAccountTradeSender tradeSender,
+            IRedisDatabase redisDatabase,
+            IMapper mapper)
+        {
+            _redisDatabase = redisDatabase;
+            _walletSender = walletSender;
+            _marketdataSender = marketdataSender;
+            _tradeSender = tradeSender;
+            _mapper = mapper;
         }
 
         #endregion
@@ -82,7 +103,10 @@ namespace TraidingBot.Exchanges.Binance
                 throw new TooManyRequestsException(rateLimit.Expiration, rateLimit.Value, rateLimit.Key);
             }
 
-            var result = await _walletSender.GetAccountTraidingStatusAsync(recvWindow, cancellationToken);
+            var builder = new Builder();
+            builder.SetRecvWindow(recvWindow);
+            var query = builder.GetResult().GetQuery();
+            var result = await _walletSender.GetAccountTraidingStatusAsync(query, cancellationToken);
 
             IncrementCallsMade(requestWeight, RequestWeightModel.GetDefaultKey());
 
@@ -101,7 +125,11 @@ namespace TraidingBot.Exchanges.Binance
                 throw new TooManyRequestsException(rateLimit.Expiration, rateLimit.Value, rateLimit.Key);
             }
 
-            var result = await _walletSender.GetTradeFeeAsync(symbol, recvWindow, cancellationToken);
+            var builder = new Builder();
+            builder.SetSymbol(symbol);
+            builder.SetRecvWindow(recvWindow);
+            var query = builder.GetResult().GetQuery();
+            var result = await _walletSender.GetTradeFeeAsync(query, cancellationToken);
 
             IncrementCallsMade(requestWeight, RequestWeightModel.GetDefaultKey());
 
@@ -117,7 +145,10 @@ namespace TraidingBot.Exchanges.Binance
                 throw new TooManyRequestsException(rateLimit.Expiration, rateLimit.Value, rateLimit.Key);
             }
 
-            var result = await _walletSender.GetAllCoinsInformationAsync(recvWindow, cancellationToken);
+            var builder = new Builder();
+            builder.SetRecvWindow(recvWindow);
+            var query = builder.GetResult().GetQuery();
+            var result = await _walletSender.GetAllCoinsInformationAsync(query, cancellationToken);
 
             IncrementCallsMade(requestWeight, RequestWeightModel.GetDefaultKey());
 
@@ -137,7 +168,11 @@ namespace TraidingBot.Exchanges.Binance
                 throw new TooManyRequestsException(rateLimit.Expiration, rateLimit.Value, rateLimit.Key);
             }
 
-            var result = await _marketdataSender.GetOrderBookAsync(symbol, limit, cancellationToken);
+            var builder = new Builder();
+            builder.SetSymbol(symbol);
+            builder.SetLimit(limit);
+            var query = builder.GetResult().GetQuery();
+            var result = await _marketdataSender.GetOrderBookAsync(query, cancellationToken);
 
             IncrementCallsMade(requestWeight, limit.ToString());
 
@@ -153,7 +188,11 @@ namespace TraidingBot.Exchanges.Binance
                 throw new TooManyRequestsException(rateLimit.Expiration, rateLimit.Value, rateLimit.Key);
             }
 
-            var result = await _marketdataSender.GetRecentTradesAsync(symbol, limit, cancellationToken);
+            var builder = new Builder();
+            builder.SetSymbol(symbol);
+            builder.SetLimit(limit);
+            var query = builder.GetResult().GetQuery();
+            var result = await _marketdataSender.GetRecentTradesAsync(query, cancellationToken);
 
             IncrementCallsMade(requestWeight, RequestWeightModel.GetDefaultKey());
 
@@ -173,7 +212,12 @@ namespace TraidingBot.Exchanges.Binance
                 throw new TooManyRequestsException(rateLimit.Expiration, rateLimit.Value, rateLimit.Key);
             }
 
-            var result = await _marketdataSender.GetOldTradesAsync(symbol, fromId, limit, cancellationToken);
+            var builder = new Builder();
+            builder.SetSymbol(symbol);
+            builder.SetLimit(limit);
+            builder.SetFromId(fromId);
+            var query = builder.GetResult().GetQuery();
+            var result = await _marketdataSender.GetOldTradesAsync(query, cancellationToken);
 
             IncrementCallsMade(requestWeight, RequestWeightModel.GetDefaultKey());
 
@@ -181,9 +225,9 @@ namespace TraidingBot.Exchanges.Binance
         }
 
         /// <inheritdoc />
-        public async Task<string> GetCandleStickAsync(
+        public async Task<string> GetCandlstickAsync(
             string symbol,
-            CandleStickIntervalType interval,
+            string interval,
             long? startTime = null,
             long? endTime = null,
             int limit = 500,
@@ -195,7 +239,22 @@ namespace TraidingBot.Exchanges.Binance
                 throw new TooManyRequestsException(rateLimit.Expiration, rateLimit.Value, rateLimit.Key);
             }
 
-            var result = await _marketdataSender.GetCandleStickAsync(symbol, interval, startTime, endTime, limit, cancellationToken);
+            var builder = new Builder();
+            builder.SetSymbol(symbol);
+            builder.SetLimit(limit);
+            builder.SetCandlestickInterval(interval);
+            if (startTime.HasValue)
+            {
+                builder.SetStartTime(startTime.Value);
+            }
+
+            if (endTime.HasValue)
+            {
+                builder.SetEndTime(endTime.Value);
+            }
+
+            var query = builder.GetResult().GetQuery();
+            var result = await _marketdataSender.GetCandlestickAsync(query, cancellationToken);
 
             IncrementCallsMade(requestWeight, RequestWeightModel.GetDefaultKey());
 
@@ -210,8 +269,10 @@ namespace TraidingBot.Exchanges.Binance
             {
                 throw new TooManyRequestsException(rateLimit.Expiration, rateLimit.Value, rateLimit.Key);
             }
-
-            var result = await _marketdataSender.GetAveragePriceAsync(symbol, cancellationToken);
+            var builder = new Builder();
+            builder.SetSymbol(symbol);
+            var query = builder.GetResult().GetQuery();
+            var result = await _marketdataSender.GetAveragePriceAsync(query, cancellationToken);
 
             IncrementCallsMade(requestWeight, RequestWeightModel.GetDefaultKey());
 
@@ -271,6 +332,582 @@ namespace TraidingBot.Exchanges.Binance
 
         #endregion
 
+        #region Marketdata Streams
+
+        /// <inheritdoc />
+        public async Task SubscribeNewStreamAsync<T>(
+            string symbol,
+            Func<T, Task> onMessageReceivedFunc,
+            string stream,
+            CancellationToken cancellationToken = default)
+        {
+            var streamType = stream.ConvertToMarketdataStreamType();
+            var webSoket = new MarketdataWebSocket(symbol, streamType);
+            webSoket.OnClosed += OnCloseHandler;
+            var converter = new JsonDeserializerWrapper();
+
+            webSoket.AddOnMessageReceivedFunc(
+               content =>
+               {
+                   IMarketdataStreamModel model = streamType switch
+                   {
+                       MarketdataStreamType.AggregateTradeStream => converter.Deserialize<AggregateSymbolTradeStreamModel>(content),
+                       MarketdataStreamType.IndividualSymbolBookTickerStream => converter.Deserialize<BookTickerStreamModel>(content),
+                       MarketdataStreamType.IndividualSymbolMiniTickerStream => converter.Deserialize<MiniTickerStreamModel>(content),
+                       MarketdataStreamType.TradeStream => converter.Deserialize<SymbolTradeStreamModel>(content),
+                       MarketdataStreamType.IndividualSymbolTickerStream => converter.Deserialize<TickerStreamModel>(content),
+                       _ => throw new InvalidOperationException($"Unknow Marketdata Stream Type {streamType}. " +
+                       "Failed to deserialize content")
+                   };
+
+                   var neededModel = _mapper.Map<T>(model);
+                   onMessageReceivedFunc?.Invoke(neededModel);
+                   return Task.CompletedTask;
+               },
+               cancellationToken);
+
+            await webSoket.ConnectAsync(cancellationToken);
+        }
+
+        /// <inheritdoc />
+        public async Task SubscribeCandlestickStreamAsync<T>(
+            string symbol,
+            string candleStickInterval,
+            Func<T, Task> onMessageReceivedFunc,
+            CancellationToken cancellationToken = default)
+        {
+            var interval = candleStickInterval.ConvertToCandleStickIntervalType();
+            var webSoket = MarketdataWebSocket.CreateCandlestickStream(symbol, interval);
+            webSoket.OnClosed += OnCloseHandler;
+            var converter = new JsonDeserializerWrapper();
+
+            webSoket.AddOnMessageReceivedFunc(
+               content =>
+               {
+                   var model = converter.Deserialize<CandlestickStreamModel>(content);
+                   var neededModel = _mapper.Map<T>(model);
+                   onMessageReceivedFunc?.Invoke(neededModel);
+                   return Task.CompletedTask;
+               },
+               cancellationToken);
+
+            await webSoket.ConnectAsync(cancellationToken);
+        }
+
+        /// <inheritdoc />
+        public async Task SubscribeAllMarketTickersStreamAsync<T>(
+            Func<T, Task> onMessageReceivedFunc,
+            CancellationToken cancellationToken = default)
+        {
+            var webSoket = MarketdataWebSocket.CreateAllMarketMiniTickersStream();
+            webSoket.OnClosed += OnCloseHandler;
+            var converter = new JsonDeserializerWrapper();
+            converter.AddConverter(new EnumerableDeserializer<TickerStreamModel>());
+
+            webSoket.AddOnMessageReceivedFunc(
+               content =>
+               {
+                   var model = converter.Deserialize<IEnumerable<TickerStreamModel>>(content);
+                   var neededModel = _mapper.Map<T>(model);
+                   onMessageReceivedFunc?.Invoke(neededModel);
+                   return Task.CompletedTask;
+               },
+               cancellationToken);
+
+            await webSoket.ConnectAsync(cancellationToken);
+        }
+
+        /// <inheritdoc />
+        public async Task SubscribeAllBookTickersStreamAsync<T>(
+            Func<T, Task> onMessageReceivedFunc,
+            CancellationToken cancellationToken = default)
+        {
+            var webSoket = MarketdataWebSocket.CreateAllBookTickersStream();
+            webSoket.OnClosed += OnCloseHandler;
+            var converter = new JsonDeserializerWrapper();
+            converter.AddConverter(new EnumerableDeserializer<BookTickerStreamModel>());
+
+            webSoket.AddOnMessageReceivedFunc(
+               content =>
+               {
+                   var model = converter.Deserialize<IEnumerable<BookTickerStreamModel>>(content);
+                   var neededModel = _mapper.Map<T>(model);
+                   onMessageReceivedFunc?.Invoke(neededModel);
+                   return Task.CompletedTask;
+               },
+               cancellationToken);
+
+            await webSoket.ConnectAsync(cancellationToken);
+        }
+
+        /// <inheritdoc />
+        public async Task SubscribeAllMarketMiniTickersStreamAsync<T>(
+            Func<T, Task> onMessageReceivedFunc,
+            CancellationToken cancellationToken = default)
+        {
+            var webSoket = MarketdataWebSocket.CreateAllMarketMiniTickersStream();
+            webSoket.OnClosed += OnCloseHandler;
+            var converter = new JsonDeserializerWrapper();
+            converter.AddConverter(new EnumerableDeserializer<MiniTickerStreamModel>());
+
+            webSoket.AddOnMessageReceivedFunc(
+               content =>
+               {
+                   var model = converter.Deserialize<IEnumerable<MiniTickerStreamModel>>(content);
+                   var neededModel = _mapper.Map<T>(model);
+                   onMessageReceivedFunc?.Invoke(neededModel);
+                   return Task.CompletedTask;
+               },
+               cancellationToken);
+
+            await webSoket.ConnectAsync(cancellationToken);
+        }
+
+        /// <inheritdoc />
+        public async Task SubscribePartialBookDepthStreamAsync<T>(
+            string symbol,
+            Func<T, Task> onMessageReceivedFunc,
+            int levels = 10,
+            bool activateFastReceive = false,
+            CancellationToken cancellationToken = default)
+        {
+            var webSoket = MarketdataWebSocket.CreatePartialBookDepthStream(symbol, levels, activateFastReceive);
+            webSoket.OnClosed += OnCloseHandler;
+            var converter = new JsonDeserializerWrapper();
+            converter.AddConverter(new OrderBookModelConverter());
+
+            webSoket.AddOnMessageReceivedFunc(
+               content =>
+               {
+                   var model = converter.Deserialize<OrderBookModel>(content);
+                   var neededModel = _mapper.Map<T>(model);
+                   onMessageReceivedFunc?.Invoke(neededModel);
+                   return Task.CompletedTask;
+               },
+               cancellationToken);
+
+            await webSoket.ConnectAsync(cancellationToken);
+        }
+
+        #endregion
+
+        #region Spot Account/Trade
+
+        /// <inheritdoc />
+        public async Task<string> CreateNewLimitOrderAsync(
+            string symbol,
+            string sideType,
+            string forceType,
+            double price,
+            double quantity,
+            long recvWindow = 5000,
+            bool isTest = true,
+            CancellationToken cancellationToken = default)
+        {
+            var requestWeight = _requestsWeightStorage.NewOrderWeight;
+            if (CheckLimit(requestWeight.Type, out var rateLimit))
+            {
+                throw new TooManyRequestsException(rateLimit.Expiration, rateLimit.Value, rateLimit.Key);
+            }
+
+            var builder = new Builder();
+            builder.SetOrderType(OrderType.Limit);
+            builder.SetOrderSideType(sideType);
+            builder.SetSymbol(symbol);
+            builder.SetTimeInForce(forceType);
+            builder.SetPrice(price);
+            builder.SetQuantity(quantity);
+            builder.SetRecvWindow(recvWindow);
+            var query = builder.GetResult().GetQuery();
+
+            var result = isTest
+                ? await _tradeSender.SendNewTestOrderAsync(query, cancellationToken)
+                : await _tradeSender.SendNewOrderAsync(query, cancellationToken);
+
+            IncrementCallsMade(requestWeight, RequestWeightModel.GetDefaultKey());
+
+            return "TODO";
+        }
+
+        /// <inheritdoc />
+        public async Task<string> CreateNewMarketOrderAsync(
+            string symbol,
+            string sideType,
+            double quantity,
+            long recvWindow = 5000,
+            bool isTest = true,
+            CancellationToken cancellationToken = default)
+        {
+            var requestWeight = _requestsWeightStorage.NewOrderWeight;
+            if (CheckLimit(requestWeight.Type, out var rateLimit))
+            {
+                throw new TooManyRequestsException(rateLimit.Expiration, rateLimit.Value, rateLimit.Key);
+            }
+
+            var builder = new Builder();
+            builder.SetOrderType(OrderType.Market);
+            builder.SetOrderSideType(sideType);
+            builder.SetSymbol(symbol);
+            builder.SetQuantity(quantity);
+            builder.SetRecvWindow(recvWindow);
+            var query = builder.GetResult().GetQuery();
+
+            var result = isTest
+                ? await _tradeSender.SendNewTestOrderAsync(query, cancellationToken)
+                : await _tradeSender.SendNewOrderAsync(query, cancellationToken);
+
+            IncrementCallsMade(requestWeight, RequestWeightModel.GetDefaultKey());
+
+            return "TODO";
+        }
+
+        /// <inheritdoc />
+        public async Task<string> CreateNewStopLossOrderAsync(
+            string symbol,
+            string sideType,
+            double quantity,
+            double stopPrice,
+            long recvWindow = 5000,
+            bool isTest = true,
+            CancellationToken cancellationToken = default)
+        {
+            var requestWeight = _requestsWeightStorage.NewOrderWeight;
+            if (CheckLimit(requestWeight.Type, out var rateLimit))
+            {
+                throw new TooManyRequestsException(rateLimit.Expiration, rateLimit.Value, rateLimit.Key);
+            }
+
+            var builder = new Builder();
+            builder.SetOrderType(OrderType.StopLoss);
+            builder.SetOrderSideType(sideType);
+            builder.SetSymbol(symbol);
+            builder.SetStopPrice(stopPrice);
+            builder.SetQuantity(quantity);
+            builder.SetRecvWindow(recvWindow);
+            var query = builder.GetResult().GetQuery();
+
+            var result = isTest
+                ? await _tradeSender.SendNewTestOrderAsync(query, cancellationToken)
+                : await _tradeSender.SendNewOrderAsync(query, cancellationToken);
+
+            IncrementCallsMade(requestWeight, RequestWeightModel.GetDefaultKey());
+
+            return "TODO";
+        }
+
+        /// <inheritdoc />
+        public async Task<string> CreateNewStopLossLimitOrderAsync(
+            string symbol,
+            string sideType,
+            string forceType,
+            double price,
+            double quantity,
+            double stopPrice,
+            long recvWindow = 5000,
+            bool isTest = true,
+            CancellationToken cancellationToken = default)
+        {
+            var requestWeight = _requestsWeightStorage.NewOrderWeight;
+            if (CheckLimit(requestWeight.Type, out var rateLimit))
+            {
+                throw new TooManyRequestsException(rateLimit.Expiration, rateLimit.Value, rateLimit.Key);
+            }
+
+            var builder = new Builder();
+            builder.SetOrderType(OrderType.StopLossLimit);
+            builder.SetOrderSideType(sideType);
+            builder.SetSymbol(symbol);
+            builder.SetTimeInForce(forceType);
+            builder.SetPrice(price);
+            builder.SetQuantity(quantity);
+            builder.SetStopPrice(stopPrice);
+            builder.SetRecvWindow(recvWindow);
+            var query = builder.GetResult().GetQuery();
+
+            var result = isTest
+                ? await _tradeSender.SendNewTestOrderAsync(query, cancellationToken)
+                : await _tradeSender.SendNewOrderAsync(query, cancellationToken);
+
+            IncrementCallsMade(requestWeight, RequestWeightModel.GetDefaultKey());
+
+            return "TODO";
+        }
+
+        /// <inheritdoc />
+        public async Task<string> CreateNewTakeProfitOrderAsync(
+            string symbol,
+            string sideType,
+            double quantity,
+            double stopPrice,
+            long recvWindow = 5000,
+            bool isTest = true,
+            CancellationToken cancellationToken = default)
+        {
+            var requestWeight = _requestsWeightStorage.NewOrderWeight;
+            if (CheckLimit(requestWeight.Type, out var rateLimit))
+            {
+                throw new TooManyRequestsException(rateLimit.Expiration, rateLimit.Value, rateLimit.Key);
+            }
+
+            var builder = new Builder();
+            builder.SetOrderType(OrderType.TakeProfit);
+            builder.SetOrderSideType(sideType);
+            builder.SetSymbol(symbol);
+            builder.SetQuantity(quantity);
+            builder.SetStopPrice(stopPrice);
+            builder.SetRecvWindow(recvWindow);
+            var query = builder.GetResult().GetQuery();
+
+            var result = isTest
+                ? await _tradeSender.SendNewTestOrderAsync(query, cancellationToken)
+                : await _tradeSender.SendNewOrderAsync(query, cancellationToken);
+
+            IncrementCallsMade(requestWeight, RequestWeightModel.GetDefaultKey());
+
+            return "TODO";
+        }
+
+        /// <inheritdoc />
+        public async Task<string> CreateNewTakeProfitLimitOrderAsync(
+            string symbol,
+            string sideType,
+            string forceType,
+            double price,
+            double quantity,
+            double stopPrice,
+            long recvWindow = 5000,
+            bool isTest = true,
+            CancellationToken cancellationToken = default)
+        {
+            var requestWeight = _requestsWeightStorage.NewOrderWeight;
+            if (CheckLimit(requestWeight.Type, out var rateLimit))
+            {
+                throw new TooManyRequestsException(rateLimit.Expiration, rateLimit.Value, rateLimit.Key);
+            }
+
+            var builder = new Builder();
+            builder.SetOrderType(OrderType.TakeProfitLimit);
+            builder.SetOrderSideType(sideType);
+            builder.SetSymbol(symbol);
+            builder.SetTimeInForce(forceType);
+            builder.SetPrice(price);
+            builder.SetQuantity(quantity);
+            builder.SetStopPrice(stopPrice);
+            builder.SetRecvWindow(recvWindow);
+            var query = builder.GetResult().GetQuery();
+
+            var result = isTest
+                ? await _tradeSender.SendNewTestOrderAsync(query, cancellationToken)
+                : await _tradeSender.SendNewOrderAsync(query, cancellationToken);
+
+            IncrementCallsMade(requestWeight, RequestWeightModel.GetDefaultKey());
+
+            return "TODO";
+        }
+
+        /// <inheritdoc />
+        public async Task<string> CreateNewLimitMakerOrderAsync(
+            string symbol,
+            string sideType,
+            double price,
+            double quantity,
+            long recvWindow = 5000,
+            bool isTest = true,
+            CancellationToken cancellationToken = default)
+        {
+            var requestWeight = _requestsWeightStorage.NewOrderWeight;
+            if (CheckLimit(requestWeight.Type, out var rateLimit))
+            {
+                throw new TooManyRequestsException(rateLimit.Expiration, rateLimit.Value, rateLimit.Key);
+            }
+
+            var builder = new Builder();
+            builder.SetOrderType(OrderType.LimitMaker);
+            builder.SetOrderSideType(sideType);
+            builder.SetSymbol(symbol);
+            builder.SetPrice(price);
+            builder.SetQuantity(quantity);
+            builder.SetRecvWindow(recvWindow);
+            var query = builder.GetResult().GetQuery();
+
+            var result = isTest
+                ? await _tradeSender.SendNewTestOrderAsync(query, cancellationToken)
+                : await _tradeSender.SendNewOrderAsync(query, cancellationToken);
+
+            IncrementCallsMade(requestWeight, RequestWeightModel.GetDefaultKey());
+
+            return "TODO";
+        }
+
+        /// <inheritdoc />
+        public async Task<string> CancelOrderAsync(
+            string symbol,
+            long? orderId = null,
+            string origClientOrderId = null,
+            long recvWindow = 5000,
+            CancellationToken cancellationToken = default)
+        {
+            var requestWeight = _requestsWeightStorage.CancelOrderWeight;
+            if (CheckLimit(requestWeight.Type, out var rateLimit))
+            {
+                throw new TooManyRequestsException(rateLimit.Expiration, rateLimit.Value, rateLimit.Key);
+            }
+
+            var builder = new Builder();
+            builder.SetSymbol(symbol);
+            builder.SetRecvWindow(recvWindow);
+            if (orderId.HasValue)
+            {
+                builder.SetOrderId(orderId.Value);
+            }
+
+            if (!string.IsNullOrEmpty(origClientOrderId))
+            {
+                builder.SetOrigClientOrderId(origClientOrderId);
+            }
+
+            var query = builder.GetResult().GetQuery();
+
+            var result = await _tradeSender.CancelOrderAsync(query, cancellationToken);
+
+            IncrementCallsMade(requestWeight, RequestWeightModel.GetDefaultKey());
+
+            return "TODO";
+        }
+
+        /// <inheritdoc />
+        public async Task<string> CancelAllOrdersAsync(
+            string symbol,
+            long recvWindow = 5000,
+            CancellationToken cancellationToken = default)
+        {
+            var requestWeight = _requestsWeightStorage.CancelOrderWeight;
+            if (CheckLimit(requestWeight.Type, out var rateLimit))
+            {
+                throw new TooManyRequestsException(rateLimit.Expiration, rateLimit.Value, rateLimit.Key);
+            }
+
+            var builder = new Builder();
+            builder.SetSymbol(symbol);
+            builder.SetRecvWindow(recvWindow);
+            var query = builder.GetResult().GetQuery();
+
+            var result = await _tradeSender.CancelAllOrdersAsync(query, cancellationToken);
+
+            IncrementCallsMade(requestWeight, RequestWeightModel.GetDefaultKey());
+
+            return "TODO";
+        }
+
+        /// <inheritdoc />
+        public async Task<string> CheckOrderAsync(
+            string symbol,
+            long? orderId = null,
+            string origClientOrderId = null,
+            long recvWindow = 5000,
+            CancellationToken cancellationToken = default)
+        {
+            var requestWeight = _requestsWeightStorage.CheckOrderWeight;
+            if (CheckLimit(requestWeight.Type, out var rateLimit))
+            {
+                throw new TooManyRequestsException(rateLimit.Expiration, rateLimit.Value, rateLimit.Key);
+            }
+
+            var builder = new Builder();
+            builder.SetSymbol(symbol);
+            builder.SetRecvWindow(recvWindow);
+            if (orderId.HasValue)
+            {
+                builder.SetOrderId(orderId.Value);
+            }
+
+            if (!string.IsNullOrEmpty(origClientOrderId))
+            {
+                builder.SetOrigClientOrderId(origClientOrderId);
+            }
+
+            var query = builder.GetResult().GetQuery();
+            var result = await _tradeSender.CheckOrderAsync(query, cancellationToken);
+
+            IncrementCallsMade(requestWeight, RequestWeightModel.GetDefaultKey());
+
+            return "TODO";
+        }
+
+        /// <inheritdoc />
+        public async Task<string> CheckAllOpenOrdersAsync(
+            string symbol,
+            long recvWindow = 5000,
+            CancellationToken cancellationToken = default)
+        {
+            var requestWeight = _requestsWeightStorage.CheckAllOpenOrdersWeight;
+            if (CheckLimit(requestWeight.Type, out var rateLimit))
+            {
+                throw new TooManyRequestsException(rateLimit.Expiration, rateLimit.Value, rateLimit.Key);
+            }
+
+            var builder = new Builder();
+            builder.SetRecvWindow(recvWindow);
+            var isSymbolOmitted = string.IsNullOrEmpty(symbol);
+            if (!isSymbolOmitted)
+            {
+                builder.SetSymbol(symbol);
+            }
+
+            var query = builder.GetResult().GetQuery();
+            var result = await _tradeSender.CheckAllOpenOrdersAsync(query, cancellationToken);
+
+            var key = isSymbolOmitted ? "null" : RequestWeightModel.GetDefaultKey();
+            IncrementCallsMade(requestWeight, key);
+
+            return "TODO";
+        }
+
+        /// <inheritdoc />
+        public async Task<string> GetAllOrdersAsync(
+            string symbol,
+            long? orderId = null,
+            long? startTime = null,
+            long? endTime = null,
+            int limit = 500,
+            long recvWindow = 5000,
+            CancellationToken cancellationToken = default)
+        {
+            var requestWeight = _requestsWeightStorage.AllOrdersWeight;
+            if (CheckLimit(requestWeight.Type, out var rateLimit))
+            {
+                throw new TooManyRequestsException(rateLimit.Expiration, rateLimit.Value, rateLimit.Key);
+            }
+
+            var builder = new Builder();
+            builder.SetSymbol(symbol);
+            builder.SetRecvWindow(recvWindow);
+            builder.SetLimit(limit);
+            if (orderId.HasValue)
+            {
+                builder.SetOrderId(orderId.Value);
+            }
+
+            if (startTime.HasValue)
+            {
+                builder.SetStartTime(startTime.Value);
+            }
+
+            if (endTime.HasValue)
+            {
+                builder.SetEndTime(endTime.Value);
+            }
+
+            var query = builder.GetResult().GetQuery();
+            var result = await _tradeSender.GetAllOrdersAsync(query, cancellationToken);
+
+            IncrementCallsMade(requestWeight, RequestWeightModel.GetDefaultKey());
+
+            return "TODO";
+        }
+
+        #endregion
+
         #region Private methods
 
         /// <summary>
@@ -318,6 +955,16 @@ namespace TraidingBot.Exchanges.Binance
             }
 
             throw new KeyNotFoundException($"Key '{weightParamKey}' not found.");
+        }
+
+        /// <summary>
+        ///     Обработчик закрытия стрима
+        /// </summary>
+        private Task OnCloseHandler(BinanceWebSocket webSocket, CancellationToken cancellationToken = default)
+        {
+            _logger.Error($"{webSocket} was closed");
+            webSocket.Dispose();
+            return Task.CompletedTask;
         }
 
         #endregion

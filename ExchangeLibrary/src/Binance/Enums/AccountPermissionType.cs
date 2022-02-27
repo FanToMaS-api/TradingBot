@@ -3,7 +3,7 @@
     /// <summary>
     ///     Разрешения аккаунта и смвола
     /// </summary>
-    public enum AccountPermissionType
+    internal enum AccountPermissionType
     {
         /// <summary>
         ///     TODO: найти документацию

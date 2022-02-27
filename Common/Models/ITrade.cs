@@ -10,12 +10,12 @@
         /// <summary>
         ///     Название объекта торговли
         /// </summary>
-        public string Name { get; set; }
+        public string Name { get; }
 
         /// <summary>
         ///     Цена за единицу
         /// </summary>
-        public double Price { get; set; }
+        public double Price { get; }
 
         #endregion
     }

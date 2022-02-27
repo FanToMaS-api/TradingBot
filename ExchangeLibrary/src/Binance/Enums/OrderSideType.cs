@@ -1,18 +1,18 @@
 ﻿namespace ExchangeLibrary.Binance.Enums
 {
     /// <summary>
-    ///     Сторона заказа
+    ///     Тип ордера (купить, продать)
     /// </summary>
-    public enum OrderSideType
+    internal enum OrderSideType
     {
         /// <summary>
         ///     Купить
         /// </summary>
-        BUY,
+        Buy,
 
         /// <summary>
         ///     Продать
         /// </summary>
-        SELL
+        Sell
     }
 }
