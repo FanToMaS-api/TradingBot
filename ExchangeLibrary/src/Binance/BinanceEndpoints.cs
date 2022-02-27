@@ -1,7 +1,9 @@
-﻿namespace ExchangeLibrary.Binance
+﻿using System.Net.Http;
+
+namespace ExchangeLibrary.Binance
 {
     /// <summary>
-    ///     Сожаржит все конечные точки Binance
+    ///     Содержит все конечные точки Binance
     /// </summary>
     public static class BinanceEndpoints
     {
@@ -75,6 +77,45 @@
         ///     Лучшая цена/количество в стакане для символа или символов
         /// </summary>
         public const string SYMBOL_ORDER_BOOK_TICKER = "/api/v3/ticker/bookTicker";
+
+        #endregion
+
+        #region Spot Account/Trade
+
+        /// <summary>
+        ///     Отправить новый ТЕСТОВЫЙ ордер <see cref="HttpMethod.Post"/>
+        /// </summary>
+        public const string NEW_TEST_ORDER = "/api/v3/order/test";
+
+        /// <summary>
+        ///     Отправить новый ордер <see cref="HttpMethod.Post"/>
+        /// </summary>
+        public const string NEW_ORDER = "/api/v3/order";
+
+        /// <summary>
+        ///     Отменить ордер по опред паре <see cref="HttpMethod.Delete"/>
+        /// </summary>
+        public const string CANCEL_ORDER = "/api/v3/order";
+
+        /// <summary>
+        ///     Отменить все ордера по опред паре <see cref="HttpMethod.Delete"/>
+        /// </summary>
+        public const string CANCEL_All_ORDERS = "/api/v3/openOrders";
+
+        /// <summary>
+        ///     Проверить статус ордера по символу <see cref="HttpMethod.Get"/>
+        /// </summary>
+        public const string CHECK_ORDER = "/api/v3/order";
+
+        /// <summary>
+        ///     Проверить статус всех открытых ордеров (или по символу) <see cref="HttpMethod.Get"/>
+        /// </summary>
+        public const string CHECK_ALL_OPEN_ORDERS = "/api/v3/openOrders";
+
+        /// <summary>
+        ///     Получить все ордеры аккаунта (активные, отмененные или заполненные) по паре <see cref="HttpMethod.Get"/>
+        /// </summary>
+        public const string GET_ALL_ORDERS = "/api/v3/allOrders";
 
         #endregion
     }

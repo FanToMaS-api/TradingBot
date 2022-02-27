@@ -6,7 +6,7 @@
     /// <remarks>
     ///     Используются, когда некоторые из них недоступны
     /// </remarks>
-    public enum ApiVersionType
+    internal enum ApiVersionType
     {
         /// <summary>
         ///     https://api.binance.com

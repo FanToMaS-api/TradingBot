@@ -7,7 +7,7 @@ namespace ExchangeLibrary.Binance
     /// </summary>
     internal class RequestsWeightStorage
     {
-        #region Wallet's requests weight
+        #region Wallet's requests weights
 
         /// <summary>
         ///     Вес запроса статуса системы
@@ -51,7 +51,7 @@ namespace ExchangeLibrary.Binance
 
         #endregion
 
-        #region Marketdata requests weight
+        #region Marketdata requests weights
 
         /// <summary>
         ///     Вес запроса книги ордеров
@@ -141,6 +141,61 @@ namespace ExchangeLibrary.Binance
             {
                 { RequestWeightModel.GetDefaultKey(), 1 },
                 { "null", 2 },
+            });
+
+        #endregion
+
+        #region Spot Account/Trade weights
+
+        /// <summary>
+        ///     Вес запроса на создание нового ордера (включая тестовый)
+        /// </summary>
+        public RequestWeightModel NewOrderWeight { get; set; } = new RequestWeightModel(
+            Enums.ApiType.Api,
+            new()
+            {
+                { RequestWeightModel.GetDefaultKey(), 1 }
+            });
+
+        /// <summary>
+        ///     Вес запроса на отмену активного ордера по паре (включая отмену всех оредров по паре)
+        /// </summary>
+        public RequestWeightModel CancelOrderWeight { get; set; } = new RequestWeightModel(
+            Enums.ApiType.Api,
+            new()
+            {
+                { RequestWeightModel.GetDefaultKey(), 1 }
+            });
+
+        /// <summary>
+        ///     Вес запроса на проверку состояния ордера по паре
+        /// </summary>
+        public RequestWeightModel CheckOrderWeight { get; set; } = new RequestWeightModel(
+            Enums.ApiType.Api,
+            new()
+            {
+                { RequestWeightModel.GetDefaultKey(), 2 }
+            });
+
+        /// <summary>
+        ///     Вес запроса на проверку состояния всех открытых ордеров или только по паре
+        /// </summary>
+        public RequestWeightModel CheckAllOpenOrdersWeight { get; set; } = new RequestWeightModel(
+            Enums.ApiType.Api,
+            new()
+            {
+                { RequestWeightModel.GetDefaultKey(), 3 },
+                { "null", 40 }
+            });
+
+        /// <summary>
+        ///     Вес запроса на получение всех ордеров аккаунта по паре
+        /// </summary>
+        public RequestWeightModel AllOrdersWeight { get; set; } = new RequestWeightModel(
+            Enums.ApiType.Api,
+            new()
+            {
+                { RequestWeightModel.GetDefaultKey(), 10 }
             });
 
         #endregion

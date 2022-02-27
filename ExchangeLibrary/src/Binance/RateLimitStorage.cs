@@ -1,6 +1,5 @@
 ﻿using Common.Enums;
 using Common.Models;
-using ExchangeLibrary.Binance.Models;
 using System;
 
 namespace ExchangeLibrary.Binance

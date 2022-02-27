@@ -1,6 +1,6 @@
-﻿using ExchangeLibrary.Binance.Client;
-using ExchangeLibrary.Binance.DTOs.Wallet;
-using Newtonsoft.Json;
+﻿using Common.JsonConvertWrapper;
+using ExchangeLibrary.Binance.Client;
+using ExchangeLibrary.Binance.Models;
 using NLog;
 using System;
 using System.Collections.Generic;
@@ -35,75 +35,61 @@ namespace ExchangeLibrary.Binance.EndpointSenders.Impl
         #region Public methods
 
         /// <inheritdoc />
-        public async Task<SystemStatusDto> GetSystemStatusAsync(CancellationToken cancellationToken = default)
+        public async Task<SystemStatusModel> GetSystemStatusAsync(CancellationToken cancellationToken = default)
         {
             var result = await _client.SendPublicAsync(
                  BinanceEndpoints.SYSTEM_STATUS,
                  HttpMethod.Get,
                  cancellationToken: cancellationToken);
 
-            return JsonConvert.DeserializeObject<SystemStatusDto>(result);
+            var converter = new JsonDeserializerWrapper();
+            return converter.Deserialize<SystemStatusModel>(result);
         }
 
         /// <inheritdoc />
-        public async Task<AccountTraidingStatusDto> GetAccountTraidingStatusAsync(
-            long recvWindow = 5000,
+        public async Task<AccountTraidingStatusModel> GetAccountTraidingStatusAsync(
+            Dictionary<string, object> query,
             CancellationToken cancellationToken = default)
         {
             var result = await _client.SendSignedAsync(
                 BinanceEndpoints.ACCOUNT_API_TRADING_STATUS,
                 HttpMethod.Get,
-                query: new Dictionary<string, object>
-                {
-                    { "recvWindow", recvWindow },
-                    { "timestamp", DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() },
-                },
+                query: query,
                 cancellationToken: cancellationToken);
 
-            return JsonConvert.DeserializeObject<AccountTraidingStatusDto>(result);
+            var converter = new JsonDeserializerWrapper();
+            return converter.Deserialize<AccountTraidingStatusModel>(result);
         }
 
         /// <inheritdoc />
-        public async Task<IEnumerable<TradeFeeDto>> GetTradeFeeAsync(
-            string symbol = null,
-            long recvWindow = 5000,
+        public async Task<IEnumerable<TradeFeeModel>> GetTradeFeeAsync(
+            Dictionary<string, object> query,
             CancellationToken cancellationToken = default)
         {
-            var parameters = new Dictionary<string, object>();
-            if (!string.IsNullOrEmpty(symbol))
-            {
-                parameters["symbol"] = symbol;
-            }
-
-            parameters["recvWindow"] = recvWindow;
-            parameters["timestamp"] = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
             var result = await _client.SendSignedAsync(
                 BinanceEndpoints.TRADE_FEE,
                 HttpMethod.Get,
-                query: parameters,
+                query: query,
                 cancellationToken: cancellationToken);
 
-            return JsonConvert.DeserializeObject<IEnumerable<TradeFeeDto>>(result);
+            var converter = new JsonDeserializerWrapper();
+            return converter.Deserialize<IEnumerable<TradeFeeModel>>(result);
         }
 
         /// <inheritdoc />
-        public async Task<IEnumerable<CoinDto>> GetAllCoinsInformationAsync(
-            long recvWindow = 5000,
+        public async Task<IEnumerable<CoinModel>> GetAllCoinsInformationAsync(
+            Dictionary<string, object> query,
             CancellationToken cancellationToken = default)
         {
             var result = await _client.SendSignedAsync(
                  BinanceEndpoints.ALL_COINS_INFORMATION,
                  HttpMethod.Get,
-                 query: new Dictionary<string, object>
-                 {
-                    { "recvWindow", recvWindow },
-                    { "timestamp", DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() },
-                 },
+                 query: query,
                  cancellationToken: cancellationToken);
 
-            return JsonConvert.DeserializeObject<List<CoinDto>>(result);
+            var converter = new JsonDeserializerWrapper();
+            return converter.Deserialize<List<CoinModel>>(result);
         }
-
 
         #endregion
     }

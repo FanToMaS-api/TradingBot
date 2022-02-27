@@ -3,21 +3,21 @@
     /// <summary>
     ///    Тип ответа на ордер 
     /// </summary>
-    public enum OrderResponseType
+    internal enum OrderResponseType
     {
         /// <summary>
         ///     Подтверждение
         /// </summary>
-        ACK,
+        Ack,
 
         /// <summary>
         ///     Результат
         /// </summary>
-        RESULT,
+        Result,
 
         /// <summary>
         ///     Полный
         /// </summary>
-        FULL
+        Full
     }
 }

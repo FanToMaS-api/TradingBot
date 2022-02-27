@@ -8,7 +8,7 @@ namespace ExchangeLibrary.Binance.Models
     /// </summary>
     internal class RequestWeightModel
     {
-        private static string _defaultKey = "default";
+        private static readonly string _defaultKey = "default";
 
         #region .ctor
 
