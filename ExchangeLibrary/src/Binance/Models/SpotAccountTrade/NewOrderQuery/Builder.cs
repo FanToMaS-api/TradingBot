@@ -37,9 +37,7 @@ namespace ExchangeLibrary.Binance.Models
         {
             if (price <= 0)
             {
-                Log.Warn($"Failed to set price with value={price}");
-
-                return;
+                throw new Exception($"Failed to set price with value={price}");
             }
 
             _newQueryModel.Price.IsUse = true;
@@ -51,9 +49,7 @@ namespace ExchangeLibrary.Binance.Models
         {
             if (quantity <= 0)
             {
-                Log.Warn($"Failed to set quantity with value={quantity}");
-
-                return;
+                throw new Exception($"Failed to set quantity with value={quantity}");
             }
 
             _newQueryModel.Quantity.IsUse = true;
@@ -65,9 +61,7 @@ namespace ExchangeLibrary.Binance.Models
         {
             if (orderId <= 0)
             {
-                Log.Warn($"Failed to set orderId with value={orderId}");
-
-                return;
+                throw new Exception($"Failed to set orderId with value={orderId}");
             }
 
             _newQueryModel.OrderId.IsUse = true;
@@ -79,9 +73,7 @@ namespace ExchangeLibrary.Binance.Models
         {
             if (startTime <= 0)
             {
-                Log.Warn($"Failed to set startTime with value={startTime}");
-
-                return;
+                throw new Exception($"Failed to set startTime with value={startTime}");
             }
 
             _newQueryModel.StartTime.IsUse = true;
@@ -110,9 +102,7 @@ namespace ExchangeLibrary.Binance.Models
         {
             if (endTime <= 0 || !_newQueryModel.StartTime.IsUse)
             {
-                Log.Warn($"Failed to set endTime with value={endTime}");
-
-                return;
+                throw new Exception($"Failed to set endTime with value={endTime}");
             }
 
             _newQueryModel.EndTime.IsUse = true;
@@ -124,9 +114,7 @@ namespace ExchangeLibrary.Binance.Models
         {
             if (limit <= 0)
             {
-                Log.Warn($"Failed to set limit with value={limit}");
-
-                return;
+                throw new Exception($"Failed to set limit with value={limit}");
             }
 
             _newQueryModel.Limit.IsUse = true;
@@ -138,9 +126,7 @@ namespace ExchangeLibrary.Binance.Models
         {
             if (fromId <= 0)
             {
-                Log.Warn($"Failed to set fromId with value={fromId}");
-
-                return;
+                throw new Exception($"Failed to set fromId with value={fromId}");
             }
 
             _newQueryModel.FromId.IsUse = true;
@@ -150,13 +136,6 @@ namespace ExchangeLibrary.Binance.Models
         /// <inheritdoc />
         public void SetOrigClientOrderId(string origClientOrderId)
         {
-            if (string.IsNullOrEmpty(origClientOrderId))
-            {
-                Log.Warn($"Failed to set origClientOrderId with value={origClientOrderId}");
-
-                return;
-            }
-
             _newQueryModel.OrigClientOrderId.IsUse = true;
             _newQueryModel.OrigClientOrderId.ValueStr = origClientOrderId;
         }

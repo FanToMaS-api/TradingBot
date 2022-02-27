@@ -303,6 +303,23 @@ namespace ExchangeLibrary
             long recvWindow = 5000,
             CancellationToken cancellationToken = default);
 
+        /// <summary>
+        ///     Получить все ордера по паре
+        /// </summary>
+        /// <param name="symbol"></param>
+        /// <param name="orderId"> Будут возвращены ордера >= orderId </param>
+        /// <remarks>
+        ///     Если указаны startTime и/или endTime, orderId не требуется
+        /// </remarks>
+        Task<string> GetAllOrdersAsync(
+            string symbol,
+            long? orderId = null,
+            long? startTime = null,
+            long? endTime = null,
+            int limit = 500,
+            long recvWindow = 5000,
+            CancellationToken cancellationToken = default);
+
         #endregion
     }
 }
