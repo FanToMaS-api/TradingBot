@@ -188,6 +188,16 @@ namespace ExchangeLibrary.Binance
                 { "null", 40 }
             });
 
+        /// <summary>
+        ///     Вес запроса на получение всех ордеров аккаунта по паре
+        /// </summary>
+        public RequestWeightModel AllOrdersWeight { get; set; } = new RequestWeightModel(
+            Enums.ApiType.Api,
+            new()
+            {
+                { RequestWeightModel.GetDefaultKey(), 10 }
+            });
+
         #endregion
     }
 }

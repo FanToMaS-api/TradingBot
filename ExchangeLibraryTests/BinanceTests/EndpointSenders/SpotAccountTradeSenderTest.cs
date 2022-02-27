@@ -347,6 +347,43 @@ namespace ExchangeLibraryTests.BinanceTests.EndpointSenders
             }
         }
 
+        /// <summary>
+        ///     Тест запроса всех ордеров по паре
+        /// </summary>
+        [Fact(DisplayName = "Request to get all orders Test")]
+        public async Task GetAllOrdersAsyncTest()
+        {
+            var filePath = "../../../BinanceTests/Jsons/SpotAccountTrade/GetAllOrdersResponse.json";
+            var builder = new Builder();
+            builder.SetSymbol("LTCBTC");
+            builder.SetRecvWindow(5000);
+            var query = builder.GetResult().GetQuery();
+            var url = CreateSignUrl(BinanceEndpoints.GET_ALL_ORDERS, query, "apiSecretKey");
+
+            using var client = TestHelper.CreateMockHttpClient(url, filePath);
+            IBinanceClient binanceClient = new BinanceClient(client, "", "apiSecretKey");
+            ISpotAccountTradeSender tradeSender = new SpotAccountTradeSender(binanceClient);
+
+            // Act
+            var result = (await tradeSender.GetAllOrdersAsync(query, cancellationToken: CancellationToken.None)).ToList();
+
+            var properties = typeof(CheckOrderResponseModel).GetProperties();
+            Assert.Equal(2, result.Count);
+            for (var j = 0; j < 2; j++)
+            {
+                for (var i = 0; i < properties.Length; i++)
+                {
+                    Assert.Equal(properties[i].GetValue(_expectedCheckOrderResponse), properties[i].GetValue(result[j]));
+                }
+
+                // изменение данных тут, чтобы не плодить объекты
+                _expectedCheckOrderResponse.ClientOrderId = "1";
+                _expectedCheckOrderResponse.OrigQuoteOrderQty = 15;
+                _expectedCheckOrderResponse.Symbol = "asd";
+                _expectedCheckOrderResponse.Status = OrderStatusType.Filled;
+            }
+        }
+
         #endregion
 
         #region Private methods

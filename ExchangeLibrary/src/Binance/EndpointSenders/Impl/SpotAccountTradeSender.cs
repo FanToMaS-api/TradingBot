@@ -112,6 +112,18 @@ namespace ExchangeLibrary.Binance.EndpointSenders.Impl
             return _converter.Deserialize<IEnumerable<CheckOrderResponseModel>>(result);
         }
 
+        /// <inheritdoc />
+        public async Task<IEnumerable<CheckOrderResponseModel>> GetAllOrdersAsync(Dictionary<string, object> query, CancellationToken cancellationToken = default)
+        {
+            var result = await _client.SendSignedAsync(
+                BinanceEndpoints.GET_ALL_ORDERS,
+                HttpMethod.Get,
+                query: query,
+                cancellationToken: cancellationToken);
+
+            return _converter.Deserialize<IEnumerable<CheckOrderResponseModel>>(result);
+        }
+
         #endregion
     }
 }

@@ -755,11 +755,15 @@ namespace TraidingBot.Exchanges.Binance
 
             var builder = new Builder();
             builder.SetSymbol(symbol);
-            builder.SetOrigClientOrderId(origClientOrderId);
             builder.SetRecvWindow(recvWindow);
             if (orderId.HasValue)
             {
                 builder.SetOrderId(orderId.Value);
+            }
+
+            if (!string.IsNullOrEmpty(origClientOrderId))
+            {
+                builder.SetOrigClientOrderId(origClientOrderId);
             }
 
             var query = builder.GetResult().GetQuery();
@@ -811,11 +815,15 @@ namespace TraidingBot.Exchanges.Binance
 
             var builder = new Builder();
             builder.SetSymbol(symbol);
-            builder.SetOrigClientOrderId(origClientOrderId);
             builder.SetRecvWindow(recvWindow);
             if (orderId.HasValue)
             {
                 builder.SetOrderId(orderId.Value);
+            }
+
+            if (!string.IsNullOrEmpty(origClientOrderId))
+            {
+                builder.SetOrigClientOrderId(origClientOrderId);
             }
 
             var query = builder.GetResult().GetQuery();
@@ -851,6 +859,49 @@ namespace TraidingBot.Exchanges.Binance
 
             var key = isSymbolOmitted ? "null" : RequestWeightModel.GetDefaultKey();
             IncrementCallsMade(requestWeight, key);
+
+            return "TODO";
+        }
+
+        /// <inheritdoc />
+        public async Task<string> GetAllOrdersAsync(
+            string symbol,
+            long? orderId = null,
+            long? startTime = null,
+            long? endTime = null,
+            int limit = 500,
+            long recvWindow = 5000,
+            CancellationToken cancellationToken = default)
+        {
+            var requestWeight = _requestsWeightStorage.AllOrdersWeight;
+            if (CheckLimit(requestWeight.Type, out var rateLimit))
+            {
+                throw new TooManyRequestsException(rateLimit.Expiration, rateLimit.Value, rateLimit.Key);
+            }
+
+            var builder = new Builder();
+            builder.SetSymbol(symbol);
+            builder.SetRecvWindow(recvWindow);
+            builder.SetLimit(limit);
+            if (orderId.HasValue)
+            {
+                builder.SetOrderId(orderId.Value);
+            }
+
+            if (startTime.HasValue)
+            {
+                builder.SetStartTime(startTime.Value);
+            }
+
+            if (endTime.HasValue)
+            {
+                builder.SetEndTime(endTime.Value);
+            }
+
+            var query = builder.GetResult().GetQuery();
+            var result = await _tradeSender.GetAllOrdersAsync(query, cancellationToken);
+
+            IncrementCallsMade(requestWeight, RequestWeightModel.GetDefaultKey());
 
             return "TODO";
         }

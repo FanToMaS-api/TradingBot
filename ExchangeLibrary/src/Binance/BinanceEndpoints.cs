@@ -112,6 +112,11 @@ namespace ExchangeLibrary.Binance
         /// </summary>
         public const string CHECK_ALL_OPEN_ORDERS = "/api/v3/openOrders";
 
+        /// <summary>
+        ///     Получить все ордеры аккаунта (активные, отмененные или заполненные) по паре <see cref="HttpMethod.Get"/>
+        /// </summary>
+        public const string GET_ALL_ORDERS = "/api/v3/allOrders";
+
         #endregion
     }
 }
