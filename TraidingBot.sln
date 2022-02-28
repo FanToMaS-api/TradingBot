@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.32014.148
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TraidingBot", "TraidingBot\TraidingBot.csproj", "{E04F9BD9-1606-48A9-A798-004827517EE7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TradingBot", "TradingBot\TradingBot.csproj", "{E04F9BD9-1606-48A9-A798-004827517EE7}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TraidingBotTests", "TraidingBotTests\TraidingBotTests.csproj", "{6DD31040-F598-4DAC-B508-5F38CCACAE12}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TradingBotTests", "TradingBotTests\TradingBotTests.csproj", "{6DD31040-F598-4DAC-B508-5F38CCACAE12}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ExchangeLibrary", "ExchangeLibrary\ExchangeLibrary.csproj", "{4A83D430-2BDB-4F38-A020-3486C388CCCF}"
 EndProject

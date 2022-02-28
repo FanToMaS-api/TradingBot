@@ -9,9 +9,9 @@ using System;
 using System.Configuration;
 using System.Threading;
 using System.Threading.Tasks;
-using TraidingBot.Configuration;
+using TradingBot.Configuration;
 
-namespace TraidingBot
+namespace TradingBot
 {
     internal class Program
     {

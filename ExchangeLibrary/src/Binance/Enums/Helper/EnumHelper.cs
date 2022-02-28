@@ -104,6 +104,22 @@
             };
 
         /// <summary>
+        ///     Переводит тип ордера в формате бинанса в удобный для работы <see cref="SymbolStatusType"/>
+        /// </summary>
+        public static SymbolStatusType ConvertToSymbolStatusType(this string type) =>
+            type switch
+            {
+                "AUCTION_MATCH" => SymbolStatusType.AuctionMatch,
+                "BREAK" => SymbolStatusType.Break,
+                "END_OF_DAY" => SymbolStatusType.EndOfDay,
+                "HALT" => SymbolStatusType.Halt,
+                "POST_TRADING" => SymbolStatusType.PostTrading,
+                "PRE_TRADING" => SymbolStatusType.PreTrading,
+                "TRADING" => SymbolStatusType.Trading,
+                _ => throw new System.Exception($"Failed to convert '{type}' to {nameof(SymbolStatusType)}"),
+            };
+
+        /// <summary>
         ///     Возвращает конечную точку для указанной версии API
         /// </summary>
         public static string GetEndpoint(this ApiVersionType type)

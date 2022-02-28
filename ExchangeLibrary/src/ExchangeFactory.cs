@@ -1,5 +1,4 @@
 ﻿using ExchangeLibrary.Binance;
-using TraidingBot.Exchanges.Binance;
 
 namespace ExchangeLibrary
 {
@@ -15,7 +14,7 @@ namespace ExchangeLibrary
         {
             return exchangeType switch
             {
-                ExchangeType.Binance => new BinanceExchange((BinanceExchangeOptions)options), // TODO Mapper
+                ExchangeType.Binance => new BinanceExchange((BinanceExchangeOptions)options),
                 _ => throw new System.Exception("Unexpected Type")
             };
         }

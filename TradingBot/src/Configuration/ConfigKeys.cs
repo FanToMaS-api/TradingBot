@@ -1,4 +1,4 @@
-﻿namespace TraidingBot.Configuration
+﻿namespace TradingBot.Configuration
 {
     /// <summary>
     ///     Содержит ключи для получения настроек из файла конфигурации

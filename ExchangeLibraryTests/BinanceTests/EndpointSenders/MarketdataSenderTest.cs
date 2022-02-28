@@ -273,6 +273,47 @@ namespace ExchangeLibraryTests.BinanceTests.EndpointSenders
         #region Tests
 
         /// <summary>
+        ///     Тест запроса текущих правил биржевой торговли и информации о символах
+        /// </summary>
+        [Fact(DisplayName = "Requesting сurrent exchange trading rules and symbol information Test")]
+        public async Task GetExchangeInfoAsyncTest()
+        {
+            var filePath = "../../../BinanceTests/Jsons/Marketdata/EXCHANGE_INFO.json";
+
+            using var client = TestHelper.CreateMockHttpClient(BinanceEndpoints.EXCHANGE_INFO, filePath);
+            IBinanceClient binanceClient = new BinanceClient(client, "", "");
+            IMarketdataSender marketdataSender = new MarketdataSender(binanceClient);
+
+            // Act
+            var result = await marketdataSender.GetExchangeInfoAsync(null, cancellationToken: CancellationToken.None);
+
+            var expectedOrderTypes = new[]
+            {
+                OrderType.Limit,
+                OrderType.LimitMaker,
+                OrderType.Market,
+                OrderType.StopLoss,
+                OrderType.StopLossLimit,
+                OrderType.TakeProfit,
+                OrderType.TakeProfitLimit
+            };
+
+            Assert.Equal(2, result.Symbols.Count);
+            for (var i = 0; i < 2; i++)
+            {
+                Assert.Equal($"ETHBTC_{i}", result.Symbols[i].Symbol);
+                Assert.Equal(SymbolStatusType.Trading, result.Symbols[i].Status);
+                Assert.Equal("ETH", result.Symbols[i].BaseAsset);
+                Assert.Equal("BTC", result.Symbols[i].QuoteAsset);
+                Assert.Equal(i + 1, result.Symbols[i].BaseAssetPrecision);
+                Assert.Equal(i + 2, result.Symbols[i].QuotePrecision);
+                Assert.Equal(expectedOrderTypes, result.Symbols[i].OrderTypes);
+                Assert.True(result.Symbols[i].IsIcebergAllowed);
+                Assert.True(result.Symbols[i].IsOcoAllowed);
+            }
+        }
+
+        /// <summary>
         ///     Тест запроса списка ордеров для конкретной монеты
         /// </summary>
         [Fact(DisplayName = "Requesting a list of orders for a specific coin Test")]

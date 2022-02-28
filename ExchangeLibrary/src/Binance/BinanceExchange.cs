@@ -4,8 +4,6 @@ using Common.JsonConvertWrapper;
 using Common.JsonConvertWrapper.Converters;
 using Common.Models;
 using Common.Redis;
-using ExchangeLibrary;
-using ExchangeLibrary.Binance;
 using ExchangeLibrary.Binance.Client;
 using ExchangeLibrary.Binance.Client.Impl;
 using ExchangeLibrary.Binance.EndpointSenders;
@@ -23,7 +21,7 @@ using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace TraidingBot.Exchanges.Binance
+namespace ExchangeLibrary.Binance
 {
     /// <summary>
     ///     Binance биржа
@@ -79,7 +77,7 @@ namespace TraidingBot.Exchanges.Binance
         #region Wallet
 
         /// <inheritdoc />
-        public async Task<string> GetSystemStatusAsync(CancellationToken cancellationToken = default)
+        public async Task<bool> GetSystemStatusAsync(CancellationToken cancellationToken = default)
         {
             var requestWeight = _requestsWeightStorage.SistemStatusWeight;
             if (CheckLimit(requestWeight.Type, out var rateLimit))
@@ -91,11 +89,11 @@ namespace TraidingBot.Exchanges.Binance
 
             IncrementCallsMade(requestWeight, RequestWeightModel.GetDefaultKey());
 
-            return "TODO";
+            return result.Status == 0 && result.Message == "normal";
         }
 
         /// <inheritdoc />
-        public async Task<string> GetAccountTraidingStatusAsync(long recvWindow = 5000, CancellationToken cancellationToken = default)
+        public async Task<string> GetAccountTradingStatusAsync(long recvWindow = 5000, CancellationToken cancellationToken = default)
         {
             var requestWeight = _requestsWeightStorage.AccountStatusWeight;
             if (CheckLimit(requestWeight.Type, out var rateLimit))
@@ -106,7 +104,7 @@ namespace TraidingBot.Exchanges.Binance
             var builder = new Builder();
             builder.SetRecvWindow(recvWindow);
             var query = builder.GetResult().GetQuery();
-            var result = await _walletSender.GetAccountTraidingStatusAsync(query, cancellationToken);
+            var result = await _walletSender.GetAccountTradingStatusAsync(query, cancellationToken);
 
             IncrementCallsMade(requestWeight, RequestWeightModel.GetDefaultKey());
 
@@ -114,7 +112,7 @@ namespace TraidingBot.Exchanges.Binance
         }
 
         /// <inheritdoc />
-        public async Task<string> GetTradeFeeAsync(
+        public async Task<Common.Models.TradeFeeModel> GetTradeFeeAsync(
             string symbol = null,
             long recvWindow = 5000,
             CancellationToken cancellationToken = default)
@@ -133,11 +131,11 @@ namespace TraidingBot.Exchanges.Binance
 
             IncrementCallsMade(requestWeight, RequestWeightModel.GetDefaultKey());
 
-            return "TODO";
+            return _mapper.Map<Common.Models.TradeFeeModel>(result);
         }
 
         /// <inheritdoc />
-        public async Task<IEnumerable<ITrade>> GetAllCoinsInformationAsync(long recvWindow = 5000, CancellationToken cancellationToken = default)
+        public async Task<IEnumerable<string>> GetAllCoinsInformationAsync(long recvWindow = 5000, CancellationToken cancellationToken = default)
         {
             var requestWeight = _requestsWeightStorage.AllCoinsInfoWeight;
             if (CheckLimit(requestWeight.Type, out var rateLimit))
@@ -152,7 +150,7 @@ namespace TraidingBot.Exchanges.Binance
 
             IncrementCallsMade(requestWeight, RequestWeightModel.GetDefaultKey());
 
-            return _mapper.Map<IEnumerable<ITrade>>(result);
+            return new List<string> { "TODO" };
         }
 
         #endregion

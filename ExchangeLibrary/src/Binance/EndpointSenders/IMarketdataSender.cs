@@ -11,6 +11,11 @@ namespace ExchangeLibrary.Binance.EndpointSenders
     internal interface IMarketdataSender
     {
         /// <summary>
+        ///     Запрос текущих правил биржевой торговли и информации о символах
+        /// </summary>
+        Task<ExchangeInfoModel> GetExchangeInfoAsync(Dictionary<string, object> query, CancellationToken cancellationToken = default);
+
+        /// <summary>
         ///     Получить ордера из стакана по определенной монете
         /// </summary>
         /// <param name="symbol"> Наименование пары </param>

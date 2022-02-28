@@ -5,7 +5,7 @@ namespace ExchangeLibrary.Binance.Models
     /// <summary>
     ///    Модель трейдинг статуса аккаунта 
     /// </summary>
-    internal class AccountTraidingStatusModel
+    internal class AccountTradingStatusModel
     {
         #region Properties
 

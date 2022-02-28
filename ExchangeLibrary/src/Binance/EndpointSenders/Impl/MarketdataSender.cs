@@ -1,4 +1,5 @@
 ﻿using Common.JsonConvertWrapper;
+using Common.JsonConvertWrapper.Converters;
 using ExchangeLibrary.Binance.Client;
 using ExchangeLibrary.Binance.Models;
 using NLog;
@@ -14,6 +15,7 @@ namespace ExchangeLibrary.Binance.EndpointSenders.Impl
         #region Fields
 
         private readonly IBinanceClient _client;
+        private readonly JsonDeserializerWrapper _converter;
         private readonly ILogger _logger = LogManager.GetCurrentClassLogger();
 
         #endregion
@@ -24,11 +26,27 @@ namespace ExchangeLibrary.Binance.EndpointSenders.Impl
         public MarketdataSender(IBinanceClient client)
         {
             _client = client;
+            _converter = new JsonDeserializerWrapper();
+            _converter.AddConverter(new OrderBookModelConverter());
+            _converter.AddConverter(new CandleStickModelEnumerableConverter());
+            _converter.AddConverter(new ExchangeInfoModelConverter());;
         }
 
         #endregion
 
         #region Public methods
+
+        /// <inheritdoc />
+        public async Task<ExchangeInfoModel> GetExchangeInfoAsync(Dictionary<string, object> query, CancellationToken cancellationToken = default)
+        {
+            var result = await _client.SendPublicAsync(
+                BinanceEndpoints.EXCHANGE_INFO,
+                HttpMethod.Get,
+                query: query,
+                cancellationToken: cancellationToken);
+
+            return _converter.Deserialize<ExchangeInfoModel>(result);
+        }
 
         /// <inheritdoc />
         public async Task<OrderBookModel> GetOrderBookAsync(Dictionary<string, object> query, CancellationToken cancellationToken = default)
@@ -39,9 +57,7 @@ namespace ExchangeLibrary.Binance.EndpointSenders.Impl
                 query: query,
                 cancellationToken: cancellationToken);
 
-            var converter = new JsonDeserializerWrapper();
-            converter.AddConverter(new OrderBookModelConverter());
-            return converter.Deserialize<OrderBookModel>(result);
+            return _converter.Deserialize<OrderBookModel>(result);
         }
 
         /// <inheritdoc />
@@ -53,8 +69,7 @@ namespace ExchangeLibrary.Binance.EndpointSenders.Impl
                 query: query,
                 cancellationToken: cancellationToken);
 
-            var converter = new JsonDeserializerWrapper();
-            return converter.Deserialize<IEnumerable<RecentTradeModel>>(result);
+            return _converter.Deserialize<IEnumerable<RecentTradeModel>>(result);
         }
 
         /// <inheritdoc />
@@ -66,8 +81,7 @@ namespace ExchangeLibrary.Binance.EndpointSenders.Impl
                 query: query,
                 cancellationToken: cancellationToken);
 
-            var converter = new JsonDeserializerWrapper();
-            return converter.Deserialize<IEnumerable<RecentTradeModel>>(result);
+            return _converter.Deserialize<IEnumerable<RecentTradeModel>>(result);
         }
 
         /// <inheritdoc />
@@ -81,9 +95,7 @@ namespace ExchangeLibrary.Binance.EndpointSenders.Impl
                 query: query,
                 cancellationToken: cancellationToken);
 
-            var converter = new JsonDeserializerWrapper();
-            converter.AddConverter(new CandleStickModelEnumerableConverter());
-            return converter.Deserialize<IEnumerable<CandlestickModel>>(result);
+            return _converter.Deserialize<IEnumerable<CandlestickModel>>(result);
         }
 
         /// <inheritdoc />
@@ -95,8 +107,7 @@ namespace ExchangeLibrary.Binance.EndpointSenders.Impl
                 query: query,
                 cancellationToken: cancellationToken);
 
-            var converter = new JsonDeserializerWrapper();
-            return converter.Deserialize<AveragePriceModel>(result);
+            return _converter.Deserialize<AveragePriceModel>(result);
         }
 
         /// <inheritdoc />
@@ -112,18 +123,17 @@ namespace ExchangeLibrary.Binance.EndpointSenders.Impl
                 },
                 cancellationToken: cancellationToken);
 
-            var converter = new JsonDeserializerWrapper();
             if (!isNull)
             {
                 var result = new List<DayPriceChangeModel>
                 {
-                    converter.Deserialize<DayPriceChangeModel>(responce)
+                    _converter.Deserialize<DayPriceChangeModel>(responce)
                 };
 
                 return result;
             }
 
-            return converter.Deserialize<IEnumerable<DayPriceChangeModel>>(responce);
+            return _converter.Deserialize<IEnumerable<DayPriceChangeModel>>(responce);
         }
 
         /// <inheritdoc />
@@ -139,18 +149,17 @@ namespace ExchangeLibrary.Binance.EndpointSenders.Impl
                 },
                 cancellationToken: cancellationToken);
 
-            var converter = new JsonDeserializerWrapper();
             if (!isNull)
             {
                 var result = new List<SymbolPriceTickerModel>
                 {
-                    converter.Deserialize<SymbolPriceTickerModel>(responce)
+                    _converter.Deserialize<SymbolPriceTickerModel>(responce)
                 };
 
                 return result;
             }
 
-            return converter.Deserialize<IEnumerable<SymbolPriceTickerModel>>(responce);
+            return _converter.Deserialize<IEnumerable<SymbolPriceTickerModel>>(responce);
         }
 
         /// <inheritdoc />
@@ -168,18 +177,17 @@ namespace ExchangeLibrary.Binance.EndpointSenders.Impl
                 },
                 cancellationToken: cancellationToken);
 
-            var converter = new JsonDeserializerWrapper();
             if (!isNull)
             {
                 var result = new List<SymbolOrderBookTickerModel>
                 {
-                    converter.Deserialize<SymbolOrderBookTickerModel>(responce)
+                    _converter.Deserialize<SymbolOrderBookTickerModel>(responce)
                 };
 
                 return result;
             }
 
-            return converter.Deserialize<IEnumerable<SymbolOrderBookTickerModel>>(responce);
+            return _converter.Deserialize<IEnumerable<SymbolOrderBookTickerModel>>(responce);
         }
 
         #endregion

@@ -47,7 +47,7 @@ namespace ExchangeLibrary.Binance.EndpointSenders.Impl
         }
 
         /// <inheritdoc />
-        public async Task<AccountTraidingStatusModel> GetAccountTraidingStatusAsync(
+        public async Task<AccountTradingStatusModel> GetAccountTradingStatusAsync(
             Dictionary<string, object> query,
             CancellationToken cancellationToken = default)
         {
@@ -58,7 +58,7 @@ namespace ExchangeLibrary.Binance.EndpointSenders.Impl
                 cancellationToken: cancellationToken);
 
             var converter = new JsonDeserializerWrapper();
-            return converter.Deserialize<AccountTraidingStatusModel>(result);
+            return converter.Deserialize<AccountTradingStatusModel>(result);
         }
 
         /// <inheritdoc />

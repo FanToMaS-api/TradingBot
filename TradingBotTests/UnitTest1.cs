@@ -1,7 +1,7 @@
 using System;
 using Xunit;
 
-namespace TraidingBotTests
+namespace TradingBotTests
 {
     public class UnitTest1
     {

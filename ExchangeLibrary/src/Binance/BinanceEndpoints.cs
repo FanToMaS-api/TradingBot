@@ -39,6 +39,11 @@ namespace ExchangeLibrary.Binance
         #region Marketdata
 
         /// <summary>
+        ///     Текущие правила биржевой торговли и информация о символах
+        /// </summary>
+        public const string EXCHANGE_INFO = "/api/v3/exchangeInfo";
+
+        /// <summary>
         ///     Ордера из стакана
         /// </summary>
         public const string ORDER_BOOK = "/api/v3/depth";

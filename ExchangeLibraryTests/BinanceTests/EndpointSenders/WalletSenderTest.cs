@@ -73,7 +73,7 @@ namespace ExchangeLibraryTests.BinanceTests.EndpointSenders
             IWalletSender walletEndpointSender = new WalletSender(binanceClient);
 
             // Act
-            var result = await walletEndpointSender.GetAccountTraidingStatusAsync(null, CancellationToken.None);
+            var result = await walletEndpointSender.GetAccountTradingStatusAsync(null, CancellationToken.None);
 
             Assert.True(result.Data.IsLocked);
             Assert.Equal(123, result.Data.PlannedRecoverTimeUnix);

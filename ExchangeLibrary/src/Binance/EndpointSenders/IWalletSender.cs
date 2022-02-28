@@ -18,7 +18,7 @@ namespace ExchangeLibrary.Binance.EndpointSenders
         /// <summary>
         ///     Вернуть статус аккаунта
         /// </summary>
-        Task<AccountTraidingStatusModel> GetAccountTraidingStatusAsync(Dictionary<string, object> query, CancellationToken cancellationToken = default);
+        Task<AccountTradingStatusModel> GetAccountTradingStatusAsync(Dictionary<string, object> query, CancellationToken cancellationToken = default);
 
         /// <summary>
         ///     Получить всю информацию о монетах

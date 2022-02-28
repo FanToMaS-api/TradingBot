@@ -18,19 +18,16 @@ namespace ExchangeLibrary.Binance.Models
         /// <summary>
         ///    Идентификатор последнего обновления 
         /// </summary>
-        [JsonPropertyName("lastUpdateId")]
         public long LastUpdateId { get; set; }
 
         /// <summary>
         ///     Список цен/объемов на покупку
         /// </summary>
-        [JsonPropertyName("bids")]
         public List<PriceQtyPair> Bids { get; set; } = new();
 
         /// <summary>
         ///     Список цен/объемов на продажу
         /// </summary>
-        [JsonPropertyName("asks")]
         public List<PriceQtyPair> Asks { get; set; } = new();
 
         /// <inheritdoc />

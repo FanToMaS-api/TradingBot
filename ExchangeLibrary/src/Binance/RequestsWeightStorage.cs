@@ -12,7 +12,7 @@ namespace ExchangeLibrary.Binance
         /// <summary>
         ///     Вес запроса статуса системы
         /// </summary>
-        public RequestWeightModel SistemStatusWeight { get; set; } = new RequestWeightModel(
+        public RequestWeightModel SistemStatusWeight { get; } = new RequestWeightModel(
             Enums.ApiType.Sapi,
             new()
             {
@@ -22,7 +22,7 @@ namespace ExchangeLibrary.Binance
         /// <summary>
         ///     Вес запроса статуса аккаунта
         /// </summary>
-        public RequestWeightModel AccountStatusWeight { get; set; } = new RequestWeightModel(
+        public RequestWeightModel AccountStatusWeight { get; } = new RequestWeightModel(
             Enums.ApiType.Sapi,
             new()
             {
@@ -32,7 +32,7 @@ namespace ExchangeLibrary.Binance
         /// <summary>
         ///     Вес запроса информации обо всех монетах
         /// </summary>
-        public RequestWeightModel AllCoinsInfoWeight { get; set; } = new RequestWeightModel(
+        public RequestWeightModel AllCoinsInfoWeight { get; } = new RequestWeightModel(
             Enums.ApiType.Sapi,
             new()
             {
@@ -42,7 +42,7 @@ namespace ExchangeLibrary.Binance
         /// <summary>
         ///     Вес запроса таксы за торговлю определенными монетами
         /// </summary>
-        public RequestWeightModel TradeFeeWeight { get; set; } = new RequestWeightModel(
+        public RequestWeightModel TradeFeeWeight { get; } = new RequestWeightModel(
             Enums.ApiType.Sapi,
             new()
             {
@@ -54,9 +54,19 @@ namespace ExchangeLibrary.Binance
         #region Marketdata requests weights
 
         /// <summary>
+        ///     Вес запроса информации о правилах торговли символами
+        /// </summary>
+        public RequestWeightModel ExchangeInfoWeight { get; } = new RequestWeightModel(
+            Enums.ApiType.Api,
+            new()
+            {
+                { RequestWeightModel.GetDefaultKey(), 10 }
+            });
+
+        /// <summary>
         ///     Вес запроса книги ордеров
         /// </summary>
-        public RequestWeightModel OrderBookWeight { get; set; } = new RequestWeightModel(
+        public RequestWeightModel OrderBookWeight { get; } = new RequestWeightModel(
             Enums.ApiType.Api,
             new()
             {
@@ -73,7 +83,7 @@ namespace ExchangeLibrary.Binance
         /// <summary>
         ///     Вес запроса списка недавних сделок
         /// </summary>
-        public RequestWeightModel RecentTradesWeight { get; set; } = new RequestWeightModel(
+        public RequestWeightModel RecentTradesWeight { get; } = new RequestWeightModel(
             Enums.ApiType.Api,
             new()
             {
@@ -83,7 +93,7 @@ namespace ExchangeLibrary.Binance
         /// <summary>
         ///     Вес запроса списка недавних сделок
         /// </summary>
-        public RequestWeightModel OldTradesWeight { get; set; } = new RequestWeightModel(
+        public RequestWeightModel OldTradesWeight { get; } = new RequestWeightModel(
             Enums.ApiType.Api,
             new()
             {
@@ -93,7 +103,7 @@ namespace ExchangeLibrary.Binance
         /// <summary>
         ///     Вес запроса свечей для монеты
         /// </summary>
-        public RequestWeightModel CandleStickDataWeight { get; set; } = new RequestWeightModel(
+        public RequestWeightModel CandleStickDataWeight { get; } = new RequestWeightModel(
             Enums.ApiType.Api,
             new()
             {
@@ -103,7 +113,7 @@ namespace ExchangeLibrary.Binance
         /// <summary>
         ///     Вес запроса текущей средней цены монеты
         /// </summary>
-        public RequestWeightModel CurrentAveragePriceWeight { get; set; } = new RequestWeightModel(
+        public RequestWeightModel CurrentAveragePriceWeight { get; } = new RequestWeightModel(
             Enums.ApiType.Api,
             new()
             {
@@ -113,7 +123,7 @@ namespace ExchangeLibrary.Binance
         /// <summary>
         ///     Вес запроса изменения цены пары за 24 часа
         /// </summary>
-        public RequestWeightModel DayTickerPriceChangeWeight { get; set; } = new RequestWeightModel(
+        public RequestWeightModel DayTickerPriceChangeWeight { get; } = new RequestWeightModel(
             Enums.ApiType.Api,
             new()
             {
@@ -124,7 +134,7 @@ namespace ExchangeLibrary.Binance
         /// <summary>
         ///     Вес запроса последней цены/цен пары/пар
         /// </summary>
-        public RequestWeightModel SymbolPriceTickerWeight { get; set; } = new RequestWeightModel(
+        public RequestWeightModel SymbolPriceTickerWeight { get; } = new RequestWeightModel(
             Enums.ApiType.Api,
             new()
             {
@@ -135,7 +145,7 @@ namespace ExchangeLibrary.Binance
         /// <summary>
         ///     Вес запроса лучшая цены/количества в стакане для символа или символов
         /// </summary>
-        public RequestWeightModel SymbolOrderBookTickerWeight { get; set; } = new RequestWeightModel(
+        public RequestWeightModel SymbolOrderBookTickerWeight { get; } = new RequestWeightModel(
             Enums.ApiType.Api,
             new()
             {
@@ -150,7 +160,7 @@ namespace ExchangeLibrary.Binance
         /// <summary>
         ///     Вес запроса на создание нового ордера (включая тестовый)
         /// </summary>
-        public RequestWeightModel NewOrderWeight { get; set; } = new RequestWeightModel(
+        public RequestWeightModel NewOrderWeight { get; } = new RequestWeightModel(
             Enums.ApiType.Api,
             new()
             {
@@ -160,7 +170,7 @@ namespace ExchangeLibrary.Binance
         /// <summary>
         ///     Вес запроса на отмену активного ордера по паре (включая отмену всех оредров по паре)
         /// </summary>
-        public RequestWeightModel CancelOrderWeight { get; set; } = new RequestWeightModel(
+        public RequestWeightModel CancelOrderWeight { get; } = new RequestWeightModel(
             Enums.ApiType.Api,
             new()
             {
@@ -170,7 +180,7 @@ namespace ExchangeLibrary.Binance
         /// <summary>
         ///     Вес запроса на проверку состояния ордера по паре
         /// </summary>
-        public RequestWeightModel CheckOrderWeight { get; set; } = new RequestWeightModel(
+        public RequestWeightModel CheckOrderWeight { get; } = new RequestWeightModel(
             Enums.ApiType.Api,
             new()
             {
@@ -180,7 +190,7 @@ namespace ExchangeLibrary.Binance
         /// <summary>
         ///     Вес запроса на проверку состояния всех открытых ордеров или только по паре
         /// </summary>
-        public RequestWeightModel CheckAllOpenOrdersWeight { get; set; } = new RequestWeightModel(
+        public RequestWeightModel CheckAllOpenOrdersWeight { get; } = new RequestWeightModel(
             Enums.ApiType.Api,
             new()
             {
@@ -191,7 +201,7 @@ namespace ExchangeLibrary.Binance
         /// <summary>
         ///     Вес запроса на получение всех ордеров аккаунта по паре
         /// </summary>
-        public RequestWeightModel AllOrdersWeight { get; set; } = new RequestWeightModel(
+        public RequestWeightModel AllOrdersWeight { get; } = new RequestWeightModel(
             Enums.ApiType.Api,
             new()
             {

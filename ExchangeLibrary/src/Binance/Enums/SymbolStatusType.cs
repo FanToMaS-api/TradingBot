@@ -6,20 +6,38 @@
     internal enum SymbolStatusType
     {
         /// <summary>
-        ///     TODO: найти документацию
+        ///     Предварительная торговля
         /// </summary>
-        PRE_TRADING,
+        PreTrading,
 
-        TRADING,
+        /// <summary>
+        ///     Разрешена торговля
+        /// </summary>
+        Trading,
 
-        POST_TRADING,
+        /// <summary>
+        ///     Завершающая торговля
+        /// </summary>
+        PostTrading,
 
-        END_OF_DAY,
+        /// <summary>
+        ///     Конец дня
+        /// </summary>
+        EndOfDay,
 
-        HALT,
+        /// <summary>
+        ///     Остановлена торговля
+        /// </summary>
+        Halt,
 
-        AUCTION_MATCH,
+        /// <summary>
+        ///     Аукцион
+        /// </summary>
+        AuctionMatch,
 
-        BREAK,
+        /// <summary>
+        ///     Перерыв
+        /// </summary>
+        Break,
     }
 }

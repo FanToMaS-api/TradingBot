@@ -20,7 +20,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\TraidingBot\TraidingBot.csproj" />
+    <ProjectReference Include="..\TradingBot\TradingBot.csproj" />
   </ItemGroup>
 
 </Project>
