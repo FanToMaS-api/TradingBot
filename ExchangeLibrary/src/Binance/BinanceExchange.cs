@@ -55,6 +55,12 @@ namespace ExchangeLibrary.Binance
             _walletSender = new WalletSender(_client);
             _marketdataSender = new MarketdataSender(_client);
             _tradeSender = new SpotAccountTradeSender(_client);
+
+            var config = new MapperConfiguration(cfg =>
+            {
+                cfg.AddProfile<BinanceMapperProfile>();
+            });
+            _mapper = new Mapper(config);
         }
 
         /// <inheritdoc cref="BinanceExchange"/>
@@ -156,6 +162,27 @@ namespace ExchangeLibrary.Binance
         #endregion
 
         #region Marketdata
+
+        /// <inheritdoc />
+        public async Task<IEnumerable<SymbolRuleTradingModel>> GetExchangeInfoAsync(CancellationToken cancellationToken = default)
+        {
+            var requestWeight = _requestsWeightStorage.ExchangeInfoWeight;
+            if (CheckLimit(requestWeight.Type, out var rateLimit))
+            {
+                throw new TooManyRequestsException(rateLimit.Expiration, rateLimit.Value, rateLimit.Key);
+            }
+
+            var model = await _marketdataSender.GetExchangeInfoAsync(new Dictionary<string, object>(), cancellationToken);
+
+            IncrementCallsMade(requestWeight, RequestWeightModel.GetDefaultKey());
+            var result = new List<SymbolRuleTradingModel>();
+            foreach (var symbol in model.Symbols)
+            {
+                result.Add(_mapper.Map<SymbolRuleTradingModel>(symbol));
+            }
+
+            return result;
+        }
 
         /// <inheritdoc />
         public async Task<string> GetOrderBookAsync(string symbol, int limit = 100, CancellationToken cancellationToken = default)

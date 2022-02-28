@@ -7,6 +7,7 @@ using ExchangeLibrary.Binance.WebSocket.Marketdata;
 using NLog;
 using System;
 using System.Configuration;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using TradingBot.Configuration;
@@ -24,23 +25,23 @@ namespace TradingBot
             var binanceOptions = new BinanceExchangeOptions() { ApiKey = apiKey, SecretKey = secretKey };
             var binance = ExchangeFactory.CreateExchange(ExchangeType.Binance, binanceOptions);
             using var cts = new CancellationTokenSource();
+            Console.WriteLine(string.Join('\n', (await binance.GetExchangeInfoAsync(cts.Token)).ToList().Select(_ => _.Symbol)));
+            // Console.WriteLine(await binance.CreateNewLimitOrderAsync(
+            //    "ARPABNB",
+            //    "BUY",
+            //    "GTC",
+            //    0.000205,
+            //    100,
+            //    cancellationToken: cts.Token));
 
-            Console.WriteLine(await binance.CreateNewLimitOrderAsync(
-                "ARPABNB",
-                "BUY",
-                "GTC",
-                0.000205,
-                100,
-                cancellationToken: cts.Token));
-
-            await binance.SubscribeCandlestickStreamAsync<string>(
-                "BNBBTC",
-                "1m",
-                 _ =>
-                 {
-                     return Task.CompletedTask;
-                 },
-                 cts.Token);
+            // await binance.SubscribeCandlestickStreamAsync<string>(
+            //    "BNBBTC",
+            //    "1m",
+            //     _ =>
+            //     {
+            //         return Task.CompletedTask;
+            //     },
+            //     cts.Token);
 
             await Task.Delay(70000);
         }

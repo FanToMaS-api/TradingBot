@@ -73,13 +73,18 @@ namespace ExchangeLibrary.Binance.Models
         /// </summary>
         public void SetProperties(ref Utf8JsonReader reader)
         {
-            string lastPropertyName = "";
+            var lastPropertyName = "";
             while (reader.Read() && reader.TokenType != JsonTokenType.EndObject)
             {
                 if (reader.TokenType == JsonTokenType.PropertyName)
                 {
                     lastPropertyName = reader.GetString();
                     reader.Read();
+
+                    if (lastPropertyName == "filters")
+                    {
+                        reader.SkipToSection("permissions");
+                    }
 
                     switch (lastPropertyName)
                     {

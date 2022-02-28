@@ -40,6 +40,11 @@ namespace ExchangeLibrary
         #region Marketdata
 
         /// <summary>
+        ///     Получить информацию о правилах торговли парами на бирже
+        /// </summary>
+        Task<IEnumerable<SymbolRuleTradingModel>> GetExchangeInfoAsync(CancellationToken cancellationToken = default);
+
+        /// <summary>
         ///     Получить книгу ордеров по определенной паре
         /// </summary>
         /// <param name="limit"> Глубина запроса (кол-во записей) </param>
