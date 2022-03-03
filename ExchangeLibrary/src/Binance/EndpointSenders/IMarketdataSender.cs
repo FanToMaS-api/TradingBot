@@ -38,7 +38,7 @@ namespace ExchangeLibrary.Binance.EndpointSenders
         /// </summary>
         /// <param name="symbol"> Пара </param>
         /// <param name="limit"> Кол-во сделок (максимум 1000, по умолчанию 500) </param>
-        Task<IEnumerable<RecentTradeModel>> GetRecentTradesAsync(Dictionary<string, object> query, CancellationToken cancellationToken = default);
+        Task<IEnumerable<TradeModel>> GetRecentTradesAsync(Dictionary<string, object> query, CancellationToken cancellationToken = default);
 
         /// <summary>
         ///     Возвращает исторические сделки по паре
@@ -46,7 +46,7 @@ namespace ExchangeLibrary.Binance.EndpointSenders
         /// <param name="symbol"> Пара </param>
         /// <param name="fromId"> Нижняя граница выгрузки </param>
         /// <param name="limit"> Кол-во сделок (максимум 1000, по умолчанию 500) </param>
-        Task<IEnumerable<RecentTradeModel>> GetOldTradesAsync(Dictionary<string, object> query, CancellationToken cancellationToken = default);
+        Task<IEnumerable<TradeModel>> GetOldTradesAsync(Dictionary<string, object> query, CancellationToken cancellationToken = default);
 
         /// <summary>
         ///     Возвращает свечи по определенной паре

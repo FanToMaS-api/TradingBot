@@ -8,7 +8,7 @@ using System.Text.Json.Serialization;
 namespace ExchangeLibrary.Binance.Models
 {
     /// <summary>
-    ///     Модель книги заказов
+    ///     Модель книги ордеров
     /// </summary>
     internal class OrderBookModel : IMarketdataStreamModel, IHaveMyOwnJsonConverter
     {
@@ -21,12 +21,12 @@ namespace ExchangeLibrary.Binance.Models
         public long LastUpdateId { get; set; }
 
         /// <summary>
-        ///     Список цен/объемов на покупку
+        ///     Ордера на покупку
         /// </summary>
         public List<PriceQtyPair> Bids { get; set; } = new();
 
         /// <summary>
-        ///     Список цен/объемов на продажу
+        ///     Ордера на продажу
         /// </summary>
         public List<PriceQtyPair> Asks { get; set; } = new();
 
@@ -60,19 +60,19 @@ namespace ExchangeLibrary.Binance.Models
     }
 
     /// <summary>
-    ///     Модель цены и объема монеты
+    ///     Модель цены и объема ордера
     /// </summary>
     public class PriceQtyPair
     {
         /// <summary>
-        ///     Цена монеты
+        ///     Цена
         /// </summary>
         public double Price { get; set; }
 
         /// <summary>
         ///     Объем
         /// </summary>
-        public double Qty { get; set; }
+        public double Quantity { get; set; }
 
         /// <summary>
         ///     Создает пару и добавляет в нужный массив пар
@@ -82,7 +82,7 @@ namespace ExchangeLibrary.Binance.Models
             var workItem = new PriceQtyPair();
             workItem.Price = double.Parse(reader.GetString());
             reader.Read();
-            workItem.Qty = double.Parse(reader.GetString());
+            workItem.Quantity = double.Parse(reader.GetString());
             switch (lastPropertyName)
             {
                 case "bids":

@@ -99,7 +99,7 @@ namespace ExchangeLibrary.Binance
         }
 
         /// <inheritdoc />
-        public async Task<string> GetAccountTradingStatusAsync(long recvWindow = 5000, CancellationToken cancellationToken = default)
+        public async Task<TradingAccountInfoModel> GetAccountTradingStatusAsync(long recvWindow = 5000, CancellationToken cancellationToken = default)
         {
             var requestWeight = _requestsWeightStorage.AccountStatusWeight;
             if (CheckLimit(requestWeight.Type, out var rateLimit))
@@ -114,7 +114,7 @@ namespace ExchangeLibrary.Binance
 
             IncrementCallsMade(requestWeight, RequestWeightModel.GetDefaultKey());
 
-            return "TODO";
+            return _mapper.Map<TradingAccountInfoModel>(result);
         }
 
         /// <inheritdoc />
@@ -141,7 +141,7 @@ namespace ExchangeLibrary.Binance
         }
 
         /// <inheritdoc />
-        public async Task<IEnumerable<string>> GetAllCoinsInformationAsync(long recvWindow = 5000, CancellationToken cancellationToken = default)
+        public async Task<IEnumerable<Common.Models.CoinModel>> GetAllCoinsInformationAsync(long recvWindow = 5000, CancellationToken cancellationToken = default)
         {
             var requestWeight = _requestsWeightStorage.AllCoinsInfoWeight;
             if (CheckLimit(requestWeight.Type, out var rateLimit))
@@ -156,7 +156,7 @@ namespace ExchangeLibrary.Binance
 
             IncrementCallsMade(requestWeight, RequestWeightModel.GetDefaultKey());
 
-            return new List<string> { "TODO" };
+            return _mapper.Map<IEnumerable<Common.Models.CoinModel>>(result);
         }
 
         #endregion
@@ -185,7 +185,7 @@ namespace ExchangeLibrary.Binance
         }
 
         /// <inheritdoc />
-        public async Task<string> GetOrderBookAsync(string symbol, int limit = 100, CancellationToken cancellationToken = default)
+        public async Task<Common.Models.OrderBookModel> GetOrderBookAsync(string symbol, int limit = 100, CancellationToken cancellationToken = default)
         {
             var requestWeight = _requestsWeightStorage.OrderBookWeight;
             if (CheckLimit(requestWeight.Type, out var rateLimit))
@@ -196,16 +196,16 @@ namespace ExchangeLibrary.Binance
             var builder = new Builder();
             builder.SetSymbol(symbol);
             builder.SetLimit(limit);
-            var query = builder.GetResult().GetQuery();
+            var query = builder.GetResult(false).GetQuery();
             var result = await _marketdataSender.GetOrderBookAsync(query, cancellationToken);
 
             IncrementCallsMade(requestWeight, limit.ToString());
 
-            return "TODO";
+            return _mapper.Map<Common.Models.OrderBookModel>(result);
         }
 
         /// <inheritdoc />
-        public async Task<string> GetRecentTradesAsync(string symbol, int limit = 500, CancellationToken cancellationToken = default)
+        public async Task<IEnumerable<Common.Models.TradeModel>> GetRecentTradesAsync(string symbol, int limit = 500, CancellationToken cancellationToken = default)
         {
             var requestWeight = _requestsWeightStorage.RecentTradesWeight;
             if (CheckLimit(requestWeight.Type, out var rateLimit))
@@ -216,18 +216,24 @@ namespace ExchangeLibrary.Binance
             var builder = new Builder();
             builder.SetSymbol(symbol);
             builder.SetLimit(limit);
-            var query = builder.GetResult().GetQuery();
-            var result = await _marketdataSender.GetRecentTradesAsync(query, cancellationToken);
+            var query = builder.GetResult(false).GetQuery();
+            var models = await _marketdataSender.GetRecentTradesAsync(query, cancellationToken);
 
             IncrementCallsMade(requestWeight, RequestWeightModel.GetDefaultKey());
 
-            return "TODO";
+            var result = new List<Common.Models.TradeModel>();
+            foreach (var model in models)
+            {
+                result.Add(_mapper.Map<Common.Models.TradeModel>(model));
+            }
+
+            return result;
         }
 
         /// <inheritdoc />
-        public async Task<string> GetOldTradesAsync(
+        public async Task<IEnumerable<Common.Models.TradeModel>> GetOldTradesAsync(
             string symbol,
-            long fromId,
+            long? fromId = null,
             int limit = 500,
             CancellationToken cancellationToken = default)
         {
@@ -240,13 +246,23 @@ namespace ExchangeLibrary.Binance
             var builder = new Builder();
             builder.SetSymbol(symbol);
             builder.SetLimit(limit);
-            builder.SetFromId(fromId);
-            var query = builder.GetResult().GetQuery();
-            var result = await _marketdataSender.GetOldTradesAsync(query, cancellationToken);
+            if (fromId.HasValue)
+            {
+                builder.SetFromId(fromId.Value);
+            }
+
+            var query = builder.GetResult(false).GetQuery();
+            var models = await _marketdataSender.GetOldTradesAsync(query, cancellationToken);
 
             IncrementCallsMade(requestWeight, RequestWeightModel.GetDefaultKey());
 
-            return "TODO";
+            var result = new List<Common.Models.TradeModel>();
+            foreach (var model in models)
+            {
+                result.Add(_mapper.Map<Common.Models.TradeModel>(model));
+            }
+
+            return result;
         }
 
         /// <inheritdoc />
@@ -504,7 +520,7 @@ namespace ExchangeLibrary.Binance
             webSoket.AddOnMessageReceivedFunc(
                content =>
                {
-                   var model = converter.Deserialize<OrderBookModel>(content);
+                   var model = converter.Deserialize<Models.OrderBookModel>(content);
                    var neededModel = _mapper.Map<T>(model);
                    onMessageReceivedFunc?.Invoke(neededModel);
                    return Task.CompletedTask;

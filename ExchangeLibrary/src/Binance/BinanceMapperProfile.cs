@@ -13,6 +13,14 @@ namespace ExchangeLibrary.Binance
         {
             CreateMap<Models.TradeFeeModel, Common.Models.TradeFeeModel>();
             CreateMap<SymbolInfoModel, SymbolRuleTradingModel>();
+            CreateMap<Models.CoinModel, Common.Models.CoinModel>();
+            CreateMap<PriceQtyPair, OrderModel>();
+            CreateMap<Models.OrderBookModel, Common.Models.OrderBookModel>();
+            CreateMap<Models.TradeModel, Common.Models.TradeModel>();
+            CreateMap<AccountTradingStatusModel, TradingAccountInfoModel>()
+                .ForMember(_ => _.UpdateTimeUnix, _ => _.MapFrom(_ => _.Data.UpdateTimeUnix))
+                .ForMember(_ => _.IsLocked, _ => _.MapFrom(_ => _.Data.IsLocked))
+                .ForMember(_ => _.PlannedRecoverTimeUnix, _ => _.MapFrom(_ => _.Data.PlannedRecoverTimeUnix));
         }
     }
 }

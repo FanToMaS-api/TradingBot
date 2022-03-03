@@ -204,7 +204,9 @@ namespace ExchangeLibrary.Binance.Models
         public void SetOrderType(string order)
         {
             var orderType = order.ConvertToOrderType();
-            SetOrderResponseType(orderType);
+
+            // специальный хардкод, для получения полной информации
+            SetOrderResponseType(OrderResponseType.Full);
             SetStopPrice(orderType);
             SetIcebergQty(orderType);
 
@@ -215,7 +217,8 @@ namespace ExchangeLibrary.Binance.Models
         /// <inheritdoc />
         public void SetOrderType(OrderType orderType)
         {
-            SetOrderResponseType(orderType);
+            // специальный хардкод, для получения полной информации
+            SetOrderResponseType(OrderResponseType.Full);
             SetStopPrice(orderType);
             SetIcebergQty(orderType);
 
@@ -297,11 +300,14 @@ namespace ExchangeLibrary.Binance.Models
         /// <summary>
         ///     Возвращает результат работы строителя
         /// </summary>
-        public OrderQueryModel GetResult()
+        /// <param name="setTimeStamp"> Устанавливать ли время запроса </param>
+        public OrderQueryModel GetResult(bool setTimeStamp = true)
         {
-            // Принудительно ставлю полный ответ на запрос
-            SetOrderResponseType(OrderResponseType.Full);
-            SetTimeStamp();
+            if (setTimeStamp)
+            {
+                SetTimeStamp();
+            }
+
             return _newQueryModel;
         }
 
@@ -312,6 +318,9 @@ namespace ExchangeLibrary.Binance.Models
         /// <summary>
         ///     Устанавливает <see cref="OrderResponseType"/> в зависимости от <see cref="OrderType"/>
         /// </summary>
+        /// <remarks>
+        ///     Временно не используется, для получения только полной информации о ордере
+        /// </remarks>
         private void SetOrderResponseType(OrderType orderType)
         {
             if (orderType == OrderType.Limit || orderType == OrderType.Market)

@@ -1,9 +1,5 @@
-﻿using Common.JsonConvertWrapper;
-using ExchangeLibrary;
+﻿using ExchangeLibrary;
 using ExchangeLibrary.Binance;
-using ExchangeLibrary.Binance.Enums.Helper;
-using ExchangeLibrary.Binance.Models;
-using ExchangeLibrary.Binance.WebSocket.Marketdata;
 using NLog;
 using System;
 using System.Configuration;
@@ -25,7 +21,13 @@ namespace TradingBot
             var binanceOptions = new BinanceExchangeOptions() { ApiKey = apiKey, SecretKey = secretKey };
             var binance = ExchangeFactory.CreateExchange(ExchangeType.Binance, binanceOptions);
             using var cts = new CancellationTokenSource();
-            Console.WriteLine(string.Join('\n', (await binance.GetExchangeInfoAsync(cts.Token)).ToList().Select(_ => _.Symbol)));
+            var res1 = (await binance.GetExchangeInfoAsync()).ToList();
+            var res = (await binance.GetOldTradesAsync(res1[0].Symbol, 507, 600));
+            foreach(var item in res)
+            {
+                Console.WriteLine(item.Price + " " + item.Quantity + " " + item.TimeUnix);
+            }
+
             // Console.WriteLine(await binance.CreateNewLimitOrderAsync(
             //    "ARPABNB",
             //    "BUY",

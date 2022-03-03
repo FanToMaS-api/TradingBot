@@ -61,7 +61,7 @@ namespace ExchangeLibrary.Binance.EndpointSenders.Impl
         }
 
         /// <inheritdoc />
-        public async Task<IEnumerable<RecentTradeModel>> GetRecentTradesAsync(Dictionary<string, object> query, CancellationToken cancellationToken = default)
+        public async Task<IEnumerable<TradeModel>> GetRecentTradesAsync(Dictionary<string, object> query, CancellationToken cancellationToken = default)
         {
             var result = await _client.SendPublicAsync(
                 BinanceEndpoints.RECENT_TRADES,
@@ -69,11 +69,11 @@ namespace ExchangeLibrary.Binance.EndpointSenders.Impl
                 query: query,
                 cancellationToken: cancellationToken);
 
-            return _converter.Deserialize<IEnumerable<RecentTradeModel>>(result);
+            return _converter.Deserialize<IEnumerable<TradeModel>>(result);
         }
 
         /// <inheritdoc />
-        public async Task<IEnumerable<RecentTradeModel>> GetOldTradesAsync(Dictionary<string, object> query, CancellationToken cancellationToken = default)
+        public async Task<IEnumerable<TradeModel>> GetOldTradesAsync(Dictionary<string, object> query, CancellationToken cancellationToken = default)
         {
             var result = await _client.SendPublicAsync(
                 BinanceEndpoints.OLD_TRADES,
@@ -81,7 +81,7 @@ namespace ExchangeLibrary.Binance.EndpointSenders.Impl
                 query: query,
                 cancellationToken: cancellationToken);
 
-            return _converter.Deserialize<IEnumerable<RecentTradeModel>>(result);
+            return _converter.Deserialize<IEnumerable<TradeModel>>(result);
         }
 
         /// <inheritdoc />

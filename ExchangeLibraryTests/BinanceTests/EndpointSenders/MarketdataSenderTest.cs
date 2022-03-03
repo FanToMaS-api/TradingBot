@@ -331,13 +331,13 @@ namespace ExchangeLibraryTests.BinanceTests.EndpointSenders
             Assert.Equal(2, result.Bids.Count);
             Assert.Equal(2, result.Asks.Count);
             Assert.Equal(4.00000000, result.Bids[0].Price);
-            Assert.Equal(431.00000000, result.Bids[0].Qty);
+            Assert.Equal(431.00000000, result.Bids[0].Quantity);
             Assert.Equal(5.00000000, result.Bids[1].Price);
-            Assert.Equal(15.00000000, result.Bids[1].Qty);
+            Assert.Equal(15.00000000, result.Bids[1].Quantity);
             Assert.Equal(4.00000200, result.Asks[0].Price);
-            Assert.Equal(12.00000000, result.Asks[0].Qty);
+            Assert.Equal(12.00000000, result.Asks[0].Quantity);
             Assert.Equal(6.00000200, result.Asks[1].Price);
-            Assert.Equal(18.00000000, result.Asks[1].Qty);
+            Assert.Equal(18.00000000, result.Asks[1].Quantity);
         }
 
         /// <summary>
@@ -357,7 +357,7 @@ namespace ExchangeLibraryTests.BinanceTests.EndpointSenders
             Assert.Single(result);
             Assert.Equal(28457, result[0].Id);
             Assert.Equal(4.00000100, result[0].Price);
-            Assert.Equal(12.00000000, result[0].Qty);
+            Assert.Equal(12.00000000, result[0].Quantity);
             Assert.Equal(48.000012, result[0].QuoteQty);
             Assert.Equal(1499865549590, result[0].TimeUnix);
             Assert.True(result[0].IsBuyerMaker);
@@ -381,7 +381,7 @@ namespace ExchangeLibraryTests.BinanceTests.EndpointSenders
             Assert.Single(result);
             Assert.Equal(28457, result[0].Id);
             Assert.Equal(4.00000100, result[0].Price);
-            Assert.Equal(12.00000000, result[0].Qty);
+            Assert.Equal(12.00000000, result[0].Quantity);
             Assert.Equal(48.000012, result[0].QuoteQty);
             Assert.Equal(1499865549590, result[0].TimeUnix);
             Assert.True(result[0].IsBuyerMaker);

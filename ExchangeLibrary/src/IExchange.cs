@@ -22,12 +22,12 @@ namespace ExchangeLibrary
         /// <summary>
         ///     Вернуть статус аккаунта
         /// </summary>
-        Task<string> GetAccountTradingStatusAsync(long recvWindow = 5000, CancellationToken cancellationToken = default);
+        Task<TradingAccountInfoModel> GetAccountTradingStatusAsync(long recvWindow = 5000, CancellationToken cancellationToken = default);
 
         /// <summary>
         ///     Получить всю информацию о монетах
         /// </summary>
-        Task<IEnumerable<string>> GetAllCoinsInformationAsync(long recvWindow = 5000, CancellationToken cancellationToken = default);
+        Task<IEnumerable<CoinModel>> GetAllCoinsInformationAsync(long recvWindow = 5000, CancellationToken cancellationToken = default);
 
         /// <summary>
         ///     Получить информацию о таксе за все монеты или за определенную
@@ -48,20 +48,20 @@ namespace ExchangeLibrary
         ///     Получить книгу ордеров по определенной паре
         /// </summary>
         /// <param name="limit"> Глубина запроса (кол-во записей) </param>
-        Task<string> GetOrderBookAsync(string symbol, int limit = 100, CancellationToken cancellationToken = default);
+        Task<OrderBookModel> GetOrderBookAsync(string symbol, int limit = 100, CancellationToken cancellationToken = default);
 
         /// <summary>
         ///     Возвращает последние сделки по паре
         /// </summary>
-        Task<string> GetRecentTradesAsync(string symbol, int limit = 500, CancellationToken cancellationToken = default);
+        Task<IEnumerable<TradeModel>> GetRecentTradesAsync(string symbol, int limit = 500, CancellationToken cancellationToken = default);
 
         /// <summary>
         ///     Возвращает исторические сделки
         /// </summary>
         /// <param name="symbol"> Пара </param>
-        /// <param name="fromId"> Нижняя граница выгрузки </param>
+        /// <param name="fromId"> Идентификатор сделки для получения. По умолчанию получают самые последние сделки </param>
         /// <param name="limit"> Кол-во сделок (максимум 1000, по умолчанию 500) </param>
-        Task<string> GetOldTradesAsync(string symbol, long fromId, int limit = 500, CancellationToken cancellationToken = default);
+        Task<IEnumerable<TradeModel>> GetOldTradesAsync(string symbol, long? fromId = null, int limit = 500, CancellationToken cancellationToken = default);
 
         /// <summary>
         ///     Возвращает свечи по определенной паре
