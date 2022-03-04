@@ -1,10 +1,10 @@
-using ExchangeLibrary.Binance;
-using ExchangeLibrary.Binance.Client;
-using ExchangeLibrary.Binance.Client.Impl;
-using ExchangeLibrary.Binance.EndpointSenders;
-using ExchangeLibrary.Binance.EndpointSenders.Impl;
-using ExchangeLibrary.Binance.Enums;
-using ExchangeLibrary.Binance.Models;
+using BinanceExchange;
+using BinanceExchange.Client;
+using BinanceExchange.Client.Impl;
+using BinanceExchange.EndpointSenders;
+using BinanceExchange.EndpointSenders.Impl;
+using BinanceExchange.Enums;
+using BinanceExchange.Models;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -23,7 +23,7 @@ namespace ExchangeLibraryTests.BinanceTests.EndpointSenders
         /// <summary>
         ///     ќжидаемый результат выполнени€ запроса 24го изменени€ цены
         /// </summary>
-        private static readonly List<DayPriceChangeModel> _expectedDayPriceChange = new List<DayPriceChangeModel>
+        private static readonly List<DayPriceChangeModel> _expectedDayPriceChange = new()
         {
             new DayPriceChangeModel
             {

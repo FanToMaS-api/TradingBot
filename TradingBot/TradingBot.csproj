@@ -17,6 +17,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <ProjectReference Include="..\BinanceExchange\BinanceExchange.csproj" />
 	  <ProjectReference Include="..\ExchangeLibrary\ExchangeLibrary.csproj" />
 	</ItemGroup>
 </Project>

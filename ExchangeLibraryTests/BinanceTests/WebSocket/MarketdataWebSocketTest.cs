@@ -1,10 +1,10 @@
-﻿using Common.JsonConvertWrapper;
+﻿using BinanceExchange.Enums;
+using BinanceExchange.Enums.Helper;
+using BinanceExchange.Models;
+using BinanceExchange.WebSocket;
+using BinanceExchange.WebSocket.Marketdata;
+using Common.JsonConvertWrapper;
 using Common.JsonConvertWrapper.Converters;
-using ExchangeLibrary.Binance.Enums;
-using ExchangeLibrary.Binance.Enums.Helper;
-using ExchangeLibrary.Binance.Models;
-using ExchangeLibrary.Binance.WebSocket;
-using ExchangeLibrary.Binance.WebSocket.Marketdata;
 using NSubstitute;
 using System;
 using System.Collections.Generic;

@@ -1,5 +1,5 @@
-﻿using ExchangeLibrary;
-using ExchangeLibrary.Binance;
+﻿using BinanceExchange;
+using ExchangeLibrary;
 using NLog;
 using System;
 using System.Configuration;
@@ -19,13 +19,13 @@ namespace TradingBot
             var apiKey = ConfigurationManager.AppSettings.Get(ConfigKeys.API_KEY);
             var secretKey = ConfigurationManager.AppSettings.Get(ConfigKeys.SECRET_KEY);
             var binanceOptions = new BinanceExchangeOptions() { ApiKey = apiKey, SecretKey = secretKey };
-            var binance = ExchangeFactory.CreateExchange(ExchangeType.Binance, binanceOptions);
+            var binance = BinanceExchangeFactory.CreateExchange(ExchangeType.Binance, binanceOptions);
             using var cts = new CancellationTokenSource();
             var res1 = (await binance.GetExchangeInfoAsync()).ToList();
-            var res = (await binance.GetOldTradesAsync(res1[0].Symbol, 507, 600));
+            var res = (await binance.GetCandlstickAsync(res1[0].Symbol, "1M"));
             foreach(var item in res)
             {
-                Console.WriteLine(item.Price + " " + item.Quantity + " " + item.TimeUnix);
+                Console.WriteLine(item.OpenPrice + " " + item.ClosePrice + " " + item.MaxPrice);
             }
 
             // Console.WriteLine(await binance.CreateNewLimitOrderAsync(

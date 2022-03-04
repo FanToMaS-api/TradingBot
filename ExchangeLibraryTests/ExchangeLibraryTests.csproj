@@ -22,7 +22,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\ExchangeLibrary\ExchangeLibrary.csproj" />
+    <ProjectReference Include="..\BinanceExchange\BinanceExchange.csproj" />
   </ItemGroup>
 
   <ItemGroup>
