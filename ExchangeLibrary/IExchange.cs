@@ -81,22 +81,22 @@ namespace ExchangeLibrary
         /// <summary>
         ///     Возвращает текущую среднюю цену пары
         /// </summary>
-        Task<string> GetAveragePriceAsync(string symbol, CancellationToken cancellationToken = default);
+        Task<double> GetAveragePriceAsync(string symbol, CancellationToken cancellationToken = default);
 
         /// <summary>
         ///     Возвращает 24 статистику о цене для пары или для всех пар если <code><paramref name="symbol" /> = null or ""</code>)
         /// </summary>
-        Task<string> GetDayPriceChangeAsync(string symbol, CancellationToken cancellationToken = default);
+        Task<IEnumerable<DayPriceChangeModel>> GetDayPriceChangeAsync(string symbol, CancellationToken cancellationToken = default);
 
         /// <summary>
         ///     Возвращает последнюю цену для пары или для всех пар (если <code><paramref name="symbol" /> = null or ""</code>)
         /// </summary>
-        Task<string> GetSymbolPriceTickerAsync(string symbol, CancellationToken cancellationToken = default);
+        Task<IEnumerable<SymbolPriceModel>> GetSymbolPriceTickerAsync(string symbol, CancellationToken cancellationToken = default);
 
         /// <summary>
         ///     Возвращает лучшую цену/количество в стакане для символа или символов
         /// </summary>
-        Task<string> GetSymbolOrderBookTickerAsync(string symbol, CancellationToken cancellationToken = default);
+        Task<IEnumerable<BestSymbolOrderModel>> GetSymbolOrderBookTickerAsync(string symbol, CancellationToken cancellationToken = default);
 
         #endregion
 
@@ -118,55 +118,50 @@ namespace ExchangeLibrary
         /// <summary>
         ///     Подписывается на стрим данных по свечам для опред пары
         /// </summary>
-        /// <typeparam name="T"> Объект для работы с данными полученными со стрима </typeparam>
         /// <param name="symbol"> Пара </param>
-        /// <param name="onMessageReceivedFunc"> Функция обрабатываюащя данные объекта <see cref="{T}"/> </param>
+        /// <param name="onMessageReceivedFunc"> Функция обрабатываюащя данные объекта <see cref="CandlestickStreamModel"/> </param>
         /// <param name="candleStickInterval"> Интервал свечей </param>
-        Task SubscribeCandlestickStreamAsync<T>(
+        Task SubscribeCandlestickStreamAsync(
             string symbol,
             string candleStickInterval,
-            Func<T, Task> onMessageReceivedFunc,
+            Func<CandlestickStreamModel, Task> onMessageReceivedFunc,
             CancellationToken cancellationToken = default);
 
         /// <summary>
         ///     Подписывается на стрим статистики всех мини-тикеров за 24 часа
         /// </summary>
-        /// <typeparam name="T"> Объект для работы с данными полученными со стрима </typeparam>
-        /// <param name="onMessageReceivedFunc"> Функция обрабатываюащя данные объекта <see cref="{T}"/> </param>
-        Task SubscribeAllMarketTickersStreamAsync<T>(
-            Func<T, Task> onMessageReceivedFunc,
+        /// <param name="onMessageReceivedFunc"> Функция обрабатываюащя данные объекта <see cref="TickerStreamModel"/> </param>
+        Task SubscribeAllMarketTickersStreamAsync(
+            Func<IEnumerable<TickerStreamModel>, Task> onMessageReceivedFunc,
             CancellationToken cancellationToken = default);
 
         /// <summary>
         ///     Подписывается на стрим обновлений лучшей цены покупки или продажи или количество
         ///     в режиме реального времени для всех символов
         /// </summary>
-        /// <typeparam name="T"> Объект для работы с данными полученными со стрима </typeparam>
-        /// <param name="onMessageReceivedFunc"> Функция обрабатываюащя данные объекта <see cref="{T}"/> </param>
-        Task SubscribeAllBookTickersStreamAsync<T>(
-            Func<T, Task> onMessageReceivedFunc,
+        /// <param name="onMessageReceivedFunc"> Функция обрабатываюащя данные объекта <see cref="BookTickerStreamModel"/> </param>
+        Task SubscribeAllBookTickersStreamAsync(
+            Func<IEnumerable<BookTickerStreamModel>, Task> onMessageReceivedFunc,
             CancellationToken cancellationToken = default);
 
         /// <summary>
         ///     Подписывается на стрим статистики всех мини-тикеров за 24 часа
         /// </summary>
-        /// <typeparam name="T"> Объект для работы с данными полученными со стрима </typeparam>
-        /// <param name="onMessageReceivedFunc"> Функция обрабатываюащя данные объекта <see cref="{T}"/> </param>
-        Task SubscribeAllMarketMiniTickersStreamAsync<T>(
-            Func<T, Task> onMessageReceivedFunc,
+        /// <param name="onMessageReceivedFunc"> Функция обрабатывающая данные объекта <see cref="MiniTickerStreamModel"/> </param>
+        Task SubscribeAllMarketMiniTickersStreamAsync(
+            Func<IEnumerable<MiniTickerStreamModel>, Task> onMessageReceivedFunc,
             CancellationToken cancellationToken = default);
 
         /// <summary>
         ///     Подписывается на стрим лучших ордеров спроса и предложений
         /// </summary>
         /// <param name="symbol"> Пара (в нижнем регистре) </param>
-        /// <typeparam name="T"> Объект для работы с данными полученными со стрима </typeparam>
-        /// <param name="onMessageReceivedFunc"> Функция обрабатываюащя данные объекта <see cref="{T}"/> </param>
+        /// <param name="onMessageReceivedFunc"> Функция обрабатываюащя данные объекта <see cref="OrderBookModel"/> </param>
         /// <param name="levels"> Кол-во оредеров. Допустимые значения 5, 10, 20 </param>
         /// <param name="activateFastReceive"> Активировать прием данных раз в 100 миллисекунд </param>
-        Task SubscribePartialBookDepthStreamAsync<T>(
+        Task SubscribePartialBookDepthStreamAsync(
             string symbol,
-            Func<T, Task> onMessageReceivedFunc,
+            Func<OrderBookModel, Task> onMessageReceivedFunc,
             int levels = 10,
             bool activateFastReceive = false,
             CancellationToken cancellationToken = default);
