@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
-using Common.Models;
+using BinanceExchange.Enums.Helper;
 using BinanceExchange.Models;
+using Common.Models;
 
 namespace BinanceExchange
 {
@@ -28,6 +29,14 @@ namespace BinanceExchange
             CreateMap<Models.BookTickerStreamModel, Common.Models.BookTickerStreamModel>();
             CreateMap<Models.AggregateSymbolTradeStreamModel, Common.Models.AggregateSymbolTradeStreamModel>();
             CreateMap<Models.SymbolTradeStreamModel, Common.Models.SymbolTradeStreamModel>();
+
+            // TODO ??
+            // CreateMap<Models.OrderResponseModelBase, Common.Models.OrderResponseModelBase>()
+            //    .ForMember(_ => _.Status, _ => _.MapFrom(_ => _.Status.ToUrl())); 
+     
+            CreateMap<Models.CancelOrderResponseModel, Common.Models.CancelOrderResponseModel>();
+            CreateMap<Models.CheckOrderResponseModel, Common.Models.CheckOrderResponseModel>();
+            CreateMap<Models.FullOrderResponseModel, Common.Models.FullOrderResponseModel>();
 
             CreateMap<Models.CandlestickStreamModel, Common.Models.CandlestickStreamModel>()
                 .ForMember(_ => _.KineStartTimeUnix, _ => _.MapFrom(_ => _.Kline.KineStartTimeUnix))

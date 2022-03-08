@@ -6,6 +6,7 @@ using BinanceExchange.EndpointSenders;
 using BinanceExchange.EndpointSenders.Impl;
 using BinanceExchange.Enums;
 using BinanceExchange.Models;
+using Common.Models;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;

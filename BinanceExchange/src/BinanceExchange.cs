@@ -573,7 +573,7 @@ namespace BinanceExchange
         #region Spot Account/Trade
 
         /// <inheritdoc />
-        public async Task<string> CreateNewLimitOrderAsync(
+        public async Task<Common.Models.FullOrderResponseModel> CreateNewLimitOrderAsync(
             string symbol,
             string sideType,
             string forceType,
@@ -605,11 +605,11 @@ namespace BinanceExchange
 
             IncrementCallsMade(requestWeight, RequestWeightModel.GetDefaultKey());
 
-            return "TODO";
+            return _mapper.Map<Common.Models.FullOrderResponseModel>(result);
         }
 
         /// <inheritdoc />
-        public async Task<string> CreateNewMarketOrderAsync(
+        public async Task<Common.Models.FullOrderResponseModel> CreateNewMarketOrderAsync(
             string symbol,
             string sideType,
             double quantity,
@@ -637,11 +637,11 @@ namespace BinanceExchange
 
             IncrementCallsMade(requestWeight, RequestWeightModel.GetDefaultKey());
 
-            return "TODO";
+            return _mapper.Map<Common.Models.FullOrderResponseModel>(result);
         }
 
         /// <inheritdoc />
-        public async Task<string> CreateNewStopLossOrderAsync(
+        public async Task<Common.Models.FullOrderResponseModel> CreateNewStopLossOrderAsync(
             string symbol,
             string sideType,
             double quantity,
@@ -671,11 +671,11 @@ namespace BinanceExchange
 
             IncrementCallsMade(requestWeight, RequestWeightModel.GetDefaultKey());
 
-            return "TODO";
+            return _mapper.Map<Common.Models.FullOrderResponseModel>(result);
         }
 
         /// <inheritdoc />
-        public async Task<string> CreateNewStopLossLimitOrderAsync(
+        public async Task<Common.Models.FullOrderResponseModel> CreateNewStopLossLimitOrderAsync(
             string symbol,
             string sideType,
             string forceType,
@@ -709,11 +709,11 @@ namespace BinanceExchange
 
             IncrementCallsMade(requestWeight, RequestWeightModel.GetDefaultKey());
 
-            return "TODO";
+            return _mapper.Map<Common.Models.FullOrderResponseModel>(result);
         }
 
         /// <inheritdoc />
-        public async Task<string> CreateNewTakeProfitOrderAsync(
+        public async Task<Common.Models.FullOrderResponseModel> CreateNewTakeProfitOrderAsync(
             string symbol,
             string sideType,
             double quantity,
@@ -743,11 +743,11 @@ namespace BinanceExchange
 
             IncrementCallsMade(requestWeight, RequestWeightModel.GetDefaultKey());
 
-            return "TODO";
+            return _mapper.Map<Common.Models.FullOrderResponseModel>(result);
         }
 
         /// <inheritdoc />
-        public async Task<string> CreateNewTakeProfitLimitOrderAsync(
+        public async Task<Common.Models.FullOrderResponseModel> CreateNewTakeProfitLimitOrderAsync(
             string symbol,
             string sideType,
             string forceType,
@@ -781,11 +781,11 @@ namespace BinanceExchange
 
             IncrementCallsMade(requestWeight, RequestWeightModel.GetDefaultKey());
 
-            return "TODO";
+            return _mapper.Map<Common.Models.FullOrderResponseModel>(result);
         }
 
         /// <inheritdoc />
-        public async Task<string> CreateNewLimitMakerOrderAsync(
+        public async Task<Common.Models.FullOrderResponseModel> CreateNewLimitMakerOrderAsync(
             string symbol,
             string sideType,
             double price,
@@ -815,7 +815,7 @@ namespace BinanceExchange
 
             IncrementCallsMade(requestWeight, RequestWeightModel.GetDefaultKey());
 
-            return "TODO";
+            return _mapper.Map<Common.Models.FullOrderResponseModel>(result);
         }
 
         /// <inheritdoc />
