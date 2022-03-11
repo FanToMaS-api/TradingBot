@@ -8,7 +8,26 @@ namespace Common.JsonConvertWrapper
     public static class Utf8JsonReaderExtension
     {
         /// <summary>
-        ///     Считывает занчение и сдвигает позицию reader'a
+        ///     Пропускает все, пока не дойдет до требуемой секции
+        /// </summary>
+        public static void SkipToSection(this ref Utf8JsonReader reader, string sectionName)
+        {
+            var lastPropertyName = "";
+            var isSkipNeeded = true;
+            while (reader.Read() && isSkipNeeded)
+            {
+                if (reader.TokenType == JsonTokenType.PropertyName)
+                {
+                    lastPropertyName = reader.GetString();
+                    reader.Read();
+
+                    isSkipNeeded = lastPropertyName != sectionName;
+                }
+            }
+        }
+
+        /// <summary>
+        ///     Считывает значение и сдвигает позицию reader'a
         /// </summary>
         public static double ReadDoubleAndNext(this ref Utf8JsonReader reader)
         {
@@ -19,7 +38,7 @@ namespace Common.JsonConvertWrapper
         }
 
         /// <summary>
-        ///     Считывает занчение и сдвигает позицию reader'a
+        ///     Считывает значение и сдвигает позицию reader'a
         /// </summary>
         public static long ReadLongAndNext(this ref Utf8JsonReader reader)
         {
@@ -30,7 +49,7 @@ namespace Common.JsonConvertWrapper
         }
 
         /// <summary>
-        ///     Считывает занчение и сдвигает позицию reader'a
+        ///     Считывает значение и сдвигает позицию reader'a
         /// </summary>
         public static string ReadStringAndNext(this ref Utf8JsonReader reader)
         {
@@ -41,7 +60,7 @@ namespace Common.JsonConvertWrapper
         }
 
         /// <summary>
-        ///     Считывает занчение и сдвигает позицию reader'a
+        ///     Считывает значение и сдвигает позицию reader'a
         /// </summary>
         public static int ReadIntAndNext(this ref Utf8JsonReader reader)
         {

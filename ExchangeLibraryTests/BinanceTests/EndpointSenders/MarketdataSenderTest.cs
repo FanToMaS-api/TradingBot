@@ -1,10 +1,10 @@
-using ExchangeLibrary.Binance;
-using ExchangeLibrary.Binance.Client;
-using ExchangeLibrary.Binance.Client.Impl;
-using ExchangeLibrary.Binance.EndpointSenders;
-using ExchangeLibrary.Binance.EndpointSenders.Impl;
-using ExchangeLibrary.Binance.Enums;
-using ExchangeLibrary.Binance.Models;
+using BinanceExchange;
+using BinanceExchange.Client;
+using BinanceExchange.Client.Impl;
+using BinanceExchange.EndpointSenders;
+using BinanceExchange.EndpointSenders.Impl;
+using BinanceExchange.Enums;
+using BinanceExchange.Models;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -23,7 +23,7 @@ namespace ExchangeLibraryTests.BinanceTests.EndpointSenders
         /// <summary>
         ///     Ожидаемый результат выполнения запроса 24го изменения цены
         /// </summary>
-        private static readonly List<DayPriceChangeModel> _expectedDayPriceChange = new List<DayPriceChangeModel>
+        private static readonly List<DayPriceChangeModel> _expectedDayPriceChange = new()
         {
             new DayPriceChangeModel
             {
@@ -273,6 +273,47 @@ namespace ExchangeLibraryTests.BinanceTests.EndpointSenders
         #region Tests
 
         /// <summary>
+        ///     Тест запроса текущих правил биржевой торговли и информации о символах
+        /// </summary>
+        [Fact(DisplayName = "Requesting current exchange trading rules and symbol information Test")]
+        public async Task GetExchangeInfoAsyncTest()
+        {
+            var filePath = "../../../BinanceTests/Jsons/Marketdata/EXCHANGE_INFO.json";
+
+            using var client = TestHelper.CreateMockHttpClient(BinanceEndpoints.EXCHANGE_INFO, filePath);
+            IBinanceClient binanceClient = new BinanceClient(client, "", "");
+            IMarketdataSender marketdataSender = new MarketdataSender(binanceClient);
+
+            // Act
+            var result = await marketdataSender.GetExchangeInfoAsync(null, cancellationToken: CancellationToken.None);
+
+            var expectedOrderTypes = new[]
+            {
+                OrderType.Limit,
+                OrderType.LimitMaker,
+                OrderType.Market,
+                OrderType.StopLoss,
+                OrderType.StopLossLimit,
+                OrderType.TakeProfit,
+                OrderType.TakeProfitLimit
+            };
+
+            Assert.Equal(2, result.Symbols.Count);
+            for (var i = 0; i < 2; i++)
+            {
+                Assert.Equal($"ETHBTC_{i}", result.Symbols[i].Symbol);
+                Assert.Equal(SymbolStatusType.Trading, result.Symbols[i].Status);
+                Assert.Equal("ETH", result.Symbols[i].BaseAsset);
+                Assert.Equal("BTC", result.Symbols[i].QuoteAsset);
+                Assert.Equal(i + 1, result.Symbols[i].BaseAssetPrecision);
+                Assert.Equal(i + 2, result.Symbols[i].QuotePrecision);
+                Assert.Equal(expectedOrderTypes, result.Symbols[i].OrderTypes);
+                Assert.True(result.Symbols[i].IsIcebergAllowed);
+                Assert.True(result.Symbols[i].IsOcoAllowed);
+            }
+        }
+
+        /// <summary>
         ///     Тест запроса списка ордеров для конкретной монеты
         /// </summary>
         [Fact(DisplayName = "Requesting a list of orders for a specific coin Test")]
@@ -290,13 +331,13 @@ namespace ExchangeLibraryTests.BinanceTests.EndpointSenders
             Assert.Equal(2, result.Bids.Count);
             Assert.Equal(2, result.Asks.Count);
             Assert.Equal(4.00000000, result.Bids[0].Price);
-            Assert.Equal(431.00000000, result.Bids[0].Qty);
+            Assert.Equal(431.00000000, result.Bids[0].Quantity);
             Assert.Equal(5.00000000, result.Bids[1].Price);
-            Assert.Equal(15.00000000, result.Bids[1].Qty);
+            Assert.Equal(15.00000000, result.Bids[1].Quantity);
             Assert.Equal(4.00000200, result.Asks[0].Price);
-            Assert.Equal(12.00000000, result.Asks[0].Qty);
+            Assert.Equal(12.00000000, result.Asks[0].Quantity);
             Assert.Equal(6.00000200, result.Asks[1].Price);
-            Assert.Equal(18.00000000, result.Asks[1].Qty);
+            Assert.Equal(18.00000000, result.Asks[1].Quantity);
         }
 
         /// <summary>
@@ -316,7 +357,7 @@ namespace ExchangeLibraryTests.BinanceTests.EndpointSenders
             Assert.Single(result);
             Assert.Equal(28457, result[0].Id);
             Assert.Equal(4.00000100, result[0].Price);
-            Assert.Equal(12.00000000, result[0].Qty);
+            Assert.Equal(12.00000000, result[0].Quantity);
             Assert.Equal(48.000012, result[0].QuoteQty);
             Assert.Equal(1499865549590, result[0].TimeUnix);
             Assert.True(result[0].IsBuyerMaker);
@@ -340,7 +381,7 @@ namespace ExchangeLibraryTests.BinanceTests.EndpointSenders
             Assert.Single(result);
             Assert.Equal(28457, result[0].Id);
             Assert.Equal(4.00000100, result[0].Price);
-            Assert.Equal(12.00000000, result[0].Qty);
+            Assert.Equal(12.00000000, result[0].Quantity);
             Assert.Equal(48.000012, result[0].QuoteQty);
             Assert.Equal(1499865549590, result[0].TimeUnix);
             Assert.True(result[0].IsBuyerMaker);

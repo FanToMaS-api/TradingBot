@@ -1,10 +1,10 @@
-﻿using Common.JsonConvertWrapper;
+﻿using BinanceExchange.Enums;
+using BinanceExchange.Enums.Helper;
+using BinanceExchange.Models;
+using BinanceExchange.WebSocket;
+using BinanceExchange.WebSocket.Marketdata;
+using Common.JsonConvertWrapper;
 using Common.JsonConvertWrapper.Converters;
-using ExchangeLibrary.Binance.Enums;
-using ExchangeLibrary.Binance.Enums.Helper;
-using ExchangeLibrary.Binance.Models;
-using ExchangeLibrary.Binance.WebSocket;
-using ExchangeLibrary.Binance.WebSocket.Marketdata;
 using NSubstitute;
 using System;
 using System.Collections.Generic;
@@ -344,12 +344,12 @@ namespace ExchangeLibraryTests.BinanceTests.WebSocket
                     new PriceQtyPair
                     {
                         Price = 0.0024,
-                        Qty = 10
+                        Quantity = 10
                     },
                     new PriceQtyPair
                     {
                         Price = 0.0025,
-                        Qty = 11
+                        Quantity = 11
                     },
                 },
                 Asks = new List<PriceQtyPair>
@@ -357,12 +357,12 @@ namespace ExchangeLibraryTests.BinanceTests.WebSocket
                     new PriceQtyPair
                     {
                         Price = 0.0026,
-                        Qty = 100
+                        Quantity = 100
                     },
                     new PriceQtyPair
                     {
                         Price = 0.0027,
-                        Qty = 111
+                        Quantity = 111
                     },
                 }
             };
@@ -384,13 +384,13 @@ namespace ExchangeLibraryTests.BinanceTests.WebSocket
                     Assert.Equal(expected.Asks.Count, actual.Asks.Count);
                     Assert.Equal(expected.LastUpdateId, actual.LastUpdateId);
                     Assert.Equal(expected.Bids[0].Price, actual.Bids[0].Price);
-                    Assert.Equal(expected.Bids[0].Qty, actual.Bids[0].Qty);
+                    Assert.Equal(expected.Bids[0].Quantity, actual.Bids[0].Quantity);
                     Assert.Equal(expected.Bids[1].Price, actual.Bids[1].Price);
-                    Assert.Equal(expected.Bids[1].Qty, actual.Bids[1].Qty);
+                    Assert.Equal(expected.Bids[1].Quantity, actual.Bids[1].Quantity);
                     Assert.Equal(expected.Asks[0].Price, actual.Asks[0].Price);
-                    Assert.Equal(expected.Asks[0].Qty, actual.Asks[0].Qty);
+                    Assert.Equal(expected.Asks[0].Quantity, actual.Asks[0].Quantity);
                     Assert.Equal(expected.Asks[1].Price, actual.Asks[1].Price);
-                    Assert.Equal(expected.Asks[1].Qty, actual.Asks[1].Qty);
+                    Assert.Equal(expected.Asks[1].Quantity, actual.Asks[1].Quantity);
 
                     await webSocket.DisconnectAsync(CancellationToken.None);
                 },

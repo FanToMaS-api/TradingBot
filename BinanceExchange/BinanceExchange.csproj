@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+  </PropertyGroup>
+
+	<ItemGroup>
+		<AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
+			<_Parameter1>ExchangeLibraryTests</_Parameter1>
+		</AssemblyAttribute>
+		<AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
+			<_Parameter1>DynamicProxyGenAssembly2</_Parameter1>
+		</AssemblyAttribute>
+	</ItemGroup>
+	
+	<ItemGroup>
+		<PackageReference Include="AutoMapper" Version="11.0.1" />
+		<PackageReference Include="jose-jwt" Version="3.2.0" />
+		<PackageReference Include="NLog.Targets.Seq" Version="2.1.0" />
+		<PackageReference Include="StackExchange.Redis" Version="2.2.88" />
+	</ItemGroup>
+	
+  <ItemGroup>
+    <ProjectReference Include="..\ExchangeLibrary\ExchangeLibrary.csproj" />
+  </ItemGroup>
+
+</Project>

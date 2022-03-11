@@ -22,10 +22,13 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\ExchangeLibrary\ExchangeLibrary.csproj" />
+    <ProjectReference Include="..\BinanceExchange\BinanceExchange.csproj" />
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="BinanceTests\Jsons\Marketdata\EXCHANGE_INFO.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="BinanceTests\Jsons\Marketdata\AVERAGE_PRICE.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
