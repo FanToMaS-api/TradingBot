@@ -1,0 +1,68 @@
+{
+  "timezone": "UTC",
+  "serverTime": 1565246363776,
+  "rateLimits": [
+    {}
+  ],
+  "exchangeFilters": [],
+  "symbols": [
+    {
+      "symbol": "ETHBTC_0",
+      "status": "TRADING",
+      "baseAsset": "ETH",
+      "baseAssetPrecision": 1,
+      "quoteAsset": "BTC",
+      "quotePrecision": 2,
+      "quoteAssetPrecision": 8,
+      "orderTypes": [
+        "LIMIT",
+        "LIMIT_MAKER",
+        "MARKET",
+        "STOP_LOSS",
+        "STOP_LOSS_LIMIT",
+        "TAKE_PROFIT",
+        "TAKE_PROFIT_LIMIT"
+      ],
+      "icebergAllowed": true,
+      "ocoAllowed": true,
+      "quoteOrderQtyMarketAllowed": true,
+      "allowTrailingStop": false,
+      "isSpotTradingAllowed": true,
+      "isMarginTradingAllowed": true,
+      "filters": [],
+      "permissions": [
+        "SPOT",
+        "MARGIN"
+      ]
+    },
+    {
+      "symbol": "ETHBTC_1",
+      "status": "TRADING",
+      "baseAsset": "ETH",
+      "baseAssetPrecision": 2,
+      "quoteAsset": "BTC",
+      "quotePrecision": 3,
+      "quoteAssetPrecision": 8,
+      "orderTypes": [
+        "LIMIT",
+        "LIMIT_MAKER",
+        "MARKET",
+        "STOP_LOSS",
+        "STOP_LOSS_LIMIT",
+        "TAKE_PROFIT",
+        "TAKE_PROFIT_LIMIT"
+      ],
+      "icebergAllowed": true,
+      "ocoAllowed": true,
+      "quoteOrderQtyMarketAllowed": true,
+      "allowTrailingStop": false,
+      "isSpotTradingAllowed": true,
+      "isMarginTradingAllowed": true,
+      "filters": [],
+      "permissions": [
+        "SPOT",
+        "MARGIN"
+      ]
+    }
+  ]
+}

@@ -1,13 +1,9 @@
-using ExchangeLibrary.Binance;
-using ExchangeLibrary.Binance.Client;
-using ExchangeLibrary.Binance.Client.Impl;
-using ExchangeLibrary.Binance.EndpointSenders;
-using ExchangeLibrary.Binance.EndpointSenders.Impl;
-using RichardSzalay.MockHttp;
-using System;
-using System.IO;
+using BinanceExchange;
+using BinanceExchange.Client;
+using BinanceExchange.Client.Impl;
+using BinanceExchange.EndpointSenders;
+using BinanceExchange.EndpointSenders.Impl;
 using System.Linq;
-using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
@@ -73,7 +69,7 @@ namespace ExchangeLibraryTests.BinanceTests.EndpointSenders
             IWalletSender walletEndpointSender = new WalletSender(binanceClient);
 
             // Act
-            var result = await walletEndpointSender.GetAccountTraidingStatusAsync(null, CancellationToken.None);
+            var result = await walletEndpointSender.GetAccountTradingStatusAsync(null, CancellationToken.None);
 
             Assert.True(result.Data.IsLocked);
             Assert.Equal(123, result.Data.PlannedRecoverTimeUnix);
