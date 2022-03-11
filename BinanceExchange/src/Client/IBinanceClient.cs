@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 namespace BinanceExchange.Client
 {
     /// <summary>
-    ///     Базовый клиент Binance для разделов REST API.
+    ///     Базовый клиент Binance для разделов REST API
     /// </summary>
     internal interface IBinanceClient
     {

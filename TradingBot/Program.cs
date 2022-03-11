@@ -19,7 +19,7 @@ namespace TradingBot
             var apiKey = ConfigurationManager.AppSettings.Get(ConfigKeys.API_KEY);
             var secretKey = ConfigurationManager.AppSettings.Get(ConfigKeys.SECRET_KEY);
             var binanceOptions = new BinanceExchangeOptions() { ApiKey = apiKey, SecretKey = secretKey };
-            var binance = BinanceExchangeFactory.CreateExchange(ExchangeType.Binance, binanceOptions);
+            var binance = BinanceExchangeFactory.CreateExchange(binanceOptions);
             using var cts = new CancellationTokenSource();
             var res = (await binance.GetAllOrdersAsync("SOLUSDT"));
             foreach (var item in res)

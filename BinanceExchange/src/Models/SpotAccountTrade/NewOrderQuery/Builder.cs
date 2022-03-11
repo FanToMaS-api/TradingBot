@@ -8,7 +8,7 @@ using System.Linq;
 namespace BinanceExchange.Models
 {
     /// <summary>
-    ///     Строитель запрсов новых ордеров
+    ///     Строитель запросов новых ордеров
     /// </summary>
     internal class Builder : IBuilder
     {

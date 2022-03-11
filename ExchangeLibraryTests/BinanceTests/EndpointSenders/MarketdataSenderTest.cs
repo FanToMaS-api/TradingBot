@@ -275,7 +275,7 @@ namespace ExchangeLibraryTests.BinanceTests.EndpointSenders
         /// <summary>
         ///     Тест запроса текущих правил биржевой торговли и информации о символах
         /// </summary>
-        [Fact(DisplayName = "Requesting сurrent exchange trading rules and symbol information Test")]
+        [Fact(DisplayName = "Requesting current exchange trading rules and symbol information Test")]
         public async Task GetExchangeInfoAsyncTest()
         {
             var filePath = "../../../BinanceTests/Jsons/Marketdata/EXCHANGE_INFO.json";

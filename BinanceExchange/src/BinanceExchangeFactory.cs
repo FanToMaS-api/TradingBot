@@ -3,19 +3,13 @@
 namespace BinanceExchange
 {
     /// <summary>
-    ///     Фабрика для бирж
+    ///     Фабрика для Binance биржи
     /// </summary>
     public static class BinanceExchangeFactory
     {
         /// <summary>
-        ///     Создать биржу по типу
+        ///     Создать Binance биржу
         /// </summary>
-        public static IExchange CreateExchange(ExchangeType exchangeType, OptionsBase options)
-        {
-            return exchangeType switch
-            {
-                ExchangeType => new BinanceExchange((BinanceExchangeOptions)options)
-            };
-        }
+        public static IExchange CreateExchange(OptionsBase options) => new BinanceExchange((BinanceExchangeOptions)options);
     }
 }

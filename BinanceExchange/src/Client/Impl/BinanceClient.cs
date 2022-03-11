@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 namespace BinanceExchange.Client.Impl
 {
     /// <summary>
-    ///     Клиент Binance для разделов REST API.
+    ///     Клиент Binance для разделов REST API
     /// </summary>
     internal class BinanceClient : IBinanceClient
     {
