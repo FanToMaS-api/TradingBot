@@ -268,7 +268,7 @@ namespace ExchangeLibrary
         /// <summary>
         ///     Отменяет ордер по паре
         /// </summary>
-        Task<string> CancelOrderAsync(
+        Task<CancelOrderResponseModel> CancelOrderAsync(
             string symbol,
             long? orderId = null,
             string origClientOrderId = null,
@@ -278,7 +278,7 @@ namespace ExchangeLibrary
         /// <summary>
         ///     Отменяет все ордера по паре
         /// </summary>
-        Task<string> CancelAllOrdersAsync(
+        Task<IEnumerable<CancelOrderResponseModel>> CancelAllOrdersAsync(
             string symbol,
             long recvWindow = 5000,
             CancellationToken cancellationToken = default);
@@ -286,7 +286,7 @@ namespace ExchangeLibrary
         /// <summary>
         ///     Проверить состояние ордера по паре
         /// </summary>
-        Task<string> CheckOrderAsync(
+        Task<CheckOrderResponseModel> CheckOrderAsync(
             string symbol,
             long? orderId = null,
             string origClientOrderId = null,
@@ -297,7 +297,7 @@ namespace ExchangeLibrary
         ///     Проверить сосотояние всех открытов ордеров (или ордеров по паре)
         /// </summary>
         /// <param name="symbol"> Возможно null </param>
-        Task<string> CheckAllOpenOrdersAsync(
+        Task<IEnumerable<CheckOrderResponseModel>> CheckAllOpenOrdersAsync(
             string symbol,
             long recvWindow = 5000,
             CancellationToken cancellationToken = default);
@@ -310,7 +310,7 @@ namespace ExchangeLibrary
         /// <remarks>
         ///     Если указаны startTime и/или endTime, orderId не требуется
         /// </remarks>
-        Task<string> GetAllOrdersAsync(
+        Task<IEnumerable<CheckOrderResponseModel>> GetAllOrdersAsync(
             string symbol,
             long? orderId = null,
             long? startTime = null,

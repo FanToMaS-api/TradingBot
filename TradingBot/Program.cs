@@ -21,30 +21,29 @@ namespace TradingBot
             var binanceOptions = new BinanceExchangeOptions() { ApiKey = apiKey, SecretKey = secretKey };
             var binance = BinanceExchangeFactory.CreateExchange(ExchangeType.Binance, binanceOptions);
             using var cts = new CancellationTokenSource();
-            //var res1 = (await binance.GetExchangeInfoAsync()).ToList();
-            //var res = (await binance.GetCandlstickAsync(res1[0].Symbol, "1M"));
-            //foreach(var item in res)
-            //{
-            //    Console.WriteLine(item.OpenPrice + " " + item.ClosePrice + " " + item.MaxPrice);
-            //}
+            var res = (await binance.GetAllOrdersAsync("SOLUSDT"));
+            foreach (var item in res)
+            {
+                Console.WriteLine(item.IsWorking + " " + item.OrderSide + " " + item.Price + " " + item.Status);
+            }
 
             //Console.WriteLine(await binance.CreateNewLimitOrderAsync(
             //   "ARPABNB",
             //   "BUY",
             //   "GTC",
-            //   0.000205,
-            //   100,
+            //   0.0001813,
+            //   100000,
             //   cancellationToken: cts.Token));
 
-            await binance.SubscribeCandlestickStreamAsync(
-               "BNBBTC",
-               "1m",
-                _ =>
-                {
-                    Console.WriteLine($"{_.Symbol} {_.Interval} {_.TradesNumber} {_.MinPrice}");
-                    return Task.CompletedTask;
-                },
-                cts.Token);
+            //await binance.SubscribeCandlestickStreamAsync(
+            //   "BNBBTC",
+            //   "1m",
+            //    _ =>
+            //    {
+            //        Console.WriteLine($"{_.Symbol} {_.Interval} {_.TradesNumber} {_.MinPrice}");
+            //        return Task.CompletedTask;
+            //    },
+            //    cts.Token);
 
             await Task.Delay(70000);
         }

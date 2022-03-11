@@ -37,20 +37,20 @@ namespace BinanceExchange.Models
                 {
                     propertyName = reader.GetString();
                     reader.Read();
-                }
 
-                switch (propertyName)
-                {
-                    case "transactTime":
-                        TransactTimeUnix = reader.GetInt64();
-                        continue;
-                    case "fills":
-                        continue;
-                    default:
-                        {
-                            SetProperty(propertyName, ref reader);
+                    switch (propertyName)
+                    {
+                        case "transactTime":
+                            TransactTimeUnix = reader.GetInt64();
                             continue;
-                        }
+                        case "fills":
+                            continue;
+                        default:
+                            {
+                                SetProperty(propertyName, ref reader);
+                                continue;
+                            }
+                    }
                 }
             }
         }

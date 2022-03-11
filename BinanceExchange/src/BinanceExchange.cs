@@ -819,7 +819,7 @@ namespace BinanceExchange
         }
 
         /// <inheritdoc />
-        public async Task<string> CancelOrderAsync(
+        public async Task<Common.Models.CancelOrderResponseModel> CancelOrderAsync(
             string symbol,
             long? orderId = null,
             string origClientOrderId = null,
@@ -851,11 +851,11 @@ namespace BinanceExchange
 
             IncrementCallsMade(requestWeight, RequestWeightModel.GetDefaultKey());
 
-            return "TODO";
+            return _mapper.Map<Common.Models.CancelOrderResponseModel>(result);
         }
 
         /// <inheritdoc />
-        public async Task<string> CancelAllOrdersAsync(
+        public async Task<IEnumerable<Common.Models.CancelOrderResponseModel>> CancelAllOrdersAsync(
             string symbol,
             long recvWindow = 5000,
             CancellationToken cancellationToken = default)
@@ -871,15 +871,20 @@ namespace BinanceExchange
             builder.SetRecvWindow(recvWindow);
             var query = builder.GetResult().GetQuery();
 
-            var result = await _tradeSender.CancelAllOrdersAsync(query, cancellationToken);
-
+            var models = await _tradeSender.CancelAllOrdersAsync(query, cancellationToken);
             IncrementCallsMade(requestWeight, RequestWeightModel.GetDefaultKey());
 
-            return "TODO";
+            var result = new List<Common.Models.CancelOrderResponseModel>();
+            foreach(var model in models)
+            {
+                result.Add(_mapper.Map<Common.Models.CancelOrderResponseModel>(model));
+            }
+                
+            return result;
         }
 
         /// <inheritdoc />
-        public async Task<string> CheckOrderAsync(
+        public async Task<Common.Models.CheckOrderResponseModel> CheckOrderAsync(
             string symbol,
             long? orderId = null,
             string origClientOrderId = null,
@@ -910,11 +915,11 @@ namespace BinanceExchange
 
             IncrementCallsMade(requestWeight, RequestWeightModel.GetDefaultKey());
 
-            return "TODO";
+            return _mapper.Map<Common.Models.CheckOrderResponseModel>(result);
         }
 
         /// <inheritdoc />
-        public async Task<string> CheckAllOpenOrdersAsync(
+        public async Task<IEnumerable<Common.Models.CheckOrderResponseModel>> CheckAllOpenOrdersAsync(
             string symbol,
             long recvWindow = 5000,
             CancellationToken cancellationToken = default)
@@ -934,16 +939,22 @@ namespace BinanceExchange
             }
 
             var query = builder.GetResult().GetQuery();
-            var result = await _tradeSender.CheckAllOpenOrdersAsync(query, cancellationToken);
+            var models = await _tradeSender.CheckAllOpenOrdersAsync(query, cancellationToken);
 
             var key = isSymbolOmitted ? "null" : RequestWeightModel.GetDefaultKey();
             IncrementCallsMade(requestWeight, key);
 
-            return "TODO";
+            var result = new List<Common.Models.CheckOrderResponseModel>();
+            foreach (var model in models)
+            {
+                result.Add(_mapper.Map<Common.Models.CheckOrderResponseModel>(model));
+            }
+
+            return result;
         }
 
         /// <inheritdoc />
-        public async Task<string> GetAllOrdersAsync(
+        public async Task<IEnumerable<Common.Models.CheckOrderResponseModel>> GetAllOrdersAsync(
             string symbol,
             long? orderId = null,
             long? startTime = null,
@@ -978,11 +989,16 @@ namespace BinanceExchange
             }
 
             var query = builder.GetResult().GetQuery();
-            var result = await _tradeSender.GetAllOrdersAsync(query, cancellationToken);
-
+            var models = await _tradeSender.GetAllOrdersAsync(query, cancellationToken);
             IncrementCallsMade(requestWeight, RequestWeightModel.GetDefaultKey());
 
-            return "TODO";
+            var result = new List<Common.Models.CheckOrderResponseModel>();
+            foreach (var model in models)
+            {
+                result.Add(_mapper.Map<Common.Models.CheckOrderResponseModel>(model));
+            }
+
+            return result;
         }
 
         #endregion
