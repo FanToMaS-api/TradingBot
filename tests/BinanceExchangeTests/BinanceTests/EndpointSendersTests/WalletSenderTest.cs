@@ -8,7 +8,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace ExchangeLibraryTests.BinanceTests.EndpointSenders
+namespace BinanceExchangeTests.BinanceTests.EndpointSendersTests
 {
     /// <summary>
     ///     Класс, тестирующий <see cref="WalletSender"/>
@@ -31,8 +31,8 @@ namespace ExchangeLibraryTests.BinanceTests.EndpointSenders
             // Act
             var result = await walletEndpointSender.GetSystemStatusAsync(CancellationToken.None);
 
-            Assert.Equal(123, result.Status);
-            Assert.Equal("test", result.Message);
+            Assert.Equal(0, result.Status);
+            Assert.Equal("normal", result.Message);
         }
 
         /// <summary>

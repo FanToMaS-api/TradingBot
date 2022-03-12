@@ -13,7 +13,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace ExchangeLibraryTests.BinanceTests.EndpointSenders
+namespace BinanceExchangeTests.BinanceTests.EndpointSendersTests
 {
     /// <summary>
     ///     Тестирует <see cref="SpotAccountTradeSender"/>

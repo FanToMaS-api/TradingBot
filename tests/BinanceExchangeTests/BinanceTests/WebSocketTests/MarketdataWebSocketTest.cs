@@ -16,7 +16,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace ExchangeLibraryTests.BinanceTests.WebSocket
+namespace BinanceExchangeTests.BinanceTests.WebSocketTests
 {
     /// <summary>
     ///     Тестирует <see cref="MarketdataWebSocket"/>

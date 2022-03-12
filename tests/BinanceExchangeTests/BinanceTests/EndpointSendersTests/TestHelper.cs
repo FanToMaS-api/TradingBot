@@ -3,7 +3,7 @@ using System;
 using System.IO;
 using System.Net.Http;
 
-namespace ExchangeLibraryTests.BinanceTests.EndpointSenders
+namespace BinanceExchangeTests.BinanceTests.EndpointSendersTests
 {
     /// <summary>
     ///     Содержит тестовые методы общие для многих тестов
