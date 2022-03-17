@@ -11,11 +11,7 @@ namespace Common.Redis
 
         private readonly ILogger _logger = LogManager.GetCurrentClassLogger();
         private const int ReconnectionCount = 2;
-        static readonly ConnectionMultiplexer redis = ConnectionMultiplexer.Connect(
-           new ConfigurationOptions
-           {
-               EndPoints = { "localhost:6379" }
-           });
+        private readonly IConnectionMultiplexer _connectionMultiplexer;
         private readonly IDatabase _database;
 
         #endregion
@@ -23,9 +19,10 @@ namespace Common.Redis
         #region .ctor
 
         /// <inheritdoc cref="IRedisDatabase"/>
-        public RedisDatabase()
+        public RedisDatabase(IConnectionMultiplexer connectionMultiplexer)
         {
-            _database = redis.GetDatabase();
+            _connectionMultiplexer = connectionMultiplexer;
+            _database = _connectionMultiplexer.GetDatabase();
         }
 
         #endregion
@@ -48,7 +45,7 @@ namespace Common.Redis
         }
 
         /// <inheritdoc />
-        public void IncrementOrCreateKeyValue(string key, TimeSpan expiration, long value = 1)
+        public void IncrementOrCreateKeyValue(string key, TimeSpan expiration, int value = 1)
         {
             var redisValue = ExecuteRequest(() => _database.StringGetWithExpiry(key));
 
@@ -60,12 +57,18 @@ namespace Common.Redis
                 // Вручную проставляем экспирацию, поверх имеющихся значений ключа
                 if (!redisValue.Expiry.HasValue)
                 {
-                    ExecuteRequest(() => _database.KeyExpire(key, expiration));
+                    if (!ExecuteRequest(() => _database.KeyExpire(key, expiration)))
+                    {
+                        _logger.Warn($"Failed to set KeyExpire: key='{key}', expiration={expiration:G}");
+                    }
                 }
             }
             else
             {
-                ExecuteRequest(() => _database.StringSet(key, value, expiration));
+                if (!ExecuteRequest(() => _database.StringSet(key, value, expiration)))
+                {
+                    _logger.Warn($"Failed to set redis KeyValue: key='{key}', value={value}, expiration={expiration:G}");
+                };
             }
         }
 
@@ -94,6 +97,13 @@ namespace Common.Redis
 
             throw exception;
         }
+
+        #endregion
+
+        #region Implementation IDisposable
+
+        /// <inheritdoc />
+        public void Dispose() => _connectionMultiplexer.Dispose();
 
         #endregion
     }

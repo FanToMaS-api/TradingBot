@@ -580,11 +580,11 @@ namespace BinanceExchangeTests.BinanceTests.WebSocketTests
             var binanceWebSocketHumble = Substitute.For<IBinanceWebSocketHumble>();
             binanceWebSocketHumble.ConnectAsync(new Uri(url), CancellationToken.None).Returns(Task.CompletedTask);
             binanceWebSocketHumble.ReceiveAsync(Arg.Any<ArraySegment<byte>>(), Arg.Any<CancellationToken>())
-                .Returns(_ =>
+                .Returns(callInfo =>
                 {
                     for (var i = 0; i < bytes.Length; i++)
                     {
-                        ((ArraySegment<byte>)_[0])[i] = bytes[i];
+                        callInfo.ArgAt<ArraySegment<byte>>(0)[i] = bytes[i];
                     }
 
                     return new WebSocketReceiveResult(bytes.Length, WebSocketMessageType.Text, true);

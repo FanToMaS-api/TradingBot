@@ -5,7 +5,7 @@ namespace Common.Redis
     /// <summary>
     ///     База данных Redis
     /// </summary>
-    public interface IRedisDatabase
+    public interface IRedisDatabase : IDisposable
     {
         /// <summary>
         ///     Возвращает int значение по ключу
@@ -18,6 +18,6 @@ namespace Common.Redis
         /// <param name="key"></param>
         /// <param name="expiration"> Время экспирации ключа </param>
         /// <param name="value"> На сколько увеличить значение  </param>
-        void IncrementOrCreateKeyValue(string key, TimeSpan expiration, long value = 1);
+        void IncrementOrCreateKeyValue(string key, TimeSpan expiration, int value = 1);
     }
 }

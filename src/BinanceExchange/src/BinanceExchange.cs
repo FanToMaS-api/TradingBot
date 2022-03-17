@@ -16,6 +16,7 @@ using Common.Models;
 using Common.Redis;
 using ExchangeLibrary;
 using NLog;
+using StackExchange.Redis;
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
@@ -51,7 +52,11 @@ namespace BinanceExchange
         public BinanceExchange(BinanceExchangeOptions exchangeOptions)
         {
             _httpClient = new();
-            _redisDatabase = new RedisDatabase();
+            _redisDatabase = new RedisDatabase(
+                ConnectionMultiplexer.Connect(new ConfigurationOptions
+                {
+                    EndPoints = { "localhost:6379" }
+                }));
             _client = new BinanceClient(_httpClient, exchangeOptions.ApiKey, exchangeOptions.SecretKey);
             _walletSender = new WalletSender(_client);
             _marketdataSender = new MarketdataSender(_client);
@@ -874,11 +879,11 @@ namespace BinanceExchange
             IncrementCallsMade(requestWeight, RequestWeightModel.GetDefaultKey());
 
             var result = new List<Common.Models.CancelOrderResponseModel>();
-            foreach(var model in models)
+            foreach (var model in models)
             {
                 result.Add(_mapper.Map<Common.Models.CancelOrderResponseModel>(model));
             }
-                
+
             return result;
         }
 
@@ -1075,6 +1080,7 @@ namespace BinanceExchange
             }
 
             _isDisposed = true;
+            _redisDatabase?.Dispose();
             _httpClient.Dispose();
         }
 
