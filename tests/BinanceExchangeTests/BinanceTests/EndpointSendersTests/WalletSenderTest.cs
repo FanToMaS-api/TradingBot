@@ -3,6 +3,7 @@ using BinanceExchange.Client;
 using BinanceExchange.Client.Impl;
 using BinanceExchange.EndpointSenders;
 using BinanceExchange.EndpointSenders.Impl;
+using BinanceExchange.Models;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -21,7 +22,7 @@ namespace BinanceExchangeTests.BinanceTests.EndpointSendersTests
         ///     Тест запроса статуса системы
         /// </summary>
         [Fact(DisplayName = "Requesting system status Test")]
-        public async Task GetSystemStatusAsyncTest()
+        internal async Task<SystemStatusModel> GetSystemStatusAsyncTest()
         {
             var filePath = "../../../BinanceTests/Jsons/Wallet/SYSTEM_STATUS.json";
             using var client = TestHelper.CreateMockHttpClient(BinanceEndpoints.SYSTEM_STATUS, filePath);
@@ -33,6 +34,8 @@ namespace BinanceExchangeTests.BinanceTests.EndpointSendersTests
 
             Assert.Equal(0, result.Status);
             Assert.Equal("normal", result.Message);
+
+            return result;
         }
 
         /// <summary>

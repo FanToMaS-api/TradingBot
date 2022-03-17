@@ -1,8 +1,13 @@
-﻿using Common.Models;
+﻿using AutoMapper;
+using BinanceExchange;
+using BinanceExchange.EndpointSenders;
+using BinanceExchangeTests.BinanceTests.EndpointSendersTests;
+using Common.Models;
 using Common.Redis;
 using NSubstitute;
 using StackExchange.Redis;
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -13,6 +18,28 @@ namespace BinanceExchangeTests.BinanceTests
     /// </summary>
     public class BinanceExchangeTests
     {
+
+        #region Fields
+
+        private readonly WalletSenderTest _walletSenderTest = new();
+        private readonly IMapper _mapper;
+
+        #endregion
+
+        #region .ctor
+
+        /// <inheritdoc cref="BinanceExchangeTests"/>
+        public BinanceExchangeTests()
+        {
+            var config = new MapperConfiguration(cfg =>
+            {
+                cfg.AddProfile<BinanceMapperProfile>();
+            });
+            _mapper = new Mapper(config);
+        }
+
+        #endregion
+
         #region Speed limit Test
 
         /// <summary>
@@ -77,6 +104,28 @@ namespace BinanceExchangeTests.BinanceTests
             {
                 return redisDatabase.TryGetIntValue(key, out var keyValue) && keyValue.Value >= rateLimit.Limit;
             }
+        }
+
+        #endregion
+
+        #region Binance Exchange Tests
+
+        /// <summary>
+        ///     Првоерка получения статуса системы
+        /// </summary>
+        [Fact(DisplayName = "Get system status Test")]
+        public async Task GetSystemStatusAsync_Test()
+        {
+            var walletSender = Substitute.For<IWalletSender>();
+            var redisDatabase = Substitute.For<IRedisDatabase>();
+            walletSender.GetSystemStatusAsync(Arg.Any<CancellationToken>()).Returns(async _ =>
+            {
+                return await _walletSenderTest.GetSystemStatusAsyncTest();
+            });
+
+            var binanceExchange = new BinanceExchange.BinanceExchange(walletSender, null, null, redisDatabase, _mapper);
+
+            Assert.True(await binanceExchange.GetSystemStatusAsync());
         }
 
         #endregion
