@@ -276,7 +276,7 @@ namespace BinanceExchangeTests.BinanceTests.EndpointSendersTests
         ///     Тест запроса текущих правил биржевой торговли и информации о символах
         /// </summary>
         [Fact(DisplayName = "Requesting current exchange trading rules and symbol information Test")]
-        public async Task GetExchangeInfoAsyncTest()
+        public async Task GetExchangeInfoAsync_Test()
         {
             var filePath = "../../../BinanceTests/Jsons/Marketdata/EXCHANGE_INFO.json";
 
@@ -317,7 +317,7 @@ namespace BinanceExchangeTests.BinanceTests.EndpointSendersTests
         ///     Тест запроса списка ордеров для конкретной монеты
         /// </summary>
         [Fact(DisplayName = "Requesting a list of orders for a specific coin Test")]
-        public async Task GetOrderBookAsyncTest()
+        public async Task GetOrderBookAsync_Test()
         {
             var filePath = "../../../BinanceTests/Jsons/Marketdata/ORDER_BOOK.json";
 
@@ -344,7 +344,7 @@ namespace BinanceExchangeTests.BinanceTests.EndpointSendersTests
         ///     Тест запроса списка недавних сделок
         /// </summary>
         [Fact(DisplayName = "Recent trades list query Test")]
-        public async Task GetRecentTradesAsyncTest()
+        public async Task GetRecentTradesAsync_Test()
         {
             var filePath = "../../../BinanceTests/Jsons/Marketdata/RECENT_TRADES.json";
             using var client = TestHelper.CreateMockHttpClient(BinanceEndpoints.RECENT_TRADES, filePath);
@@ -368,7 +368,7 @@ namespace BinanceExchangeTests.BinanceTests.EndpointSendersTests
         ///     Тест запроса списка исторических сделок
         /// </summary>
         [Fact(DisplayName = "The request for a list of historical trades Test")]
-        public async Task GetOldTradesAsyncTest()
+        public async Task GetOldTradesAsync_Test()
         {
             var filePath = "../../../BinanceTests/Jsons/Marketdata/OLD_TRADES.json";
             using var client = TestHelper.CreateMockHttpClient(BinanceEndpoints.OLD_TRADES, filePath);
@@ -393,7 +393,7 @@ namespace BinanceExchangeTests.BinanceTests.EndpointSendersTests
         /// </summary>
         [Theory(DisplayName = "Request for a list of candlesticks by coin Test")]
         [MemberData(nameof(CandleStickData))]
-        internal async Task GetCandleStickAsyncTest(string filePath, CandlestickModel[] expected)
+        internal async Task GetCandleStickAsync_Test(string filePath, CandlestickModel[] expected)
         {
             using var client = TestHelper.CreateMockHttpClient(BinanceEndpoints.CANDLESTICK_DATA, filePath);
             IBinanceClient binanceClient = new BinanceClient(client, "", "");
@@ -418,7 +418,7 @@ namespace BinanceExchangeTests.BinanceTests.EndpointSendersTests
         ///     Тест запроса текущей средней цены пары
         /// </summary>
         [Fact(DisplayName = "Request for the current average price of a pair Test")]
-        public async Task GetAveragePriceAsyncTest()
+        public async Task GetAveragePriceAsync_Test()
         {
             var filePath = "../../../BinanceTests/Jsons/Marketdata/AVERAGE_PRICE.json";
             using var client = TestHelper.CreateMockHttpClient(BinanceEndpoints.AVERAGE_PRICE, filePath);
@@ -437,7 +437,7 @@ namespace BinanceExchangeTests.BinanceTests.EndpointSendersTests
         /// </summary>
         [Theory(DisplayName = "Request for a 24-hour change in the price of a pair Test")]
         [MemberData(nameof(DayPriceChangeData))]
-        internal async Task GetDayPriceChangeAsyncTest(string symbol, string filePath, List<DayPriceChangeModel> expectedDtos)
+        internal async Task GetDayPriceChangeAsync_Test(string symbol, string filePath, List<DayPriceChangeModel> expectedDtos)
         {
             using var client = TestHelper.CreateMockHttpClient(BinanceEndpoints.DAY_PRICE_CHANGE, filePath);
             IBinanceClient binanceClient = new BinanceClient(client, "", "");
@@ -463,7 +463,7 @@ namespace BinanceExchangeTests.BinanceTests.EndpointSendersTests
         /// </summary>
         [Theory(DisplayName = "Requesting the last price of a pair/pairs Test")]
         [MemberData(nameof(SymbolPriceTickerData))]
-        internal async Task GetSymbolPriceTickerAsync(string symbol, string filePath, List<SymbolPriceTickerModel> expectedDtos)
+        internal async Task GetSymbolPriceTicker_Async(string symbol, string filePath, List<SymbolPriceTickerModel> expectedDtos)
         {
             using var client = TestHelper.CreateMockHttpClient(BinanceEndpoints.SYMBOL_PRICE_TICKER, filePath);
             IBinanceClient binanceClient = new BinanceClient(client, "", "");
@@ -489,7 +489,7 @@ namespace BinanceExchangeTests.BinanceTests.EndpointSendersTests
         /// </summary>
         [Theory(DisplayName = "Requesting the best price/quantity in the order book for a symbol or symbols Test")]
         [MemberData(nameof(SymbolOrderBookTickerData))]
-        internal async Task GetSymbolOrderBookTickerAsyncAsync(string symbol, string filePath, List<SymbolOrderBookTickerModel> expectedDtos)
+        internal async Task GetSymbolOrderBookTickerAsync_Test(string symbol, string filePath, List<SymbolOrderBookTickerModel> expectedDtos)
         {
             using var client = TestHelper.CreateMockHttpClient(BinanceEndpoints.SYMBOL_ORDER_BOOK_TICKER, filePath);
             IBinanceClient binanceClient = new BinanceClient(client, "", "");

@@ -4,6 +4,7 @@ using BinanceExchange.Client.Impl;
 using BinanceExchange.EndpointSenders;
 using BinanceExchange.EndpointSenders.Impl;
 using BinanceExchange.Models;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -22,7 +23,7 @@ namespace BinanceExchangeTests.BinanceTests.EndpointSendersTests
         ///     Тест запроса статуса системы
         /// </summary>
         [Fact(DisplayName = "Requesting system status Test")]
-        internal async Task<SystemStatusModel> GetSystemStatusAsyncTest()
+        internal async Task<SystemStatusModel> GetSystemStatusAsync_Test()
         {
             var filePath = "../../../BinanceTests/Jsons/Wallet/SYSTEM_STATUS.json";
             using var client = TestHelper.CreateMockHttpClient(BinanceEndpoints.SYSTEM_STATUS, filePath);
@@ -42,7 +43,7 @@ namespace BinanceExchangeTests.BinanceTests.EndpointSendersTests
         ///     Тест запроса информации обо всех монетах
         /// </summary>
         [Fact(DisplayName = "Requesting information about all coins Test")]
-        public async Task GetAllCoinsInformationAsyncTest()
+        internal async Task<IEnumerable<CoinModel>> GetAllCoinsInformationAsync_Test()
         {
             var filePath = "../../../BinanceTests/Jsons/Wallet/ALL_COINS_INFORMATION.json";
             using var client = TestHelper.CreateMockHttpClient(BinanceEndpoints.ALL_COINS_INFORMATION, filePath);
@@ -50,21 +51,22 @@ namespace BinanceExchangeTests.BinanceTests.EndpointSendersTests
             IWalletSender walletEndpointSender = new WalletSender(binanceClient);
 
             // Act
-            var result = (await walletEndpointSender.GetAllCoinsInformationAsync(null, CancellationToken.None))
-                .ToList();
+            var result = (await walletEndpointSender.GetAllCoinsInformationAsync(null, CancellationToken.None)).ToList();
 
             Assert.Equal(2, result.Count);
             Assert.Equal("Bitcoin", result[0].Name);
             Assert.Equal("MyCoin", result[1].Name);
             Assert.Equal("BTC", result[0].Coin);
             Assert.Equal("MyCoin", result[1].Coin);
+
+            return result;
         }
 
         /// <summary>
         ///     Тест запроса статуса аккаунта
         /// </summary>
         [Fact(DisplayName = "The request of status of an account request Test")]
-        public async Task GetAccountTraidingStatusAsyncTest()
+        internal async Task<AccountTradingStatusModel> GetAccountTradingStatusAsync_Test()
         {
             var filePath = "../../../BinanceTests/Jsons/Wallet/ACCOUNT_API_TRADING_STATUS.json";
             using var client = TestHelper.CreateMockHttpClient(BinanceEndpoints.ACCOUNT_API_TRADING_STATUS, filePath);
@@ -80,13 +82,15 @@ namespace BinanceExchangeTests.BinanceTests.EndpointSendersTests
             Assert.Equal(152, result.Data.TriggerCondition.IFER);
             Assert.Equal(302, result.Data.TriggerCondition.UFR);
             Assert.Equal(1547630471725, result.Data.UpdateTimeUnix);
+
+            return result;
         }
 
         /// <summary>
         ///     Тест запроса таксы по всем монетам
         /// </summary>
         [Fact(DisplayName = "Requesting commission for all coins Test")]
-        public async Task GetTradeFeeAsyncTest()
+        internal async Task<IEnumerable<TradeFeeModel>> GetTradeFeeAsync_Test()
         {
             var filePath = "../../../BinanceTests/Jsons/Wallet/TRADE_FEE.json";
             using var client = TestHelper.CreateMockHttpClient(BinanceEndpoints.TRADE_FEE, filePath);
@@ -103,6 +107,8 @@ namespace BinanceExchangeTests.BinanceTests.EndpointSendersTests
             Assert.Equal("BNBBTC", result[1].Coin);
             Assert.Equal(0.003, result[1].MakerCommission);
             Assert.Equal(0.004, result[1].TakerCommission);
+
+            return result;
         }
 
         #endregion

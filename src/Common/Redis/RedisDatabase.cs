@@ -45,7 +45,7 @@ namespace Common.Redis
         }
 
         /// <inheritdoc />
-        public void IncrementOrCreateKeyValue(string key, TimeSpan expiration, int value = 1)
+        public bool TryIncrementOrCreateKeyValue(string key, TimeSpan expiration, int value = 1)
         {
             var redisValue = ExecuteRequest(() => _database.StringGetWithExpiry(key));
 
@@ -60,6 +60,8 @@ namespace Common.Redis
                     if (!ExecuteRequest(() => _database.KeyExpire(key, expiration)))
                     {
                         _logger.Warn($"Failed to set KeyExpire: key='{key}', expiration={expiration:G}");
+
+                        return false;
                     }
                 }
             }
@@ -68,8 +70,12 @@ namespace Common.Redis
                 if (!ExecuteRequest(() => _database.StringSet(key, value, expiration)))
                 {
                     _logger.Warn($"Failed to set redis KeyValue: key='{key}', value={value}, expiration={expiration:G}");
+
+                    return false;
                 };
             }
+
+            return true;
         }
 
         #region Private Methods

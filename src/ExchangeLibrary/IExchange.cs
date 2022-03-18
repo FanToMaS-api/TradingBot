@@ -32,7 +32,7 @@ namespace ExchangeLibrary
         ///     Получить информацию о таксе за все монеты или за определенную
         /// </summary>
         /// <param name="symbol"> Обозначение пары </param>
-        Task<TradeFeeModel> GetTradeFeeAsync(string symbol = null, long recvWindow = 5000, CancellationToken cancellationToken = default);
+        Task<IEnumerable<TradeFeeModel>> GetTradeFeeAsync(string symbol = null, long recvWindow = 5000, CancellationToken cancellationToken = default);
 
         #endregion
 

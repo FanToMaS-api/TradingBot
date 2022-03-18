@@ -113,7 +113,7 @@ namespace BinanceExchangeTests.BinanceTests.EndpointSendersTests
         ///     Тест запроса создания нового тестового ордера
         /// </summary>
         [Fact(DisplayName = "Request to create a new test order Test")]
-        public async Task SendNewTestOrderAsyncTest()
+        public async Task SendNewTestOrderAsync_Test()
         {
             var filePath = "../../../BinanceTests/Jsons/SpotAccountTrade/NewOrderResponse.json";
             var builder = new Builder();
@@ -157,7 +157,7 @@ namespace BinanceExchangeTests.BinanceTests.EndpointSendersTests
         ///     Тест запроса создания нового ордера
         /// </summary>
         [Fact(DisplayName = "Request to create a new order Test")]
-        public async Task SendNewOrderAsyncTest()
+        public async Task SendNewOrderAsync_Test()
         {
             var filePath = "../../../BinanceTests/Jsons/SpotAccountTrade/NewOrderResponse.json";
             var builder = new Builder();
@@ -201,7 +201,7 @@ namespace BinanceExchangeTests.BinanceTests.EndpointSendersTests
         ///     Тест запроса отмены ордера по паре
         /// </summary>
         [Fact(DisplayName = "Request to cancel the order Test")]
-        public async Task CancelOrderAsyncTest()
+        public async Task CancelOrderAsync_Test()
         {
             var filePath = "../../../BinanceTests/Jsons/SpotAccountTrade/CancelOrderResponse.json";
             var builder = new Builder();
@@ -237,7 +237,7 @@ namespace BinanceExchangeTests.BinanceTests.EndpointSendersTests
         ///     Тест запроса отмены всех ордеров по паре
         /// </summary>
         [Fact(DisplayName = "Request to cancel all orders Test")]
-        public async Task CancelAllOrdersAsyncTest()
+        public async Task CancelAllOrdersAsync_Test()
         {
             var filePath = "../../../BinanceTests/Jsons/SpotAccountTrade/CancelAllOrdersResponse.json";
             var builder = new Builder();
@@ -288,7 +288,7 @@ namespace BinanceExchangeTests.BinanceTests.EndpointSendersTests
         ///     Тест запроса состояния ордера по паре
         /// </summary>
         [Fact(DisplayName = "Request to check the order Test")]
-        public async Task CheckOrderAsyncTest()
+        public async Task CheckOrderAsync_Test()
         {
             var filePath = "../../../BinanceTests/Jsons/SpotAccountTrade/CheckOrderResponse.json";
             var builder = new Builder();
@@ -316,7 +316,7 @@ namespace BinanceExchangeTests.BinanceTests.EndpointSendersTests
         ///     Тест запроса состояния всех открытых оредров (или по опред паре)
         /// </summary>
         [Fact(DisplayName = "Request to check all open orders Test")]
-        public async Task CheckAllOpenOrdersAsyncTest()
+        public async Task CheckAllOpenOrdersAsync_Test()
         {
             var filePath = "../../../BinanceTests/Jsons/SpotAccountTrade/CheckAllOpenOrdersResponse.json";
             var builder = new Builder();
@@ -352,7 +352,7 @@ namespace BinanceExchangeTests.BinanceTests.EndpointSendersTests
         ///     Тест запроса всех ордеров по паре
         /// </summary>
         [Fact(DisplayName = "Request to get all orders Test")]
-        public async Task GetAllOrdersAsyncTest()
+        public async Task GetAllOrdersAsync_Test()
         {
             var filePath = "../../../BinanceTests/Jsons/SpotAccountTrade/GetAllOrdersResponse.json";
             var builder = new Builder();

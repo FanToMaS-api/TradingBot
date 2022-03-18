@@ -15,7 +15,7 @@ namespace BinanceExchange.Models
         /// <summary>
         ///     Установить пару
         /// </summary>
-        void SetSymbol(string symbol);
+        void SetSymbol(string symbol, bool canBeNull);
 
         /// <summary>
         ///     Установить цену

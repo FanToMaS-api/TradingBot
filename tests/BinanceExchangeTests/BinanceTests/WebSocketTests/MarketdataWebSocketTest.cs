@@ -81,7 +81,7 @@ namespace BinanceExchangeTests.BinanceTests.WebSocketTests
         ///     Тест подписки на <see cref="MarketdataStreamType.AggregateTradeStream"/>
         /// </summary>
         [Fact(DisplayName = "Aggregate trade stream subscription Test")]
-        public async Task SubscriptionAggregateTradeStreamTest()
+        public async Task SubscriptionAggregateTradeStream_Test()
         {
             var expected = new AggregateSymbolTradeStreamModel
             {
@@ -128,7 +128,7 @@ namespace BinanceExchangeTests.BinanceTests.WebSocketTests
         ///     Тест подписки на <see cref="MarketdataStreamType.IndividualSymbolBookTickerStream"/>
         /// </summary>
         [Fact(DisplayName = "Individual symbol book ticker stream subscription Test")]
-        public async Task SubscriptionBookTickerStreamTest()
+        public async Task SubscriptionBookTickerStream_Test()
         {
             var url = "wss://stream.binance.com:9443";
             var bytes = GetBytes("../../../BinanceTests/Jsons/WebSocket/IndividualSymbolBookTickerStream.json");
@@ -161,7 +161,7 @@ namespace BinanceExchangeTests.BinanceTests.WebSocketTests
         ///     Тест подписки на <see cref="MarketdataStreamType.AllBookTickersStream"/>
         /// </summary>
         [Fact(DisplayName = "All book tickers stream subscription Test")]
-        public async Task SubscriptionAllBookTickerStreamTest()
+        public async Task SubscriptionAllBookTickerStream_Test()
         {
             var url = "wss://stream.binance.com:9443";
             var bytes = GetBytes("../../../BinanceTests/Jsons/WebSocket/AllBookTickersStream.json");
@@ -200,7 +200,7 @@ namespace BinanceExchangeTests.BinanceTests.WebSocketTests
         ///     Тест подписки на <see cref="MarketdataStreamType.CandlestickStream"/>
         /// </summary>
         [Fact(DisplayName = "Candlestick stream subscription Test")]
-        public async Task SubscriptionCandlestickStreamTest()
+        public async Task SubscriptionCandlestickStream_Test()
         {
             var expected = new CandlestickStreamModel
             {
@@ -264,7 +264,7 @@ namespace BinanceExchangeTests.BinanceTests.WebSocketTests
         ///     Тест подписки на <see cref="MarketdataStreamType.IndividualSymbolMiniTickerStream"/>
         /// </summary>
         [Fact(DisplayName = "Individual symbol mini ticker stream subscription Test")]
-        public async Task SubscriptionMiniTickerStreamTest()
+        public async Task SubscriptionMiniTickerStream_Test()
         {
             var url = "wss://stream.binance.com:9443";
             var bytes = GetBytes("../../../BinanceTests/Jsons/WebSocket/IndividualSymbolMiniTickerStream.json");
@@ -297,7 +297,7 @@ namespace BinanceExchangeTests.BinanceTests.WebSocketTests
         ///     Тест подписки на <see cref="MarketdataStreamType.AllMarketMiniTickersStream"/>
         /// </summary>
         [Fact(DisplayName = "All market mini tickers stream subscription Test")]
-        public async Task SubscriptionAllMiniTickerStreamTest()
+        public async Task SubscriptionAllMiniTickerStream_Test()
         {
             var url = "wss://stream.binance.com:9443";
             var bytes = GetBytes("../../../BinanceTests/Jsons/WebSocket/AllMarketMiniTickersStream.json");
@@ -334,7 +334,7 @@ namespace BinanceExchangeTests.BinanceTests.WebSocketTests
         ///     Тест подписки на <see cref="MarketdataStreamType.PartialBookDepthStream"/>
         /// </summary>
         [Fact(DisplayName = "Partial book depth stream subscription Test")]
-        public async Task SubscriptionPartialBookDepthStreamTest()
+        public async Task SubscriptionPartialBookDepthStream_Test()
         {
             var expected = new OrderBookModel
             {
@@ -404,7 +404,7 @@ namespace BinanceExchangeTests.BinanceTests.WebSocketTests
         ///     Тест подписки на <see cref="MarketdataStreamType.TradeStream"/>
         /// </summary>
         [Fact(DisplayName = "Trade stream subscription Test")]
-        public async Task SubscriptionTradeStreamTest()
+        public async Task SubscriptionTradeStream_Test()
         {
             var expected = new SymbolTradeStreamModel
             {
@@ -451,7 +451,7 @@ namespace BinanceExchangeTests.BinanceTests.WebSocketTests
         ///     Тест подписки на <see cref="MarketdataStreamType.IndividualSymbolTickerStream"/>
         /// </summary>
         [Fact(DisplayName = "Individual symbol ticker stream subscription Test")]
-        public async Task SubscriptionIndividualSymbolTickerStreamTest()
+        public async Task SubscriptionIndividualSymbolTickerStream_Test()
         {
             var url = "wss://stream.binance.com:9443";
             var bytes = GetBytes("../../../BinanceTests/Jsons/WebSocket/IndividualSymbolTickerStream.json");
@@ -484,7 +484,7 @@ namespace BinanceExchangeTests.BinanceTests.WebSocketTests
         ///     Тест подписки на <see cref="MarketdataStreamType.AllMarketTickersStream"/>
         /// </summary>
         [Fact(DisplayName = "All market tickers stream subscription Test")]
-        public async Task SubscriptionAllMarketTickersStreamTest()
+        public async Task SubscriptionAllMarketTickersStream_Test()
         {
             var url = "wss://stream.binance.com:9443";
             var bytes = GetBytes("../../../BinanceTests/Jsons/WebSocket/AllMarketTickersStream.json");
@@ -522,7 +522,7 @@ namespace BinanceExchangeTests.BinanceTests.WebSocketTests
         ///     Проверка верной конвертации значений периодов свечей
         /// </summary>
         [Fact(DisplayName = "Candlesticks Interval Convertation Test")]
-        public void CandlestickIntervalConversionTest()
+        public void CandlestickIntervalConversion_Test()
         {
             var intervalstringViews = new List<string>
             { "1m", "3m", "5m", "15m", "30m", "1h", "2h", "4h", "6h", "8h", "12h", "1d", "3d", "1w", "1M" };

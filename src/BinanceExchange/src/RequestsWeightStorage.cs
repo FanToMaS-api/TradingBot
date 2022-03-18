@@ -12,7 +12,7 @@ namespace BinanceExchange
         /// <summary>
         ///     Вес запроса статуса системы
         /// </summary>
-        public RequestWeightModel SistemStatusWeight { get; } = new RequestWeightModel(
+        public RequestWeightModel SystemStatusWeight { get; } = new RequestWeightModel(
             Enums.ApiType.Sapi,
             new()
             {

@@ -91,7 +91,7 @@ namespace BinanceExchange
         /// <inheritdoc />
         public async Task<bool> GetSystemStatusAsync(CancellationToken cancellationToken = default)
         {
-            var requestWeight = _requestsWeightStorage.SistemStatusWeight;
+            var requestWeight = _requestsWeightStorage.SystemStatusWeight;
             if (CheckLimit(requestWeight.Type, out var rateLimit))
             {
                 throw new TooManyRequestsException(rateLimit.Expiration, rateLimit.Value, rateLimit.Key);
@@ -124,7 +124,7 @@ namespace BinanceExchange
         }
 
         /// <inheritdoc />
-        public async Task<Common.Models.TradeFeeModel> GetTradeFeeAsync(
+        public async Task<IEnumerable<Common.Models.TradeFeeModel>> GetTradeFeeAsync(
             string symbol = null,
             long recvWindow = 5000,
             CancellationToken cancellationToken = default)
@@ -136,14 +136,14 @@ namespace BinanceExchange
             }
 
             var builder = new Builder();
-            builder.SetSymbol(symbol);
+            builder.SetSymbol(symbol, true);
             builder.SetRecvWindow(recvWindow);
             var query = builder.GetResult().GetQuery();
             var result = await _walletSender.GetTradeFeeAsync(query, cancellationToken);
 
             IncrementCallsMade(requestWeight, RequestWeightModel.GetDefaultKey());
 
-            return _mapper.Map<Common.Models.TradeFeeModel>(result);
+            return _mapper.Map<IEnumerable<Common.Models.TradeFeeModel>>(result);
         }
 
         /// <inheritdoc />
@@ -181,13 +181,8 @@ namespace BinanceExchange
             var model = await _marketdataSender.GetExchangeInfoAsync(new Dictionary<string, object>(), cancellationToken);
 
             IncrementCallsMade(requestWeight, RequestWeightModel.GetDefaultKey());
-            var result = new List<SymbolRuleTradingModel>();
-            foreach (var symbol in model.Symbols)
-            {
-                result.Add(_mapper.Map<SymbolRuleTradingModel>(symbol));
-            }
 
-            return result;
+            return _mapper.Map<IEnumerable<SymbolRuleTradingModel>>(model.Symbols);
         }
 
         /// <inheritdoc />
@@ -223,17 +218,11 @@ namespace BinanceExchange
             builder.SetSymbol(symbol);
             builder.SetLimit(limit);
             var query = builder.GetResult(false).GetQuery();
-            var models = await _marketdataSender.GetRecentTradesAsync(query, cancellationToken);
+            var result = await _marketdataSender.GetRecentTradesAsync(query, cancellationToken);
 
             IncrementCallsMade(requestWeight, RequestWeightModel.GetDefaultKey());
 
-            var result = new List<Common.Models.TradeModel>();
-            foreach (var model in models)
-            {
-                result.Add(_mapper.Map<Common.Models.TradeModel>(model));
-            }
-
-            return result;
+            return _mapper.Map<IEnumerable<Common.Models.TradeModel>>(result);
         }
 
         /// <inheritdoc />
@@ -258,17 +247,11 @@ namespace BinanceExchange
             }
 
             var query = builder.GetResult(false).GetQuery();
-            var models = await _marketdataSender.GetOldTradesAsync(query, cancellationToken);
+            var result = await _marketdataSender.GetOldTradesAsync(query, cancellationToken);
 
             IncrementCallsMade(requestWeight, RequestWeightModel.GetDefaultKey());
 
-            var result = new List<Common.Models.TradeModel>();
-            foreach (var model in models)
-            {
-                result.Add(_mapper.Map<Common.Models.TradeModel>(model));
-            }
-
-            return result;
+            return _mapper.Map<IEnumerable<Common.Models.TradeModel>>(result);
         }
 
         /// <inheritdoc />
@@ -301,17 +284,11 @@ namespace BinanceExchange
             }
 
             var query = builder.GetResult(false).GetQuery();
-            var models = await _marketdataSender.GetCandlestickAsync(query, cancellationToken);
+            var result = await _marketdataSender.GetCandlestickAsync(query, cancellationToken);
 
             IncrementCallsMade(requestWeight, RequestWeightModel.GetDefaultKey());
 
-            var result = new List<Common.Models.CandlestickModel>();
-            foreach (var model in models)
-            {
-                result.Add(_mapper.Map<Common.Models.CandlestickModel>(model));
-            }
-
-            return result;
+            return _mapper.Map<IEnumerable<Common.Models.CandlestickModel>>(result);
         }
 
         /// <inheritdoc />
@@ -341,17 +318,12 @@ namespace BinanceExchange
                 throw new TooManyRequestsException(rateLimit.Expiration, rateLimit.Value, rateLimit.Key);
             }
 
-            var models = await _marketdataSender.GetDayPriceChangeAsync(symbol, cancellationToken);
+            var result = await _marketdataSender.GetDayPriceChangeAsync(symbol, cancellationToken);
 
             var key = string.IsNullOrEmpty(symbol) ? "null" : RequestWeightModel.GetDefaultKey();
             IncrementCallsMade(requestWeight, key);
-            var result = new List<Common.Models.DayPriceChangeModel>();
-            foreach (var item in models)
-            {
-                result.Add(_mapper.Map<Common.Models.DayPriceChangeModel>(item));
-            }
 
-            return result;
+            return _mapper.Map<IEnumerable<Common.Models.DayPriceChangeModel>>(result);
         }
 
         /// <inheritdoc />
@@ -363,17 +335,12 @@ namespace BinanceExchange
                 throw new TooManyRequestsException(rateLimit.Expiration, rateLimit.Value, rateLimit.Key);
             }
 
-            var models = await _marketdataSender.GetSymbolPriceTickerAsync(symbol, cancellationToken);
+            var result = await _marketdataSender.GetSymbolPriceTickerAsync(symbol, cancellationToken);
 
             var key = string.IsNullOrEmpty(symbol) ? "null" : RequestWeightModel.GetDefaultKey();
             IncrementCallsMade(requestWeight, key);
-            var result = new List<SymbolPriceModel>();
-            foreach (var item in models)
-            {
-                result.Add(_mapper.Map<SymbolPriceModel>(item));
-            }
 
-            return result;
+            return _mapper.Map<IEnumerable<SymbolPriceModel>>(result);
         }
 
         /// <inheritdoc />
@@ -385,17 +352,12 @@ namespace BinanceExchange
                 throw new TooManyRequestsException(rateLimit.Expiration, rateLimit.Value, rateLimit.Key);
             }
 
-            var models = await _marketdataSender.GetSymbolOrderBookTickerAsync(symbol, cancellationToken);
+            var result = await _marketdataSender.GetSymbolOrderBookTickerAsync(symbol, cancellationToken);
 
             var key = string.IsNullOrEmpty(symbol) ? "null" : RequestWeightModel.GetDefaultKey();
             IncrementCallsMade(requestWeight, key);
-            var result = new List<BestSymbolOrderModel>();
-            foreach (var item in models)
-            {
-                result.Add(_mapper.Map<BestSymbolOrderModel>(item));
-            }
 
-            return result;
+            return _mapper.Map<IEnumerable<BestSymbolOrderModel>>(result);
         }
 
         #endregion
@@ -476,11 +438,7 @@ namespace BinanceExchange
                content =>
                {
                    var models = converter.Deserialize<IEnumerable<Models.TickerStreamModel>>(content);
-                   var neededModels = new List<Common.Models.TickerStreamModel>();
-                   foreach (var model in models)
-                   {
-                       neededModels.Add(_mapper.Map<Common.Models.TickerStreamModel>(model));
-                   }
+                   var neededModels = _mapper.Map<IEnumerable<Common.Models.TickerStreamModel>>(models);
 
                    onMessageReceivedFunc?.Invoke(neededModels);
                    return Task.CompletedTask;
@@ -504,11 +462,7 @@ namespace BinanceExchange
                content =>
                {
                    var models = converter.Deserialize<IEnumerable<Models.BookTickerStreamModel>>(content);
-                   var neededModels = new List<Common.Models.BookTickerStreamModel>();
-                   foreach (var model in models)
-                   {
-                       neededModels.Add(_mapper.Map<Common.Models.BookTickerStreamModel>(model));
-                   }
+                   var neededModels = _mapper.Map<IEnumerable<Common.Models.BookTickerStreamModel>>(models);
 
                    onMessageReceivedFunc?.Invoke(neededModels);
                    return Task.CompletedTask;
@@ -532,11 +486,7 @@ namespace BinanceExchange
                content =>
                {
                    var models = converter.Deserialize<IEnumerable<Models.MiniTickerStreamModel>>(content);
-                   var neededModels = new List<Common.Models.MiniTickerStreamModel>();
-                   foreach (var model in models)
-                   {
-                       neededModels.Add(_mapper.Map<Common.Models.MiniTickerStreamModel>(model));
-                   }
+                   var neededModels = _mapper.Map<IEnumerable<Common.Models.MiniTickerStreamModel>>(models);
 
                    onMessageReceivedFunc?.Invoke(neededModels);
                    return Task.CompletedTask;
@@ -875,16 +825,10 @@ namespace BinanceExchange
             builder.SetRecvWindow(recvWindow);
             var query = builder.GetResult().GetQuery();
 
-            var models = await _tradeSender.CancelAllOrdersAsync(query, cancellationToken);
+            var result = await _tradeSender.CancelAllOrdersAsync(query, cancellationToken);
             IncrementCallsMade(requestWeight, RequestWeightModel.GetDefaultKey());
 
-            var result = new List<Common.Models.CancelOrderResponseModel>();
-            foreach (var model in models)
-            {
-                result.Add(_mapper.Map<Common.Models.CancelOrderResponseModel>(model));
-            }
-
-            return result;
+            return _mapper.Map<IEnumerable<Common.Models.CancelOrderResponseModel>>(result);
         }
 
         /// <inheritdoc />
@@ -943,18 +887,12 @@ namespace BinanceExchange
             }
 
             var query = builder.GetResult().GetQuery();
-            var models = await _tradeSender.CheckAllOpenOrdersAsync(query, cancellationToken);
+            var result = await _tradeSender.CheckAllOpenOrdersAsync(query, cancellationToken);
 
             var key = isSymbolOmitted ? "null" : RequestWeightModel.GetDefaultKey();
             IncrementCallsMade(requestWeight, key);
 
-            var result = new List<Common.Models.CheckOrderResponseModel>();
-            foreach (var model in models)
-            {
-                result.Add(_mapper.Map<Common.Models.CheckOrderResponseModel>(model));
-            }
-
-            return result;
+            return _mapper.Map<IEnumerable<Common.Models.CheckOrderResponseModel>>(result);
         }
 
         /// <inheritdoc />
@@ -1029,9 +967,12 @@ namespace BinanceExchange
         /// <summary>
         ///     Возвращает Redis-ключ для лимита
         /// </summary>
-        private string GetRedisKey(RateLimitType type) => $"tc_binance_{type.ToString().ToLower()}";
+        internal string GetRedisKey(RateLimitType type) => $"tc_binance_{type.ToString().ToLower()}";
 
-        private RateLimit GetRateLimit(ApiType type) =>
+        /// <summary>
+        ///     Возвращает модель ограничения скорости
+        /// </summary>
+        internal RateLimit GetRateLimit(ApiType type) =>
             type switch
             {
                 ApiType.Sapi => _rateLimitsStorage.SapiWeightLimit,
@@ -1049,8 +990,12 @@ namespace BinanceExchange
 
             if (requestWeight.Weights.TryGetValue(weightParamKey, out var value))
             {
-                _redisDatabase.IncrementOrCreateKeyValue(key, rateLimit.Interval, value);
-                return;
+                if (_redisDatabase.TryIncrementOrCreateKeyValue(key, rateLimit.Interval, value))
+                {
+                    return;
+                }
+
+                throw new Exception($"Failed to increment or create ketValue: key='{key}' interval='{rateLimit.Interval}' value='{value}'");
             }
 
             throw new KeyNotFoundException($"Key '{weightParamKey}' not found.");

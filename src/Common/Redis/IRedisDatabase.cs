@@ -18,6 +18,6 @@ namespace Common.Redis
         /// <param name="key"></param>
         /// <param name="expiration"> Время экспирации ключа </param>
         /// <param name="value"> На сколько увеличить значение  </param>
-        void IncrementOrCreateKeyValue(string key, TimeSpan expiration, int value = 1);
+        bool TryIncrementOrCreateKeyValue(string key, TimeSpan expiration, int value = 1);
     }
 }
