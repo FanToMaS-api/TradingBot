@@ -255,7 +255,7 @@ namespace BinanceExchange
         }
 
         /// <inheritdoc />
-        public async Task<IEnumerable<Common.Models.CandlestickModel>> GetCandlstickAsync(
+        public async Task<IEnumerable<Common.Models.CandlestickModel>> GetCandlestickAsync(
             string symbol,
             string interval,
             long? startTime = null,
@@ -263,7 +263,7 @@ namespace BinanceExchange
             int limit = 500,
             CancellationToken cancellationToken = default)
         {
-            var requestWeight = _requestsWeightStorage.CandleStickDataWeight;
+            var requestWeight = _requestsWeightStorage.CandlestickDataWeight;
             if (CheckLimit(requestWeight.Type, out var rateLimit))
             {
                 throw new TooManyRequestsException(rateLimit.Expiration, rateLimit.Value, rateLimit.Key);
@@ -344,7 +344,7 @@ namespace BinanceExchange
         }
 
         /// <inheritdoc />
-        public async Task<IEnumerable<BestSymbolOrderModel>> GetSymbolOrderBookTickerAsync(string symbol, CancellationToken cancellationToken = default)
+        public async Task<IEnumerable<BestSymbolOrderModel>> GetBestSymbolOrdersAsync(string symbol, CancellationToken cancellationToken = default)
         {
             var requestWeight = _requestsWeightStorage.SymbolOrderBookTickerWeight;
             if (CheckLimit(requestWeight.Type, out var rateLimit))

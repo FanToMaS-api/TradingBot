@@ -11,6 +11,11 @@
         public string Symbol { get; set; }
 
         /// <summary>
+        ///     Статус пары
+        /// </summary>
+        public string Status { get; set; }
+
+        /// <summary>
         ///     Базовая валюта
         /// </summary>
         public string BaseAsset { get; set; }

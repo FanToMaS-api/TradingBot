@@ -28,7 +28,7 @@ namespace BinanceExchange.EndpointSenders.Impl
             _client = client;
             _converter = new JsonDeserializerWrapper();
             _converter.AddConverter(new OrderBookModelConverter());
-            _converter.AddConverter(new CandleStickModelEnumerableConverter());
+            _converter.AddConverter(new CandlestickModelEnumerableConverter());
             _converter.AddConverter(new ExchangeInfoModelConverter());;
         }
 
@@ -114,7 +114,7 @@ namespace BinanceExchange.EndpointSenders.Impl
         public async Task<IEnumerable<DayPriceChangeModel>> GetDayPriceChangeAsync(string symbol, CancellationToken cancellationToken = default)
         {
             var isNull = string.IsNullOrEmpty(symbol);
-            var responce = await _client.SendPublicAsync(
+            var response = await _client.SendPublicAsync(
                 BinanceEndpoints.DAY_PRICE_CHANGE,
                 HttpMethod.Get,
                 query: new Dictionary<string, object>
@@ -127,13 +127,13 @@ namespace BinanceExchange.EndpointSenders.Impl
             {
                 var result = new List<DayPriceChangeModel>
                 {
-                    _converter.Deserialize<DayPriceChangeModel>(responce)
+                    _converter.Deserialize<DayPriceChangeModel>(response)
                 };
 
                 return result;
             }
 
-            return _converter.Deserialize<IEnumerable<DayPriceChangeModel>>(responce);
+            return _converter.Deserialize<IEnumerable<DayPriceChangeModel>>(response);
         }
 
         /// <inheritdoc />

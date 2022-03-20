@@ -144,11 +144,9 @@ namespace BinanceExchangeTests.BinanceTests.EndpointSendersTests
             var fillModelProperties = typeof(FillModel).GetProperties();
             for (var i = 0; i < _expectedResponse.Fills.Count; i++)
             {
-                for (var j = 0; j < fillModelProperties.Length; j++)
+                foreach (var property in fillModelProperties)
                 {
-                    Assert.Equal(
-                        fillModelProperties[j].GetValue(_expectedResponse.Fills[i]),
-                        fillModelProperties[j].GetValue(result.Fills[i]));
+                    Assert.Equal(property.GetValue(_expectedResponse.Fills[i]), property.GetValue(result.Fills[i]));
                 }
             }
         }
@@ -188,11 +186,9 @@ namespace BinanceExchangeTests.BinanceTests.EndpointSendersTests
             var fillModelProperties = typeof(FillModel).GetProperties();
             for (var i = 0; i < _expectedResponse.Fills.Count; i++)
             {
-                for (var j = 0; j < fillModelProperties.Length; j++)
+                foreach (var property in fillModelProperties)
                 {
-                    Assert.Equal(
-                        fillModelProperties[j].GetValue(_expectedResponse.Fills[i]),
-                        fillModelProperties[j].GetValue(result.Fills[i]));
+                    Assert.Equal(property.GetValue(_expectedResponse.Fills[i]), property.GetValue(result.Fills[i]));
                 }
             }
         }
@@ -306,9 +302,9 @@ namespace BinanceExchangeTests.BinanceTests.EndpointSendersTests
             var result = await tradeSender.CheckOrderAsync(query, cancellationToken: CancellationToken.None);
 
             var properties = typeof(CheckOrderResponseModel).GetProperties();
-            for (var i = 0; i < properties.Length; i++)
+            foreach (var property in properties)
             {
-                Assert.Equal(properties[i].GetValue(_expectedCheckOrderResponse), properties[i].GetValue(result));
+                Assert.Equal(property.GetValue(_expectedCheckOrderResponse), property.GetValue(result));
             }
         }
 
@@ -336,9 +332,9 @@ namespace BinanceExchangeTests.BinanceTests.EndpointSendersTests
             Assert.Equal(2, result.Count);
             for (var j = 0; j < 2; j++)
             {
-                for (var i = 0; i < properties.Length; i++)
+                foreach (var property in properties)
                 {
-                    Assert.Equal(properties[i].GetValue(_expectedCheckOrderResponse), properties[i].GetValue(result[j]));
+                    Assert.Equal(property.GetValue(_expectedCheckOrderResponse), property.GetValue(result[j]));
                 }
 
                 // изменение данных тут, чтобы не плодить объекты
@@ -372,9 +368,9 @@ namespace BinanceExchangeTests.BinanceTests.EndpointSendersTests
             Assert.Equal(2, result.Count);
             for (var j = 0; j < 2; j++)
             {
-                for (var i = 0; i < properties.Length; i++)
+                foreach (var property in properties)
                 {
-                    Assert.Equal(properties[i].GetValue(_expectedCheckOrderResponse), properties[i].GetValue(result[j]));
+                    Assert.Equal(property.GetValue(_expectedCheckOrderResponse), property.GetValue(result[j]));
                 }
 
                 // изменение данных тут, чтобы не плодить объекты

@@ -12,7 +12,8 @@ namespace BinanceExchange
     {
         public BinanceMapperProfile()
         {
-            CreateMap<SymbolInfoModel, SymbolRuleTradingModel>();
+            CreateMap<SymbolInfoModel, SymbolRuleTradingModel>()
+                .ForMember(_ => _.Status, _ => _.MapFrom(_ => _.Status));
             CreateMap<SymbolPriceTickerModel, SymbolPriceModel>();
             CreateMap<PriceQtyPair, OrderModel>();
 
@@ -38,7 +39,7 @@ namespace BinanceExchange
             CreateMap<Models.CandlestickStreamModel, Common.Models.CandlestickStreamModel>()
                 .ForMember(_ => _.KineStartTimeUnix, _ => _.MapFrom(_ => _.Kline.KineStartTimeUnix))
                 .ForMember(_ => _.KineStopTimeUnix, _ => _.MapFrom(_ => _.Kline.KineStopTimeUnix))
-                .ForMember(_ => _.Interval, _ => _.MapFrom(_ => _.Kline.Interval))
+                .ForMember(_ => _.Interval, _ => _.MapFrom(_ => _.Kline.Interval.ToUrl()))
                 .ForMember(_ => _.OpenPrice, _ => _.MapFrom(_ => _.Kline.OpenPrice))
                 .ForMember(_ => _.MinPrice, _ => _.MapFrom(_ => _.Kline.MinPrice))
                 .ForMember(_ => _.MaxPrice, _ => _.MapFrom(_ => _.Kline.MaxPrice))

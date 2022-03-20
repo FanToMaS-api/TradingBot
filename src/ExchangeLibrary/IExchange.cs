@@ -55,7 +55,7 @@ namespace ExchangeLibrary
         Task<IEnumerable<TradeModel>> GetRecentTradesAsync(string symbol, int limit = 500, CancellationToken cancellationToken = default);
 
         /// <summary>
-        ///     Возвращает исторические сделки
+        ///     Возвращает исторические сделки по паре
         /// </summary>
         /// <param name="symbol"> Пара </param>
         /// <param name="fromId"> Идентификатор сделки для получения. По умолчанию получают самые последние сделки </param>
@@ -70,7 +70,7 @@ namespace ExchangeLibrary
         /// <param name="startTime"> Время начала построения </param>
         /// <param name="endTime"> Окончание периода </param>
         /// <param name="limit"> Кол-во свечей (максимум 1000, по умолчанию 500) </param>
-        Task<IEnumerable<CandlestickModel>> GetCandlstickAsync(
+        Task<IEnumerable<CandlestickModel>> GetCandlestickAsync(
             string symbol,
             string interval,
             long? startTime = null,
@@ -84,19 +84,19 @@ namespace ExchangeLibrary
         Task<double> GetAveragePriceAsync(string symbol, CancellationToken cancellationToken = default);
 
         /// <summary>
-        ///     Возвращает 24 статистику о цене для пары или для всех пар если <code><paramref name="symbol" /> = null or ""</code>)
+        ///     Возвращает 24 статистику о цене для пары или для всех пар, если <code><paramref name="symbol" /> = null or ""</code>
         /// </summary>
         Task<IEnumerable<DayPriceChangeModel>> GetDayPriceChangeAsync(string symbol, CancellationToken cancellationToken = default);
 
         /// <summary>
-        ///     Возвращает последнюю цену для пары или для всех пар (если <code><paramref name="symbol" /> = null or ""</code>)
+        ///     Возвращает последнюю цену для пары или для всех пар, если <code><paramref name="symbol" /> = null or ""</code>
         /// </summary>
         Task<IEnumerable<SymbolPriceModel>> GetSymbolPriceTickerAsync(string symbol, CancellationToken cancellationToken = default);
 
         /// <summary>
         ///     Возвращает лучшую цену/количество в стакане для символа или символов
         /// </summary>
-        Task<IEnumerable<BestSymbolOrderModel>> GetSymbolOrderBookTickerAsync(string symbol, CancellationToken cancellationToken = default);
+        Task<IEnumerable<BestSymbolOrderModel>> GetBestSymbolOrdersAsync(string symbol, CancellationToken cancellationToken = default);
 
         #endregion
 

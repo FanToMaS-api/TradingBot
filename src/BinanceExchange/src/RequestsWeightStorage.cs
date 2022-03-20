@@ -103,7 +103,7 @@ namespace BinanceExchange
         /// <summary>
         ///     Вес запроса свечей для монеты
         /// </summary>
-        public RequestWeightModel CandleStickDataWeight { get; } = new RequestWeightModel(
+        public RequestWeightModel CandlestickDataWeight { get; } = new RequestWeightModel(
             Enums.ApiType.Api,
             new()
             {

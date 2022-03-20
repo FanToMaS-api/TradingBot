@@ -25,11 +25,13 @@ namespace BinanceExchangeTests.BinanceTests
         #region Fields
 
         private readonly WalletSenderTest _walletSenderTest = new();
+        private readonly MarketdataSenderTest _marketdataSenderTest = new();
         private readonly IMapper _mapper;
         private readonly RequestsWeightStorage _requestsWeightStorage = new();
         private readonly IExchange _binanceExchange;
         private readonly IRedisDatabase _redisDatabase;
         private readonly IWalletSender _walletSender;
+        private readonly IMarketdataSender _marketdataSender;
 
         // поля для проверки верного увеличения лимитов ограничения скорости
         private string _actualKey = "";
@@ -49,6 +51,7 @@ namespace BinanceExchangeTests.BinanceTests
             });
             _mapper = new Mapper(config);
             _walletSender = Substitute.For<IWalletSender>();
+            _marketdataSender = Substitute.For<IMarketdataSender>();
             _redisDatabase = Substitute.For<IRedisDatabase>();
 
             _binanceExchange = SetupBinanceExchange();
@@ -59,6 +62,8 @@ namespace BinanceExchangeTests.BinanceTests
         /// </summary>
         private BinanceExchange.BinanceExchange SetupBinanceExchange()
         {
+            #region Wallet Setup
+
             _walletSender.GetSystemStatusAsync(Arg.Any<CancellationToken>()).Returns(async _ =>
             {
                 return await _walletSenderTest.GetSystemStatusAsync_Test();
@@ -79,7 +84,115 @@ namespace BinanceExchangeTests.BinanceTests
                 return await _walletSenderTest.GetTradeFeeAsync_Test();
             });
 
-            return new BinanceExchange.BinanceExchange(_walletSender, null, null, _redisDatabase, _mapper);
+            #endregion
+
+            #region Marketdata Setup
+
+            _marketdataSender.GetExchangeInfoAsync(Arg.Any<Dictionary<string, object>>(), Arg.Any<CancellationToken>()).Returns(async _ =>
+            {
+                return await _marketdataSenderTest.GetExchangeInfoAsync_Test();
+            });
+
+            _marketdataSender.GetOrderBookAsync(Arg.Any<Dictionary<string, object>>(), Arg.Any<CancellationToken>()).Returns(async _ =>
+            {
+                return await _marketdataSenderTest.GetOrderBookAsync_Test();
+            });
+
+            _marketdataSender.GetRecentTradesAsync(Arg.Any<Dictionary<string, object>>(), Arg.Any<CancellationToken>()).Returns(async _ =>
+            {
+                return await _marketdataSenderTest.GetRecentTradesAsync_Test();
+            });
+
+            _marketdataSender.GetOldTradesAsync(Arg.Any<Dictionary<string, object>>(), Arg.Any<CancellationToken>()).Returns(async _ =>
+            {
+                return await _marketdataSenderTest.GetOldTradesAsync_Test();
+            });
+
+            _marketdataSender.GetCandlestickAsync(Arg.Any<Dictionary<string, object>>(), Arg.Any<CancellationToken>()).Returns(async _ =>
+            {
+                return await _marketdataSenderTest.GetCandlestickAsync_Test(
+                    "../../../BinanceTests/Jsons/Marketdata/CANDLESTICK_DATA.json",
+                    TestHelper.GetBinanceCandlestickModels());
+            });
+
+            _marketdataSender.GetAveragePriceAsync(Arg.Any<Dictionary<string, object>>(), Arg.Any<CancellationToken>()).Returns(async _ =>
+            {
+                return await _marketdataSenderTest.GetAveragePriceAsync_Test();
+            });
+
+            var dayPriceChangeModel = TestHelper.GetBinanceDayPriceChangeModels();
+            _marketdataSender.GetDayPriceChangeAsync("", Arg.Any<CancellationToken>()).Returns(async _ =>
+            {
+                return await _marketdataSenderTest.GetDayPriceChangeAsync_Test(
+                    "",
+                    "../../../BinanceTests/Jsons/Marketdata/DAY_PRICE_CHANGE_SYMBOL_IS_NULL.json",
+                    new List<BinanceExchange.Models.DayPriceChangeModel>
+                    {
+                        dayPriceChangeModel,
+                        dayPriceChangeModel
+                    });
+            });
+
+            _marketdataSender.GetDayPriceChangeAsync("BNBBTC", Arg.Any<CancellationToken>()).Returns(async _ =>
+            {
+                return await _marketdataSenderTest.GetDayPriceChangeAsync_Test(
+                    "BNBBTC",
+                    "../../../BinanceTests/Jsons/Marketdata/DAY_PRICE_CHANGE_SYMBOL.json",
+                    new List<BinanceExchange.Models.DayPriceChangeModel>
+                    {
+                        dayPriceChangeModel,
+                    });
+            });
+
+            _marketdataSender.GetSymbolPriceTickerAsync("", Arg.Any<CancellationToken>()).Returns(async _ =>
+            {
+                return await _marketdataSenderTest.GetSymbolPriceTickerAsync_Test(
+                    "",
+                    "../../../BinanceTests/Jsons/Marketdata/SYMBOL_PRICE_TICKERS.json",
+                    new List<SymbolPriceTickerModel>
+                    {
+                        TestHelper.GetBinanceSymbolPriceTickerModel("LTCBTC", 4.00000200),
+                        TestHelper.GetBinanceSymbolPriceTickerModel("ETHBTC", 0.07946600)
+                    });
+            });
+
+            _marketdataSender.GetSymbolPriceTickerAsync("LTCBTC", Arg.Any<CancellationToken>()).Returns(async _ =>
+            {
+                return await _marketdataSenderTest.GetSymbolPriceTickerAsync_Test(
+                    "LTCBTC",
+                    "../../../BinanceTests/Jsons/Marketdata/SYMBOL_PRICE_TICKER.json",
+                    new List<SymbolPriceTickerModel>
+                    {
+                        TestHelper.GetBinanceSymbolPriceTickerModel("LTCBTC", 4.00000200),
+                    });
+            });
+
+            _marketdataSender.GetSymbolOrderBookTickerAsync("", Arg.Any<CancellationToken>()).Returns(async _ =>
+            {
+                return await _marketdataSenderTest.GetSymbolOrderBookTickerAsync_Test(
+                    "",
+                    "../../../BinanceTests/Jsons/Marketdata/SYMBOL_ORDER_BOOK_TICKERS.json",
+                    new List<SymbolOrderBookTickerModel>
+                    {
+                        TestHelper.GetBinanceSymbolOrderBookTickerModel("LTCBTC", 4.00000000, 431.00000000, 4.00000200, 9.00000000),
+                        TestHelper.GetBinanceSymbolOrderBookTickerModel("ETHBTC", 0.07946700, 9.00000000, 100000.00000000, 1000.00000000)
+                    });
+            });
+
+            _marketdataSender.GetSymbolOrderBookTickerAsync("LTCBTC", Arg.Any<CancellationToken>()).Returns(async _ =>
+            {
+                return await _marketdataSenderTest.GetSymbolOrderBookTickerAsync_Test(
+                    "LTCBTC",
+                    "../../../BinanceTests/Jsons/Marketdata/SYMBOL_ORDER_BOOK_TICKER.json",
+                    new List<SymbolOrderBookTickerModel>
+                    {
+                        TestHelper.GetBinanceSymbolOrderBookTickerModel("LTCBTC", 4.00000000, 431.00000000, 4.00000200, 9.00000000)
+                    });
+            });
+
+            #endregion
+
+            return new BinanceExchange.BinanceExchange(_walletSender, _marketdataSender, null, _redisDatabase, _mapper);
         }
 
         #endregion
@@ -266,6 +379,379 @@ namespace BinanceExchangeTests.BinanceTests
             Assert.Equal(expectedKey, _actualKey);
             Assert.Equal(expectedInterval, _actualInterval);
             Assert.Equal(expectedWeight, _actualWeight);
+        }
+
+        #endregion
+
+        #region Marketdata Tests
+
+        /// <summary>
+        ///     Проверка получения текущих правил биржевой торговли и информации о символах
+        /// </summary>
+        [Fact(DisplayName = "Get exchange info Test")]
+        public async Task GetExchangeInfoAsync_Test()
+        {
+            var requestWeight = _requestsWeightStorage.ExchangeInfoWeight;
+            var (expectedKey, expectedInterval, expectedWeight) = GetExpectedArguments(requestWeight, RequestWeightModel.GetDefaultKey());
+
+            SetArgumentsEvent += SetArgumentsEventHandler;
+
+            MockRedisIncrementOrCreateKeyValue(_redisDatabase);
+
+            var result = (await _binanceExchange.GetExchangeInfoAsync()).ToList();
+
+            SetArgumentsEvent -= SetArgumentsEventHandler;
+
+            Assert.Equal(2, result.Count);
+            Assert.Equal($"ETHBTC_0", result[0].Symbol);
+            Assert.Equal("Trading", result[0].Status);
+            Assert.Equal("ETH", result[0].BaseAsset);
+            Assert.Equal("BTC", result[0].QuoteAsset);
+            Assert.Equal(1, result[0].BaseAssetPrecision);
+            Assert.Equal(2, result[0].QuotePrecision);
+            Assert.True(result[0].IsIcebergAllowed);
+            Assert.True(result[0].IsOcoAllowed);
+
+            Assert.Equal($"ETHBTC_1", result[1].Symbol);
+            Assert.Equal("Trading", result[1].Status);
+            Assert.Equal("ETH", result[1].BaseAsset);
+            Assert.Equal("BTC", result[1].QuoteAsset);
+            Assert.Equal(2, result[1].BaseAssetPrecision);
+            Assert.Equal(3, result[1].QuotePrecision);
+            Assert.True(result[1].IsIcebergAllowed);
+            Assert.True(result[1].IsOcoAllowed);
+
+            Assert.Equal(expectedKey, _actualKey);
+            Assert.Equal(expectedInterval, _actualInterval);
+            Assert.Equal(expectedWeight, _actualWeight);
+        }
+
+        /// <summary>
+        ///     Проверка получения книги ордеров по определенной паре
+        /// </summary>
+        [Fact(DisplayName = "Get order book Test")]
+        public async Task GetOrderBookAsync_Test()
+        {
+            MockRedisIncrementOrCreateKeyValue(_redisDatabase);
+
+            var result = await _binanceExchange.GetOrderBookAsync("_");
+
+            Assert.Equal(2, result.Asks.Count);
+            Assert.Equal(2, result.Bids.Count);
+
+            Assert.Equal(4.00000000, result.Bids[0].Price);
+            Assert.Equal(431.00000000, result.Bids[0].Quantity);
+            Assert.Equal(5.00000000, result.Bids[1].Price);
+            Assert.Equal(15.00000000, result.Bids[1].Quantity);
+            Assert.Equal(4.00000200, result.Asks[0].Price);
+            Assert.Equal(12.00000000, result.Asks[0].Quantity);
+            Assert.Equal(6.00000200, result.Asks[1].Price);
+            Assert.Equal(18.00000000, result.Asks[1].Quantity);
+
+            // проверка получения и простановки правильных весов запроса
+            var requestWeight = _requestsWeightStorage.OrderBookWeight;
+            var weightKeys = new string[] { "5", "10", "20", "50", "100", "500", "1000", "5000" };
+            SetArgumentsEvent += SetArgumentsEventHandler;
+            for (var i = 0; i < weightKeys.Length; i++)
+            {
+                var key = weightKeys[i];
+                var (expectedKey, expectedInterval, expectedWeight) = GetExpectedArguments(requestWeight, key);
+                await _binanceExchange.GetOrderBookAsync("_", int.Parse(key));
+
+                Assert.Equal(expectedKey, _actualKey);
+                Assert.Equal(expectedInterval, _actualInterval);
+                Assert.Equal(expectedWeight, _actualWeight);
+            }
+
+            SetArgumentsEvent -= SetArgumentsEventHandler;
+        }
+
+        /// <summary>
+        ///     Проверка получения последних сделок по паре
+        /// </summary>
+        [Fact(DisplayName = "Get recent trades Test")]
+        public async Task GetRecentTradesAsync_Test()
+        {
+            var requestWeight = _requestsWeightStorage.RecentTradesWeight;
+            var (expectedKey, expectedInterval, expectedWeight) = GetExpectedArguments(requestWeight, RequestWeightModel.GetDefaultKey());
+
+            SetArgumentsEvent += SetArgumentsEventHandler;
+
+            MockRedisIncrementOrCreateKeyValue(_redisDatabase);
+
+            var result = (await _binanceExchange.GetRecentTradesAsync("_")).ToList();
+
+            SetArgumentsEvent -= SetArgumentsEventHandler;
+
+            Assert.Single(result);
+            Assert.Equal(28457, result[0].Id);
+            Assert.Equal(4.00000100, result[0].Price);
+            Assert.Equal(12.00000000, result[0].Quantity);
+            Assert.Equal(48.000012, result[0].QuoteQty);
+            Assert.Equal(1499865549590, result[0].TimeUnix);
+            Assert.True(result[0].IsBuyerMaker);
+            Assert.True(result[0].IsBestMatch);
+
+            Assert.Equal(expectedKey, _actualKey);
+            Assert.Equal(expectedInterval, _actualInterval);
+            Assert.Equal(expectedWeight, _actualWeight);
+        }
+
+        /// <summary>
+        ///     Проверка получения исторических сделок по паре
+        /// </summary>
+        [Fact(DisplayName = "Get old trades Test")]
+        public async Task GetOldTradesAsync_Test()
+        {
+            var requestWeight = _requestsWeightStorage.OldTradesWeight;
+            var (expectedKey, expectedInterval, expectedWeight) = GetExpectedArguments(requestWeight, RequestWeightModel.GetDefaultKey());
+
+            SetArgumentsEvent += SetArgumentsEventHandler;
+
+            MockRedisIncrementOrCreateKeyValue(_redisDatabase);
+
+            var result = (await _binanceExchange.GetOldTradesAsync("_")).ToList();
+
+            SetArgumentsEvent -= SetArgumentsEventHandler;
+
+            Assert.Single(result);
+            Assert.Equal(28457, result[0].Id);
+            Assert.Equal(4.00000100, result[0].Price);
+            Assert.Equal(12.00000000, result[0].Quantity);
+            Assert.Equal(48.000012, result[0].QuoteQty);
+            Assert.Equal(1499865549590, result[0].TimeUnix);
+            Assert.True(result[0].IsBuyerMaker);
+            Assert.True(result[0].IsBestMatch);
+
+            Assert.Equal(expectedKey, _actualKey);
+            Assert.Equal(expectedInterval, _actualInterval);
+            Assert.Equal(expectedWeight, _actualWeight);
+        }
+
+        /// <summary>
+        ///     Проверка получения исторических сделок по паре
+        /// </summary>
+        [Fact(DisplayName = "Get candlestick Test")]
+        public async Task GetCandlestickAsync_Test()
+        {
+            var requestWeight = _requestsWeightStorage.CandlestickDataWeight;
+            var (expectedKey, expectedInterval, expectedWeight) = GetExpectedArguments(requestWeight, RequestWeightModel.GetDefaultKey());
+
+            SetArgumentsEvent += SetArgumentsEventHandler;
+
+            MockRedisIncrementOrCreateKeyValue(_redisDatabase);
+
+            var result = (await _binanceExchange.GetCandlestickAsync("_", "1m")).ToList();
+
+            SetArgumentsEvent -= SetArgumentsEventHandler;
+
+            Assert.Equal(2, result.Count);
+            var expected = TestHelper.GetExpectedCandlestickModels();
+            var properties = typeof(Common.Models.CandlestickModel).GetProperties();
+            for (var i = 0; i < 2; i++)
+            {
+                foreach (var property in properties)
+                {
+                    Assert.Equal(property.GetValue(expected[i]), property.GetValue(result[i]));
+                }
+            }
+
+            Assert.Equal(expectedKey, _actualKey);
+            Assert.Equal(expectedInterval, _actualInterval);
+            Assert.Equal(expectedWeight, _actualWeight);
+        }
+
+        /// <summary>
+        ///     Проверка получения текущей средней цены пары
+        /// </summary>
+        [Fact(DisplayName = "Get average price Test")]
+        public async Task GetAveragePriceAsync_Test()
+        {
+            var requestWeight = _requestsWeightStorage.CurrentAveragePriceWeight;
+            var (expectedKey, expectedInterval, expectedWeight) = GetExpectedArguments(requestWeight, RequestWeightModel.GetDefaultKey());
+
+            SetArgumentsEvent += SetArgumentsEventHandler;
+
+            MockRedisIncrementOrCreateKeyValue(_redisDatabase);
+
+            Assert.Equal(9.35751834, await _binanceExchange.GetAveragePriceAsync("_"));
+
+            SetArgumentsEvent -= SetArgumentsEventHandler;
+
+            Assert.Equal(expectedKey, _actualKey);
+            Assert.Equal(expectedInterval, _actualInterval);
+            Assert.Equal(expectedWeight, _actualWeight);
+        }
+
+        /// <summary>
+        ///     Проверка получения 24 статистики о цене для пары или для всех пар
+        /// </summary>
+        [Fact(DisplayName = "Get day price change Test")]
+        public async Task GetDayPriceChangeAsync_Test()
+        {
+            MockRedisIncrementOrCreateKeyValue(_redisDatabase);
+
+            var requestWeight = _requestsWeightStorage.DayTickerPriceChangeWeight;
+            var symbolWeightKey = new Dictionary<string, string>
+            {
+                { "", "null" },
+                { "BNBBTC", RequestWeightModel.GetDefaultKey() },
+            };
+            SetArgumentsEvent += SetArgumentsEventHandler;
+
+            var expectedModel = TestHelper.GetExpectedDayPriceChangeModels();
+            var expectedResult = new List<Common.Models.DayPriceChangeModel>();
+            foreach (var kvp in symbolWeightKey)
+            {
+                var (expectedKey, expectedInterval, expectedWeight) = GetExpectedArguments(requestWeight, kvp.Value);
+
+                // Act
+                var result = (await _binanceExchange.GetDayPriceChangeAsync(kvp.Key)).ToList();
+                switch (kvp.Key)
+                {
+                    case "":
+                        Assert.Equal(2, result.Count);
+                        expectedResult = new() { expectedModel, expectedModel, };
+                        break;
+                    case "BNBBTC":
+                        Assert.Single(result);
+                        expectedResult = new() { expectedModel };
+                        break;
+                }
+
+                var properties = typeof(Common.Models.DayPriceChangeModel).GetProperties();
+                for (var i = 0; i < expectedResult.Count; i++)
+                {
+                    foreach (var property in properties)
+                    {
+                        Assert.Equal(property.GetValue(expectedResult[i]), property.GetValue(result[i]));
+                    }
+                }
+
+                Assert.Equal(expectedKey, _actualKey);
+                Assert.Equal(expectedInterval, _actualInterval);
+                Assert.Equal(expectedWeight, _actualWeight);
+            }
+
+            SetArgumentsEvent -= SetArgumentsEventHandler;
+        }
+
+        /// <summary>
+        ///     Проверка получения последней цены для пары или для всех пар
+        /// </summary>
+        [Fact(DisplayName = "Get symbol price ticker Test")]
+        public async Task GetSymbolPriceTickerAsync_Test()
+        {
+            MockRedisIncrementOrCreateKeyValue(_redisDatabase);
+
+            var requestWeight = _requestsWeightStorage.SymbolPriceTickerWeight;
+            var symbolWeightKey = new Dictionary<string, string>
+            {
+                { "", "null" },
+                { "LTCBTC", RequestWeightModel.GetDefaultKey() },
+            };
+            SetArgumentsEvent += SetArgumentsEventHandler;
+
+            foreach (var kvp in symbolWeightKey)
+            {
+                var (expectedKey, expectedInterval, expectedWeight) = GetExpectedArguments(requestWeight, kvp.Value);
+                var expectedResult = new List<SymbolPriceModel>();
+
+                // Act
+                var result = (await _binanceExchange.GetSymbolPriceTickerAsync(kvp.Key)).ToList();
+                switch (kvp.Key)
+                {
+                    case "":
+                        Assert.Equal(2, result.Count);
+                        expectedResult = new()
+                        {
+                            TestHelper.GetExpectedSymbolPriceTickerModel("LTCBTC", 4.00000200),
+                            TestHelper.GetExpectedSymbolPriceTickerModel("ETHBTC", 0.07946600),
+                        };
+                        break;
+                    case "LTCBTC":
+                        Assert.Single(result);
+                        expectedResult = new()
+                        {
+                            TestHelper.GetExpectedSymbolPriceTickerModel("LTCBTC", 4.00000200),
+                        };
+                        break;
+                }
+
+                var properties = typeof(SymbolPriceModel).GetProperties();
+                for (var i = 0; i < expectedResult.Count; i++)
+                {
+                    foreach (var property in properties)
+                    {
+                        Assert.Equal(property.GetValue(expectedResult[i]), property.GetValue(result[i]));
+                    }
+                }
+
+                Assert.Equal(expectedKey, _actualKey);
+                Assert.Equal(expectedInterval, _actualInterval);
+                Assert.Equal(expectedWeight, _actualWeight);
+            }
+
+            SetArgumentsEvent -= SetArgumentsEventHandler;
+        }
+
+        /// <summary>
+        ///     Проверка получения лучшую цену/количество в стакане для символа или символов
+        /// </summary>
+        [Fact(DisplayName = "Get best symbol orders Test")]
+        public async Task GetBestSymbolOrdersAsync_Test()
+        {
+            MockRedisIncrementOrCreateKeyValue(_redisDatabase);
+
+            var requestWeight = _requestsWeightStorage.SymbolOrderBookTickerWeight;
+            var symbolWeightKey = new Dictionary<string, string>
+            {
+                { "", "null" },
+                { "LTCBTC", RequestWeightModel.GetDefaultKey() },
+            };
+            SetArgumentsEvent += SetArgumentsEventHandler;
+
+            foreach (var kvp in symbolWeightKey)
+            {
+                var (expectedKey, expectedInterval, expectedWeight) = GetExpectedArguments(requestWeight, kvp.Value);
+                var expectedResult = new List<BestSymbolOrderModel>();
+
+                // Act
+                var result = (await _binanceExchange.GetBestSymbolOrdersAsync(kvp.Key)).ToList();
+                switch (kvp.Key)
+                {
+                    case "":
+                        Assert.Equal(2, result.Count);
+                        expectedResult = new()
+                        {
+                            TestHelper.GetExpectedBestSymbolOrderModel("LTCBTC", 4.00000000, 431.00000000, 4.00000200, 9.00000000),
+                            TestHelper.GetExpectedBestSymbolOrderModel("ETHBTC", 0.07946700, 9.00000000, 100000.00000000, 1000.00000000)
+                        };
+                        break;
+                    case "LTCBTC":
+                        Assert.Single(result);
+                        expectedResult = new()
+                        {
+                            TestHelper.GetExpectedBestSymbolOrderModel("LTCBTC", 4.00000000, 431.00000000, 4.00000200, 9.00000000),
+                        };
+                        break;
+                }
+
+                var properties = typeof(BestSymbolOrderModel).GetProperties();
+                for (var i = 0; i < expectedResult.Count; i++)
+                {
+                    foreach (var property in properties)
+                    {
+                        Assert.Equal(property.GetValue(expectedResult[i]), property.GetValue(result[i]));
+                    }
+                }
+
+                Assert.Equal(expectedKey, _actualKey);
+                Assert.Equal(expectedInterval, _actualInterval);
+                Assert.Equal(expectedWeight, _actualWeight);
+            }
+
+            SetArgumentsEvent -= SetArgumentsEventHandler;
         }
 
         #endregion
