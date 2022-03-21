@@ -34,6 +34,8 @@ namespace BinanceExchange
      
             CreateMap<Models.CancelOrderResponseModel, Common.Models.CancelOrderResponseModel>();
             CreateMap<Models.CheckOrderResponseModel, Common.Models.CheckOrderResponseModel>();
+
+            CreateMap<Models.FillModel, Common.Models.FillModel>();
             CreateMap<Models.FullOrderResponseModel, Common.Models.FullOrderResponseModel>();
 
             CreateMap<Models.CandlestickStreamModel, Common.Models.CandlestickStreamModel>()

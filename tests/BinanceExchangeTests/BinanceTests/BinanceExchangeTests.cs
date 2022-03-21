@@ -764,7 +764,8 @@ namespace BinanceExchangeTests.BinanceTests
                 TimeInForceType.IOC,
                 OrderType.Limit,
                 OrderSideType.Buy);
-            _tradeSender.SendNewOrderAsync(Arg.Any<Dictionary<string, object>>(), Arg.Any<CancellationToken>()).Returns(binanceResponse);
+
+            _tradeSender.SendNewOrderAsync(Arg.Any<Dictionary<string, object>>(), Arg.Any<CancellationToken>()).ReturnsForAnyArgs(binanceResponse);
             var expectedResult = TestHelper.GetExpectedFullOrderResponseModel(
                 "BTCUSDT",
                 price,
@@ -779,23 +780,24 @@ namespace BinanceExchangeTests.BinanceTests
             MockRedisIncrementOrCreateKeyValue(_redisDatabase);
 
             // Act #1
-            var result = await _binanceExchange.CreateNewLimitMakerOrderAsync("BTCUSDT", OrderSideType.Buy, price, quantity);
-            Assert.Equal(expectedKey, _actualKey);
-            Assert.Equal(expectedInterval, _actualInterval);
-            Assert.Equal(expectedWeight, _actualWeight);
+            var result = await _binanceExchange.CreateNewLimitOrderAsync("BTCUSDT", OrderSideType.Buy, "IOC", price, quantity, isTest: false);
+            TestHelper.CheckingAssertions(expectedResult, result);
 
             price = 255;
             quantity = price;
             binanceResponse.Price = price;
             binanceResponse.OrigQty = quantity;
-            _tradeSender.SendNewTestOrderAsync(Arg.Any<Dictionary<string, object>>(), Arg.Any<CancellationToken>()).Returns(binanceResponse);
+            _tradeSender.SendNewTestOrderAsync(Arg.Any<Dictionary<string, object>>(), Arg.Any<CancellationToken>()).ReturnsForAnyArgs(binanceResponse);
 
             // Act #2
-            var testRresult = await _binanceExchange.CreateNewLimitMakerOrderAsync("BTCUSDT", OrderSideType.Buy, price, quantity, isTest: true);
+            var testOrderResult = await _binanceExchange.CreateNewLimitOrderAsync("BTCUSDT", OrderSideType.Buy, "IOC", price, quantity);
+            expectedResult.Price = price;
+            expectedResult.OrigQty = quantity;
+            TestHelper.CheckingAssertions(expectedResult, testOrderResult);
+
             Assert.Equal(expectedKey, _actualKey);
             Assert.Equal(expectedInterval, _actualInterval);
             Assert.Equal(expectedWeight, _actualWeight);
-
 
             SetArgumentsEvent -= SetArgumentsEventHandler;
         }

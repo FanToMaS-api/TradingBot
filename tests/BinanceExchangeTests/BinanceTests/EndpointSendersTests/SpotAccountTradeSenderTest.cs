@@ -118,21 +118,7 @@ namespace BinanceExchangeTests.BinanceTests.EndpointSendersTests
 
             // Act
             var result = await tradeSender.SendNewOrderAsync(query, cancellationToken: CancellationToken.None);
-            var properties = typeof(FullOrderResponseModel).GetProperties();
-            for (var j = 0; j < properties.Length; j++)
-            {
-                if (properties[j].Name == nameof(FullOrderResponseModel.Fills))
-                {
-                    continue;
-                }
-
-                Assert.Equal(properties[j].GetValue(_expectedResponse), properties[j].GetValue(result));
-            }
-
-            for (var i = 0; i < _expectedResponse.Fills.Count; i++)
-            {
-                TestHelper.CheckingAssertions(_expectedResponse.Fills[i], result.Fills[i]);
-            }
+            TestHelper.CheckingAssertions(_expectedResponse, result);
 
             return result;
         }

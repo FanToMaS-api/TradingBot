@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace Common.Models
 {
@@ -21,7 +22,7 @@ namespace Common.Models
     /// <summary>
     ///     Содержит информацию о частях заполнения ордера
     /// </summary>
-    public class FillModel
+    public class FillModel : IEquatable<FillModel>
     {
         /// <summary>
         ///     Цена
@@ -47,5 +48,15 @@ namespace Common.Models
         ///     Id сделки
         /// </summary>
         public long TradeId { get; set; }
+
+        /// <inheritdoc />
+        public bool Equals(FillModel other)
+        {
+            return Price == other.Price
+                && Quantity == other.Quantity
+                && CommissionAsset == other.CommissionAsset
+                && TradeId == other.TradeId
+                && Commission == other.Commission;
+        }
     }
 }
