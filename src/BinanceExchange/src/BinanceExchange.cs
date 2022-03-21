@@ -14,6 +14,7 @@ using Common.JsonConvertWrapper;
 using Common.JsonConvertWrapper.Converters;
 using Common.Models;
 using Common.Redis;
+using Common.WebSocket;
 using ExchangeLibrary;
 using NLog;
 using StackExchange.Redis;
@@ -369,7 +370,7 @@ namespace BinanceExchange
         /// <remarks>
         ///     Проверено ручным тестированием, после изменений необходимы ручные проверки!
         /// </remarks>
-        public async Task SubscribeNewStreamAsync<T>(
+        public async Task<IWebSocket> SubscribeNewStreamAsync<T>(
             string symbol,
             string stream,
             Func<T, Task> onMessageReceivedFunc,
@@ -402,7 +403,7 @@ namespace BinanceExchange
                },
                cancellationToken);
 
-            await webSoket.ConnectAsync(cancellationToken);
+            return webSoket;
         }
 
         /// <inheritdoc />

@@ -1,5 +1,6 @@
 ﻿using Common.Enums;
 using Common.Models;
+using Common.WebSocket;
 using System;
 using System.Collections.Generic;
 using System.Threading;
@@ -123,7 +124,7 @@ namespace ExchangeLibrary
         ///     <br/>
         ///     @trade - информация о торговле тикером (Модель <see cref="SymbolTradeStreamModel"/>)
         /// </remarks>
-        Task SubscribeNewStreamAsync<T>(
+        Task<IWebSocket> SubscribeNewStreamAsync<T>(
             string symbol,
             string streamType,
             Func<T, Task> onMessageReceivedFunc,

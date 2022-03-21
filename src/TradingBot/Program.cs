@@ -35,7 +35,7 @@ namespace TradingBot
             //   cancellationToken: cts.Token));
 
             var properties = typeof(TickerStreamModel).GetProperties();
-            await binance.SubscribeNewStreamAsync<TickerStreamModel>(
+            using var webSocket = await binance.SubscribeNewStreamAsync<TickerStreamModel>(
                 "ETCUSDT",
                 "@ticker",
                 _ =>
@@ -53,6 +53,29 @@ namespace TradingBot
                 },
                 () => { Console.WriteLine("Stream Was Closed"); },
                 cancellationToken: cts.Token);
+
+            Task.Run(async () =>await webSocket.ConnectAsync(cts.Token));
+
+            using var webSocket1 = await binance.SubscribeNewStreamAsync<TickerStreamModel>(
+                "SOLUSDT",
+                "@ticker",
+                _ =>
+                {
+                    //foreach (var e in _)
+                    //{
+                    foreach (var property in properties)
+                    {
+                        Console.Write($"{property.Name}: {property.GetValue(_)} ");
+                    }
+
+                    Console.WriteLine();
+                    //}
+                    return Task.CompletedTask;
+                },
+                () => { Console.WriteLine("Stream Was Closed"); },
+                cancellationToken: cts.Token);
+
+            Task.Run(async () => await webSocket1.ConnectAsync(cts.Token));
 
             await Task.Delay(70000);
         }
