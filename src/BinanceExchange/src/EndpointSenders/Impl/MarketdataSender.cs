@@ -139,7 +139,7 @@ namespace BinanceExchange.EndpointSenders.Impl
         public async Task<IEnumerable<SymbolPriceTickerModel>> GetSymbolPriceTickerAsync(string symbol, CancellationToken cancellationToken = default)
         {
             var isNull = string.IsNullOrEmpty(symbol);
-            var responce = await _client.SendPublicAsync(
+            var response = await _client.SendPublicAsync(
                 BinanceEndpoints.SYMBOL_PRICE_TICKER,
                 HttpMethod.Get,
                 query: new Dictionary<string, object>
@@ -152,13 +152,13 @@ namespace BinanceExchange.EndpointSenders.Impl
             {
                 var result = new List<SymbolPriceTickerModel>
                 {
-                    _converter.Deserialize<SymbolPriceTickerModel>(responce)
+                    _converter.Deserialize<SymbolPriceTickerModel>(response)
                 };
 
                 return result;
             }
 
-            return _converter.Deserialize<IEnumerable<SymbolPriceTickerModel>>(responce);
+            return _converter.Deserialize<IEnumerable<SymbolPriceTickerModel>>(response);
         }
 
         /// <inheritdoc />
@@ -167,7 +167,7 @@ namespace BinanceExchange.EndpointSenders.Impl
             CancellationToken cancellationToken = default)
         {
             var isNull = string.IsNullOrEmpty(symbol);
-            var responce = await _client.SendPublicAsync(
+            var response = await _client.SendPublicAsync(
                 BinanceEndpoints.SYMBOL_ORDER_BOOK_TICKER,
                 HttpMethod.Get,
                 query: new Dictionary<string, object>
@@ -180,13 +180,13 @@ namespace BinanceExchange.EndpointSenders.Impl
             {
                 var result = new List<SymbolOrderBookTickerModel>
                 {
-                    _converter.Deserialize<SymbolOrderBookTickerModel>(responce)
+                    _converter.Deserialize<SymbolOrderBookTickerModel>(response)
                 };
 
                 return result;
             }
 
-            return _converter.Deserialize<IEnumerable<SymbolOrderBookTickerModel>>(responce);
+            return _converter.Deserialize<IEnumerable<SymbolOrderBookTickerModel>>(response);
         }
 
         #endregion

@@ -306,10 +306,7 @@ namespace BinanceExchangeTests.BinanceTests.EndpointSendersTests
             var properties = typeof(CandlestickModel).GetProperties();
             for (var i = 0; i < expected.Length; i++)
             {
-                foreach (var property in properties)
-                {
-                    Assert.Equal(property.GetValue(expected[i]), property.GetValue(result[i]));
-                }
+                TestHelper.CheckingAssertions(expected[i], result[i]);
             }
 
             return result;
@@ -351,13 +348,9 @@ namespace BinanceExchangeTests.BinanceTests.EndpointSendersTests
 
             for (var i = 0; i < result.Count; i++)
             {
-                var dto = expectedDtos[i];
+                var expected = expectedDtos[i];
                 var actual = result[i];
-                var properties = dto.GetType().GetProperties();
-                foreach (var property in properties)
-                {
-                    Assert.Equal(property.GetValue(dto), property.GetValue(actual));
-                }
+                TestHelper.CheckingAssertions(expected, actual);
             }
 
             return result;
@@ -379,13 +372,9 @@ namespace BinanceExchangeTests.BinanceTests.EndpointSendersTests
 
             for (var i = 0; i < result.Count; i++)
             {
-                var dto = expectedDtos[i];
+                var expected = expectedDtos[i];
                 var actual = result[i];
-                var properties = dto.GetType().GetProperties();
-                foreach (var property in properties)
-                {
-                    Assert.Equal(property.GetValue(dto), property.GetValue(actual));
-                }
+                TestHelper.CheckingAssertions(expected, actual);
             }
 
             return result;
@@ -410,13 +399,9 @@ namespace BinanceExchangeTests.BinanceTests.EndpointSendersTests
 
             for (var i = 0; i < result.Count; i++)
             {
-                var dto = expectedDtos[i];
+                var expected = expectedDtos[i];
                 var actual = result[i];
-                var properties = dto.GetType().GetProperties();
-                foreach (var property in properties)
-                {
-                    Assert.Equal(property.GetValue(dto), property.GetValue(actual));
-                }
+                TestHelper.CheckingAssertions(expected, actual);
             }
 
             return result;

@@ -578,7 +578,7 @@ namespace BinanceExchange
         /// <inheritdoc />
         public async Task<Common.Models.FullOrderResponseModel> CreateNewLimitOrderAsync(
             string symbol,
-            string sideType,
+            OrderSideType sideType,
             string forceType,
             double price,
             double quantity,
@@ -614,7 +614,7 @@ namespace BinanceExchange
         /// <inheritdoc />
         public async Task<Common.Models.FullOrderResponseModel> CreateNewMarketOrderAsync(
             string symbol,
-            string sideType,
+            OrderSideType sideType,
             double quantity,
             long recvWindow = 5000,
             bool isTest = true,
@@ -646,7 +646,7 @@ namespace BinanceExchange
         /// <inheritdoc />
         public async Task<Common.Models.FullOrderResponseModel> CreateNewStopLossOrderAsync(
             string symbol,
-            string sideType,
+            OrderSideType sideType,
             double quantity,
             double stopPrice,
             long recvWindow = 5000,
@@ -680,7 +680,7 @@ namespace BinanceExchange
         /// <inheritdoc />
         public async Task<Common.Models.FullOrderResponseModel> CreateNewStopLossLimitOrderAsync(
             string symbol,
-            string sideType,
+            OrderSideType sideType,
             string forceType,
             double price,
             double quantity,
@@ -718,7 +718,7 @@ namespace BinanceExchange
         /// <inheritdoc />
         public async Task<Common.Models.FullOrderResponseModel> CreateNewTakeProfitOrderAsync(
             string symbol,
-            string sideType,
+            OrderSideType sideType,
             double quantity,
             double stopPrice,
             long recvWindow = 5000,
@@ -752,7 +752,7 @@ namespace BinanceExchange
         /// <inheritdoc />
         public async Task<Common.Models.FullOrderResponseModel> CreateNewTakeProfitLimitOrderAsync(
             string symbol,
-            string sideType,
+            OrderSideType sideType,
             string forceType,
             double price,
             double quantity,
@@ -790,7 +790,7 @@ namespace BinanceExchange
         /// <inheritdoc />
         public async Task<Common.Models.FullOrderResponseModel> CreateNewLimitMakerOrderAsync(
             string symbol,
-            string sideType,
+            OrderSideType sideType,
             double price,
             double quantity,
             long recvWindow = 5000,

@@ -109,11 +109,7 @@ namespace BinanceExchangeTests.BinanceTests.WebSocketTests
                 async (content) =>
                 {
                     var actual = _deserializer.Deserialize<AggregateSymbolTradeStreamModel>(content);
-                    var properties = typeof(AggregateSymbolTradeStreamModel).GetProperties();
-                    for (var i = 0; i < properties.Length; i++)
-                    {
-                        Assert.Equal(properties[i].GetValue(expected), properties[i].GetValue(actual));
-                    }
+                    TestHelper.CheckingAssertions(expected, actual);
 
                     await webSocket.DisconnectAsync(CancellationToken.None);
                 },
@@ -143,11 +139,7 @@ namespace BinanceExchangeTests.BinanceTests.WebSocketTests
                 async (content) =>
                 {
                     var actual = _deserializer.Deserialize<BookTickerStreamModel>(content);
-                    var properties = typeof(BookTickerStreamModel).GetProperties();
-                    for (var i = 0; i < properties.Length; i++)
-                    {
-                        Assert.Equal(properties[i].GetValue(_expectedBookTickerStreamModel), properties[i].GetValue(actual));
-                    }
+                    TestHelper.CheckingAssertions(_expectedBookTickerStreamModel, actual);
 
                     await webSocket.DisconnectAsync(CancellationToken.None);
                 },
@@ -172,14 +164,10 @@ namespace BinanceExchangeTests.BinanceTests.WebSocketTests
                 async (content) =>
                 {
                     var actual = _deserializer.Deserialize<IEnumerable<BookTickerStreamModel>>(content);
-                    var properties = typeof(BookTickerStreamModel).GetProperties();
                     var actualList = actual.ToList();
                     for (var j = 0; j < actualList.Count; j++)
                     {
-                        for (var i = 0; i < properties.Length; i++)
-                        {
-                            Assert.Equal(properties[i].GetValue(_expectedBookTickerStreamModel), properties[i].GetValue(actualList[j]));
-                        }
+                        TestHelper.CheckingAssertions(_expectedBookTickerStreamModel, actualList[j]);
                     }
 
                     await webSocket.DisconnectAsync(CancellationToken.None);
@@ -239,11 +227,7 @@ namespace BinanceExchangeTests.BinanceTests.WebSocketTests
                     Assert.Equal(expected.EventTimeUnix, actual.EventTimeUnix);
                     Assert.Equal(expected.Symbol, actual.Symbol);
 
-                    var properties = typeof(KlineModel).GetProperties();
-                    for (var i = 0; i < properties.Length; i++)
-                    {
-                        Assert.Equal(properties[i].GetValue(expected.Kline), properties[i].GetValue(actual.Kline));
-                    }
+                    TestHelper.CheckingAssertions(expected.Kline, actual.Kline);
 
                     await webSocket.DisconnectAsync(CancellationToken.None);
                 },
@@ -275,11 +259,7 @@ namespace BinanceExchangeTests.BinanceTests.WebSocketTests
                 async (content) =>
                 {
                     var actual = _deserializer.Deserialize<MiniTickerStreamModel>(content);
-                    var properties = typeof(MiniTickerStreamModel).GetProperties();
-                    for (var i = 0; i < properties.Length; i++)
-                    {
-                        Assert.Equal(properties[i].GetValue(_expectedMiniTickerStreamModel), properties[i].GetValue(actual));
-                    }
+                    TestHelper.CheckingAssertions(_expectedMiniTickerStreamModel, actual);
 
                     await webSocket.DisconnectAsync(CancellationToken.None);
                 },
@@ -308,10 +288,7 @@ namespace BinanceExchangeTests.BinanceTests.WebSocketTests
                     var actualList = actual.ToList();
                     for (var j = 0; j < actualList.Count; j++)
                     {
-                        for (var i = 0; i < properties.Length; i++)
-                        {
-                            Assert.Equal(properties[i].GetValue(_expectedMiniTickerStreamModel), properties[i].GetValue(actualList[j]));
-                        }
+                        TestHelper.CheckingAssertions(_expectedMiniTickerStreamModel, actualList[j]);
                     }
 
                     await webSocket.DisconnectAsync(CancellationToken.None);
@@ -421,11 +398,7 @@ namespace BinanceExchangeTests.BinanceTests.WebSocketTests
                 async (content) =>
                 {
                     var actual = _deserializer.Deserialize<SymbolTradeStreamModel>(content);
-                    var properties = typeof(SymbolTradeStreamModel).GetProperties();
-                    for (var i = 0; i < properties.Length; i++)
-                    {
-                        Assert.Equal(properties[i].GetValue(expected), properties[i].GetValue(actual));
-                    }
+                    TestHelper.CheckingAssertions(expected, actual);
 
                     await webSocket.DisconnectAsync(CancellationToken.None);
                 },
@@ -455,11 +428,7 @@ namespace BinanceExchangeTests.BinanceTests.WebSocketTests
                 async (content) =>
                 {
                     var actual = _deserializer.Deserialize<TickerStreamModel>(content);
-                    var properties = typeof(TickerStreamModel).GetProperties();
-                    for (var i = 0; i < properties.Length; i++)
-                    {
-                        Assert.Equal(properties[i].GetValue(_expectedTickerStreamModel), properties[i].GetValue(actual));
-                    }
+                    TestHelper.CheckingAssertions(_expectedTickerStreamModel, actual);
 
                     await webSocket.DisconnectAsync(CancellationToken.None);
                 },
@@ -486,13 +455,9 @@ namespace BinanceExchangeTests.BinanceTests.WebSocketTests
                 {
                     var actual = _deserializer.Deserialize<IEnumerable<TickerStreamModel>>(content);
                     var actualList = actual.ToList();
-                    var properties = typeof(TickerStreamModel).GetProperties();
                     for (var j = 0; j < actualList.Count; j++)
                     {
-                        for (var i = 0; i < properties.Length; i++)
-                        {
-                            Assert.Equal(properties[i].GetValue(_expectedTickerStreamModel), properties[i].GetValue(actualList[j]));
-                        }
+                        TestHelper.CheckingAssertions(_expectedTickerStreamModel, actualList[j]);
                     }
 
                     await webSocket.DisconnectAsync(CancellationToken.None);

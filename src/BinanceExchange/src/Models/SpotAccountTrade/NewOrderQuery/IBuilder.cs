@@ -1,4 +1,5 @@
 ﻿using BinanceExchange.Enums;
+using Common.Enums;
 
 namespace BinanceExchange.Models
 {

@@ -1,4 +1,6 @@
-﻿namespace Common.Models
+﻿using Common.Enums;
+
+namespace Common.Models
 {
     /// <summary>
     ///     Содержит общие св-ва ответа на запросы связанные с ордерами
@@ -63,6 +65,6 @@
         /// <summary>
         ///     Тип ордера (покупка, продажа)
         /// </summary>
-        public string OrderSide { get; set; }
+        public OrderSideType OrderSide { get; set; }
     }
 }

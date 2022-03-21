@@ -1,4 +1,5 @@
-﻿using Common.Models;
+﻿using Common.Enums;
+using Common.Models;
 using System;
 using System.Collections.Generic;
 using System.Threading;
@@ -193,10 +194,19 @@ namespace ExchangeLibrary
         ///     Создать новый лимитный ордер
         /// </summary>
         /// <param name="isTest"> Тестовый ли запрос </param>
+        /// <remarks> 
+        ///     Возможные значения <paramref name="timeOnForceType"/> для Binance:
+        ///     <br/>
+        ///     GTC - Good Til Canceled - ордер будет висеть до тех пор, пока его не отменят (по-умолчанию)
+        ///     <br/>
+        ///     IOC - Immediate Or Cancel - будет куплено то количество, которое можно купить немедленно. Все, что не удалось купить, будет отменено
+        ///     <br/>
+        ///     FOK - Fill or Kill - либо будет куплено все указанное количество немедленно, либо не будет куплено вообще ничего, ордер отменится
+        /// </remarks>
         Task<FullOrderResponseModel> CreateNewLimitOrderAsync(
             string symbol,
-            string sideType,
-            string forceType,
+            OrderSideType sideType,
+            string timeOnForceType,
             double price,
             double quantity,
             long recvWindow = 5000,
@@ -209,7 +219,7 @@ namespace ExchangeLibrary
         /// <param name="isTest"> Тестовый ли запрос </param>
         Task<FullOrderResponseModel> CreateNewMarketOrderAsync(
             string symbol,
-            string sideType,
+            OrderSideType sideType,
             double quantity,
             long recvWindow = 5000,
             bool isTest = true,
@@ -221,7 +231,7 @@ namespace ExchangeLibrary
         /// <param name="isTest"> Тестовый ли запрос </param>
         Task<FullOrderResponseModel> CreateNewStopLossOrderAsync(
             string symbol,
-            string sideType,
+            OrderSideType sideType,
             double quantity,
             double stopPrice,
             long recvWindow = 5000,
@@ -232,10 +242,19 @@ namespace ExchangeLibrary
         ///     Создать новый лимитный стоп-лосс ордер
         /// </summary>
         /// <param name="isTest"> Тестовый ли запрос </param>
+        /// <remarks> 
+        ///     Возможные значения <paramref name="timeOnForceType"/> для Binance:
+        ///     <br/>
+        ///     GTC - Good Til Canceled - ордер будет висеть до тех пор, пока его не отменят (по-умолчанию)
+        ///     <br/>
+        ///     IOC - Immediate Or Cancel - будет куплено то количество, которое можно купить немедленно. Все, что не удалось купить, будет отменено
+        ///     <br/>
+        ///     FOK - Fill or Kill - либо будет куплено все указанное количество немедленно, либо не будет куплено вообще ничего, ордер отменится
+        /// </remarks>
         Task<FullOrderResponseModel> CreateNewStopLossLimitOrderAsync(
             string symbol,
-            string sideType,
-            string forceType,
+            OrderSideType sideType,
+            string timeOnForceType,
             double price,
             double quantity,
             double stopPrice,
@@ -249,7 +268,7 @@ namespace ExchangeLibrary
         /// <param name="isTest"> Тестовый ли запрос </param>
         Task<FullOrderResponseModel> CreateNewTakeProfitOrderAsync(
             string symbol,
-            string sideType,
+            OrderSideType sideType,
             double quantity,
             double stopPrice,
             long recvWindow = 5000,
@@ -260,10 +279,19 @@ namespace ExchangeLibrary
         ///     Создать новый TakeProfitLimit ордер
         /// </summary>
         /// <param name="isTest"> Тестовый ли запрос </param>
+        /// <remarks> 
+        ///     Возможные значения <paramref name="timeOnForceType"/> для Binance:
+        ///     <br/>
+        ///     GTC - Good Til Canceled - ордер будет висеть до тех пор, пока его не отменят (по-умолчанию)
+        ///     <br/>
+        ///     IOC - Immediate Or Cancel - будет куплено то количество, которое можно купить немедленно. Все, что не удалось купить, будет отменено
+        ///     <br/>
+        ///     FOK - Fill or Kill - либо будет куплено все указанное количество немедленно, либо не будет куплено вообще ничего, ордер отменится
+        /// </remarks>
         Task<FullOrderResponseModel> CreateNewTakeProfitLimitOrderAsync(
             string symbol,
-            string sideType,
-            string forceType,
+            OrderSideType sideType,
+            string timeOnForceType,
             double price,
             double quantity,
             double stopPrice,
@@ -277,7 +305,7 @@ namespace ExchangeLibrary
         /// <param name="isTest"> Тестовый ли запрос </param>
         Task<FullOrderResponseModel> CreateNewLimitMakerOrderAsync(
             string symbol,
-            string sideType,
+            OrderSideType sideType,
             double price,
             double quantity,
             long recvWindow = 5000,

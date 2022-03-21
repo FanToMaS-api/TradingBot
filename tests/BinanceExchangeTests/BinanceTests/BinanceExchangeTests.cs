@@ -1,8 +1,10 @@
 ﻿using AutoMapper;
 using BinanceExchange;
 using BinanceExchange.EndpointSenders;
+using BinanceExchange.Enums;
 using BinanceExchange.Models;
 using BinanceExchangeTests.BinanceTests.EndpointSendersTests;
+using Common.Enums;
 using Common.Models;
 using Common.Redis;
 using ExchangeLibrary;
@@ -32,6 +34,7 @@ namespace BinanceExchangeTests.BinanceTests
         private readonly IRedisDatabase _redisDatabase;
         private readonly IWalletSender _walletSender;
         private readonly IMarketdataSender _marketdataSender;
+        private readonly ISpotAccountTradeSender _tradeSender;
 
         // поля для проверки верного увеличения лимитов ограничения скорости
         private string _actualKey = "";
@@ -52,6 +55,7 @@ namespace BinanceExchangeTests.BinanceTests
             _mapper = new Mapper(config);
             _walletSender = Substitute.For<IWalletSender>();
             _marketdataSender = Substitute.For<IMarketdataSender>();
+            _tradeSender = Substitute.For<ISpotAccountTradeSender>();
             _redisDatabase = Substitute.For<IRedisDatabase>();
 
             _binanceExchange = SetupBinanceExchange();
@@ -192,7 +196,7 @@ namespace BinanceExchangeTests.BinanceTests
 
             #endregion
 
-            return new BinanceExchange.BinanceExchange(_walletSender, _marketdataSender, null, _redisDatabase, _mapper);
+            return new BinanceExchange.BinanceExchange(_walletSender, _marketdataSender, _tradeSender, _redisDatabase, _mapper);
         }
 
         #endregion
@@ -547,13 +551,9 @@ namespace BinanceExchangeTests.BinanceTests
 
             Assert.Equal(2, result.Count);
             var expected = TestHelper.GetExpectedCandlestickModels();
-            var properties = typeof(Common.Models.CandlestickModel).GetProperties();
             for (var i = 0; i < 2; i++)
             {
-                foreach (var property in properties)
-                {
-                    Assert.Equal(property.GetValue(expected[i]), property.GetValue(result[i]));
-                }
+                TestHelper.CheckingAssertions(expected[i], result[i]);
             }
 
             Assert.Equal(expectedKey, _actualKey);
@@ -619,13 +619,9 @@ namespace BinanceExchangeTests.BinanceTests
                         break;
                 }
 
-                var properties = typeof(Common.Models.DayPriceChangeModel).GetProperties();
                 for (var i = 0; i < expectedResult.Count; i++)
                 {
-                    foreach (var property in properties)
-                    {
-                        Assert.Equal(property.GetValue(expectedResult[i]), property.GetValue(result[i]));
-                    }
+                    TestHelper.CheckingAssertions(expectedResult[i], result[i]);
                 }
 
                 Assert.Equal(expectedKey, _actualKey);
@@ -678,13 +674,9 @@ namespace BinanceExchangeTests.BinanceTests
                         break;
                 }
 
-                var properties = typeof(SymbolPriceModel).GetProperties();
                 for (var i = 0; i < expectedResult.Count; i++)
                 {
-                    foreach (var property in properties)
-                    {
-                        Assert.Equal(property.GetValue(expectedResult[i]), property.GetValue(result[i]));
-                    }
+                    TestHelper.CheckingAssertions(expectedResult[i], result[i]);
                 }
 
                 Assert.Equal(expectedKey, _actualKey);
@@ -737,13 +729,9 @@ namespace BinanceExchangeTests.BinanceTests
                         break;
                 }
 
-                var properties = typeof(BestSymbolOrderModel).GetProperties();
                 for (var i = 0; i < expectedResult.Count; i++)
                 {
-                    foreach (var property in properties)
-                    {
-                        Assert.Equal(property.GetValue(expectedResult[i]), property.GetValue(result[i]));
-                    }
+                    TestHelper.CheckingAssertions(expectedResult[i], result[i]);
                 }
 
                 Assert.Equal(expectedKey, _actualKey);
@@ -756,15 +744,60 @@ namespace BinanceExchangeTests.BinanceTests
 
         #endregion
 
-        #region Marketdata Stream Tests
+        #region Spot Account/Trade Tests
 
         /// <summary>
-        ///     Проверка подписки на стримы данных
+        ///     Проверка создания нового лимитного ордера
         /// </summary>
-        [Fact(DisplayName = "Subscribe new stream Test")]
-        public async Task SubscribeNewStreamAsync_Test()
+        [Fact(DisplayName = "Create new limit order Test")]
+        public async Task CreateNewLimitOrderAsync_Test()
         {
+            var price = 0.1;
+            var quantity = price;
+            var requestWeight = _requestsWeightStorage.NewOrderWeight;
+            var (expectedKey, expectedInterval, expectedWeight) = GetExpectedArguments(requestWeight, RequestWeightModel.GetDefaultKey());
+            var binanceResponse = TestHelper.GetBinanceFullOrderResponseModel(
+                "BTCUSDT",
+                price,
+                quantity,
+                OrderStatusType.PartiallyFilled,
+                TimeInForceType.IOC,
+                OrderType.Limit,
+                OrderSideType.Buy);
+            _tradeSender.SendNewOrderAsync(Arg.Any<Dictionary<string, object>>(), Arg.Any<CancellationToken>()).Returns(binanceResponse);
+            var expectedResult = TestHelper.GetExpectedFullOrderResponseModel(
+                "BTCUSDT",
+                price,
+                quantity,
+                "PartiallyFilled",
+                "IOC",
+                "Limit",
+                OrderSideType.Buy);
 
+            SetArgumentsEvent += SetArgumentsEventHandler;
+
+            MockRedisIncrementOrCreateKeyValue(_redisDatabase);
+
+            // Act #1
+            var result = await _binanceExchange.CreateNewLimitMakerOrderAsync("BTCUSDT", OrderSideType.Buy, price, quantity);
+            Assert.Equal(expectedKey, _actualKey);
+            Assert.Equal(expectedInterval, _actualInterval);
+            Assert.Equal(expectedWeight, _actualWeight);
+
+            price = 255;
+            quantity = price;
+            binanceResponse.Price = price;
+            binanceResponse.OrigQty = quantity;
+            _tradeSender.SendNewTestOrderAsync(Arg.Any<Dictionary<string, object>>(), Arg.Any<CancellationToken>()).Returns(binanceResponse);
+
+            // Act #2
+            var testRresult = await _binanceExchange.CreateNewLimitMakerOrderAsync("BTCUSDT", OrderSideType.Buy, price, quantity, isTest: true);
+            Assert.Equal(expectedKey, _actualKey);
+            Assert.Equal(expectedInterval, _actualInterval);
+            Assert.Equal(expectedWeight, _actualWeight);
+
+
+            SetArgumentsEvent -= SetArgumentsEventHandler;
         }
 
         #endregion

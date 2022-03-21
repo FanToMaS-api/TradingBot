@@ -1,9 +1,12 @@
-﻿using BinanceExchange.Models;
+﻿using BinanceExchange.Enums;
+using BinanceExchange.Models;
+using Common.Enums;
 using RichardSzalay.MockHttp;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net.Http;
+using Xunit;
 
 namespace BinanceExchangeTests.BinanceTests
 {
@@ -25,6 +28,18 @@ namespace BinanceExchangeTests.BinanceTests
             mockHttp.When(url).Respond("application/json", json);
 
             return new HttpClient(mockHttp);
+        }
+
+        /// <summary>
+        ///     Проверка утверждений
+        /// </summary>
+        public static void CheckingAssertions<T1, T2>(T1 expected, T2 actual)
+        {
+            var properties = expected.GetType().GetProperties();
+            foreach(var property in properties)
+            {
+                Assert.Equal(property.GetValue(expected), property.GetValue(actual));
+            }
         }
 
         #region Candlestick
@@ -225,6 +240,152 @@ namespace BinanceExchangeTests.BinanceTests
                 BidQuantity = bidQty,
                 AskPrice = askPrice,
                 AskQuantity = askQty,
+            };
+
+        #endregion
+
+        #region Full order response
+
+        /// <summary>
+        ///     Возвращает модель ответа на запрос о создании нового ордера
+        /// </summary>
+        public static FullOrderResponseModel GetBinanceFullOrderResponseModel(
+            string symbol,
+            double price,
+            double qty,
+            OrderStatusType status,
+            TimeInForceType timeInForce,
+            OrderType orderType,
+            OrderSideType orderSide) =>
+            new()
+            {
+                Symbol = symbol,
+                OrderId = 28,
+                ClientOrderId = "6gCrw2kRUAF9CvJDGP16IP",
+                TransactTimeUnix = 1507725176595,
+                OrderListId = -1,
+                Price = price,
+                OrigQty = qty,
+                ExecutedQty = 10.1,
+                CumulativeQuoteQty = 10.2,
+                Status = status,
+                TimeInForce = timeInForce,
+                OrderType = orderType,
+                OrderSide = orderSide,
+                Fills = new List<FillModel>
+                {
+                    new FillModel
+                    {
+                        Price = 4000.00000000,
+                        Quantity = 1.00000000,
+                        Commission = 4.00000000,
+                        CommissionAsset = "USDT",
+                        TradeId = 56
+                    },
+                    new FillModel
+                    {
+                        Price = 3999.00000000,
+                        Quantity = 5.00000000,
+                        Commission = 19.99500000,
+                        CommissionAsset = "USDT",
+                        TradeId = 57
+                    },
+                    new FillModel
+                    {
+                        Price = 3998.00000000,
+                        Quantity = 2.00000000,
+                        Commission = 7.99600000,
+                        CommissionAsset = "USDT",
+                        TradeId = 58
+                    },
+                    new FillModel
+                    {
+                        Price = 3997.00000000,
+                        Quantity = 1.00000000,
+                        Commission = 3.99700000,
+                        CommissionAsset = "USDT",
+                        TradeId = 59
+                    },
+                    new FillModel
+                    {
+                        Price = 3995.00000000,
+                        Quantity = 1.00000000,
+                        Commission = 3.99500000,
+                        CommissionAsset = "USDT",
+                        TradeId = 60
+                    },
+                }
+            };
+
+        /// <summary>
+        ///     Возвращает модель ответа на запрос о создании нового ордера
+        /// </summary>
+        public static Common.Models.FullOrderResponseModel GetExpectedFullOrderResponseModel(
+            string symbol,
+            double price,
+            double origQty,
+            string status,
+            string timeInForce,
+            string orderType,
+            OrderSideType sideType) =>
+            new()
+            {
+                Symbol = symbol,
+                OrderId = 28,
+                ClientOrderId = "6gCrw2kRUAF9CvJDGP16IP",
+                TransactTimeUnix = 1507725176595,
+                OrderListId = -1,
+                Price = price,
+                OrigQty = origQty,
+                ExecutedQty = 10.1,
+                CumulativeQuoteQty = 10.2,
+                Status = status,
+                TimeInForce = timeInForce,
+                OrderType = orderType,
+                OrderSide = sideType,
+                Fills = new List<Common.Models.FillModel>
+                {
+                    new Common.Models.FillModel
+                    {
+                        Price = 4000.00000000,
+                        Quantity = 1.00000000,
+                        Commission = 4.00000000,
+                        CommissionAsset = "USDT",
+                        TradeId = 56
+                    },
+                    new Common.Models.FillModel
+                    {
+                        Price = 3999.00000000,
+                        Quantity = 5.00000000,
+                        Commission = 19.99500000,
+                        CommissionAsset = "USDT",
+                        TradeId = 57
+                    },
+                    new Common.Models.FillModel
+                    {
+                        Price = 3998.00000000,
+                        Quantity = 2.00000000,
+                        Commission = 7.99600000,
+                        CommissionAsset = "USDT",
+                        TradeId = 58
+                    },
+                    new Common.Models.FillModel
+                    {
+                        Price = 3997.00000000,
+                        Quantity = 1.00000000,
+                        Commission = 3.99700000,
+                        CommissionAsset = "USDT",
+                        TradeId = 59
+                    },
+                    new Common.Models.FillModel
+                    {
+                        Price = 3995.00000000,
+                        Quantity = 1.00000000,
+                        Commission = 3.99500000,
+                        CommissionAsset = "USDT",
+                        TradeId = 60
+                    },
+                }
             };
 
         #endregion
