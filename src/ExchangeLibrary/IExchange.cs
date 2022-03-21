@@ -109,10 +109,24 @@ namespace ExchangeLibrary
         /// <param name="symbol"> Пара </param>
         /// <param name="onMessageReceivedFunc"> Функция обрабатываюащя данные объекта <see cref="{T}"/> </param>
         /// <param name="streamType"> Тип стрима </param>
+        /// <remarks> 
+        ///     Возможные значения стримов для Binance:
+        ///     <br/>
+        ///     @aggTrade - торговая информация для одного ордера тейкера (Модель <see cref="AggregateSymbolTradeStreamModel"/>)
+        ///     <br/>
+        ///     @bookTicker - лучшая цена, количество для указанного символа (Модель <see cref="BookTickerStreamModel"/>)
+        ///     <br/>
+        ///     @miniTicker - выборка информации о статистике бегущего окна за 24 часа для символа (Модель <see cref="MiniTickerStreamModel"/>)
+        ///     <br/>
+        ///     @ticker - информация о статистике бегущего окна за 24 часа для символа (Модель <see cref="TickerStreamModel"/>)
+        ///     <br/>
+        ///     @trade - информация о торговле тикером (Модель <see cref="SymbolTradeStreamModel"/>)
+        /// </remarks>
         Task SubscribeNewStreamAsync<T>(
             string symbol,
-            Func<T, Task> onMessageReceivedFunc,
             string streamType,
+            Func<T, Task> onMessageReceivedFunc,
+            Action onStreamClosedFunc = null,
             CancellationToken cancellationToken = default);
 
         /// <summary>
@@ -125,6 +139,7 @@ namespace ExchangeLibrary
             string symbol,
             string candleStickInterval,
             Func<CandlestickStreamModel, Task> onMessageReceivedFunc,
+            Action onStreamClosedFunc = null,
             CancellationToken cancellationToken = default);
 
         /// <summary>
@@ -133,6 +148,7 @@ namespace ExchangeLibrary
         /// <param name="onMessageReceivedFunc"> Функция обрабатываюащя данные объекта <see cref="TickerStreamModel"/> </param>
         Task SubscribeAllMarketTickersStreamAsync(
             Func<IEnumerable<TickerStreamModel>, Task> onMessageReceivedFunc,
+            Action onStreamClosedFunc = null,
             CancellationToken cancellationToken = default);
 
         /// <summary>
@@ -141,7 +157,8 @@ namespace ExchangeLibrary
         /// </summary>
         /// <param name="onMessageReceivedFunc"> Функция обрабатываюащя данные объекта <see cref="BookTickerStreamModel"/> </param>
         Task SubscribeAllBookTickersStreamAsync(
-            Func<IEnumerable<BookTickerStreamModel>, Task> onMessageReceivedFunc,
+            Func<BookTickerStreamModel, Task> onMessageReceivedFunc,
+            Action onStreamClosedFunc = null,
             CancellationToken cancellationToken = default);
 
         /// <summary>
@@ -150,6 +167,7 @@ namespace ExchangeLibrary
         /// <param name="onMessageReceivedFunc"> Функция обрабатывающая данные объекта <see cref="MiniTickerStreamModel"/> </param>
         Task SubscribeAllMarketMiniTickersStreamAsync(
             Func<IEnumerable<MiniTickerStreamModel>, Task> onMessageReceivedFunc,
+            Action onStreamClosedFunc = null,
             CancellationToken cancellationToken = default);
 
         /// <summary>
@@ -157,11 +175,12 @@ namespace ExchangeLibrary
         /// </summary>
         /// <param name="symbol"> Пара (в нижнем регистре) </param>
         /// <param name="onMessageReceivedFunc"> Функция обрабатываюащя данные объекта <see cref="OrderBookModel"/> </param>
-        /// <param name="levels"> Кол-во оредеров. Допустимые значения 5, 10, 20 </param>
+        /// <param name="levels"> Кол-во ордеров. Допустимые значения 5, 10, 20 </param>
         /// <param name="activateFastReceive"> Активировать прием данных раз в 100 миллисекунд </param>
         Task SubscribePartialBookDepthStreamAsync(
             string symbol,
             Func<OrderBookModel, Task> onMessageReceivedFunc,
+            Action onStreamClosedFunc = null,
             int levels = 10,
             bool activateFastReceive = false,
             CancellationToken cancellationToken = default);

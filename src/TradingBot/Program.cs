@@ -1,9 +1,8 @@
 ﻿using BinanceExchange;
-using ExchangeLibrary;
+using Common.Models;
 using NLog;
 using System;
 using System.Configuration;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using TradingBot.Configuration;
@@ -12,7 +11,7 @@ namespace TradingBot
 {
     internal class Program
     {
-        private readonly ILogger _logger = LogManager.GetCurrentClassLogger();
+        private readonly ILogger _logger = LogManager.LoadConfiguration("nlog.config").GetLogger("Program");
 
         static async Task Main()
         {
@@ -21,11 +20,11 @@ namespace TradingBot
             var binanceOptions = new BinanceExchangeOptions() { ApiKey = apiKey, SecretKey = secretKey };
             var binance = BinanceExchangeFactory.CreateExchange(binanceOptions);
             using var cts = new CancellationTokenSource();
-            var res = (await binance.GetAllOrdersAsync("SOLUSDT"));
-            foreach (var item in res)
-            {
-                Console.WriteLine(item.IsWorking + " " + item.OrderSide + " " + item.Price + " " + item.Status);
-            }
+            //var res = (await binance.GetAllOrdersAsync("SOLUSDT"));
+            //foreach (var item in res)
+            //{
+            //    Console.WriteLine(item.IsWorking + " " + item.OrderSide + " " + item.Price + " " + item.Status);
+            //}
 
             //Console.WriteLine(await binance.CreateNewLimitOrderAsync(
             //   "ARPABNB",
@@ -35,15 +34,25 @@ namespace TradingBot
             //   100000,
             //   cancellationToken: cts.Token));
 
-            //await binance.SubscribeCandlestickStreamAsync(
-            //   "BNBBTC",
-            //   "1m",
-            //    _ =>
-            //    {
-            //        Console.WriteLine($"{_.Symbol} {_.Interval} {_.TradesNumber} {_.MinPrice}");
-            //        return Task.CompletedTask;
-            //    },
-            //    cts.Token);
+            var properties = typeof(TickerStreamModel).GetProperties();
+            await binance.SubscribeNewStreamAsync<TickerStreamModel>(
+                "ETCUSDT",
+                "@ticker",
+                _ =>
+                {
+                    //foreach (var e in _)
+                    //{
+                    foreach (var property in properties)
+                    {
+                        Console.Write($"{property.Name}: {property.GetValue(_)} ");
+                    }
+
+                    Console.WriteLine();
+                    //}
+                    return Task.CompletedTask;
+                },
+                () => { Console.WriteLine("Stream Was Closed"); },
+                cancellationToken: cts.Token);
 
             await Task.Delay(70000);
         }

@@ -1,7 +1,6 @@
-﻿using Common.JsonConvertWrapper;
-using Common.JsonConvertWrapper.Converters;
-using BinanceExchange.Client;
+﻿using BinanceExchange.Client;
 using BinanceExchange.Models;
+using Common.JsonConvertWrapper;
 using NLog;
 using System.Collections.Generic;
 using System.Net.Http;

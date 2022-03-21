@@ -21,7 +21,7 @@ namespace BinanceExchange.WebSocket
         private readonly List<CancellationTokenRegistration> _onMessageReceivedCancellationTokenRegistrations = new();
         private CancellationTokenSource _loopCancellationTokenSource;
         private readonly Uri _uri;
-        private readonly int _receiveBufferSize = 8192;
+        private readonly int _receiveBufferSize = 8 * 1024 * 512; // 4 Kb
         private bool _isDisposed;
 
         #endregion
@@ -42,7 +42,12 @@ namespace BinanceExchange.WebSocket
         /// <summary>
         ///     Событие, возникающее при закрытии веб-сокета
         /// </summary>
-        public Func<BinanceWebSocket, CancellationToken, Task> OnClosed { get; set; }
+        internal Func<BinanceWebSocket, CancellationToken, Task> OnClosed { get; set; }
+
+        /// <summary>
+        ///     Событие, возникающее при закрытии веб-сокета
+        /// </summary>
+        internal Action OnStreamClosed { get; set; }
 
         #endregion
 
@@ -135,11 +140,12 @@ namespace BinanceExchange.WebSocket
                     try
                     {
                         receiveResult = await _webSocketHumble.ReceiveAsync(buffer, cancellationToken);
-                        
+
                         if (receiveResult.MessageType == WebSocketMessageType.Close)
                         {
                             Log.Error($"The web socket has been closed");
-                            OnClosed?.Invoke(this, cancellationToken);
+                            OnStreamClosed?.Invoke();
+                            await OnClosed?.Invoke(this, cancellationToken);
 
                             break;
                         }

@@ -756,6 +756,19 @@ namespace BinanceExchangeTests.BinanceTests
 
         #endregion
 
+        #region Marketdata Stream Tests
+
+        /// <summary>
+        ///     Проверка подписки на стримы данных
+        /// </summary>
+        [Fact(DisplayName = "Subscribe new stream Test")]
+        public async Task SubscribeNewStreamAsync_Test()
+        {
+
+        }
+
+        #endregion
+
         #region Private methods
 
         /// <summary>

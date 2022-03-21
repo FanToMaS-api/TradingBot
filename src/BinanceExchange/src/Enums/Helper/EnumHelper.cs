@@ -37,6 +37,7 @@
             return streamType switch
             {
                 "@trade" => MarketdataStreamType.TradeStream,
+                "@bookTicker" => MarketdataStreamType.IndividualSymbolBookTickerStream,
                 "@kline_" => MarketdataStreamType.CandlestickStream,
                 "@miniTicker" => MarketdataStreamType.IndividualSymbolMiniTickerStream,
                 "@aggTrade" => MarketdataStreamType.AggregateTradeStream,
@@ -164,6 +165,7 @@
                 MarketdataStreamType.IndividualSymbolMiniTickerStream => "@miniTicker",
                 MarketdataStreamType.AllMarketMiniTickersStream => "!miniTicker@arr",
                 MarketdataStreamType.IndividualSymbolTickerStream => "@ticker",
+                MarketdataStreamType.IndividualSymbolBookTickerStream => "@bookTicker",
                 MarketdataStreamType.AllMarketTickersStream => "!ticker@arr",
                 MarketdataStreamType.AllBookTickersStream => "!bookTicker",
                 MarketdataStreamType.PartialBookDepthStream => "@depth",
