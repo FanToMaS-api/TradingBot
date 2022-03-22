@@ -370,12 +370,12 @@ namespace BinanceExchange
         /// <remarks>
         ///     Проверено ручным тестированием, после изменений необходимы ручные проверки!
         /// </remarks>
-        public async Task<IWebSocket> SubscribeNewStreamAsync<T>(
+        public IWebSocket SubscribeNewStream<T>(
             string symbol,
             string stream,
-            Func<T, Task> onMessageReceivedFunc,
-            Action onStreamClosedFunc = null,
-            CancellationToken cancellationToken = default)
+            Func<T, CancellationToken, Task> onMessageReceivedFunc,
+            CancellationToken cancellationToken,
+            Action onStreamClosedFunc = null)
         {
             // TODO переписать или с фабрикой или с интерфейсом для удобного тестирования
             var streamType = stream.ConvertToMarketdataStreamType();
@@ -384,7 +384,7 @@ namespace BinanceExchange
             webSoket.OnStreamClosed += onStreamClosedFunc;
 
             webSoket.AddOnMessageReceivedFunc(
-               content =>
+               async content =>
                {
                    IMarketdataStreamModel model = streamType switch
                    {
@@ -398,8 +398,7 @@ namespace BinanceExchange
                    };
 
                    var neededModel = _mapper.Map<T>(model);
-                   onMessageReceivedFunc?.Invoke(neededModel);
-                   return Task.CompletedTask;
+                   await onMessageReceivedFunc?.Invoke(neededModel, cancellationToken);
                },
                cancellationToken);
 
@@ -410,12 +409,12 @@ namespace BinanceExchange
         /// <remarks>
         ///     Проверено ручным тестированием, после изменений необходимы ручные проверки!
         /// </remarks>
-        public async Task SubscribeCandlestickStreamAsync(
+        public IWebSocket SubscribeCandlestickStream(
             string symbol,
             string candleStickInterval,
-            Func<Common.Models.CandlestickStreamModel, Task> onMessageReceivedFunc,
-            Action onStreamClosedFunc = null,
-            CancellationToken cancellationToken = default)
+            Func<Common.Models.CandlestickStreamModel, CancellationToken, Task> onMessageReceivedFunc,
+            CancellationToken cancellationToken,
+            Action onStreamClosedFunc = null)
         {
             // TODO переписать или с фабрикой или с интерфейсом для удобного тестирования
             var interval = candleStickInterval.ConvertToCandleStickIntervalType();
@@ -424,34 +423,32 @@ namespace BinanceExchange
             webSoket.OnStreamClosed += onStreamClosedFunc;
 
             webSoket.AddOnMessageReceivedFunc(
-               content =>
+               async content =>
                {
                    try
                    {
                        var model = _converter.Deserialize<Models.CandlestickStreamModel>(content);
                        var neededModel = _mapper.Map<Common.Models.CandlestickStreamModel>(model);
-                       onMessageReceivedFunc?.Invoke(neededModel);
+                       await onMessageReceivedFunc?.Invoke(neededModel, cancellationToken);
                    }
                    catch (Exception ex)
                    {
                        _logger.Warn(ex, $"Failed to recieve {nameof(Common.Models.TickerStreamModel)}");
                    }
-
-                   return Task.CompletedTask;
                },
                cancellationToken);
 
-            await webSoket.ConnectAsync(cancellationToken);
+            return webSoket;
         }
 
         /// <inheritdoc />
         /// <remarks>
         ///     Проверено ручным тестированием, после изменений необходимы ручные проверки!
         /// </remarks>
-        public async Task SubscribeAllMarketTickersStreamAsync(
-            Func<IEnumerable<Common.Models.TickerStreamModel>, Task> onMessageReceivedFunc,
-            Action onStreamClosedFunc = null,
-            CancellationToken cancellationToken = default)
+        public IWebSocket SubscribeAllMarketTickersStream(
+            Func<IEnumerable<Common.Models.TickerStreamModel>, CancellationToken, Task> onMessageReceivedFunc,
+            CancellationToken cancellationToken,
+            Action onStreamClosedFunc = null)
         {
             // TODO переписать или с фабрикой или с интерфейсом для удобного тестирования
             var webSoket = MarketdataWebSocket.CreateAllTickersStream();
@@ -459,34 +456,32 @@ namespace BinanceExchange
             webSoket.OnStreamClosed += onStreamClosedFunc;
 
             webSoket.AddOnMessageReceivedFunc(
-               content =>
+               async content =>
                {
                    try
                    {
                        var models = _converter.Deserialize<IEnumerable<Models.TickerStreamModel>>(content);
                        var neededModels = _mapper.Map<IEnumerable<Common.Models.TickerStreamModel>>(models);
-                       onMessageReceivedFunc?.Invoke(neededModels);
+                       await onMessageReceivedFunc?.Invoke(neededModels, cancellationToken);
                    }
                    catch (Exception ex)
                    {
                        _logger.Warn(ex, $"Failed to recieve {nameof(Common.Models.TickerStreamModel)}");
                    }
-
-                   return Task.CompletedTask;
                },
                cancellationToken);
 
-            await webSoket.ConnectAsync(cancellationToken);
+            return webSoket;
         }
 
         /// <inheritdoc />
         /// <remarks>
         ///     Проверено ручным тестированием, после изменений необходимы ручные проверки!
         /// </remarks>
-        public async Task SubscribeAllBookTickersStreamAsync(
-            Func<Common.Models.BookTickerStreamModel, Task> onMessageReceivedFunc,
-            Action onStreamClosedFunc = null,
-            CancellationToken cancellationToken = default)
+        public IWebSocket SubscribeAllBookTickersStream(
+            Func<Common.Models.BookTickerStreamModel, CancellationToken, Task> onMessageReceivedFunc,
+            CancellationToken cancellationToken,
+            Action onStreamClosedFunc = null)
         {
             // TODO переписать или с фабрикой или с интерфейсом для удобного тестирования
             var webSoket = MarketdataWebSocket.CreateAllBookTickersStream();
@@ -494,34 +489,32 @@ namespace BinanceExchange
             webSoket.OnStreamClosed += onStreamClosedFunc;
 
             webSoket.AddOnMessageReceivedFunc(
-               content =>
+               async content =>
                {
                    try
                    {
                        var model = _converter.Deserialize<Models.BookTickerStreamModel>(content);
                        var neededModel = _mapper.Map<Common.Models.BookTickerStreamModel>(model);
-                       onMessageReceivedFunc?.Invoke(neededModel);
+                      await  onMessageReceivedFunc?.Invoke(neededModel, cancellationToken);
                    }
                    catch (Exception ex)
                    {
                        _logger.Warn(ex, $"Failed to recieve {nameof(Models.BookTickerStreamModel)}");
                    }
-
-                   return Task.CompletedTask;
                },
                cancellationToken);
 
-            await webSoket.ConnectAsync(cancellationToken);
+            return webSoket;
         }
 
         /// <inheritdoc />
         /// <remarks>
         ///     Проверено ручным тестированием, после изменений необходимы ручные проверки!
         /// </remarks>
-        public async Task SubscribeAllMarketMiniTickersStreamAsync(
-            Func<IEnumerable<Common.Models.MiniTickerStreamModel>, Task> onMessageReceivedFunc,
-            Action onStreamClosedFunc = null,
-            CancellationToken cancellationToken = default)
+        public IWebSocket SubscribeAllMarketMiniTickersStream(
+            Func<IEnumerable<Common.Models.MiniTickerStreamModel>, CancellationToken, Task> onMessageReceivedFunc,
+            CancellationToken cancellationToken,
+            Action onStreamClosedFunc = null)
         {
             // TODO переписать или с фабрикой или с интерфейсом для удобного тестирования
             var webSoket = MarketdataWebSocket.CreateAllMarketMiniTickersStream();
@@ -529,30 +522,29 @@ namespace BinanceExchange
             webSoket.OnStreamClosed += onStreamClosedFunc;
 
             webSoket.AddOnMessageReceivedFunc(
-               content =>
+               async content =>
                {
                    var models = _converter.Deserialize<IEnumerable<Models.MiniTickerStreamModel>>(content);
                    var neededModels = _mapper.Map<IEnumerable<Common.Models.MiniTickerStreamModel>>(models);
 
-                   onMessageReceivedFunc?.Invoke(neededModels);
-                   return Task.CompletedTask;
+                   await onMessageReceivedFunc?.Invoke(neededModels, cancellationToken);
                },
                cancellationToken);
 
-            await webSoket.ConnectAsync(cancellationToken);
+            return webSoket;
         }
 
         /// <inheritdoc />
         /// <remarks>
         ///     Проверено ручным тестированием, после изменений необходимы ручные проверки!
         /// </remarks>
-        public async Task SubscribePartialBookDepthStreamAsync(
+        public IWebSocket SubscribePartialBookDepthStream(
             string symbol,
-            Func<Common.Models.OrderBookModel, Task> onMessageReceivedFunc,
+            Func<Common.Models.OrderBookModel, CancellationToken, Task> onMessageReceivedFunc,
+            CancellationToken cancellationToken,
             Action onStreamClosedFunc = null,
             int levels = 10,
-            bool activateFastReceive = false,
-            CancellationToken cancellationToken = default)
+            bool activateFastReceive = false)
         {
             // TODO переписать или с фабрикой или с интерфейсом для удобного тестирования
             var webSoket = MarketdataWebSocket.CreatePartialBookDepthStream(symbol, levels, activateFastReceive);
@@ -560,16 +552,15 @@ namespace BinanceExchange
             webSoket.OnClosed += OnCloseHandler;
 
             webSoket.AddOnMessageReceivedFunc(
-               content =>
+               async content =>
                {
                    var model = _converter.Deserialize<Models.OrderBookModel>(content);
                    var neededModel = _mapper.Map<Common.Models.OrderBookModel>(model);
-                   onMessageReceivedFunc?.Invoke(neededModel);
-                   return Task.CompletedTask;
+                   await onMessageReceivedFunc?.Invoke(neededModel, cancellationToken);
                },
                cancellationToken);
 
-            await webSoket.ConnectAsync(cancellationToken);
+            return webSoket;
         }
 
         #endregion

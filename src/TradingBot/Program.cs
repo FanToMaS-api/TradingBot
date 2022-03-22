@@ -1,8 +1,11 @@
 ﻿using BinanceExchange;
 using Common.Models;
+using Common.WebSocket;
 using NLog;
 using System;
+using System.Collections.Generic;
 using System.Configuration;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using TradingBot.Configuration;
@@ -11,7 +14,7 @@ namespace TradingBot
 {
     internal class Program
     {
-        private readonly ILogger _logger = LogManager.LoadConfiguration("nlog.config").GetLogger("Program");
+        private static readonly ILogger _logger = LogManager.LoadConfiguration("nlog.config").GetLogger("Program");
 
         static async Task Main()
         {
@@ -20,64 +23,58 @@ namespace TradingBot
             var binanceOptions = new BinanceExchangeOptions() { ApiKey = apiKey, SecretKey = secretKey };
             var binance = BinanceExchangeFactory.CreateExchange(binanceOptions);
             using var cts = new CancellationTokenSource();
-            //var res = (await binance.GetAllOrdersAsync("SOLUSDT"));
-            //foreach (var item in res)
-            //{
-            //    Console.WriteLine(item.IsWorking + " " + item.OrderSide + " " + item.Price + " " + item.Status);
-            //}
+            var pairs = (await binance.GetSymbolPriceTickerAsync(null))
+                .Where(_ => _.Symbol.Contains("USDT", StringComparison.CurrentCultureIgnoreCase))
+                .ToDictionary(_ => _.Symbol, _ => new List<double>());
+            _logger.Info($"Всего пар: {pairs.Count()}");
 
-            //Console.WriteLine(await binance.CreateNewLimitOrderAsync(
-            //   "ARPABNB",
-            //   "BUY",
-            //   "GTC",
-            //   0.0001813,
-            //   100000,
-            //   cancellationToken: cts.Token));
+            var delay = TimeSpan.FromMinutes(2.5);
+            var percent = 2.55;
+            while (true)
+            {
+                var newPairs = (await binance.GetSymbolPriceTickerAsync(null))
+                    .Where(_ => _.Symbol.Contains("USDT", StringComparison.CurrentCultureIgnoreCase))
+                    .ToList();
+                _logger.Trace("Новые данные получены");
 
-            var properties = typeof(TickerStreamModel).GetProperties();
-            using var webSocket = await binance.SubscribeNewStreamAsync<TickerStreamModel>(
-                "ETCUSDT",
-                "@ticker",
-                _ =>
+                newPairs.ForEach(pair =>
                 {
-                    //foreach (var e in _)
-                    //{
-                    foreach (var property in properties)
+                    var pricesCount = pairs[pair.Symbol].Count;
+                    if (pricesCount == 0)
                     {
-                        Console.Write($"{property.Name}: {property.GetValue(_)} ");
+                        pairs[pair.Symbol].Add(pair.Price);
+                        return;
                     }
 
-                    Console.WriteLine();
-                    //}
-                    return Task.CompletedTask;
-                },
-                () => { Console.WriteLine("Stream Was Closed"); },
-                cancellationToken: cts.Token);
-
-            Task.Run(async () =>await webSocket.ConnectAsync(cts.Token));
-
-            using var webSocket1 = await binance.SubscribeNewStreamAsync<TickerStreamModel>(
-                "SOLUSDT",
-                "@ticker",
-                _ =>
-                {
-                    //foreach (var e in _)
-                    //{
-                    foreach (var property in properties)
+                    var newDeviation = GetDeviation(pairs[pair.Symbol].Last(), pair.Price);
+                    var lastDeviation = 0d;
+                    var preLastDeviation = 0d;
+                    if (pricesCount > 1)
                     {
-                        Console.Write($"{property.Name}: {property.GetValue(_)} ");
+                        lastDeviation = GetDeviation(pairs[pair.Symbol][pricesCount - 2], pairs[pair.Symbol].Last());
                     }
 
-                    Console.WriteLine();
-                    //}
-                    return Task.CompletedTask;
-                },
-                () => { Console.WriteLine("Stream Was Closed"); },
-                cancellationToken: cts.Token);
+                    if (pricesCount > 2)
+                    {
+                        preLastDeviation = GetDeviation(pairs[pair.Symbol][pricesCount - 3], pairs[pair.Symbol][pricesCount - 2]);
+                    }
 
-            Task.Run(async () => await webSocket1.ConnectAsync(cts.Token));
+                    var sumDeviation = newDeviation + lastDeviation + preLastDeviation;
+                    if (newDeviation >= percent || sumDeviation >= percent)
+                    {
+                        _logger.Warn($"Покупай {pair.Symbol} Новая разница {newDeviation:0.00} Разница за последние 3 таймфрейма: {sumDeviation:0.00}");
+                    }
 
-            await Task.Delay(70000);
+                    pairs[pair.Symbol].Add(pair.Price);
+                });
+
+                await Task.Delay(delay);
+            }
         }
+
+        /// <summary>
+        ///     Возвращает процентное отклонение новой цены от старой
+        /// </summary>
+        private static double GetDeviation(double oldPrice, double newPrice) => (newPrice / (double)oldPrice - 1) * 100;
     }
 }

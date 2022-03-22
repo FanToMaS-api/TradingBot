@@ -110,6 +110,7 @@ namespace ExchangeLibrary
         /// <typeparam name="T"> Объект для работы с данными полученными со стрима </typeparam>
         /// <param name="symbol"> Пара </param>
         /// <param name="onMessageReceivedFunc"> Функция обрабатываюащя данные объекта <see cref="{T}"/> </param>
+        /// <param name="cancellationToken"> Токен для передачи в функцию обработки выше </param>
         /// <param name="streamType"> Тип стрима </param>
         /// <remarks> 
         ///     Возможные значения стримов для Binance:
@@ -124,68 +125,72 @@ namespace ExchangeLibrary
         ///     <br/>
         ///     @trade - информация о торговле тикером (Модель <see cref="SymbolTradeStreamModel"/>)
         /// </remarks>
-        Task<IWebSocket> SubscribeNewStreamAsync<T>(
+        IWebSocket SubscribeNewStream<T>(
             string symbol,
             string streamType,
-            Func<T, Task> onMessageReceivedFunc,
-            Action onStreamClosedFunc = null,
-            CancellationToken cancellationToken = default);
+            Func<T, CancellationToken, Task> onMessageReceivedFunc,
+            CancellationToken cancellationToken,
+            Action onStreamClosedFunc = null);
 
         /// <summary>
         ///     Подписывается на стрим данных по свечам для опред пары
         /// </summary>
         /// <param name="symbol"> Пара </param>
         /// <param name="onMessageReceivedFunc"> Функция обрабатываюащя данные объекта <see cref="CandlestickStreamModel"/> </param>
+        /// <param name="cancellationToken"> Токен для передачи в функцию обработки выше </param>
         /// <param name="candleStickInterval"> Интервал свечей </param>
-        Task SubscribeCandlestickStreamAsync(
+        IWebSocket SubscribeCandlestickStream(
             string symbol,
             string candleStickInterval,
-            Func<CandlestickStreamModel, Task> onMessageReceivedFunc,
-            Action onStreamClosedFunc = null,
-            CancellationToken cancellationToken = default);
+            Func<CandlestickStreamModel, CancellationToken, Task> onMessageReceivedFunc,
+            CancellationToken cancellationToken,
+            Action onStreamClosedFunc = null);
 
         /// <summary>
         ///     Подписывается на стрим статистики всех мини-тикеров за 24 часа
         /// </summary>
         /// <param name="onMessageReceivedFunc"> Функция обрабатываюащя данные объекта <see cref="TickerStreamModel"/> </param>
-        Task SubscribeAllMarketTickersStreamAsync(
-            Func<IEnumerable<TickerStreamModel>, Task> onMessageReceivedFunc,
-            Action onStreamClosedFunc = null,
-            CancellationToken cancellationToken = default);
+        IWebSocket SubscribeAllMarketTickersStream(
+            Func<IEnumerable<TickerStreamModel>, CancellationToken, Task> onMessageReceivedFunc,
+            CancellationToken cancellationToken,
+            Action onStreamClosedFunc = null);
 
         /// <summary>
         ///     Подписывается на стрим обновлений лучшей цены покупки или продажи или количество
         ///     в режиме реального времени для всех символов
         /// </summary>
         /// <param name="onMessageReceivedFunc"> Функция обрабатываюащя данные объекта <see cref="BookTickerStreamModel"/> </param>
-        Task SubscribeAllBookTickersStreamAsync(
-            Func<BookTickerStreamModel, Task> onMessageReceivedFunc,
-            Action onStreamClosedFunc = null,
-            CancellationToken cancellationToken = default);
+        /// <param name="cancellationToken"> Токен для передачи в функцию обработки выше </param>
+        IWebSocket SubscribeAllBookTickersStream(
+            Func<BookTickerStreamModel, CancellationToken, Task> onMessageReceivedFunc,
+            CancellationToken cancellationToken,
+            Action onStreamClosedFunc = null);
 
         /// <summary>
         ///     Подписывается на стрим статистики всех мини-тикеров за 24 часа
         /// </summary>
         /// <param name="onMessageReceivedFunc"> Функция обрабатывающая данные объекта <see cref="MiniTickerStreamModel"/> </param>
-        Task SubscribeAllMarketMiniTickersStreamAsync(
-            Func<IEnumerable<MiniTickerStreamModel>, Task> onMessageReceivedFunc,
-            Action onStreamClosedFunc = null,
-            CancellationToken cancellationToken = default);
+        /// <param name="cancellationToken"> Токен для передачи в функцию обработки выше </param>
+        IWebSocket SubscribeAllMarketMiniTickersStream(
+            Func<IEnumerable<MiniTickerStreamModel>, CancellationToken, Task> onMessageReceivedFunc,
+            CancellationToken cancellationToken,
+            Action onStreamClosedFunc = null);
 
         /// <summary>
         ///     Подписывается на стрим лучших ордеров спроса и предложений
         /// </summary>
         /// <param name="symbol"> Пара (в нижнем регистре) </param>
         /// <param name="onMessageReceivedFunc"> Функция обрабатываюащя данные объекта <see cref="OrderBookModel"/> </param>
+        /// <param name="cancellationToken"> Токен для передачи в функцию обработки выше </param>
         /// <param name="levels"> Кол-во ордеров. Допустимые значения 5, 10, 20 </param>
         /// <param name="activateFastReceive"> Активировать прием данных раз в 100 миллисекунд </param>
-        Task SubscribePartialBookDepthStreamAsync(
+        IWebSocket SubscribePartialBookDepthStream(
             string symbol,
-            Func<OrderBookModel, Task> onMessageReceivedFunc,
+            Func<OrderBookModel, CancellationToken, Task> onMessageReceivedFunc,
+            CancellationToken cancellationToken,
             Action onStreamClosedFunc = null,
             int levels = 10,
-            bool activateFastReceive = false,
-            CancellationToken cancellationToken = default);
+            bool activateFastReceive = false);
 
         #endregion
 

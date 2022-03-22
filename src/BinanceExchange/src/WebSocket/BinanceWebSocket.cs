@@ -190,9 +190,9 @@ namespace BinanceExchange.WebSocket
             }
 
             DisconnectAsync(CancellationToken.None).Wait();
-            _webSocketHumble.Dispose();
+            _webSocketHumble?.Dispose();
             _onMessageReceivedCancellationTokenRegistrations.ForEach(ct => ct.Dispose());
-            _loopCancellationTokenSource.Dispose();
+            _loopCancellationTokenSource?.Dispose();
 
             _isDisposed = true;
         }
