@@ -946,7 +946,7 @@ namespace BinanceExchange
             long recvWindow = 5000,
             CancellationToken cancellationToken = default)
         {
-            var requestWeight = _requestsWeightStorage.AllOrdersWeight;
+            var requestWeight = _requestsWeightStorage.GetAllOrdersWeight;
             if (CheckLimit(requestWeight.Type, out var rateLimit))
             {
                 throw new TooManyRequestsException(rateLimit.Expiration, rateLimit.Value, rateLimit.Key);
@@ -972,16 +972,10 @@ namespace BinanceExchange
             }
 
             var query = builder.GetResult().GetQuery();
-            var models = await _tradeSender.GetAllOrdersAsync(query, cancellationToken);
+            var result = await _tradeSender.GetAllOrdersAsync(query, cancellationToken);
             IncrementCallsMade(requestWeight, RequestWeightModel.GetDefaultKey());
 
-            var result = new List<Common.Models.CheckOrderResponseModel>();
-            foreach (var model in models)
-            {
-                result.Add(_mapper.Map<Common.Models.CheckOrderResponseModel>(model));
-            }
-
-            return result;
+            return _mapper.Map<IEnumerable<Common.Models.CheckOrderResponseModel>>(result);
         }
 
         #endregion

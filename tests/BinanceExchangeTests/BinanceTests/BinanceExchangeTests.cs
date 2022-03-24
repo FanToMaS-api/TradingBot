@@ -155,8 +155,8 @@ namespace BinanceExchangeTests.BinanceTests
                     "../../../BinanceTests/Jsons/Marketdata/SYMBOL_PRICE_TICKERS.json",
                     new List<SymbolPriceTickerModel>
                     {
-                        TestHelper.GetBinanceSymbolPriceTickerModel("LTCBTC", 4.00000200),
-                        TestHelper.GetBinanceSymbolPriceTickerModel("ETHBTC", 0.07946600)
+                        TestHelper.CreatetBinanceSymbolPriceTickerModel("LTCBTC", 4.00000200),
+                        TestHelper.CreatetBinanceSymbolPriceTickerModel("ETHBTC", 0.07946600)
                     });
             });
 
@@ -167,7 +167,7 @@ namespace BinanceExchangeTests.BinanceTests
                     "../../../BinanceTests/Jsons/Marketdata/SYMBOL_PRICE_TICKER.json",
                     new List<SymbolPriceTickerModel>
                     {
-                        TestHelper.GetBinanceSymbolPriceTickerModel("LTCBTC", 4.00000200),
+                        TestHelper.CreatetBinanceSymbolPriceTickerModel("LTCBTC", 4.00000200),
                     });
             });
 
@@ -178,8 +178,8 @@ namespace BinanceExchangeTests.BinanceTests
                     "../../../BinanceTests/Jsons/Marketdata/SYMBOL_ORDER_BOOK_TICKERS.json",
                     new List<SymbolOrderBookTickerModel>
                     {
-                        TestHelper.GetBinanceSymbolOrderBookTickerModel("LTCBTC", 4.00000000, 431.00000000, 4.00000200, 9.00000000),
-                        TestHelper.GetBinanceSymbolOrderBookTickerModel("ETHBTC", 0.07946700, 9.00000000, 100000.00000000, 1000.00000000)
+                        TestHelper.CreateBinanceSymbolOrderBookTickerModel("LTCBTC", 4.00000000, 431.00000000, 4.00000200, 9.00000000),
+                        TestHelper.CreateBinanceSymbolOrderBookTickerModel("ETHBTC", 0.07946700, 9.00000000, 100000.00000000, 1000.00000000)
                     });
             });
 
@@ -190,7 +190,7 @@ namespace BinanceExchangeTests.BinanceTests
                     "../../../BinanceTests/Jsons/Marketdata/SYMBOL_ORDER_BOOK_TICKER.json",
                     new List<SymbolOrderBookTickerModel>
                     {
-                        TestHelper.GetBinanceSymbolOrderBookTickerModel("LTCBTC", 4.00000000, 431.00000000, 4.00000200, 9.00000000)
+                        TestHelper.CreateBinanceSymbolOrderBookTickerModel("LTCBTC", 4.00000000, 431.00000000, 4.00000200, 9.00000000)
                     });
             });
 
@@ -661,15 +661,15 @@ namespace BinanceExchangeTests.BinanceTests
                         Assert.Equal(2, result.Count);
                         expectedResult = new()
                         {
-                            TestHelper.GetExpectedSymbolPriceTickerModel("LTCBTC", 4.00000200),
-                            TestHelper.GetExpectedSymbolPriceTickerModel("ETHBTC", 0.07946600),
+                            TestHelper.CreateExpectedSymbolPriceTickerModel("LTCBTC", 4.00000200),
+                            TestHelper.CreateExpectedSymbolPriceTickerModel("ETHBTC", 0.07946600),
                         };
                         break;
                     case "LTCBTC":
                         Assert.Single(result);
                         expectedResult = new()
                         {
-                            TestHelper.GetExpectedSymbolPriceTickerModel("LTCBTC", 4.00000200),
+                            TestHelper.CreateExpectedSymbolPriceTickerModel("LTCBTC", 4.00000200),
                         };
                         break;
                 }
@@ -716,15 +716,15 @@ namespace BinanceExchangeTests.BinanceTests
                         Assert.Equal(2, result.Count);
                         expectedResult = new()
                         {
-                            TestHelper.GetExpectedBestSymbolOrderModel("LTCBTC", 4.00000000, 431.00000000, 4.00000200, 9.00000000),
-                            TestHelper.GetExpectedBestSymbolOrderModel("ETHBTC", 0.07946700, 9.00000000, 100000.00000000, 1000.00000000)
+                            TestHelper.CreateExpectedBestSymbolOrderModel("LTCBTC", 4.00000000, 431.00000000, 4.00000200, 9.00000000),
+                            TestHelper.CreateExpectedBestSymbolOrderModel("ETHBTC", 0.07946700, 9.00000000, 100000.00000000, 1000.00000000)
                         };
                         break;
                     case "LTCBTC":
                         Assert.Single(result);
                         expectedResult = new()
                         {
-                            TestHelper.GetExpectedBestSymbolOrderModel("LTCBTC", 4.00000000, 431.00000000, 4.00000200, 9.00000000),
+                            TestHelper.CreateExpectedBestSymbolOrderModel("LTCBTC", 4.00000000, 431.00000000, 4.00000200, 9.00000000),
                         };
                         break;
                 }
@@ -744,7 +744,7 @@ namespace BinanceExchangeTests.BinanceTests
 
         #endregion
 
-        #region Spot Account/Trade Tests
+        #region Spot Account/Trade Tests (Данные тесты не проверяю результат работы строителя query)
 
         /// <summary>
         ///     Проверка создания нового лимитного ордера
@@ -752,48 +752,486 @@ namespace BinanceExchangeTests.BinanceTests
         [Fact(DisplayName = "Create new limit order Test")]
         public async Task CreateNewLimitOrderAsync_Test()
         {
-            var price = 0.1;
-            var quantity = price;
             var requestWeight = _requestsWeightStorage.NewOrderWeight;
             var (expectedKey, expectedInterval, expectedWeight) = GetExpectedArguments(requestWeight, RequestWeightModel.GetDefaultKey());
-            var binanceResponse = TestHelper.GetBinanceFullOrderResponseModel(
-                "BTCUSDT",
-                price,
-                quantity,
-                OrderStatusType.PartiallyFilled,
-                TimeInForceType.IOC,
-                OrderType.Limit,
-                OrderSideType.Buy);
+            var symbol = "BTCUSDT"; // если изменено нужно поменять в методе мока запроса
+            var orderSide = OrderSideType.Buy;
+            var forceType = "IOC"; // если изменено нужно поменять в методе мока запроса
+            var orderType = "Limit";
+            var priceAndQuantity = 0.1;
+            var recvWindow = 5000;
+            var builder = new Builder();
+            builder.SetOrderType(OrderType.Limit);
+            builder.SetOrderSideType(orderSide);
+            builder.SetSymbol(symbol);
+            builder.SetTimeInForce(forceType);
+            builder.SetPrice(priceAndQuantity);
+            builder.SetQuantity(priceAndQuantity);
+            builder.SetRecvWindow(recvWindow);
+            var query = builder.GetResult(false).GetQuery();
 
-            _tradeSender.SendNewOrderAsync(Arg.Any<Dictionary<string, object>>(), Arg.Any<CancellationToken>()).ReturnsForAnyArgs(binanceResponse);
-            var expectedResult = TestHelper.GetExpectedFullOrderResponseModel(
-                "BTCUSDT",
-                price,
-                quantity,
-                "PartiallyFilled",
-                "IOC",
-                "Limit",
-                OrderSideType.Buy);
-
+            var (binanceResponse, expectedResult) = MockNewOrderCreating(query, priceAndQuantity, OrderType.Limit, orderType);
             SetArgumentsEvent += SetArgumentsEventHandler;
 
             MockRedisIncrementOrCreateKeyValue(_redisDatabase);
 
             // Act #1
-            var result = await _binanceExchange.CreateNewLimitOrderAsync("BTCUSDT", OrderSideType.Buy, "IOC", price, quantity, isTest: false);
+            var result = await _binanceExchange.CreateNewLimitOrderAsync(symbol, orderSide, forceType, priceAndQuantity, priceAndQuantity, isTest: false);
             TestHelper.CheckingAssertions(expectedResult, result);
 
-            price = 255;
-            quantity = price;
-            binanceResponse.Price = price;
-            binanceResponse.OrigQty = quantity;
-            _tradeSender.SendNewTestOrderAsync(Arg.Any<Dictionary<string, object>>(), Arg.Any<CancellationToken>()).ReturnsForAnyArgs(binanceResponse);
+            priceAndQuantity = 255;
+            binanceResponse.Price = priceAndQuantity;
+            binanceResponse.OrigQty = priceAndQuantity;
+            builder.SetPrice(priceAndQuantity);
+            query = builder.GetResult(false).GetQuery();
+            _tradeSender.SendNewTestOrderAsync(query, Arg.Any<CancellationToken>()).ReturnsForAnyArgs(binanceResponse);
 
             // Act #2
-            var testOrderResult = await _binanceExchange.CreateNewLimitOrderAsync("BTCUSDT", OrderSideType.Buy, "IOC", price, quantity);
-            expectedResult.Price = price;
-            expectedResult.OrigQty = quantity;
+            var testOrderResult = await _binanceExchange.CreateNewLimitOrderAsync(symbol, orderSide, forceType, priceAndQuantity, priceAndQuantity);
+            expectedResult.Price = priceAndQuantity;
+            expectedResult.OrigQty = priceAndQuantity;
             TestHelper.CheckingAssertions(expectedResult, testOrderResult);
+
+            Assert.Equal(expectedKey, _actualKey);
+            Assert.Equal(expectedInterval, _actualInterval);
+            Assert.Equal(expectedWeight, _actualWeight);
+
+            SetArgumentsEvent -= SetArgumentsEventHandler;
+        }
+
+        /// <summary>
+        ///     Проверка создания нового рыночного ордера
+        /// </summary>
+        [Fact(DisplayName = "Create new market order Test")]
+        public async Task CreateNewMarketOrderAsync_Test()
+        {
+            var requestWeight = _requestsWeightStorage.NewOrderWeight;
+            var (expectedKey, expectedInterval, expectedWeight) = GetExpectedArguments(requestWeight, RequestWeightModel.GetDefaultKey());
+            var symbol = "BTCUSDT"; // если изменено нужно поменять в методе мока запроса
+            var orderSide = OrderSideType.Buy;
+            var orderType = "Market";
+            var priceAndQuantity = 0.1;
+            var recvWindow = 5000;
+            var builder = new Builder();
+            builder.SetOrderSideType(orderSide);
+            builder.SetSymbol(symbol);
+            builder.SetQuantity(priceAndQuantity);
+            builder.SetRecvWindow(recvWindow);
+            var query = builder.GetResult().GetQuery();
+
+            var (binanceResponse, expectedResult) = MockNewOrderCreating(query, priceAndQuantity, OrderType.Market, orderType);
+            SetArgumentsEvent += SetArgumentsEventHandler;
+
+            MockRedisIncrementOrCreateKeyValue(_redisDatabase);
+
+            // Act #1
+            var result = await _binanceExchange.CreateNewMarketOrderAsync(symbol, orderSide, priceAndQuantity, isTest: false);
+            TestHelper.CheckingAssertions(expectedResult, result);
+
+            priceAndQuantity = 255;
+            builder.SetQuantity(priceAndQuantity); // обновляю значение кол-ва
+            query = builder.GetResult().GetQuery(); // обновляю словарь параметров запроса
+            binanceResponse.Price = priceAndQuantity;
+            binanceResponse.OrigQty = priceAndQuantity;
+            _tradeSender.SendNewTestOrderAsync(query, Arg.Any<CancellationToken>()).ReturnsForAnyArgs(binanceResponse);
+
+            // Act #2
+            var testOrderResult = await _binanceExchange.CreateNewMarketOrderAsync(symbol, orderSide, priceAndQuantity);
+            expectedResult.Price = priceAndQuantity;
+            expectedResult.OrigQty = priceAndQuantity;
+            TestHelper.CheckingAssertions(expectedResult, testOrderResult);
+
+            Assert.Equal(expectedKey, _actualKey);
+            Assert.Equal(expectedInterval, _actualInterval);
+            Assert.Equal(expectedWeight, _actualWeight);
+
+            SetArgumentsEvent -= SetArgumentsEventHandler;
+        }
+
+        /// <summary>
+        ///     Проверка создания нового стоп-лосс ордера
+        /// </summary>
+        [Fact(DisplayName = "Create new stop loss order Test")]
+        public async Task CreateNewStopLossOrderAsync_Test()
+        {
+            var requestWeight = _requestsWeightStorage.NewOrderWeight;
+            var (expectedKey, expectedInterval, expectedWeight) = GetExpectedArguments(requestWeight, RequestWeightModel.GetDefaultKey());
+            var symbol = "BTCUSDT"; // если изменено нужно поменять в методе мока запроса
+            var sideType = OrderSideType.Buy;
+            var orderType = "StopLoss";
+            var priceAndQuantity = 0.1;
+            var recvWindow = 6000;
+            var builder = new Builder();
+            builder.SetOrderSideType(sideType);
+            builder.SetSymbol(symbol);
+            builder.SetStopPrice(priceAndQuantity);
+            builder.SetQuantity(priceAndQuantity);
+            builder.SetRecvWindow(recvWindow);
+            var query = builder.GetResult().GetQuery();
+
+            var (binanceResponse, expectedResult) = MockNewOrderCreating(query, priceAndQuantity, OrderType.StopLoss, orderType);
+            SetArgumentsEvent += SetArgumentsEventHandler;
+
+            MockRedisIncrementOrCreateKeyValue(_redisDatabase);
+
+            // Act #1
+            var result = await _binanceExchange.CreateNewStopLossOrderAsync(symbol, sideType, priceAndQuantity, priceAndQuantity, recvWindow, isTest: false);
+            TestHelper.CheckingAssertions(expectedResult, result);
+
+            priceAndQuantity = 255;
+            builder.SetQuantity(priceAndQuantity); // обновляю значение кол-ва
+            query = builder.GetResult().GetQuery(); // обновляю словарь параметров запроса
+            binanceResponse.Price = priceAndQuantity;
+            binanceResponse.OrigQty = priceAndQuantity;
+            _tradeSender.SendNewTestOrderAsync(query, Arg.Any<CancellationToken>()).ReturnsForAnyArgs(binanceResponse);
+
+            // Act #2
+            var testOrderResult = await _binanceExchange.CreateNewStopLossOrderAsync(symbol, sideType, priceAndQuantity, priceAndQuantity, recvWindow);
+            expectedResult.Price = priceAndQuantity;
+            expectedResult.OrigQty = priceAndQuantity;
+            TestHelper.CheckingAssertions(expectedResult, testOrderResult);
+
+            Assert.Equal(expectedKey, _actualKey);
+            Assert.Equal(expectedInterval, _actualInterval);
+            Assert.Equal(expectedWeight, _actualWeight);
+
+            SetArgumentsEvent -= SetArgumentsEventHandler;
+        }
+
+        /// <summary>
+        ///     Проверка создания нового лимитного стоп-лосс ордера
+        /// </summary>
+        [Fact(DisplayName = "Create new stop loss limit order Test")]
+        public async Task CreateNewStopLossLimitOrderAsync_Test()
+        {
+            var requestWeight = _requestsWeightStorage.NewOrderWeight;
+            var (expectedKey, expectedInterval, expectedWeight) = GetExpectedArguments(requestWeight, RequestWeightModel.GetDefaultKey());
+            var symbol = "BTCUSDT"; // если изменено нужно поменять в методе мока запроса
+            var sideType = OrderSideType.Buy;
+            var orderType = "StopLossLimit";
+            var priceAndQuantity = 0.1;
+            var forceType = "IOC"; // если изменено нужно поменять в методе мока запроса
+            var recvWindow = 6000;
+            var builder = new Builder();
+            builder.SetOrderSideType(sideType);
+            builder.SetSymbol(symbol);
+            builder.SetTimeInForce(forceType);
+            builder.SetPrice(priceAndQuantity);
+            builder.SetQuantity(priceAndQuantity);
+            builder.SetStopPrice(priceAndQuantity);
+            builder.SetRecvWindow(recvWindow);
+            var query = builder.GetResult().GetQuery();
+
+            var (binanceResponse, expectedResult) = MockNewOrderCreating(query, priceAndQuantity, OrderType.StopLossLimit, orderType);
+            SetArgumentsEvent += SetArgumentsEventHandler;
+
+            MockRedisIncrementOrCreateKeyValue(_redisDatabase);
+
+            // Act #1
+            var result = await _binanceExchange.CreateNewStopLossLimitOrderAsync(symbol, sideType, forceType, priceAndQuantity, priceAndQuantity, recvWindow, isTest: false);
+            TestHelper.CheckingAssertions(expectedResult, result);
+
+            priceAndQuantity = 255;
+            builder.SetQuantity(priceAndQuantity); // обновляю значение кол-ва
+            query = builder.GetResult().GetQuery(); // обновляю словарь параметров запроса
+            binanceResponse.Price = priceAndQuantity;
+            binanceResponse.OrigQty = priceAndQuantity;
+            _tradeSender.SendNewTestOrderAsync(query, Arg.Any<CancellationToken>()).ReturnsForAnyArgs(binanceResponse);
+
+            // Act #2
+            var testOrderResult = await _binanceExchange.CreateNewStopLossLimitOrderAsync(symbol, sideType, forceType, priceAndQuantity, priceAndQuantity, recvWindow);
+            expectedResult.Price = priceAndQuantity;
+            expectedResult.OrigQty = priceAndQuantity;
+            TestHelper.CheckingAssertions(expectedResult, testOrderResult);
+
+            Assert.Equal(expectedKey, _actualKey);
+            Assert.Equal(expectedInterval, _actualInterval);
+            Assert.Equal(expectedWeight, _actualWeight);
+
+            SetArgumentsEvent -= SetArgumentsEventHandler;
+        }
+
+        /// <summary>
+        ///     Проверка создания нового TakeProfit ордера
+        /// </summary>
+        [Fact(DisplayName = "Create new take profit order Test")]
+        public async Task CreateNewTakeProfitOrderAsync_Test()
+        {
+            var requestWeight = _requestsWeightStorage.NewOrderWeight;
+            var (expectedKey, expectedInterval, expectedWeight) = GetExpectedArguments(requestWeight, RequestWeightModel.GetDefaultKey());
+            var symbol = "BTCUSDT"; // если изменено нужно поменять в методе мока запроса
+            var sideType = OrderSideType.Buy;
+            var orderType = "TakeProfit";
+            var priceAndQuantity = 0.1;
+            var recvWindow = 6000;
+            var builder = new Builder();
+            builder.SetOrderSideType(sideType);
+            builder.SetSymbol(symbol);
+            builder.SetQuantity(priceAndQuantity);
+            builder.SetStopPrice(priceAndQuantity);
+            builder.SetRecvWindow(recvWindow);
+            var query = builder.GetResult().GetQuery();
+
+            var (binanceResponse, expectedResult) = MockNewOrderCreating(query, priceAndQuantity, OrderType.TakeProfit, orderType);
+            SetArgumentsEvent += SetArgumentsEventHandler;
+
+            MockRedisIncrementOrCreateKeyValue(_redisDatabase);
+
+            // Act #1
+            var result = await _binanceExchange.CreateNewTakeProfitOrderAsync(symbol, sideType, priceAndQuantity, priceAndQuantity, recvWindow, isTest: false);
+            TestHelper.CheckingAssertions(expectedResult, result);
+
+            priceAndQuantity = 255;
+            builder.SetQuantity(priceAndQuantity); // обновляю значение кол-ва
+            query = builder.GetResult().GetQuery(); // обновляю словарь параметров запроса
+            binanceResponse.Price = priceAndQuantity;
+            binanceResponse.OrigQty = priceAndQuantity;
+            _tradeSender.SendNewTestOrderAsync(query, Arg.Any<CancellationToken>()).ReturnsForAnyArgs(binanceResponse);
+
+            // Act #2
+            var testOrderResult = await _binanceExchange.CreateNewTakeProfitOrderAsync(symbol, sideType, priceAndQuantity, priceAndQuantity, recvWindow);
+            expectedResult.Price = priceAndQuantity;
+            expectedResult.OrigQty = priceAndQuantity;
+            TestHelper.CheckingAssertions(expectedResult, testOrderResult);
+
+            Assert.Equal(expectedKey, _actualKey);
+            Assert.Equal(expectedInterval, _actualInterval);
+            Assert.Equal(expectedWeight, _actualWeight);
+
+            SetArgumentsEvent -= SetArgumentsEventHandler;
+        }
+
+        /// TODO: тесты создания новых оредров Spot Account/Trade не проверяют работу строителя, а это практически единственное, что необходимо проверить
+        /// поэтому дальше пойдут другие тесты, к этим есть смысл вернуться, если перегрузить сравнение словарей, чтобы NSubstitute при сравнении аргументов метода
+        /// определял их равенство не по хэш кодам
+
+        /// <summary>
+        ///     Проверка отмены ордера
+        /// </summary>
+        [Fact(DisplayName = "Cancel order Test")]
+        public async Task CancelOrderAsync_Test()
+        {
+            var requestWeight = _requestsWeightStorage.CancelOrderWeight;
+            var (expectedKey, expectedInterval, expectedWeight) = GetExpectedArguments(requestWeight, RequestWeightModel.GetDefaultKey());
+            var symbol = "BTCUSDT";
+            SetArgumentsEvent += SetArgumentsEventHandler;
+
+            var priceAndQuantity = 0.1;
+            var binanceResponse = TestHelper.CreateBinanceCancelOrderResponseModel(
+                "BTCUSDT",
+                priceAndQuantity,
+                priceAndQuantity,
+                OrderStatusType.PartiallyFilled,
+                TimeInForceType.IOC,
+                OrderType.Limit,
+                OrderSideType.Buy);
+            _tradeSender.CancelOrderAsync(Arg.Any<Dictionary<string, object>>(), Arg.Any<CancellationToken>()).ReturnsForAnyArgs(binanceResponse);
+
+            MockRedisIncrementOrCreateKeyValue(_redisDatabase);
+
+            // Act
+            var result = await _binanceExchange.CancelOrderAsync(symbol);
+            var expectedResult = TestHelper.CreateExpectedCancelOrderResponseModel(
+                "BTCUSDT",
+                priceAndQuantity,
+                priceAndQuantity,
+                "PartiallyFilled",
+                "IOC",
+                "Limit",
+                OrderSideType.Buy);
+            TestHelper.CheckingAssertions(expectedResult, result);
+
+            Assert.Equal(expectedKey, _actualKey);
+            Assert.Equal(expectedInterval, _actualInterval);
+            Assert.Equal(expectedWeight, _actualWeight);
+
+            SetArgumentsEvent -= SetArgumentsEventHandler;
+        }
+
+        /// <summary>
+        ///     Проверка отмены всех открытых ордера по паре
+        /// </summary>
+        [Fact(DisplayName = "Cancel all open orders Test")]
+        public async Task CancelAllOrdersAsync_Test()
+        {
+            var requestWeight = _requestsWeightStorage.CancelOrderWeight;
+            var (expectedKey, expectedInterval, expectedWeight) = GetExpectedArguments(requestWeight, RequestWeightModel.GetDefaultKey());
+            var symbol = "BTCUSDT";
+            SetArgumentsEvent += SetArgumentsEventHandler;
+
+            var priceAndQuantity = 0.1;
+            var binanceResponse = TestHelper.CreateBinanceCancelOrderResponseModel(
+                "BTCUSDT",
+                priceAndQuantity,
+                priceAndQuantity,
+                OrderStatusType.PartiallyFilled,
+                TimeInForceType.IOC,
+                OrderType.Limit,
+                OrderSideType.Buy);
+            _tradeSender.CancelAllOrdersAsync(Arg.Any<Dictionary<string, object>>(), Arg.Any<CancellationToken>()).ReturnsForAnyArgs(
+                new List<BinanceExchange.Models.CancelOrderResponseModel> { binanceResponse, binanceResponse });
+
+            MockRedisIncrementOrCreateKeyValue(_redisDatabase);
+
+            // Act
+            var result = (await _binanceExchange.CancelAllOrdersAsync(symbol)).ToList();
+            var expectedModel = TestHelper.CreateExpectedCancelOrderResponseModel(
+                "BTCUSDT",
+                priceAndQuantity,
+                priceAndQuantity,
+                "PartiallyFilled",
+                "IOC",
+                "Limit",
+                OrderSideType.Buy);
+            var expectedResult = new List<Common.Models.CancelOrderResponseModel> { expectedModel, expectedModel };
+            Assert.Equal(expectedResult.Count, result.Count);
+            for (var i = 0; i < expectedResult.Count; i++)
+            {
+                TestHelper.CheckingAssertions(expectedResult[i], result[i]);
+            }
+
+            Assert.Equal(expectedKey, _actualKey);
+            Assert.Equal(expectedInterval, _actualInterval);
+            Assert.Equal(expectedWeight, _actualWeight);
+
+            SetArgumentsEvent -= SetArgumentsEventHandler;
+        }
+
+        /// <summary>
+        ///     Проверка получения состояния ордера по паре
+        /// </summary>
+        [Fact(DisplayName = "Check order Test")]
+        public async Task CheckOpenOrdersAsync_Test()
+        {
+            var requestWeight = _requestsWeightStorage.CheckOrderWeight;
+            var (expectedKey, expectedInterval, expectedWeight) = GetExpectedArguments(requestWeight, RequestWeightModel.GetDefaultKey());
+            var symbol = "BTCUSDT";
+            SetArgumentsEvent += SetArgumentsEventHandler;
+
+            var priceAndQuantity = 0.1;
+            var binanceResponse = TestHelper.CreateBinanceCheckOrderResponseModel(
+                "BTCUSDT",
+                priceAndQuantity,
+                priceAndQuantity,
+                OrderStatusType.PartiallyFilled,
+                TimeInForceType.IOC,
+                OrderType.Limit,
+                OrderSideType.Buy);
+            _tradeSender.CheckOrderAsync(Arg.Any<Dictionary<string, object>>(), Arg.Any<CancellationToken>()).ReturnsForAnyArgs(binanceResponse);
+
+            MockRedisIncrementOrCreateKeyValue(_redisDatabase);
+
+            // Act
+            var result = await _binanceExchange.CheckOrderAsync(symbol);
+            var expectedResult = TestHelper.CreateExpectedCheckOrderResponseModel(
+                "BTCUSDT",
+                priceAndQuantity,
+                priceAndQuantity,
+                "PartiallyFilled",
+                "IOC",
+                "Limit",
+                OrderSideType.Buy);
+
+            TestHelper.CheckingAssertions(expectedResult, result);
+
+
+            Assert.Equal(expectedKey, _actualKey);
+            Assert.Equal(expectedInterval, _actualInterval);
+            Assert.Equal(expectedWeight, _actualWeight);
+
+            SetArgumentsEvent -= SetArgumentsEventHandler;
+        }
+
+        /// <summary>
+        ///     Проверка получения состояния всех открытых ордеров по паре
+        /// </summary>
+        [Fact(DisplayName = "Check all open orders Test")]
+        public async Task CheckAllOpenOrdersAsync_Test()
+        {
+            var requestWeight = _requestsWeightStorage.CheckAllOpenOrdersWeight;
+            var (expectedKey, expectedInterval, expectedWeight) = GetExpectedArguments(requestWeight, RequestWeightModel.GetDefaultKey());
+            var symbol = "BTCUSDT";
+            SetArgumentsEvent += SetArgumentsEventHandler;
+
+            var priceAndQuantity = 0.1;
+            var binanceResponse = TestHelper.CreateBinanceCheckOrderResponseModel(
+                "BTCUSDT",
+                priceAndQuantity,
+                priceAndQuantity,
+                OrderStatusType.PartiallyFilled,
+                TimeInForceType.IOC,
+                OrderType.Limit,
+                OrderSideType.Buy);
+            _tradeSender.CheckAllOpenOrdersAsync(Arg.Any<Dictionary<string, object>>(), Arg.Any<CancellationToken>()).ReturnsForAnyArgs(
+                new List<BinanceExchange.Models.CheckOrderResponseModel> { binanceResponse, binanceResponse });
+
+            MockRedisIncrementOrCreateKeyValue(_redisDatabase);
+
+            // Act
+            var result = (await _binanceExchange.CheckAllOpenOrdersAsync(symbol)).ToList();
+            var expectedModel = TestHelper.CreateExpectedCheckOrderResponseModel(
+                "BTCUSDT",
+                priceAndQuantity,
+                priceAndQuantity,
+                "PartiallyFilled",
+                "IOC",
+                "Limit",
+                OrderSideType.Buy);
+            var expectedResult = new List<Common.Models.CheckOrderResponseModel> { expectedModel, expectedModel };
+            Assert.Equal(expectedResult.Count, result.Count);
+            for (var i = 0; i < expectedResult.Count; i++)
+            {
+                TestHelper.CheckingAssertions(expectedResult[i], result[i]);
+            }
+
+            Assert.Equal(expectedKey, _actualKey);
+            Assert.Equal(expectedInterval, _actualInterval);
+            Assert.Equal(expectedWeight, _actualWeight);
+
+            SetArgumentsEvent -= SetArgumentsEventHandler;
+        }
+
+        /// <summary>
+        ///     Проверка получения всех открытых ордеров по паре
+        /// </summary>
+        [Fact(DisplayName = "Get all open orders Test")]
+        public async Task GetAllOrdersAsync_Test()
+        {
+            var requestWeight = _requestsWeightStorage.GetAllOrdersWeight;
+            var (expectedKey, expectedInterval, expectedWeight) = GetExpectedArguments(requestWeight, RequestWeightModel.GetDefaultKey());
+            var symbol = "BTCUSDT";
+            SetArgumentsEvent += SetArgumentsEventHandler;
+
+            var priceAndQuantity = 0.1;
+            var binanceResponse = TestHelper.CreateBinanceCheckOrderResponseModel(
+                "BTCUSDT",
+                priceAndQuantity,
+                priceAndQuantity,
+                OrderStatusType.PartiallyFilled,
+                TimeInForceType.IOC,
+                OrderType.Limit,
+                OrderSideType.Buy);
+            _tradeSender.GetAllOrdersAsync(Arg.Any<Dictionary<string, object>>(), Arg.Any<CancellationToken>()).ReturnsForAnyArgs(
+                new List<BinanceExchange.Models.CheckOrderResponseModel> { binanceResponse, binanceResponse });
+
+            MockRedisIncrementOrCreateKeyValue(_redisDatabase);
+
+            // Act
+            var result = (await _binanceExchange.GetAllOrdersAsync(symbol)).ToList();
+            var expectedModel = TestHelper.CreateExpectedCheckOrderResponseModel(
+                "BTCUSDT",
+                priceAndQuantity,
+                priceAndQuantity,
+                "PartiallyFilled",
+                "IOC",
+                "Limit",
+                OrderSideType.Buy);
+            var expectedResult = new List<Common.Models.CheckOrderResponseModel> { expectedModel, expectedModel };
+            Assert.Equal(expectedResult.Count, result.Count);
+            for (var i = 0; i < expectedResult.Count; i++)
+            {
+                TestHelper.CheckingAssertions(expectedResult[i], result[i]);
+            }
 
             Assert.Equal(expectedKey, _actualKey);
             Assert.Equal(expectedInterval, _actualInterval);
@@ -860,6 +1298,37 @@ namespace BinanceExchangeTests.BinanceTests
 
                     return true;
                 });
+        }
+
+        /// <summary>
+        ///     Создает мок на вызов метода создания любого типа ордера
+        /// </summary>
+        private (BinanceExchange.Models.FullOrderResponseModel binanceResponse, Common.Models.FullOrderResponseModel expectedResult) MockNewOrderCreating(
+            Dictionary<string, object> query,
+            double priceAndQuantity,
+            OrderType orderType,
+            string expectedOrderType)
+        {
+            var binanceResponse = TestHelper.CreateBinanceFullOrderResponseModel(
+                "BTCUSDT",
+                priceAndQuantity,
+                priceAndQuantity,
+                OrderStatusType.PartiallyFilled,
+                TimeInForceType.IOC,
+                orderType,
+                OrderSideType.Buy);
+            _tradeSender.SendNewOrderAsync(query, Arg.Any<CancellationToken>()).ReturnsForAnyArgs(binanceResponse);
+
+            var expectedResult = TestHelper.CreateExpectedFullOrderResponseModel(
+                "BTCUSDT",
+                priceAndQuantity,
+                priceAndQuantity,
+                "PartiallyFilled",
+                "IOC",
+                expectedOrderType,
+                OrderSideType.Buy);
+
+            return (binanceResponse, expectedResult);
         }
 
         #endregion

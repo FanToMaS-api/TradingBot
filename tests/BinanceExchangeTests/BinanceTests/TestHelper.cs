@@ -36,7 +36,7 @@ namespace BinanceExchangeTests.BinanceTests
         public static void CheckingAssertions<T1, T2>(T1 expected, T2 actual)
         {
             var properties = expected.GetType().GetProperties();
-            foreach(var property in properties)
+            foreach (var property in properties)
             {
                 Assert.Equal(property.GetValue(expected), property.GetValue(actual));
             }
@@ -124,7 +124,7 @@ namespace BinanceExchangeTests.BinanceTests
         ///     Возвращает модель изменения цены за 1 день по паре
         /// </summary>
         public static DayPriceChangeModel GetBinanceDayPriceChangeModels() =>
-            new DayPriceChangeModel
+            new()
             {
                 Symbol = "BNBBTC",
                 PriceChange = -94.99999800,
@@ -153,7 +153,7 @@ namespace BinanceExchangeTests.BinanceTests
         ///     Возвращает модели изменения цены за 1 день по паре
         /// </summary>
         public static Common.Models.DayPriceChangeModel GetExpectedDayPriceChangeModels() =>
-            new Common.Models.DayPriceChangeModel
+            new()
             {
                 Symbol = "BNBBTC",
                 PriceChange = -94.99999800,
@@ -185,8 +185,8 @@ namespace BinanceExchangeTests.BinanceTests
         /// <summary>
         ///     Возвращает модель текущей цены пары
         /// </summary>
-        public static SymbolPriceTickerModel GetBinanceSymbolPriceTickerModel(string symbol, double price) =>
-            new SymbolPriceTickerModel
+        public static SymbolPriceTickerModel CreatetBinanceSymbolPriceTickerModel(string symbol, double price) =>
+            new()
             {
                 Symbol = symbol,
                 Price = price
@@ -195,8 +195,8 @@ namespace BinanceExchangeTests.BinanceTests
         /// <summary>
         ///     Возвращает модель текущей цены пары
         /// </summary>
-        public static Common.Models.SymbolPriceModel GetExpectedSymbolPriceTickerModel(string symbol, double price) =>
-            new Common.Models.SymbolPriceModel
+        public static Common.Models.SymbolPriceModel CreateExpectedSymbolPriceTickerModel(string symbol, double price) =>
+            new()
             {
                 Symbol = symbol,
                 Price = price
@@ -209,13 +209,13 @@ namespace BinanceExchangeTests.BinanceTests
         /// <summary>
         ///     Возвращает модель лучшей цены/кол-ва из стакана для пары
         /// </summary>
-        public static SymbolOrderBookTickerModel GetBinanceSymbolOrderBookTickerModel(
+        public static SymbolOrderBookTickerModel CreateBinanceSymbolOrderBookTickerModel(
             string symbol,
             double bidPrice,
             double bidQty,
             double askPrice,
             double askQty) =>
-            new SymbolOrderBookTickerModel
+            new()
             {
                 Symbol = symbol,
                 BidPrice = bidPrice,
@@ -227,13 +227,13 @@ namespace BinanceExchangeTests.BinanceTests
         /// <summary>
         ///     Возвращает модель лучшей цены/кол-ва из стакана для пары
         /// </summary>
-        public static Common.Models.BestSymbolOrderModel GetExpectedBestSymbolOrderModel(
+        public static Common.Models.BestSymbolOrderModel CreateExpectedBestSymbolOrderModel(
             string symbol,
             double bidPrice,
             double bidQty,
             double askPrice,
             double askQty) =>
-            new Common.Models.BestSymbolOrderModel
+            new()
             {
                 Symbol = symbol,
                 BidPrice = bidPrice,
@@ -249,7 +249,7 @@ namespace BinanceExchangeTests.BinanceTests
         /// <summary>
         ///     Возвращает модель ответа на запрос о создании нового ордера
         /// </summary>
-        public static FullOrderResponseModel GetBinanceFullOrderResponseModel(
+        public static FullOrderResponseModel CreateBinanceFullOrderResponseModel(
             string symbol,
             double price,
             double qty,
@@ -320,7 +320,7 @@ namespace BinanceExchangeTests.BinanceTests
         /// <summary>
         ///     Возвращает модель ответа на запрос о создании нового ордера
         /// </summary>
-        public static Common.Models.FullOrderResponseModel GetExpectedFullOrderResponseModel(
+        public static Common.Models.FullOrderResponseModel CreateExpectedFullOrderResponseModel(
             string symbol,
             double price,
             double origQty,
@@ -386,6 +386,136 @@ namespace BinanceExchangeTests.BinanceTests
                         TradeId = 60
                     },
                 }
+            };
+
+        #endregion
+
+        #region Cancel order response
+
+        /// <summary>
+        ///     Возвращает модель ответа на запрос об отмене ордера
+        /// </summary>
+        public static CancelOrderResponseModel CreateBinanceCancelOrderResponseModel(
+            string symbol,
+            double price,
+            double origQty,
+            OrderStatusType status,
+            TimeInForceType timeInForce,
+            OrderType orderType,
+            OrderSideType sideType) =>
+            new()
+            {
+                Symbol = symbol,
+                OrderId = 28,
+                ClientOrderId = "6gCrw2kRUAF9CvJDGP16IP",
+                OrderListId = -1,
+                Price = price,
+                OrigQty = origQty,
+                ExecutedQty = 10.1,
+                CumulativeQuoteQty = 10.2,
+                OrigClientOrderId = "myOrder1",
+                Status = status,
+                TimeInForce = timeInForce,
+                OrderType = orderType,
+                OrderSide = sideType
+            };
+
+        /// <summary>
+        ///     Возвращает модель ответа на запрос об отмене ордера
+        /// </summary>
+        public static Common.Models.CancelOrderResponseModel CreateExpectedCancelOrderResponseModel(
+            string symbol,
+            double price,
+            double origQty,
+            string status,
+            string timeInForce,
+            string orderType,
+            OrderSideType sideType) =>
+            new()
+            {
+                Symbol = symbol,
+                OrderId = 28,
+                ClientOrderId = "6gCrw2kRUAF9CvJDGP16IP",
+                OrderListId = -1,
+                Price = price,
+                OrigQty = origQty,
+                ExecutedQty = 10.1,
+                CumulativeQuoteQty = 10.2,
+                OrigClientOrderId = "myOrder1",
+                Status = status,
+                TimeInForce = timeInForce,
+                OrderType = orderType,
+                OrderSide = sideType
+            };
+
+        #endregion
+        
+        #region Check order response
+
+        /// <summary>
+        ///     Возвращает модель ответа на запрос о проверке ордера
+        /// </summary>
+        public static CheckOrderResponseModel CreateBinanceCheckOrderResponseModel(
+            string symbol,
+            double price,
+            double origQty,
+            OrderStatusType status,
+            TimeInForceType timeInForce,
+            OrderType orderType,
+            OrderSideType sideType) =>
+            new()
+            {
+                Symbol = symbol,
+                OrderId = 28,
+                ClientOrderId = "6gCrw2kRUAF9CvJDGP16IP",
+                OrderListId = -1,
+                Price = price,
+                OrigQty = origQty,
+                ExecutedQty = 10.1,
+                CumulativeQuoteQty = 10.2,
+                Status = status,
+                TimeInForce = timeInForce,
+                OrderType = orderType,
+                OrderSide = sideType,
+                StopPrice = 0.001,
+                IcebergQty = 0.002,
+                TimeUnix = 1499827319559,
+                UpdateTimeUnix = 1499827319559,
+                IsWorking = true,
+                OrigQuoteOrderQty = 0.000300,
+            };
+
+        /// <summary>
+        ///     Возвращает модель ответа на запрос о проверке ордера
+        /// </summary>
+        public static Common.Models.CheckOrderResponseModel CreateExpectedCheckOrderResponseModel(
+            string symbol,
+            double price,
+            double origQty,
+            string status,
+            string timeInForce,
+            string orderType,
+            OrderSideType sideType) =>
+            new()
+            {
+                Symbol = symbol,
+                OrderId = 28,
+                ClientOrderId = "6gCrw2kRUAF9CvJDGP16IP",
+                OrderListId = -1,
+                Price = price,
+                OrigQty = origQty,
+                ExecutedQty = 10.1,
+                CumulativeQuoteQty = 10.2,
+                Status = status,
+                TimeInForce = timeInForce,
+                OrderType = orderType,
+                OrderSide = sideType,
+                StopPrice = 0.001,
+                IcebergQty = 0.002,
+                TimeUnix = 1499827319559,
+                UpdateTimeUnix = 1499827319559,
+                IsWorking = true,
+                OrigQuoteOrderQty = 0.000300,
             };
 
         #endregion

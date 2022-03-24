@@ -201,7 +201,7 @@ namespace BinanceExchange
         /// <summary>
         ///     Вес запроса на получение всех ордеров аккаунта по паре
         /// </summary>
-        public RequestWeightModel AllOrdersWeight { get; } = new RequestWeightModel(
+        public RequestWeightModel GetAllOrdersWeight { get; } = new RequestWeightModel(
             Enums.ApiType.Api,
             new()
             {

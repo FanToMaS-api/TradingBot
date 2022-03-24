@@ -1,12 +1,8 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
   </PropertyGroup>
-
-  <ItemGroup>
-    <Folder Include="Redis\" />
-  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="NLog.Targets.Seq" Version="2.1.0" />

@@ -25,7 +25,6 @@ namespace BinanceExchange.Models
         /// </summary>
         public void SetProperties(ref Utf8JsonReader reader)
         {
-            var propertyName = "";
             while (reader.Read())
             {
                 if (reader.TokenType == JsonTokenType.StartObject)
@@ -35,7 +34,7 @@ namespace BinanceExchange.Models
 
                 if (reader.TokenType == JsonTokenType.PropertyName)
                 {
-                    propertyName = reader.GetString();
+                    var propertyName = reader.GetString();
                     reader.Read();
 
                     switch (propertyName)

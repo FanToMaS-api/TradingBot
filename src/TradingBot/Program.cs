@@ -26,9 +26,9 @@ namespace TradingBot
             var pairs = (await binance.GetSymbolPriceTickerAsync(null))
                 .Where(_ => _.Symbol.Contains("USDT", StringComparison.CurrentCultureIgnoreCase))
                 .ToDictionary(_ => _.Symbol, _ => new List<double>());
-            _logger.Info($"Всего пар: {pairs.Count()}");
+            _logger.Info($"Всего пар: {pairs.Count}");
 
-            var delay = TimeSpan.FromMinutes(2.5);
+            var delay = TimeSpan.FromMinutes(1);
             var percent = 2.55;
             while (true)
             {

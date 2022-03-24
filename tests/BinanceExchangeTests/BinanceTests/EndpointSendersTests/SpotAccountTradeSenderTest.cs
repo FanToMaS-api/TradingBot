@@ -23,7 +23,7 @@ namespace BinanceExchangeTests.BinanceTests.EndpointSendersTests
     {
         #region Fields
 
-        private FullOrderResponseModel _expectedResponse = TestHelper.GetBinanceFullOrderResponseModel(
+        private readonly FullOrderResponseModel _expectedResponse = TestHelper.CreateBinanceFullOrderResponseModel(
             "BTCUSDT",
             0.00000001,
             10.00000000,
@@ -32,7 +32,7 @@ namespace BinanceExchangeTests.BinanceTests.EndpointSendersTests
             OrderType.Market,
             OrderSideType.Sell);
 
-        private CheckOrderResponseModel _expectedCheckOrderResponse = new()
+        private readonly CheckOrderResponseModel _expectedCheckOrderResponse = new()
         {
             Symbol = "LTCBTC",
             ClientOrderId = "myOrder1",

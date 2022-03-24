@@ -88,7 +88,7 @@ namespace BinanceExchangeTests.BinanceTests.EndpointSendersTests
                     "../../../BinanceTests/Jsons/Marketdata/SYMBOL_PRICE_TICKER.json",
                     new List<SymbolPriceTickerModel>
                     {
-                        TestHelper.GetBinanceSymbolPriceTickerModel("LTCBTC", 4.00000200)
+                        TestHelper.CreatetBinanceSymbolPriceTickerModel("LTCBTC", 4.00000200)
                     }
                 },
 
@@ -99,8 +99,8 @@ namespace BinanceExchangeTests.BinanceTests.EndpointSendersTests
                     "../../../BinanceTests/Jsons/Marketdata/SYMBOL_PRICE_TICKERS.json",
                     new List<SymbolPriceTickerModel>
                     {
-                        TestHelper.GetBinanceSymbolPriceTickerModel("LTCBTC", 4.00000200),
-                        TestHelper.GetBinanceSymbolPriceTickerModel("ETHBTC", 0.07946600)
+                        TestHelper.CreatetBinanceSymbolPriceTickerModel("LTCBTC", 4.00000200),
+                        TestHelper.CreatetBinanceSymbolPriceTickerModel("ETHBTC", 0.07946600)
                     }
                 },
 
@@ -111,8 +111,8 @@ namespace BinanceExchangeTests.BinanceTests.EndpointSendersTests
                     "../../../BinanceTests/Jsons/Marketdata/SYMBOL_PRICE_TICKERS.json",
                     new List<SymbolPriceTickerModel>
                     {
-                        TestHelper.GetBinanceSymbolPriceTickerModel("LTCBTC", 4.00000200),
-                        TestHelper.GetBinanceSymbolPriceTickerModel("ETHBTC", 0.07946600)
+                        TestHelper.CreatetBinanceSymbolPriceTickerModel("LTCBTC", 4.00000200),
+                        TestHelper.CreatetBinanceSymbolPriceTickerModel("ETHBTC", 0.07946600)
                     }
                 },
             };
@@ -130,7 +130,7 @@ namespace BinanceExchangeTests.BinanceTests.EndpointSendersTests
                     "../../../BinanceTests/Jsons/Marketdata/SYMBOL_ORDER_BOOK_TICKER.json",
                     new List<SymbolOrderBookTickerModel>
                     {
-                        TestHelper.GetBinanceSymbolOrderBookTickerModel("LTCBTC", 4.00000000, 431.00000000, 4.00000200, 9.00000000)
+                        TestHelper.CreateBinanceSymbolOrderBookTickerModel("LTCBTC", 4.00000000, 431.00000000, 4.00000200, 9.00000000)
                     }
                 },
 
@@ -141,8 +141,8 @@ namespace BinanceExchangeTests.BinanceTests.EndpointSendersTests
                     "../../../BinanceTests/Jsons/Marketdata/SYMBOL_ORDER_BOOK_TICKERS.json",
                     new List<SymbolOrderBookTickerModel>
                     {
-                        TestHelper.GetBinanceSymbolOrderBookTickerModel("LTCBTC", 4.00000000, 431.00000000, 4.00000200, 9.00000000),
-                        TestHelper.GetBinanceSymbolOrderBookTickerModel("ETHBTC", 0.07946700, 9.00000000, 100000.00000000, 1000.00000000)
+                        TestHelper.CreateBinanceSymbolOrderBookTickerModel("LTCBTC", 4.00000000, 431.00000000, 4.00000200, 9.00000000),
+                        TestHelper.CreateBinanceSymbolOrderBookTickerModel("ETHBTC", 0.07946700, 9.00000000, 100000.00000000, 1000.00000000)
                     }
                 },
 
@@ -153,8 +153,8 @@ namespace BinanceExchangeTests.BinanceTests.EndpointSendersTests
                     "../../../BinanceTests/Jsons/Marketdata/SYMBOL_ORDER_BOOK_TICKERS.json",
                     new List<SymbolOrderBookTickerModel>
                     {
-                        TestHelper.GetBinanceSymbolOrderBookTickerModel("LTCBTC", 4.00000000, 431.00000000, 4.00000200, 9.00000000),
-                        TestHelper.GetBinanceSymbolOrderBookTickerModel("ETHBTC", 0.07946700, 9.00000000, 100000.00000000, 1000.00000000)
+                        TestHelper.CreateBinanceSymbolOrderBookTickerModel("LTCBTC", 4.00000000, 431.00000000, 4.00000200, 9.00000000),
+                        TestHelper.CreateBinanceSymbolOrderBookTickerModel("ETHBTC", 0.07946700, 9.00000000, 100000.00000000, 1000.00000000)
                     }
                 },
             };
