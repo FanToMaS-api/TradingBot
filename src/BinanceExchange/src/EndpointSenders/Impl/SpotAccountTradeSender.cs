@@ -124,6 +124,17 @@ namespace BinanceExchange.EndpointSenders.Impl
             return _converter.Deserialize<IEnumerable<CheckOrderResponseModel>>(result);
         }
 
+        /// <inheritdoc />
+        public async Task<AccountInformation> GetAccountInformationAsync(CancellationToken cancellationToken = default)
+        {
+            var result = await _client.SendSignedAsync(
+                BinanceEndpoints.ACCOUNT_INFORMATION,
+                HttpMethod.Get,
+                cancellationToken: cancellationToken);
+
+            return _converter.Deserialize<AccountInformation>(result);
+        }
+
         #endregion
     }
 }

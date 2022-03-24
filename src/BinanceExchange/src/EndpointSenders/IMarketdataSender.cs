@@ -13,7 +13,7 @@ namespace BinanceExchange.EndpointSenders
         /// <summary>
         ///     Запрос текущих правил биржевой торговли и информации о символах
         /// </summary>
-        Task<ExchangeInfoModel> GetExchangeInfoAsync(Dictionary<string, object> query, CancellationToken cancellationToken = default);
+        Task<ExchangeInfoModel> GetExchangeInfoAsync(CancellationToken cancellationToken = default);
 
         /// <summary>
         ///     Получить ордера из стакана по определенной монете

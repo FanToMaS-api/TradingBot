@@ -92,7 +92,7 @@ namespace BinanceExchangeTests.BinanceTests
 
             #region Marketdata Setup
 
-            _marketdataSender.GetExchangeInfoAsync(Arg.Any<Dictionary<string, object>>(), Arg.Any<CancellationToken>()).Returns(async _ =>
+            _marketdataSender.GetExchangeInfoAsync(Arg.Any<CancellationToken>()).Returns(async _ =>
             {
                 return await _marketdataSenderTest.GetExchangeInfoAsync_Test();
             });

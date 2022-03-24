@@ -208,6 +208,16 @@ namespace BinanceExchange
                 { RequestWeightModel.GetDefaultKey(), 10 }
             });
 
+        /// <summary>
+        ///     Вес запроса на получение информации об аккаунте
+        /// </summary>
+        public RequestWeightModel AccountInformationWeight { get; } = new RequestWeightModel(
+            Enums.ApiType.Api,
+            new()
+            {
+                { RequestWeightModel.GetDefaultKey(), 10 }
+            });
+
         #endregion
     }
 }

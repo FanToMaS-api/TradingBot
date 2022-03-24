@@ -176,7 +176,7 @@ namespace BinanceExchangeTests.BinanceTests.EndpointSendersTests
             IMarketdataSender marketdataSender = new MarketdataSender(binanceClient);
 
             // Act
-            var result = await marketdataSender.GetExchangeInfoAsync(null, cancellationToken: CancellationToken.None);
+            var result = await marketdataSender.GetExchangeInfoAsync(CancellationToken.None);
 
             var expectedOrderTypes = new[]
             {

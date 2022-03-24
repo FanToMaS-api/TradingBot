@@ -122,6 +122,11 @@ namespace BinanceExchange
         /// </summary>
         public const string GET_ALL_ORDERS = "/api/v3/allOrders";
 
+        /// <summary>
+        ///     Информация об аккаунте
+        /// </summary>
+        public const string ACCOUNT_INFORMATION = "/api/v3/account";
+
         #endregion
     }
 }

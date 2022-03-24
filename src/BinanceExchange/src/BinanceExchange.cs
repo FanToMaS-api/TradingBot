@@ -180,7 +180,7 @@ namespace BinanceExchange
                 throw new TooManyRequestsException(rateLimit.Expiration, rateLimit.Value, rateLimit.Key);
             }
 
-            var model = await _marketdataSender.GetExchangeInfoAsync(new Dictionary<string, object>(), cancellationToken);
+            var model = await _marketdataSender.GetExchangeInfoAsync(cancellationToken);
 
             IncrementCallsMade(requestWeight, RequestWeightModel.GetDefaultKey());
 
@@ -495,7 +495,7 @@ namespace BinanceExchange
                    {
                        var model = _converter.Deserialize<Models.BookTickerStreamModel>(content);
                        var neededModel = _mapper.Map<Common.Models.BookTickerStreamModel>(model);
-                      await  onMessageReceivedFunc?.Invoke(neededModel, cancellationToken);
+                       await onMessageReceivedFunc?.Invoke(neededModel, cancellationToken);
                    }
                    catch (Exception ex)
                    {
@@ -976,6 +976,21 @@ namespace BinanceExchange
             IncrementCallsMade(requestWeight, RequestWeightModel.GetDefaultKey());
 
             return _mapper.Map<IEnumerable<Common.Models.CheckOrderResponseModel>>(result);
+        }
+
+        /// <inheritdoc />
+        public async Task<Common.Models.AccountInformation> GetAccountInformationAsync(CancellationToken cancellationToken)
+        {
+            var requestWeight = _requestsWeightStorage.AccountInformationWeight;
+            if (CheckLimit(requestWeight.Type, out var rateLimit))
+            {
+                throw new TooManyRequestsException(rateLimit.Expiration, rateLimit.Value, rateLimit.Key);
+            }
+
+            var result = await _tradeSender.GetAccountInformationAsync(cancellationToken);
+            IncrementCallsMade(requestWeight, RequestWeightModel.GetDefaultKey());
+
+            return _mapper.Map<Common.Models.AccountInformation>(result);
         }
 
         #endregion

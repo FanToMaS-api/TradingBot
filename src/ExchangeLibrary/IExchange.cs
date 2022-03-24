@@ -372,6 +372,11 @@ namespace ExchangeLibrary
             long recvWindow = 5000,
             CancellationToken cancellationToken = default);
 
+        /// <summary>
+        ///     Получить информацию об аккаунте
+        /// </summary>
+        Task<AccountInformation> GetAccountInformationAsync(CancellationToken cancellationToken);
+
         #endregion
     }
 }

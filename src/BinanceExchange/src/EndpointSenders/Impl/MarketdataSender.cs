@@ -36,12 +36,11 @@ namespace BinanceExchange.EndpointSenders.Impl
         #region Public methods
 
         /// <inheritdoc />
-        public async Task<ExchangeInfoModel> GetExchangeInfoAsync(Dictionary<string, object> query, CancellationToken cancellationToken = default)
+        public async Task<ExchangeInfoModel> GetExchangeInfoAsync(CancellationToken cancellationToken = default)
         {
             var result = await _client.SendPublicAsync(
                 BinanceEndpoints.EXCHANGE_INFO,
                 HttpMethod.Get,
-                query: query,
                 cancellationToken: cancellationToken);
 
             return _converter.Deserialize<ExchangeInfoModel>(result);

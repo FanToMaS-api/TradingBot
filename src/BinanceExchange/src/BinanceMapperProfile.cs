@@ -22,6 +22,7 @@ namespace BinanceExchange
             CreateMap<Models.CoinModel, Common.Models.CoinModel>();
             CreateMap<Models.DayPriceChangeModel, Common.Models.DayPriceChangeModel>();
             CreateMap<Models.CandlestickModel, Common.Models.CandlestickModel>();
+            CreateMap<Models.AccountInformation, Common.Models.AccountInformation>();
 
             CreateMap<Models.OrderBookModel, Common.Models.OrderBookModel>();
             CreateMap<Models.TradeModel, Common.Models.TradeModel>();
