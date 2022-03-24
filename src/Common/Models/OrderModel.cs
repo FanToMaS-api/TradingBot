@@ -8,11 +8,11 @@
         /// <summary>
         ///     Цена
         /// </summary>
-        public double Price { get; set; }
+        public double Price { get; internal set; }
 
         /// <summary>
         ///     Объем
         /// </summary>
-        public double Quantity { get; set; }
+        public double Quantity { get; internal set; }
     }
 }

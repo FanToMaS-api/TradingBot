@@ -9,31 +9,31 @@
         /// <summary>
         ///     Идентификатор обновления книги заказов
         /// </summary>
-        public long OrderBookUpdatedId { get; set; }
+        public long OrderBookUpdatedId { get; internal set; }
 
         /// <summary>
         ///     Имя пары
         /// </summary>
-        public string Symbol { get; set; }
+        public string Symbol { get; internal set; }
 
         /// <summary>
         ///    Лучшая цена спроса
         /// </summary>
-        public double BestBidPrice { get; set; }
+        public double BestBidPrice { get; internal set; }
 
         /// <summary>
         ///    Лучшая объем спроса
         /// </summary>
-        public double BestBidQuantity { get; set; }
+        public double BestBidQuantity { get; internal set; }
 
         /// <summary>
         ///    Лучшая цена предложения
         /// </summary>
-        public double BestAskPrice { get; set; }
+        public double BestAskPrice { get; internal set; }
 
         /// <summary>
         ///    Лучшая объем предложения
         /// </summary>
-        public double BestAskQuantity { get; set; }
+        public double BestAskQuantity { get; internal set; }
     }
 }

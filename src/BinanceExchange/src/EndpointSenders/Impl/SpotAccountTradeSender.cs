@@ -33,6 +33,7 @@ namespace BinanceExchange.EndpointSenders.Impl
             _converter.AddConverter(new CheckOrderResponseModelConverter());
             _converter.AddConverter(new EnumerableDeserializer<CancelOrderResponseModel>());
             _converter.AddConverter(new EnumerableDeserializer<CheckOrderResponseModel>());
+            _converter.AddConverter(new AccountInformationModelConverter());
         }
 
         #endregion
@@ -125,14 +126,15 @@ namespace BinanceExchange.EndpointSenders.Impl
         }
 
         /// <inheritdoc />
-        public async Task<AccountInformation> GetAccountInformationAsync(CancellationToken cancellationToken = default)
+        public async Task<AccountInformationModel> GetAccountInformationAsync(Dictionary<string, object> query, CancellationToken cancellationToken = default)
         {
             var result = await _client.SendSignedAsync(
                 BinanceEndpoints.ACCOUNT_INFORMATION,
                 HttpMethod.Get,
+                query: query,
                 cancellationToken: cancellationToken);
 
-            return _converter.Deserialize<AccountInformation>(result);
+            return _converter.Deserialize<AccountInformationModel>(result);
         }
 
         #endregion

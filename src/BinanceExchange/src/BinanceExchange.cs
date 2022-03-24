@@ -979,7 +979,7 @@ namespace BinanceExchange
         }
 
         /// <inheritdoc />
-        public async Task<Common.Models.AccountInformation> GetAccountInformationAsync(CancellationToken cancellationToken)
+        public async Task<Common.Models.AccountInformationModel> GetAccountInformationAsync(CancellationToken cancellationToken)
         {
             var requestWeight = _requestsWeightStorage.AccountInformationWeight;
             if (CheckLimit(requestWeight.Type, out var rateLimit))
@@ -987,10 +987,11 @@ namespace BinanceExchange
                 throw new TooManyRequestsException(rateLimit.Expiration, rateLimit.Value, rateLimit.Key);
             }
 
-            var result = await _tradeSender.GetAccountInformationAsync(cancellationToken);
+            var query = new Builder().GetResult().GetQuery();
+            var result = await _tradeSender.GetAccountInformationAsync(query, cancellationToken);
             IncrementCallsMade(requestWeight, RequestWeightModel.GetDefaultKey());
 
-            return _mapper.Map<Common.Models.AccountInformation>(result);
+            return _mapper.Map<Common.Models.AccountInformationModel>(result);
         }
 
         #endregion

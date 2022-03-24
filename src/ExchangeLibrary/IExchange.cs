@@ -375,7 +375,7 @@ namespace ExchangeLibrary
         /// <summary>
         ///     Получить информацию об аккаунте
         /// </summary>
-        Task<AccountInformation> GetAccountInformationAsync(CancellationToken cancellationToken);
+        Task<AccountInformationModel> GetAccountInformationAsync(CancellationToken cancellationToken);
 
         #endregion
     }

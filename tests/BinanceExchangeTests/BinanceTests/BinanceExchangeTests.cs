@@ -28,6 +28,7 @@ namespace BinanceExchangeTests.BinanceTests
 
         private readonly WalletSenderTest _walletSenderTest = new();
         private readonly MarketdataSenderTest _marketdataSenderTest = new();
+        private readonly SpotAccountTradeSenderTest _spotAccountTradeSenderTest = new();
         private readonly IMapper _mapper;
         private readonly RequestsWeightStorage _requestsWeightStorage = new();
         private readonly IExchange _binanceExchange;
@@ -192,6 +193,15 @@ namespace BinanceExchangeTests.BinanceTests
                     {
                         TestHelper.CreateBinanceSymbolOrderBookTickerModel("LTCBTC", 4.00000000, 431.00000000, 4.00000200, 9.00000000)
                     });
+            });
+
+            #endregion
+
+            #region Trade Account Setup
+
+            _tradeSender.GetAccountInformationAsync(Arg.Any<Dictionary<string, object>>(), Arg.Any<CancellationToken>()).Returns(async _ =>
+            {
+                return await _spotAccountTradeSenderTest.GetAccountInformationAsync_Test();
             });
 
             #endregion
@@ -1232,6 +1242,30 @@ namespace BinanceExchangeTests.BinanceTests
             {
                 TestHelper.CheckingAssertions(expectedResult[i], result[i]);
             }
+
+            Assert.Equal(expectedKey, _actualKey);
+            Assert.Equal(expectedInterval, _actualInterval);
+            Assert.Equal(expectedWeight, _actualWeight);
+
+            SetArgumentsEvent -= SetArgumentsEventHandler;
+        }
+
+        /// <summary>
+        ///     Проверка получения информации об аккаунте
+        /// </summary>
+        [Fact(DisplayName = "Get account information Test")]
+        public async Task GetAccountInformationAsync_Test()
+        {
+            var requestWeight = _requestsWeightStorage.AccountInformationWeight;
+            var (expectedKey, expectedInterval, expectedWeight) = GetExpectedArguments(requestWeight, RequestWeightModel.GetDefaultKey());
+            SetArgumentsEvent += SetArgumentsEventHandler;
+
+            MockRedisIncrementOrCreateKeyValue(_redisDatabase);
+
+            var result = await _binanceExchange.GetAccountInformationAsync(CancellationToken.None);
+            var expectedResult = TestHelper.GetExpectedAccountInformationModel();
+
+            TestHelper.CheckingAssertions(expectedResult, result);
 
             Assert.Equal(expectedKey, _actualKey);
             Assert.Equal(expectedInterval, _actualInterval);

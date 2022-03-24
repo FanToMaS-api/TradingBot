@@ -8,11 +8,11 @@
         /// <summary>
         ///     Время события
         /// </summary>
-        public long EventTimeUnix { get; set; }
+        public long EventTimeUnix { get; internal set; }
 
         /// <summary>
         ///     Пара тикеров
         /// </summary>
-        public string Symbol { get; set; }
+        public string Symbol { get; internal set; }
     }
 }

@@ -11,12 +11,12 @@ namespace Common.Models
         /// <summary>
         ///     Время исполнения транзакции
         /// </summary>
-        public long TransactTimeUnix { get; set; }
+        public long TransactTimeUnix { get; internal set; }
 
         /// <summary>
         ///     Части заполнения ордера
         /// </summary>
-        public List<FillModel> Fills { get; set; } = new();
+        public List<FillModel> Fills { get; internal set; } = new();
     }
 
     /// <summary>
@@ -27,27 +27,27 @@ namespace Common.Models
         /// <summary>
         ///     Цена
         /// </summary>
-        public double Price { get; set; }
+        public double Price { get; internal set; }
 
         /// <summary>
         ///     Кол-во
         /// </summary>
-        public double Quantity { get; set; }
+        public double Quantity { get; internal set; }
 
         /// <summary>
         ///     Коммиссия
         /// </summary>
-        public double Commission { get; set; }
+        public double Commission { get; internal set; }
 
         /// <summary>
         ///     Актив комиссии
         /// </summary>
-        public string CommissionAsset { get; set; }
+        public string CommissionAsset { get; internal set; }
 
         /// <summary>
         ///     Id сделки
         /// </summary>
-        public long TradeId { get; set; }
+        public long TradeId { get; internal set; }
 
         /// <inheritdoc />
         public bool Equals(FillModel other)

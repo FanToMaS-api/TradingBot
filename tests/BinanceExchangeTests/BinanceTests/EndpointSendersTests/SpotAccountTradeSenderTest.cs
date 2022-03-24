@@ -32,28 +32,16 @@ namespace BinanceExchangeTests.BinanceTests.EndpointSendersTests
             OrderType.Market,
             OrderSideType.Sell);
 
-        private readonly CheckOrderResponseModel _expectedCheckOrderResponse = new()
-        {
-            Symbol = "LTCBTC",
-            ClientOrderId = "myOrder1",
-            OrderId = 1,
-            OrderListId = -1,
-            Price = 0.1,
-            OrigQty = 1.0,
-            ExecutedQty = 0.0,
-            CumulativeQuoteQty = 0.1,
-            Status = OrderStatusType.New,
-            TimeInForce = TimeInForceType.GTC,
-            OrderType = OrderType.Limit,
-            OrderSide = OrderSideType.Buy,
-            StopPrice = 0.001,
-            IcebergQty = 0.002,
-            TimeUnix = 1499827319559,
-            UpdateTimeUnix = 1499827319559,
-            IsWorking = true,
-            OrigQuoteOrderQty = 0.000300,
+        private readonly CheckOrderResponseModel _expectedCheckOrderResponse = TestHelper.CreateBinanceCheckOrderResponseModel(
+            "LTCBTC",
+            0.1,
+            1.0,
+            OrderStatusType.New,
+            TimeInForceType.GTC,
+            OrderType.Limit,
+            OrderSideType.Buy);
 
-        };
+        private readonly AccountInformationModel _expectedAccountInformationResponse = TestHelper.GetBinanceAccountInformationModel();
 
         #endregion
 
@@ -262,6 +250,8 @@ namespace BinanceExchangeTests.BinanceTests.EndpointSendersTests
                 // изменение данных тут, чтобы не плодить объекты
                 _expectedCheckOrderResponse.ClientOrderId = "1";
                 _expectedCheckOrderResponse.OrigQuoteOrderQty = 15;
+                _expectedCheckOrderResponse.ExecutedQty = 10.2;
+                _expectedCheckOrderResponse.CumulativeQuoteQty = 10.3;
                 _expectedCheckOrderResponse.Symbol = "asd";
             }
         }
@@ -294,9 +284,33 @@ namespace BinanceExchangeTests.BinanceTests.EndpointSendersTests
                 // изменение данных тут, чтобы не плодить объекты
                 _expectedCheckOrderResponse.ClientOrderId = "1";
                 _expectedCheckOrderResponse.OrigQuoteOrderQty = 15;
+                _expectedCheckOrderResponse.ExecutedQty = 10.2;
+                _expectedCheckOrderResponse.CumulativeQuoteQty = 10.3;
                 _expectedCheckOrderResponse.Symbol = "asd";
                 _expectedCheckOrderResponse.Status = OrderStatusType.Filled;
             }
+        }
+
+        /// <summary>
+        ///     Тест запроса информации по аккаунту
+        /// </summary>
+        [Fact(DisplayName = "Request to get account information Test")]
+        internal async Task<AccountInformationModel> GetAccountInformationAsync_Test()
+        {
+            var filePath = "../../../BinanceTests/Jsons/SpotAccountTrade/GetAccountInformation.json";
+            var query = new Builder().GetResult().GetQuery();
+            var url = CreateSignUrl(BinanceEndpoints.ACCOUNT_INFORMATION, query, "apiSecretKey");
+
+            using var client = TestHelper.CreateMockHttpClient(url, filePath);
+            IBinanceClient binanceClient = new BinanceClient(client, "", "apiSecretKey");
+            ISpotAccountTradeSender tradeSender = new SpotAccountTradeSender(binanceClient);
+
+            // Act
+            var result = await tradeSender.GetAccountInformationAsync(query, cancellationToken: CancellationToken.None);
+
+            TestHelper.CheckingAssertions(_expectedAccountInformationResponse, result);
+
+            return result;
         }
 
         #endregion

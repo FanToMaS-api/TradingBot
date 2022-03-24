@@ -8,11 +8,11 @@
         /// <summary>
         ///     Название пары
         /// </summary>
-        public string Symbol { get; set; }
+        public string Symbol { get; internal set; }
 
         /// <summary>
         ///     Цена
         /// </summary>
-        public double Price { get; set; }
+        public double Price { get; internal set; }
     }
 }

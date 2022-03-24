@@ -48,6 +48,6 @@ namespace BinanceExchange.EndpointSenders
         /// <summary>
         ///     Получить информацию об аккаунте
         /// </summary>
-        Task<AccountInformation> GetAccountInformationAsync(CancellationToken cancellationToken = default);
+        Task<AccountInformationModel> GetAccountInformationAsync(Dictionary<string, object> query, CancellationToken cancellationToken = default);
     }
 }

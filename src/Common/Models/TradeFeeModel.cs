@@ -10,17 +10,17 @@
         /// <summary>
         ///     Обозначение пары
         /// </summary>
-        public string Symbol { get; set; }
+        public string Symbol { get; internal set; }
 
         /// <summary>
         ///     Коммисия продавца
         /// </summary>
-        public double MakerCommission { get; set; }
+        public double MakerCommission { get; internal set; }
 
         /// <summary>
         ///     Коммисия покупателя
         /// </summary>
-        public double TakerCommission { get; set; }
+        public double TakerCommission { get; internal set; }
 
         #endregion
     }

@@ -10,16 +10,16 @@ namespace Common.Models
         /// <summary>
         ///    Идентификатор последнего обновления 
         /// </summary>
-        public long LastUpdateId { get; set; }
+        public long LastUpdateId { get; internal set; }
 
         /// <summary>
         ///     Ордера на покупку
         /// </summary>
-        public List<OrderModel> Bids { get; set; } = new();
+        public List<OrderModel> Bids { get; internal set; }
 
         /// <summary>
         ///     Ордера на продажу
         /// </summary>
-        public List<OrderModel> Asks { get; set; } = new();
+        public List<OrderModel> Asks { get; internal set; }
     }
 }

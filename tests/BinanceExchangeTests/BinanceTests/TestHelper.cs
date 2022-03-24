@@ -449,7 +449,7 @@ namespace BinanceExchangeTests.BinanceTests
             };
 
         #endregion
-        
+
         #region Check order response
 
         /// <summary>
@@ -516,6 +516,76 @@ namespace BinanceExchangeTests.BinanceTests
                 UpdateTimeUnix = 1499827319559,
                 IsWorking = true,
                 OrigQuoteOrderQty = 0.000300,
+            };
+
+        #endregion
+
+        #region Account Information response
+
+        /// <summary>
+        ///     Получить модель информации об аккаунте
+        /// </summary>
+        public static AccountInformationModel GetBinanceAccountInformationModel() =>
+            new()
+            {
+                MakerCommission = 1,
+                TakerCommission = 2,
+                BuyerCommission = 3,
+                SellerCommission = 4,
+                CanTrade = true,
+                CanDeposit = true,
+                CanWithdraw = true,
+                UpdateTimeUnix = 123456789,
+                AccountType = "SPOT",
+                Balances = new List<BalanceModel>
+                {
+                    CreateBinanceBalanceModel("BTC", 4723846.89208129, 0.2),
+                    CreateBinanceBalanceModel("LTC", 4763368.68006011, 0.3),
+                }
+            };
+
+        /// <summary>
+        ///     Получить модель информации об аккаунте
+        /// </summary>
+        public static Common.Models.AccountInformationModel GetExpectedAccountInformationModel() =>
+            new()
+            {
+                MakerCommission = 1,
+                TakerCommission = 2,
+                BuyerCommission = 3,
+                SellerCommission = 4,
+                CanTrade = true,
+                CanDeposit = true,
+                CanWithdraw = true,
+                UpdateTimeUnix = 123456789,
+                AccountType = "SPOT",
+                Balances = new List<Common.Models.BalanceModel>
+                {
+                    CreateExpectedBalanceModel("BTC", 4723846.89208129, 0.2),
+                    CreateExpectedBalanceModel("LTC", 4763368.68006011, 0.3),
+                }
+            };
+
+        /// <summary>
+        ///     Создать актив кошелька
+        /// </summary>
+        public static BalanceModel CreateBinanceBalanceModel(string asset, double free, double locked) =>
+            new()
+            {
+                Asset = asset,
+                Free = free,
+                Locked = locked
+            };
+
+        /// <summary>
+        ///     Создать актив кошелька
+        /// </summary>
+        public static Common.Models.BalanceModel CreateExpectedBalanceModel(string asset, double free, double locked) =>
+            new()
+            {
+                Asset = asset,
+                Free = free,
+                Locked = locked
             };
 
         #endregion

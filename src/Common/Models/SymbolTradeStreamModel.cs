@@ -8,36 +8,36 @@
         /// <summary>
         ///     Идентификатор заказа продавца
         /// </summary>
-        public long SellerOrderId { get; set; }
+        public long SellerOrderId { get; internal set; }
 
         /// <summary>
         ///     Идентификатор заказа покупателя
         /// </summary>
-        public long BuyerOrderId { get; set; }
+        public long BuyerOrderId { get; internal set; }
 
         /// <summary>
         ///     Цена сделки
         /// </summary>
-        public double Price { get; set; }
+        public double Price { get; internal set; }
 
         /// <summary>
         ///     Объем сделки
         /// </summary>
-        public double Quantity { get; set; }
+        public double Quantity { get; internal set; }
 
         /// <summary>
         ///     Id сделки
         /// </summary>
-        public long TradeId { get; set; }
+        public long TradeId { get; internal set; }
 
         /// <summary>
         ///     Время сделки
         /// </summary>
-        public long TradeTimeUnix { get; set; }
+        public long TradeTimeUnix { get; internal set; }
 
         /// <summary>
         ///     Является ли покупатель маркет-мейкером?
         /// </summary>
-        public bool IsMarketMaker { get; set; }
+        public bool IsMarketMaker { get; internal set; }
     }
 }
