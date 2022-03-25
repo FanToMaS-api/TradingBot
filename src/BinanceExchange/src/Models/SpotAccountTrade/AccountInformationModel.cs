@@ -13,61 +13,51 @@ namespace BinanceExchange.Models
         /// <summary>
         ///     Комиссия мейкера
         /// </summary>
-        [JsonPropertyName("makerCommission")]
         public int MakerCommission { get; set; }
 
         /// <summary>
         ///     Комиссия тейкера
         /// </summary>
-        [JsonPropertyName("takerCommission")]
         public int TakerCommission { get; set; }
 
         /// <summary>
         ///     Комиссия при покупке
         /// </summary>
-        [JsonPropertyName("buyerCommission")]
         public int BuyerCommission { get; set; }
 
         /// <summary>
         ///     Комиссия при продаже
         /// </summary>
-        [JsonPropertyName("sellerCommission")]
         public int SellerCommission { get; set; }
 
         /// <summary>
         ///     Разрешена ли торговля
         /// </summary>
-        [JsonPropertyName("canTrade")]
         public bool CanTrade { get; set; }
 
         /// <summary>
         ///     Можно ли снять средства
         /// </summary>
-        [JsonPropertyName("canWithdraw")]
         public bool CanWithdraw { get; set; }
 
         /// <summary>
         ///     Можно ли внести средства
         /// </summary>
-        [JsonPropertyName("canDeposit")]
         public bool CanDeposit { get; set; }
 
         /// <summary>
         ///     Время обновления
         /// </summary>
-        [JsonPropertyName("updateTime")]
         public long UpdateTimeUnix { get; set; }
 
         /// <summary>
         ///     Тип аккаунта (SPOT, FEATURES)
         /// </summary>
-        [JsonPropertyName("accountType")]
         public string AccountType { get; set; }
 
         /// <summary>
         ///     Активы кошелька
         /// </summary>
-        [JsonPropertyName("balances")]
         public List<BalanceModel> Balances { get; set; } = new();
     }
 
