@@ -54,7 +54,7 @@ namespace TradingBot
             ITelegramClient telegramClient = new TelegramClient(botToken);
             var builder = new TelegramMessageBuilder();
             builder.SetChatId(chatId);
-            builder.SetMessageText("Test Bot Message");
+            builder.SetMessageText("**Test/Test**\n\nНовая разница: 10.23\n\nРазница за последние 3 таймфрейма: -12.25");
             builder.SetInlineButton("Test Inline button", "https://en.wikipedia.org/wiki/Site");
             var message = builder.GetResult();
             await telegramClient.SendMessageAsync(message, cts.Token);

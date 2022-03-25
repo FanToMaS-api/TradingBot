@@ -1,5 +1,6 @@
 ﻿using Common.JsonConvertWrapper;
 using System;
+using System.Globalization;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -57,10 +58,10 @@ namespace BinanceExchange.Models
                 switch (propertyName)
                 {
                     case "stopPrice":
-                        StopPrice = double.Parse(reader.GetString());
+                        StopPrice = double.Parse(reader.GetString(), CultureInfo.InvariantCulture);
                         continue;
                     case "icebergQty":
-                        IcebergQty = double.Parse(reader.GetString());
+                        IcebergQty = double.Parse(reader.GetString(), CultureInfo.InvariantCulture);
                         continue;
                     case "time":
                         TimeUnix = reader.GetInt64();
@@ -72,7 +73,7 @@ namespace BinanceExchange.Models
                         IsWorking = reader.GetBoolean();
                         continue;
                     case "origQuoteOrderQty":
-                        OrigQuoteOrderQty = double.Parse(reader.GetString());
+                        OrigQuoteOrderQty = double.Parse(reader.GetString(), CultureInfo.InvariantCulture);
                         continue;
                     default:
                         {

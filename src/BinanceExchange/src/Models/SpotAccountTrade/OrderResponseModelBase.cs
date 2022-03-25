@@ -1,6 +1,7 @@
 ﻿using BinanceExchange.Enums;
 using BinanceExchange.Enums.Helper;
 using Common.Enums;
+using System.Globalization;
 using System.Text.Json;
 
 namespace BinanceExchange.Models
@@ -90,16 +91,16 @@ namespace BinanceExchange.Models
                     OrderListId = reader.GetInt64();
                     return;
                 case "price":
-                    Price = double.Parse(reader.GetString());
+                    Price = double.Parse(reader.GetString(), CultureInfo.InvariantCulture);
                     return;
                 case "origQty":
-                    OrigQty = double.Parse(reader.GetString());
+                    OrigQty = double.Parse(reader.GetString(), CultureInfo.InvariantCulture);
                     return;
                 case "executedQty":
-                    ExecutedQty = double.Parse(reader.GetString());
+                    ExecutedQty = double.Parse(reader.GetString(), CultureInfo.InvariantCulture);
                     return;
                 case "cummulativeQuoteQty":
-                    CumulativeQuoteQty = double.Parse(reader.GetString());
+                    CumulativeQuoteQty = double.Parse(reader.GetString(), CultureInfo.InvariantCulture);
                     return;
                 case "status":
                     Status = reader.GetString().ConvertToOrderStatusType();

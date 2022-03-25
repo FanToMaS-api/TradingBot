@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -99,10 +100,10 @@ namespace BinanceExchange.Models
                 switch (propertyName)
                 {
                     case "locked":
-                        Locked = double.Parse(reader.GetString());
+                        Locked = double.Parse(reader.GetString(), CultureInfo.InvariantCulture);
                         continue;
                     case "free":
-                        Free = double.Parse(reader.GetString());
+                        Free = double.Parse(reader.GetString(), CultureInfo.InvariantCulture);
                         continue;
                     case "asset":
                         Asset = reader.GetString();

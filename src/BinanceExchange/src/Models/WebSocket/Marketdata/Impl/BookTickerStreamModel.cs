@@ -2,6 +2,7 @@
 using BinanceExchange.Enums;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Globalization;
 
 namespace BinanceExchange.Models
 {
@@ -73,16 +74,16 @@ namespace BinanceExchange.Models
                         Symbol = reader.GetString();
                         continue;
                     case "b":
-                        BestBidPrice = double.Parse(reader.GetString());
+                        BestBidPrice = double.Parse(reader.GetString(), CultureInfo.InvariantCulture);
                         continue;
                     case "B":
-                        BestBidQuantity = double.Parse(reader.GetString());
+                        BestBidQuantity = double.Parse(reader.GetString(), CultureInfo.InvariantCulture);
                         continue;
                     case "a":
-                        BestAskPrice = double.Parse(reader.GetString());
+                        BestAskPrice = double.Parse(reader.GetString(), CultureInfo.InvariantCulture);
                         continue;
                     case "A":
-                        BestAskQuantity = double.Parse(reader.GetString());
+                        BestAskQuantity = double.Parse(reader.GetString(), CultureInfo.InvariantCulture);
                         continue;
                 }
             }

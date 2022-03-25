@@ -2,6 +2,7 @@
 using BinanceExchange.Enums;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Globalization;
 
 namespace BinanceExchange.Models
 {
@@ -70,22 +71,22 @@ namespace BinanceExchange.Models
                         EventTimeUnix = reader.GetInt64();
                         continue;
                     case "c":
-                        ClosePrice = double.Parse(reader.GetString());
+                        ClosePrice = double.Parse(reader.GetString(), CultureInfo.InvariantCulture);
                         continue;
                     case "o":
-                        OpenPrice = double.Parse(reader.GetString());
+                        OpenPrice = double.Parse(reader.GetString(), CultureInfo.InvariantCulture);
                         continue;
                     case "l":
-                        MinPrice = double.Parse(reader.GetString());
+                        MinPrice = double.Parse(reader.GetString(), CultureInfo.InvariantCulture);
                         continue;
                     case "h":
-                        MaxPrice = double.Parse(reader.GetString());
+                        MaxPrice = double.Parse(reader.GetString(), CultureInfo.InvariantCulture);
                         continue;
                     case "v":
-                        BasePurchaseVolume = double.Parse(reader.GetString());
+                        BasePurchaseVolume = double.Parse(reader.GetString(), CultureInfo.InvariantCulture);
                         continue;
                     case "q":
-                        QuotePurchaseVolume = double.Parse(reader.GetString());
+                        QuotePurchaseVolume = double.Parse(reader.GetString(), CultureInfo.InvariantCulture);
                         continue;
                 }
             }

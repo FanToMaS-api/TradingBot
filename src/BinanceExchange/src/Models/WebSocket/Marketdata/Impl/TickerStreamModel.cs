@@ -2,6 +2,7 @@
 using BinanceExchange.Enums;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Globalization;
 
 namespace BinanceExchange.Models
 {
@@ -154,49 +155,49 @@ namespace BinanceExchange.Models
                         EventTimeUnix = reader.GetInt64();
                         continue;
                     case "p":
-                        Price = double.Parse(reader.GetString());
+                        Price = double.Parse(reader.GetString(), CultureInfo.InvariantCulture);
                         continue;
                     case "P":
-                        PricePercentChange = double.Parse(reader.GetString());
+                        PricePercentChange = double.Parse(reader.GetString(), CultureInfo.InvariantCulture);
                         continue;
                     case "w":
-                        WeightedAveragePrice = double.Parse(reader.GetString());
+                        WeightedAveragePrice = double.Parse(reader.GetString(), CultureInfo.InvariantCulture);
                         continue;
                     case "x":
-                        FirstPrice = double.Parse(reader.GetString());
+                        FirstPrice = double.Parse(reader.GetString(), CultureInfo.InvariantCulture);
                         continue;
                     case "c":
-                        LastPrice = double.Parse(reader.GetString());
+                        LastPrice = double.Parse(reader.GetString(), CultureInfo.InvariantCulture);
                         continue;
                     case "Q":
-                        LastQuantity = double.Parse(reader.GetString());
+                        LastQuantity = double.Parse(reader.GetString(), CultureInfo.InvariantCulture);
                         continue;
                     case "b":
-                        BestBidPrice = double.Parse(reader.GetString());
+                        BestBidPrice = double.Parse(reader.GetString(), CultureInfo.InvariantCulture);
                         continue;
                     case "B":
-                        BestBidQuantity = double.Parse(reader.GetString());
+                        BestBidQuantity = double.Parse(reader.GetString(), CultureInfo.InvariantCulture);
                         continue;
                     case "a":
-                        BestAskPrice = double.Parse(reader.GetString());
+                        BestAskPrice = double.Parse(reader.GetString(), CultureInfo.InvariantCulture);
                         continue;
                     case "A":
-                        BestAskQuantity = double.Parse(reader.GetString());
+                        BestAskQuantity = double.Parse(reader.GetString(), CultureInfo.InvariantCulture);
                         continue;
                     case "o":
-                        OpenPrice = double.Parse(reader.GetString());
+                        OpenPrice = double.Parse(reader.GetString(), CultureInfo.InvariantCulture);
                         continue;
                     case "l":
-                        MinPrice = double.Parse(reader.GetString());
+                        MinPrice = double.Parse(reader.GetString(), CultureInfo.InvariantCulture);
                         continue;
                     case "h":
-                        MaxPrice = double.Parse(reader.GetString());
+                        MaxPrice = double.Parse(reader.GetString(), CultureInfo.InvariantCulture);
                         continue;
                     case "v":
-                        AllBaseVolume = double.Parse(reader.GetString());
+                        AllBaseVolume = double.Parse(reader.GetString(), CultureInfo.InvariantCulture);
                         continue;
                     case "q":
-                        AllQuoteVolume = double.Parse(reader.GetString());
+                        AllQuoteVolume = double.Parse(reader.GetString(), CultureInfo.InvariantCulture);
                         continue;
                     case "O":
                         StatisticOpenTimeUnix = reader.GetInt64();

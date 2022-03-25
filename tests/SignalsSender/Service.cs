@@ -25,8 +25,8 @@ namespace SignalsSender
         private readonly SignalSenderConfig _settings;
         private readonly IExchange _exchange;
         private readonly ITelegramClient _telegramClient;
-        private readonly string _baseUrl = "https://www._exchange.com/ru/trade/";
-        private readonly string _baseTicker = "USDT";
+        private readonly string _baseUrl = "https://www.binance.com/ru/trade/";
+        private readonly string[] _baseTickers = new[] { "USDT", "BTC", "ETH" };
         private readonly CancellationTokenSource _cancellationTokenSource = new();
 
         #endregion
@@ -55,7 +55,7 @@ namespace SignalsSender
 
             var cancellationToken = _cancellationTokenSource.Token;
             var pairs = (await _exchange.GetSymbolPriceTickerAsync(null))
-                .Where(_ => _.Symbol.Contains(_baseTicker, StringComparison.CurrentCultureIgnoreCase))
+                .Where(p => _baseTickers.Any(_ => p.Symbol.Contains(_, StringComparison.InvariantCultureIgnoreCase)))
                 .ToDictionary(_ => _.Symbol, _ => new List<double>());
             _logger.Info($"Всего пар: {pairs.Count}");
 
@@ -63,65 +63,77 @@ namespace SignalsSender
             var percent = 2.55;
             try
             {
-                while (true)
                 {
-                    var newPairs = (await _exchange.GetSymbolPriceTickerAsync(null))
-                        .Where(_ => _.Symbol.Contains(_baseTicker, StringComparison.CurrentCultureIgnoreCase))
-                        .ToList();
-                    _logger?.Trace("Новые данные получены");
-
-                    newPairs.ForEach(async pair =>
+                    while (true)
                     {
-                        var pricesCount = pairs[pair.Symbol].Count;
-                        if (pricesCount > 250)
-                        {
-                            pairs[pair.Symbol].RemoveRange(0, pricesCount - 5);
-                        }
+                        var newPairs = (await _exchange.GetSymbolPriceTickerAsync(null))
+                            .Where(p => _baseTickers.Any(_ => p.Symbol.Contains(_, StringComparison.InvariantCultureIgnoreCase)))
+                            .ToList();
+                        _logger?.Trace("Новые данные получены");
 
-                        if (pricesCount == 0)
+                        newPairs.ForEach(async pair =>
                         {
+                            var pricesCount = pairs[pair.Symbol].Count;
+                            if (pricesCount > 250)
+                            {
+                                pairs[pair.Symbol].RemoveRange(0, pricesCount - 5);
+                                pricesCount = pairs[pair.Symbol].Count;
+                            }
+
+                            if (pricesCount == 0)
+                            {
+                                pairs[pair.Symbol].Add(pair.Price);
+                                return;
+                            }
+
+                            var newDeviation = GetDeviation(pairs[pair.Symbol].Last(), pair.Price);
+                            var lastDeviation = 0d;
+                            var preLastDeviation = 0d;
+                            if (pricesCount > 1)
+                            {
+                                lastDeviation = GetDeviation(pairs[pair.Symbol][pricesCount - 2], pairs[pair.Symbol].Last());
+                            }
+
+                            if (pricesCount > 2)
+                            {
+                                preLastDeviation = GetDeviation(pairs[pair.Symbol][pricesCount - 3], pairs[pair.Symbol][pricesCount - 2]);
+                            }
+
+                            var sumDeviation = newDeviation + lastDeviation + preLastDeviation;
+                            if (newDeviation >= percent || sumDeviation >= percent)
+                            {
+                                _logger?.Info($"Покупай {pair.Symbol} Новая разница {newDeviation:0.00} Разница за последние 3 таймфрейма: {sumDeviation:0.00}");
+
+                                try
+                                {
+                                    var symbol = _baseTickers.FirstOrDefault(_ => pair.Symbol.Contains(_, StringComparison.InvariantCultureIgnoreCase));
+                                    if (string.IsNullOrEmpty(symbol))
+                                    {
+                                        _logger?.Error("Failed to parse symbol");
+                                        return;
+                                    }
+
+                                    var pairSymbols = pair.Symbol.Insert(pair.Symbol.Length - symbol.Length, "/");
+                                    var pairUrl = pairSymbols.Replace("/", "_");
+                                    var message = $"*{pairSymbols}*\nНовая разница: *{newDeviation:0.00}*\nРазница за последние 3 таймфрейма: *{sumDeviation:0.00}*\nПоследняя цена: {pair.Price}";
+                                    message = message.Replace(".", "\\.");
+                                    message = message.Replace("-", "\\-");
+                                    builder.SetMessageText(message);
+                                    builder.SetInlineButton("Купить", $"{_baseUrl}{pairUrl}");
+                                    var telegramMessage = builder.GetResult();
+                                    await _telegramClient.SendMessageAsync(telegramMessage, cancellationToken);
+                                }
+                                catch (Exception ex)
+                                {
+                                    _logger?.Error(ex, "Failed to send to Telegram");
+                                }
+                            }
+
                             pairs[pair.Symbol].Add(pair.Price);
-                            return;
-                        }
+                        });
 
-                        var newDeviation = GetDeviation(pairs[pair.Symbol].Last(), pair.Price);
-                        var lastDeviation = 0d;
-                        var preLastDeviation = 0d;
-                        if (pricesCount > 1)
-                        {
-                            lastDeviation = GetDeviation(pairs[pair.Symbol][pricesCount - 2], pairs[pair.Symbol].Last());
-                        }
-
-                        if (pricesCount > 2)
-                        {
-                            preLastDeviation = GetDeviation(pairs[pair.Symbol][pricesCount - 3], pairs[pair.Symbol][pricesCount - 2]);
-                        }
-
-                        var sumDeviation = newDeviation + lastDeviation + preLastDeviation;
-                        if (newDeviation >= percent || sumDeviation >= percent)
-                        {
-                            _logger?.Info($"Покупай {pair.Symbol} Новая разница {newDeviation:0.00} Разница за последние 3 таймфрейма: {sumDeviation:0.00}");
-
-                            try
-                            {
-                                var pairSymbols = pair.Symbol.Insert(pair.Symbol.Length - _baseTicker.Length, "/");
-                                var pairUrl = pairSymbols.Replace("/", "_");
-                                var message = $"**{pair.Symbol}**\n\nНовая разница: {newDeviation:0.00}\n\nРазница за последние 3 таймфрейма: {sumDeviation:0.00}";
-                                builder.SetMessageText(message);
-                                builder.SetInlineButton("Купить", $"{_baseUrl}{pairUrl}");
-                                var telegramMessage = builder.GetResult();
-                                await _telegramClient.SendMessageAsync(telegramMessage, cancellationToken);
-                            }
-                            catch (Exception ex)
-                            {
-                                _logger?.Error(ex, "Failed to send to Telegram");
-                            }
-                        }
-
-                        pairs[pair.Symbol].Add(pair.Price);
-                    });
-
-                    await Task.Delay(delay);
+                        await Task.Delay(delay);
+                    }
                 }
             }
             catch (Exception ex)
