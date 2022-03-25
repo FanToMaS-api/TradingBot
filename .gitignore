@@ -14,7 +14,7 @@
 *.userprefs
 
 # Configuration files
-*.config
+A*.config
 
 # Mono auto generated files
 mono_crash.*
