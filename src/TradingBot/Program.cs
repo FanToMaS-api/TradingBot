@@ -23,6 +23,26 @@ namespace TradingBot
             var binanceOptions = new BinanceExchangeOptions() { ApiKey = apiKey, SecretKey = secretKey };
             var binance = BinanceExchangeFactory.CreateExchange(binanceOptions);
             using var cts = new CancellationTokenSource();
+
+            //var info = await binance.GetAccountInformationAsync(cts.Token);
+            //var properties = typeof(AccountInformationModel).GetProperties();
+            //foreach (var property in properties)
+            //{
+            //    Console.Write($"{property.Name} {property.GetValue(info)} ");
+            //    if (property.Name == "Balances")
+            //    {
+            //        var properties1 = typeof(BalanceModel).GetProperties();
+            //        foreach (var balance in info.Balances)
+            //        {
+            //            Console.WriteLine();
+            //            foreach (var property2 in properties1)
+            //            {
+            //                Console.Write($"{property2.Name} {property2.GetValue(balance)} ");
+            //            }
+            //        }
+            //    }
+            //}
+
             var pairs = (await binance.GetSymbolPriceTickerAsync(null))
                 .Where(_ => _.Symbol.Contains("USDT", StringComparison.CurrentCultureIgnoreCase))
                 .ToDictionary(_ => _.Symbol, _ => new List<double>());

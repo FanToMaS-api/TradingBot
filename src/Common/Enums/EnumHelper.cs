@@ -6,7 +6,7 @@
     public static class EnumHelper
     {
         /// <summary>
-        ///     Переводит тип ордера в формате бинанса в удобный для работы <see cref="OrderSideType"/>
+        ///     Переводит тип ордера из string в удобный для работы <see cref="OrderSideType"/>
         /// </summary>
         public static OrderSideType ConvertToOrderSideType(this string type) =>
             type switch
@@ -17,7 +17,7 @@
             };
 
         /// <summary>
-        ///     Получить строку из типа для отправки запроса бинансу
+        ///     Получить строку из типа для отправки запроса
         /// </summary>
         public static string ToUrl(this OrderSideType type)
         {
