@@ -1,5 +1,6 @@
 ﻿using BinanceExchange.Enums;
 using BinanceExchange.Enums.Helper;
+using Common.Enums;
 using NLog;
 using System;
 using System.Collections.Generic;
@@ -248,9 +249,9 @@ namespace BinanceExchange.Models
         }
 
         /// <inheritdoc />
-        public void SetSymbol(string symbol)
+        public void SetSymbol(string symbol, bool canBeNull = false)
         {
-            if (string.IsNullOrEmpty(symbol))
+            if (!canBeNull && string.IsNullOrEmpty(symbol))
             {
                 throw new ArgumentNullException(nameof(symbol));
             }

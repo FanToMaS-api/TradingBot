@@ -1,9 +1,9 @@
-﻿namespace BinanceExchange.Enums
+﻿namespace Common.Enums
 {
     /// <summary>
     ///     Тип ордера (купить, продать)
     /// </summary>
-    internal enum OrderSideType
+    public enum OrderSideType
     {
         /// <summary>
         ///     Купить

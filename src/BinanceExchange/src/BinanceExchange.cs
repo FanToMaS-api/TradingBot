@@ -14,11 +14,12 @@ using Common.JsonConvertWrapper;
 using Common.JsonConvertWrapper.Converters;
 using Common.Models;
 using Common.Redis;
+using Common.WebSocket;
 using ExchangeLibrary;
 using NLog;
+using StackExchange.Redis;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
@@ -43,6 +44,7 @@ namespace BinanceExchange
         private bool _isDisposed;
         private readonly RateLimitStorage _rateLimitsStorage = new();
         private readonly RequestsWeightStorage _requestsWeightStorage = new();
+        private readonly JsonDeserializerWrapper _converter = GetConverter();
 
         #endregion
 
@@ -52,7 +54,11 @@ namespace BinanceExchange
         public BinanceExchange(BinanceExchangeOptions exchangeOptions)
         {
             _httpClient = new();
-            _redisDatabase = new RedisDatabase();
+            _redisDatabase = new RedisDatabase(
+                ConnectionMultiplexer.Connect(new ConfigurationOptions
+                {
+                    EndPoints = { "localhost:6379" }
+                }));
             _client = new BinanceClient(_httpClient, exchangeOptions.ApiKey, exchangeOptions.SecretKey);
             _walletSender = new WalletSender(_client);
             _marketdataSender = new MarketdataSender(_client);
@@ -87,7 +93,7 @@ namespace BinanceExchange
         /// <inheritdoc />
         public async Task<bool> GetSystemStatusAsync(CancellationToken cancellationToken = default)
         {
-            var requestWeight = _requestsWeightStorage.SistemStatusWeight;
+            var requestWeight = _requestsWeightStorage.SystemStatusWeight;
             if (CheckLimit(requestWeight.Type, out var rateLimit))
             {
                 throw new TooManyRequestsException(rateLimit.Expiration, rateLimit.Value, rateLimit.Key);
@@ -120,7 +126,7 @@ namespace BinanceExchange
         }
 
         /// <inheritdoc />
-        public async Task<Common.Models.TradeFeeModel> GetTradeFeeAsync(
+        public async Task<IEnumerable<Common.Models.TradeFeeModel>> GetTradeFeeAsync(
             string symbol = null,
             long recvWindow = 5000,
             CancellationToken cancellationToken = default)
@@ -132,14 +138,14 @@ namespace BinanceExchange
             }
 
             var builder = new Builder();
-            builder.SetSymbol(symbol);
+            builder.SetSymbol(symbol, true);
             builder.SetRecvWindow(recvWindow);
             var query = builder.GetResult().GetQuery();
             var result = await _walletSender.GetTradeFeeAsync(query, cancellationToken);
 
             IncrementCallsMade(requestWeight, RequestWeightModel.GetDefaultKey());
 
-            return _mapper.Map<Common.Models.TradeFeeModel>(result);
+            return _mapper.Map<IEnumerable<Common.Models.TradeFeeModel>>(result);
         }
 
         /// <inheritdoc />
@@ -174,16 +180,11 @@ namespace BinanceExchange
                 throw new TooManyRequestsException(rateLimit.Expiration, rateLimit.Value, rateLimit.Key);
             }
 
-            var model = await _marketdataSender.GetExchangeInfoAsync(new Dictionary<string, object>(), cancellationToken);
+            var model = await _marketdataSender.GetExchangeInfoAsync(cancellationToken);
 
             IncrementCallsMade(requestWeight, RequestWeightModel.GetDefaultKey());
-            var result = new List<SymbolRuleTradingModel>();
-            foreach (var symbol in model.Symbols)
-            {
-                result.Add(_mapper.Map<SymbolRuleTradingModel>(symbol));
-            }
 
-            return result;
+            return _mapper.Map<IEnumerable<SymbolRuleTradingModel>>(model.Symbols);
         }
 
         /// <inheritdoc />
@@ -219,17 +220,11 @@ namespace BinanceExchange
             builder.SetSymbol(symbol);
             builder.SetLimit(limit);
             var query = builder.GetResult(false).GetQuery();
-            var models = await _marketdataSender.GetRecentTradesAsync(query, cancellationToken);
+            var result = await _marketdataSender.GetRecentTradesAsync(query, cancellationToken);
 
             IncrementCallsMade(requestWeight, RequestWeightModel.GetDefaultKey());
 
-            var result = new List<Common.Models.TradeModel>();
-            foreach (var model in models)
-            {
-                result.Add(_mapper.Map<Common.Models.TradeModel>(model));
-            }
-
-            return result;
+            return _mapper.Map<IEnumerable<Common.Models.TradeModel>>(result);
         }
 
         /// <inheritdoc />
@@ -254,21 +249,15 @@ namespace BinanceExchange
             }
 
             var query = builder.GetResult(false).GetQuery();
-            var models = await _marketdataSender.GetOldTradesAsync(query, cancellationToken);
+            var result = await _marketdataSender.GetOldTradesAsync(query, cancellationToken);
 
             IncrementCallsMade(requestWeight, RequestWeightModel.GetDefaultKey());
 
-            var result = new List<Common.Models.TradeModel>();
-            foreach (var model in models)
-            {
-                result.Add(_mapper.Map<Common.Models.TradeModel>(model));
-            }
-
-            return result;
+            return _mapper.Map<IEnumerable<Common.Models.TradeModel>>(result);
         }
 
         /// <inheritdoc />
-        public async Task<IEnumerable<Common.Models.CandlestickModel>> GetCandlstickAsync(
+        public async Task<IEnumerable<Common.Models.CandlestickModel>> GetCandlestickAsync(
             string symbol,
             string interval,
             long? startTime = null,
@@ -276,7 +265,7 @@ namespace BinanceExchange
             int limit = 500,
             CancellationToken cancellationToken = default)
         {
-            var requestWeight = _requestsWeightStorage.CandleStickDataWeight;
+            var requestWeight = _requestsWeightStorage.CandlestickDataWeight;
             if (CheckLimit(requestWeight.Type, out var rateLimit))
             {
                 throw new TooManyRequestsException(rateLimit.Expiration, rateLimit.Value, rateLimit.Key);
@@ -297,17 +286,11 @@ namespace BinanceExchange
             }
 
             var query = builder.GetResult(false).GetQuery();
-            var models = await _marketdataSender.GetCandlestickAsync(query, cancellationToken);
+            var result = await _marketdataSender.GetCandlestickAsync(query, cancellationToken);
 
             IncrementCallsMade(requestWeight, RequestWeightModel.GetDefaultKey());
 
-            var result = new List<Common.Models.CandlestickModel>();
-            foreach (var model in models)
-            {
-                result.Add(_mapper.Map<Common.Models.CandlestickModel>(model));
-            }
-
-            return result;
+            return _mapper.Map<IEnumerable<Common.Models.CandlestickModel>>(result);
         }
 
         /// <inheritdoc />
@@ -337,17 +320,12 @@ namespace BinanceExchange
                 throw new TooManyRequestsException(rateLimit.Expiration, rateLimit.Value, rateLimit.Key);
             }
 
-            var models = await _marketdataSender.GetDayPriceChangeAsync(symbol, cancellationToken);
+            var result = await _marketdataSender.GetDayPriceChangeAsync(symbol, cancellationToken);
 
             var key = string.IsNullOrEmpty(symbol) ? "null" : RequestWeightModel.GetDefaultKey();
             IncrementCallsMade(requestWeight, key);
-            var result = new List<Common.Models.DayPriceChangeModel>();
-            foreach (var item in models)
-            {
-                result.Add(_mapper.Map<Common.Models.DayPriceChangeModel>(item));
-            }
 
-            return result;
+            return _mapper.Map<IEnumerable<Common.Models.DayPriceChangeModel>>(result);
         }
 
         /// <inheritdoc />
@@ -359,21 +337,16 @@ namespace BinanceExchange
                 throw new TooManyRequestsException(rateLimit.Expiration, rateLimit.Value, rateLimit.Key);
             }
 
-            var models = await _marketdataSender.GetSymbolPriceTickerAsync(symbol, cancellationToken);
+            var result = await _marketdataSender.GetSymbolPriceTickerAsync(symbol, cancellationToken);
 
             var key = string.IsNullOrEmpty(symbol) ? "null" : RequestWeightModel.GetDefaultKey();
             IncrementCallsMade(requestWeight, key);
-            var result = new List<SymbolPriceModel>();
-            foreach (var item in models)
-            {
-                result.Add(_mapper.Map<SymbolPriceModel>(item));
-            }
 
-            return result;
+            return _mapper.Map<IEnumerable<SymbolPriceModel>>(result);
         }
 
         /// <inheritdoc />
-        public async Task<IEnumerable<BestSymbolOrderModel>> GetSymbolOrderBookTickerAsync(string symbol, CancellationToken cancellationToken = default)
+        public async Task<IEnumerable<BestSymbolOrderModel>> GetBestSymbolOrdersAsync(string symbol, CancellationToken cancellationToken = default)
         {
             var requestWeight = _requestsWeightStorage.SymbolOrderBookTickerWeight;
             if (CheckLimit(requestWeight.Type, out var rateLimit))
@@ -381,17 +354,12 @@ namespace BinanceExchange
                 throw new TooManyRequestsException(rateLimit.Expiration, rateLimit.Value, rateLimit.Key);
             }
 
-            var models = await _marketdataSender.GetSymbolOrderBookTickerAsync(symbol, cancellationToken);
+            var result = await _marketdataSender.GetSymbolOrderBookTickerAsync(symbol, cancellationToken);
 
             var key = string.IsNullOrEmpty(symbol) ? "null" : RequestWeightModel.GetDefaultKey();
             IncrementCallsMade(requestWeight, key);
-            var result = new List<BestSymbolOrderModel>();
-            foreach (var item in models)
-            {
-                result.Add(_mapper.Map<BestSymbolOrderModel>(item));
-            }
 
-            return result;
+            return _mapper.Map<IEnumerable<BestSymbolOrderModel>>(result);
         }
 
         #endregion
@@ -399,173 +367,200 @@ namespace BinanceExchange
         #region Marketdata Streams
 
         /// <inheritdoc />
-        public async Task SubscribeNewStreamAsync<T>(
+        /// <remarks>
+        ///     Проверено ручным тестированием, после изменений необходимы ручные проверки!
+        /// </remarks>
+        public IWebSocket SubscribeNewStream<T>(
             string symbol,
-            Func<T, Task> onMessageReceivedFunc,
             string stream,
-            CancellationToken cancellationToken = default)
+            Func<T, CancellationToken, Task> onMessageReceivedFunc,
+            CancellationToken cancellationToken,
+            Action onStreamClosedFunc = null)
         {
+            // TODO переписать или с фабрикой или с интерфейсом для удобного тестирования
             var streamType = stream.ConvertToMarketdataStreamType();
             var webSoket = new MarketdataWebSocket(symbol, streamType);
             webSoket.OnClosed += OnCloseHandler;
-            var converter = new JsonDeserializerWrapper();
+            webSoket.OnStreamClosed += onStreamClosedFunc;
 
             webSoket.AddOnMessageReceivedFunc(
-               content =>
+               async content =>
                {
                    IMarketdataStreamModel model = streamType switch
                    {
-                       MarketdataStreamType.AggregateTradeStream => converter.Deserialize<Models.AggregateSymbolTradeStreamModel>(content),
-                       MarketdataStreamType.IndividualSymbolBookTickerStream => converter.Deserialize<Models.BookTickerStreamModel>(content),
-                       MarketdataStreamType.IndividualSymbolMiniTickerStream => converter.Deserialize<Models.MiniTickerStreamModel>(content),
-                       MarketdataStreamType.TradeStream => converter.Deserialize<Models.SymbolTradeStreamModel>(content),
-                       MarketdataStreamType.IndividualSymbolTickerStream => converter.Deserialize<Models.TickerStreamModel>(content),
-                       _ => throw new InvalidOperationException($"Unknow Marketdata Stream Type {streamType}. " +
+                       MarketdataStreamType.AggregateTradeStream => _converter.Deserialize<Models.AggregateSymbolTradeStreamModel>(content),
+                       MarketdataStreamType.IndividualSymbolBookTickerStream => _converter.Deserialize<Models.BookTickerStreamModel>(content),
+                       MarketdataStreamType.IndividualSymbolMiniTickerStream => _converter.Deserialize<Models.MiniTickerStreamModel>(content),
+                       MarketdataStreamType.TradeStream => _converter.Deserialize<Models.SymbolTradeStreamModel>(content),
+                       MarketdataStreamType.IndividualSymbolTickerStream => _converter.Deserialize<Models.TickerStreamModel>(content),
+                       _ => throw new InvalidOperationException($"Unknown Marketdata Stream Type {streamType}. " +
                        "Failed to deserialize content")
                    };
 
                    var neededModel = _mapper.Map<T>(model);
-                   onMessageReceivedFunc?.Invoke(neededModel);
-                   return Task.CompletedTask;
+                   await onMessageReceivedFunc?.Invoke(neededModel, cancellationToken);
                },
                cancellationToken);
 
-            await webSoket.ConnectAsync(cancellationToken);
+            return webSoket;
         }
 
         /// <inheritdoc />
-        public async Task SubscribeCandlestickStreamAsync(
+        /// <remarks>
+        ///     Проверено ручным тестированием, после изменений необходимы ручные проверки!
+        /// </remarks>
+        public IWebSocket SubscribeCandlestickStream(
             string symbol,
             string candleStickInterval,
-            Func<Common.Models.CandlestickStreamModel, Task> onMessageReceivedFunc,
-            CancellationToken cancellationToken = default)
+            Func<Common.Models.CandlestickStreamModel, CancellationToken, Task> onMessageReceivedFunc,
+            CancellationToken cancellationToken,
+            Action onStreamClosedFunc = null)
         {
+            // TODO переписать или с фабрикой или с интерфейсом для удобного тестирования
             var interval = candleStickInterval.ConvertToCandleStickIntervalType();
             var webSoket = MarketdataWebSocket.CreateCandlestickStream(symbol, interval);
             webSoket.OnClosed += OnCloseHandler;
-            var converter = new JsonDeserializerWrapper();
+            webSoket.OnStreamClosed += onStreamClosedFunc;
 
             webSoket.AddOnMessageReceivedFunc(
-               content =>
+               async content =>
                {
-                   var model = converter.Deserialize<Models.CandlestickStreamModel>(content);
-                   var neededModel = _mapper.Map<Common.Models.CandlestickStreamModel>(model);
-                   onMessageReceivedFunc?.Invoke(neededModel);
-                   return Task.CompletedTask;
-               },
-               cancellationToken);
-
-            await webSoket.ConnectAsync(cancellationToken);
-        }
-
-        /// <inheritdoc />
-        public async Task SubscribeAllMarketTickersStreamAsync(
-            Func<IEnumerable<Common.Models.TickerStreamModel>, Task> onMessageReceivedFunc,
-            CancellationToken cancellationToken = default)
-        {
-            var webSoket = MarketdataWebSocket.CreateAllMarketMiniTickersStream();
-            webSoket.OnClosed += OnCloseHandler;
-            var converter = new JsonDeserializerWrapper();
-            converter.AddConverter(new EnumerableDeserializer<Models.TickerStreamModel>());
-
-            webSoket.AddOnMessageReceivedFunc(
-               content =>
-               {
-                   var models = converter.Deserialize<IEnumerable<Models.TickerStreamModel>>(content);
-                   var neededModels = new List<Common.Models.TickerStreamModel>();
-                   foreach (var model in models)
+                   try
                    {
-                       neededModels.Add(_mapper.Map<Common.Models.TickerStreamModel>(model));
+                       var model = _converter.Deserialize<Models.CandlestickStreamModel>(content);
+                       var neededModel = _mapper.Map<Common.Models.CandlestickStreamModel>(model);
+                       await onMessageReceivedFunc?.Invoke(neededModel, cancellationToken);
                    }
-
-                   onMessageReceivedFunc?.Invoke(neededModels);
-                   return Task.CompletedTask;
+                   catch (Exception ex)
+                   {
+                       _logger.Warn(ex, $"Failed to recieve {nameof(Common.Models.TickerStreamModel)}");
+                   }
                },
                cancellationToken);
 
-            await webSoket.ConnectAsync(cancellationToken);
+            return webSoket;
         }
 
         /// <inheritdoc />
-        public async Task SubscribeAllBookTickersStreamAsync(
-            Func<IEnumerable<Common.Models.BookTickerStreamModel>, Task> onMessageReceivedFunc,
-            CancellationToken cancellationToken = default)
+        /// <remarks>
+        ///     Проверено ручным тестированием, после изменений необходимы ручные проверки!
+        /// </remarks>
+        public IWebSocket SubscribeAllMarketTickersStream(
+            Func<IEnumerable<Common.Models.TickerStreamModel>, CancellationToken, Task> onMessageReceivedFunc,
+            CancellationToken cancellationToken,
+            Action onStreamClosedFunc = null)
         {
+            // TODO переписать или с фабрикой или с интерфейсом для удобного тестирования
+            var webSoket = MarketdataWebSocket.CreateAllTickersStream();
+            webSoket.OnClosed += OnCloseHandler;
+            webSoket.OnStreamClosed += onStreamClosedFunc;
+
+            webSoket.AddOnMessageReceivedFunc(
+               async content =>
+               {
+                   try
+                   {
+                       var models = _converter.Deserialize<IEnumerable<Models.TickerStreamModel>>(content);
+                       var neededModels = _mapper.Map<IEnumerable<Common.Models.TickerStreamModel>>(models);
+                       await onMessageReceivedFunc?.Invoke(neededModels, cancellationToken);
+                   }
+                   catch (Exception ex)
+                   {
+                       _logger.Warn(ex, $"Failed to recieve {nameof(Common.Models.TickerStreamModel)}");
+                   }
+               },
+               cancellationToken);
+
+            return webSoket;
+        }
+
+        /// <inheritdoc />
+        /// <remarks>
+        ///     Проверено ручным тестированием, после изменений необходимы ручные проверки!
+        /// </remarks>
+        public IWebSocket SubscribeAllBookTickersStream(
+            Func<Common.Models.BookTickerStreamModel, CancellationToken, Task> onMessageReceivedFunc,
+            CancellationToken cancellationToken,
+            Action onStreamClosedFunc = null)
+        {
+            // TODO переписать или с фабрикой или с интерфейсом для удобного тестирования
             var webSoket = MarketdataWebSocket.CreateAllBookTickersStream();
             webSoket.OnClosed += OnCloseHandler;
-            var converter = new JsonDeserializerWrapper();
-            converter.AddConverter(new EnumerableDeserializer<Models.BookTickerStreamModel>());
+            webSoket.OnStreamClosed += onStreamClosedFunc;
 
             webSoket.AddOnMessageReceivedFunc(
-               content =>
+               async content =>
                {
-                   var models = converter.Deserialize<IEnumerable<Models.BookTickerStreamModel>>(content);
-                   var neededModels = new List<Common.Models.BookTickerStreamModel>();
-                   foreach (var model in models)
+                   try
                    {
-                       neededModels.Add(_mapper.Map<Common.Models.BookTickerStreamModel>(model));
+                       var model = _converter.Deserialize<Models.BookTickerStreamModel>(content);
+                       var neededModel = _mapper.Map<Common.Models.BookTickerStreamModel>(model);
+                       await onMessageReceivedFunc?.Invoke(neededModel, cancellationToken);
                    }
-
-                   onMessageReceivedFunc?.Invoke(neededModels);
-                   return Task.CompletedTask;
+                   catch (Exception ex)
+                   {
+                       _logger.Warn(ex, $"Failed to recieve {nameof(Models.BookTickerStreamModel)}");
+                   }
                },
                cancellationToken);
 
-            await webSoket.ConnectAsync(cancellationToken);
+            return webSoket;
         }
 
         /// <inheritdoc />
-        public async Task SubscribeAllMarketMiniTickersStreamAsync(
-            Func<IEnumerable<Common.Models.MiniTickerStreamModel>, Task> onMessageReceivedFunc,
-            CancellationToken cancellationToken = default)
+        /// <remarks>
+        ///     Проверено ручным тестированием, после изменений необходимы ручные проверки!
+        /// </remarks>
+        public IWebSocket SubscribeAllMarketMiniTickersStream(
+            Func<IEnumerable<Common.Models.MiniTickerStreamModel>, CancellationToken, Task> onMessageReceivedFunc,
+            CancellationToken cancellationToken,
+            Action onStreamClosedFunc = null)
         {
+            // TODO переписать или с фабрикой или с интерфейсом для удобного тестирования
             var webSoket = MarketdataWebSocket.CreateAllMarketMiniTickersStream();
             webSoket.OnClosed += OnCloseHandler;
-            var converter = new JsonDeserializerWrapper();
-            converter.AddConverter(new EnumerableDeserializer<Models.MiniTickerStreamModel>());
+            webSoket.OnStreamClosed += onStreamClosedFunc;
 
             webSoket.AddOnMessageReceivedFunc(
-               content =>
+               async content =>
                {
-                   var models = converter.Deserialize<IEnumerable<Models.MiniTickerStreamModel>>(content);
-                   var neededModels = new List<Common.Models.MiniTickerStreamModel>();
-                   foreach (var model in models)
-                   {
-                       neededModels.Add(_mapper.Map<Common.Models.MiniTickerStreamModel>(model));
-                   }
+                   var models = _converter.Deserialize<IEnumerable<Models.MiniTickerStreamModel>>(content);
+                   var neededModels = _mapper.Map<IEnumerable<Common.Models.MiniTickerStreamModel>>(models);
 
-                   onMessageReceivedFunc?.Invoke(neededModels);
-                   return Task.CompletedTask;
+                   await onMessageReceivedFunc?.Invoke(neededModels, cancellationToken);
                },
                cancellationToken);
 
-            await webSoket.ConnectAsync(cancellationToken);
+            return webSoket;
         }
 
         /// <inheritdoc />
-        public async Task SubscribePartialBookDepthStreamAsync(
+        /// <remarks>
+        ///     Проверено ручным тестированием, после изменений необходимы ручные проверки!
+        /// </remarks>
+        public IWebSocket SubscribePartialBookDepthStream(
             string symbol,
-            Func<Common.Models.OrderBookModel, Task> onMessageReceivedFunc,
+            Func<Common.Models.OrderBookModel, CancellationToken, Task> onMessageReceivedFunc,
+            CancellationToken cancellationToken,
+            Action onStreamClosedFunc = null,
             int levels = 10,
-            bool activateFastReceive = false,
-            CancellationToken cancellationToken = default)
+            bool activateFastReceive = false)
         {
+            // TODO переписать или с фабрикой или с интерфейсом для удобного тестирования
             var webSoket = MarketdataWebSocket.CreatePartialBookDepthStream(symbol, levels, activateFastReceive);
+            webSoket.OnStreamClosed += onStreamClosedFunc;
             webSoket.OnClosed += OnCloseHandler;
-            var converter = new JsonDeserializerWrapper();
-            converter.AddConverter(new OrderBookModelConverter());
 
             webSoket.AddOnMessageReceivedFunc(
-               content =>
+               async content =>
                {
-                   var model = converter.Deserialize<Models.OrderBookModel>(content);
+                   var model = _converter.Deserialize<Models.OrderBookModel>(content);
                    var neededModel = _mapper.Map<Common.Models.OrderBookModel>(model);
-                   onMessageReceivedFunc?.Invoke(neededModel);
-                   return Task.CompletedTask;
+                   await onMessageReceivedFunc?.Invoke(neededModel, cancellationToken);
                },
                cancellationToken);
 
-            await webSoket.ConnectAsync(cancellationToken);
+            return webSoket;
         }
 
         #endregion
@@ -575,7 +570,7 @@ namespace BinanceExchange
         /// <inheritdoc />
         public async Task<Common.Models.FullOrderResponseModel> CreateNewLimitOrderAsync(
             string symbol,
-            string sideType,
+            OrderSideType sideType,
             string forceType,
             double price,
             double quantity,
@@ -611,7 +606,7 @@ namespace BinanceExchange
         /// <inheritdoc />
         public async Task<Common.Models.FullOrderResponseModel> CreateNewMarketOrderAsync(
             string symbol,
-            string sideType,
+            OrderSideType sideType,
             double quantity,
             long recvWindow = 5000,
             bool isTest = true,
@@ -643,7 +638,7 @@ namespace BinanceExchange
         /// <inheritdoc />
         public async Task<Common.Models.FullOrderResponseModel> CreateNewStopLossOrderAsync(
             string symbol,
-            string sideType,
+            OrderSideType sideType,
             double quantity,
             double stopPrice,
             long recvWindow = 5000,
@@ -677,7 +672,7 @@ namespace BinanceExchange
         /// <inheritdoc />
         public async Task<Common.Models.FullOrderResponseModel> CreateNewStopLossLimitOrderAsync(
             string symbol,
-            string sideType,
+            OrderSideType sideType,
             string forceType,
             double price,
             double quantity,
@@ -715,7 +710,7 @@ namespace BinanceExchange
         /// <inheritdoc />
         public async Task<Common.Models.FullOrderResponseModel> CreateNewTakeProfitOrderAsync(
             string symbol,
-            string sideType,
+            OrderSideType sideType,
             double quantity,
             double stopPrice,
             long recvWindow = 5000,
@@ -749,7 +744,7 @@ namespace BinanceExchange
         /// <inheritdoc />
         public async Task<Common.Models.FullOrderResponseModel> CreateNewTakeProfitLimitOrderAsync(
             string symbol,
-            string sideType,
+            OrderSideType sideType,
             string forceType,
             double price,
             double quantity,
@@ -787,7 +782,7 @@ namespace BinanceExchange
         /// <inheritdoc />
         public async Task<Common.Models.FullOrderResponseModel> CreateNewLimitMakerOrderAsync(
             string symbol,
-            string sideType,
+            OrderSideType sideType,
             double price,
             double quantity,
             long recvWindow = 5000,
@@ -871,16 +866,10 @@ namespace BinanceExchange
             builder.SetRecvWindow(recvWindow);
             var query = builder.GetResult().GetQuery();
 
-            var models = await _tradeSender.CancelAllOrdersAsync(query, cancellationToken);
+            var result = await _tradeSender.CancelAllOrdersAsync(query, cancellationToken);
             IncrementCallsMade(requestWeight, RequestWeightModel.GetDefaultKey());
 
-            var result = new List<Common.Models.CancelOrderResponseModel>();
-            foreach(var model in models)
-            {
-                result.Add(_mapper.Map<Common.Models.CancelOrderResponseModel>(model));
-            }
-                
-            return result;
+            return _mapper.Map<IEnumerable<Common.Models.CancelOrderResponseModel>>(result);
         }
 
         /// <inheritdoc />
@@ -939,18 +928,12 @@ namespace BinanceExchange
             }
 
             var query = builder.GetResult().GetQuery();
-            var models = await _tradeSender.CheckAllOpenOrdersAsync(query, cancellationToken);
+            var result = await _tradeSender.CheckAllOpenOrdersAsync(query, cancellationToken);
 
             var key = isSymbolOmitted ? "null" : RequestWeightModel.GetDefaultKey();
             IncrementCallsMade(requestWeight, key);
 
-            var result = new List<Common.Models.CheckOrderResponseModel>();
-            foreach (var model in models)
-            {
-                result.Add(_mapper.Map<Common.Models.CheckOrderResponseModel>(model));
-            }
-
-            return result;
+            return _mapper.Map<IEnumerable<Common.Models.CheckOrderResponseModel>>(result);
         }
 
         /// <inheritdoc />
@@ -963,7 +946,7 @@ namespace BinanceExchange
             long recvWindow = 5000,
             CancellationToken cancellationToken = default)
         {
-            var requestWeight = _requestsWeightStorage.AllOrdersWeight;
+            var requestWeight = _requestsWeightStorage.GetAllOrdersWeight;
             if (CheckLimit(requestWeight.Type, out var rateLimit))
             {
                 throw new TooManyRequestsException(rateLimit.Expiration, rateLimit.Value, rateLimit.Key);
@@ -989,16 +972,26 @@ namespace BinanceExchange
             }
 
             var query = builder.GetResult().GetQuery();
-            var models = await _tradeSender.GetAllOrdersAsync(query, cancellationToken);
+            var result = await _tradeSender.GetAllOrdersAsync(query, cancellationToken);
             IncrementCallsMade(requestWeight, RequestWeightModel.GetDefaultKey());
 
-            var result = new List<Common.Models.CheckOrderResponseModel>();
-            foreach (var model in models)
+            return _mapper.Map<IEnumerable<Common.Models.CheckOrderResponseModel>>(result);
+        }
+
+        /// <inheritdoc />
+        public async Task<Common.Models.AccountInformationModel> GetAccountInformationAsync(CancellationToken cancellationToken)
+        {
+            var requestWeight = _requestsWeightStorage.AccountInformationWeight;
+            if (CheckLimit(requestWeight.Type, out var rateLimit))
             {
-                result.Add(_mapper.Map<Common.Models.CheckOrderResponseModel>(model));
+                throw new TooManyRequestsException(rateLimit.Expiration, rateLimit.Value, rateLimit.Key);
             }
 
-            return result;
+            var query = new Builder().GetResult().GetQuery();
+            var result = await _tradeSender.GetAccountInformationAsync(query, cancellationToken);
+            IncrementCallsMade(requestWeight, RequestWeightModel.GetDefaultKey());
+
+            return _mapper.Map<Common.Models.AccountInformationModel>(result);
         }
 
         #endregion
@@ -1025,9 +1018,12 @@ namespace BinanceExchange
         /// <summary>
         ///     Возвращает Redis-ключ для лимита
         /// </summary>
-        private string GetRedisKey(RateLimitType type) => $"tc_binance_{type.ToString().ToLower()}";
+        internal string GetRedisKey(RateLimitType type) => $"tc_binance_{type.ToString().ToLower()}";
 
-        private RateLimit GetRateLimit(ApiType type) =>
+        /// <summary>
+        ///     Возвращает модель ограничения скорости
+        /// </summary>
+        internal RateLimit GetRateLimit(ApiType type) =>
             type switch
             {
                 ApiType.Sapi => _rateLimitsStorage.SapiWeightLimit,
@@ -1045,8 +1041,12 @@ namespace BinanceExchange
 
             if (requestWeight.Weights.TryGetValue(weightParamKey, out var value))
             {
-                _redisDatabase.IncrementOrCreateKeyValue(key, rateLimit.Interval, value);
-                return;
+                if (_redisDatabase.TryIncrementOrCreateKeyValue(key, rateLimit.Interval, value))
+                {
+                    return;
+                }
+
+                throw new Exception($"Failed to increment or create ketValue: key='{key}' interval='{rateLimit.Interval}' value='{value}'");
             }
 
             throw new KeyNotFoundException($"Key '{weightParamKey}' not found.");
@@ -1058,9 +1058,25 @@ namespace BinanceExchange
         private Task OnCloseHandler(BinanceWebSocket webSocket, CancellationToken cancellationToken = default)
         {
             _logger.Error($"WebSocket: {webSocket} was closed");
+            webSocket.OnClosed = null;
+            webSocket.OnStreamClosed = null;
             webSocket.Dispose();
 
             return Task.CompletedTask;
+        }
+
+        /// <summary>
+        ///     Настраивает профили оболочки десериализации объектов
+        /// </summary>
+        internal static JsonDeserializerWrapper GetConverter()
+        {
+            var converter = new JsonDeserializerWrapper();
+            converter.AddConverter(new EnumerableDeserializer<Models.TickerStreamModel>());
+            converter.AddConverter(new EnumerableDeserializer<Models.BookTickerStreamModel>());
+            converter.AddConverter(new EnumerableDeserializer<Models.MiniTickerStreamModel>());
+            converter.AddConverter(new OrderBookModelConverter());
+
+            return converter;
         }
 
         #endregion
@@ -1076,6 +1092,7 @@ namespace BinanceExchange
             }
 
             _isDisposed = true;
+            _redisDatabase?.Dispose();
             _httpClient.Dispose();
         }
 

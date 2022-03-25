@@ -13,7 +13,7 @@ namespace BinanceExchange.EndpointSenders
         /// <summary>
         ///     Запрос текущих правил биржевой торговли и информации о символах
         /// </summary>
-        Task<ExchangeInfoModel> GetExchangeInfoAsync(Dictionary<string, object> query, CancellationToken cancellationToken = default);
+        Task<ExchangeInfoModel> GetExchangeInfoAsync(CancellationToken cancellationToken = default);
 
         /// <summary>
         ///     Получить ордера из стакана по определенной монете
@@ -64,12 +64,12 @@ namespace BinanceExchange.EndpointSenders
         Task<AveragePriceModel> GetAveragePriceAsync(Dictionary<string, object> query, CancellationToken cancellationToken = default);
 
         /// <summary>
-        ///     Возвращает 24 статистику о цене для пары или для всех пар (если <code><paramref name="symbol" /> = null or ""</code>)
+        ///     Возвращает 24 статистику о цене для пары или для всех пар, если <code><paramref name="symbol" /> = null or ""</code>
         /// </summary>
         Task<IEnumerable<DayPriceChangeModel>> GetDayPriceChangeAsync(string symbol, CancellationToken cancellationToken = default);
 
         /// <summary>
-        ///     Возвращает последнюю цену для пары или для всех пар (если <code><paramref name="symbol" /> = null or ""</code>)
+        ///     Возвращает последнюю цену для пары или для всех пар, если <code><paramref name="symbol" /> = null or ""</code>
         /// </summary>
         Task<IEnumerable<SymbolPriceTickerModel>> GetSymbolPriceTickerAsync(string symbol, CancellationToken cancellationToken = default);
 

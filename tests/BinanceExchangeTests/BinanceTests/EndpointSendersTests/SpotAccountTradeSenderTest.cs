@@ -6,6 +6,7 @@ using BinanceExchange.EndpointSenders;
 using BinanceExchange.EndpointSenders.Impl;
 using BinanceExchange.Enums;
 using BinanceExchange.Models;
+using Common.Enums;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -13,7 +14,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace ExchangeLibraryTests.BinanceTests.EndpointSenders
+namespace BinanceExchangeTests.BinanceTests.EndpointSendersTests
 {
     /// <summary>
     ///     Тестирует <see cref="SpotAccountTradeSender"/>
@@ -22,88 +23,25 @@ namespace ExchangeLibraryTests.BinanceTests.EndpointSenders
     {
         #region Fields
 
-        private FullOrderResponseModel _expectedResponse = new()
-        {
-            Symbol = "BTCUSDT",
-            OrderId = 28,
-            ClientOrderId = "6gCrw2kRUAF9CvJDGP16IP",
-            TransactTimeUnix = 1507725176595,
-            OrderListId = -1,
-            Price = 0.00000001,
-            OrigQty = 10.00000000,
-            ExecutedQty = 10.1,
-            CumulativeQuoteQty = 10.2,
-            Status = OrderStatusType.Filled,
-            TimeInForce = TimeInForceType.GTC,
-            OrderType = OrderType.Market,
-            OrderSide = OrderSideType.Sell,
-            Fills = new List<FillModel>
-            {
-                new FillModel
-                {
-                    Price = 4000.00000000,
-                    Quantity = 1.00000000,
-                    Commission = 4.00000000,
-                    CommissionAsset = "USDT",
-                    TradeId = 56
-                },
-                new FillModel
-                {
-                    Price = 3999.00000000,
-                    Quantity = 5.00000000,
-                    Commission = 19.99500000,
-                    CommissionAsset = "USDT",
-                    TradeId = 57
-                },
-                new FillModel
-                {
-                    Price = 3998.00000000,
-                    Quantity = 2.00000000,
-                    Commission = 7.99600000,
-                    CommissionAsset = "USDT",
-                    TradeId = 58
-                },
-                new FillModel
-                {
-                    Price = 3997.00000000,
-                    Quantity = 1.00000000,
-                    Commission = 3.99700000,
-                    CommissionAsset = "USDT",
-                    TradeId = 59
-                },
-                new FillModel
-                {
-                    Price = 3995.00000000,
-                    Quantity = 1.00000000,
-                    Commission = 3.99500000,
-                    CommissionAsset = "USDT",
-                    TradeId = 60
-                },
-            }
-        };
+        private readonly FullOrderResponseModel _expectedResponse = TestHelper.CreateBinanceFullOrderResponseModel(
+            "BTCUSDT",
+            0.00000001,
+            10.00000000,
+            OrderStatusType.Filled,
+            TimeInForceType.GTC,
+            OrderType.Market,
+            OrderSideType.Sell);
 
-        private CheckOrderResponseModel _expectedCheckOrderResponse = new()
-        {
-            Symbol = "LTCBTC",
-            ClientOrderId = "myOrder1",
-            OrderId = 1,
-            OrderListId = -1,
-            Price = 0.1,
-            OrigQty = 1.0,
-            ExecutedQty = 0.0,
-            CumulativeQuoteQty = 0.1,
-            Status = OrderStatusType.New,
-            TimeInForce = TimeInForceType.GTC,
-            OrderType = OrderType.Limit,
-            OrderSide = OrderSideType.Buy,
-            StopPrice = 0.001,
-            IcebergQty = 0.002,
-            TimeUnix = 1499827319559,
-            UpdateTimeUnix = 1499827319559,
-            IsWorking = true,
-            OrigQuoteOrderQty = 0.000300,
+        private readonly CheckOrderResponseModel _expectedCheckOrderResponse = TestHelper.CreateBinanceCheckOrderResponseModel(
+            "LTCBTC",
+            0.1,
+            1.0,
+            OrderStatusType.New,
+            TimeInForceType.GTC,
+            OrderType.Limit,
+            OrderSideType.Buy);
 
-        };
+        private readonly AccountInformationModel _expectedAccountInformationResponse = TestHelper.GetBinanceAccountInformationModel();
 
         #endregion
 
@@ -113,7 +51,7 @@ namespace ExchangeLibraryTests.BinanceTests.EndpointSenders
         ///     Тест запроса создания нового тестового ордера
         /// </summary>
         [Fact(DisplayName = "Request to create a new test order Test")]
-        public async Task SendNewTestOrderAsyncTest()
+        internal async Task<FullOrderResponseModel> SendNewTestOrderAsync_Test()
         {
             var filePath = "../../../BinanceTests/Jsons/SpotAccountTrade/NewOrderResponse.json";
             var builder = new Builder();
@@ -129,7 +67,6 @@ namespace ExchangeLibraryTests.BinanceTests.EndpointSenders
 
             // Act
             var result = await tradeSender.SendNewTestOrderAsync(query, cancellationToken: CancellationToken.None);
-
             var properties = typeof(FullOrderResponseModel).GetProperties();
             for (var j = 0; j < properties.Length; j++)
             {
@@ -141,23 +78,19 @@ namespace ExchangeLibraryTests.BinanceTests.EndpointSenders
                 Assert.Equal(properties[j].GetValue(_expectedResponse), properties[j].GetValue(result));
             }
 
-            var fillModelProperties = typeof(FillModel).GetProperties();
             for (var i = 0; i < _expectedResponse.Fills.Count; i++)
             {
-                for (var j = 0; j < fillModelProperties.Length; j++)
-                {
-                    Assert.Equal(
-                        fillModelProperties[j].GetValue(_expectedResponse.Fills[i]),
-                        fillModelProperties[j].GetValue(result.Fills[i]));
-                }
+                TestHelper.CheckingAssertions(_expectedResponse.Fills[i], result.Fills[i]);
             }
+
+            return result;
         }
 
         /// <summary>
         ///     Тест запроса создания нового ордера
         /// </summary>
         [Fact(DisplayName = "Request to create a new order Test")]
-        public async Task SendNewOrderAsyncTest()
+        internal async Task<FullOrderResponseModel> SendNewOrderAsync_Test()
         {
             var filePath = "../../../BinanceTests/Jsons/SpotAccountTrade/NewOrderResponse.json";
             var builder = new Builder();
@@ -173,35 +106,16 @@ namespace ExchangeLibraryTests.BinanceTests.EndpointSenders
 
             // Act
             var result = await tradeSender.SendNewOrderAsync(query, cancellationToken: CancellationToken.None);
+            TestHelper.CheckingAssertions(_expectedResponse, result);
 
-            var properties = typeof(FullOrderResponseModel).GetProperties();
-            for (var j = 0; j < properties.Length; j++)
-            {
-                if (properties[j].Name == nameof(FullOrderResponseModel.Fills))
-                {
-                    continue;
-                }
-
-                Assert.Equal(properties[j].GetValue(_expectedResponse), properties[j].GetValue(result));
-            }
-
-            var fillModelProperties = typeof(FillModel).GetProperties();
-            for (var i = 0; i < _expectedResponse.Fills.Count; i++)
-            {
-                for (var j = 0; j < fillModelProperties.Length; j++)
-                {
-                    Assert.Equal(
-                        fillModelProperties[j].GetValue(_expectedResponse.Fills[i]),
-                        fillModelProperties[j].GetValue(result.Fills[i]));
-                }
-            }
+            return result;
         }
 
         /// <summary>
         ///     Тест запроса отмены ордера по паре
         /// </summary>
         [Fact(DisplayName = "Request to cancel the order Test")]
-        public async Task CancelOrderAsyncTest()
+        public async Task CancelOrderAsync_Test()
         {
             var filePath = "../../../BinanceTests/Jsons/SpotAccountTrade/CancelOrderResponse.json";
             var builder = new Builder();
@@ -237,7 +151,7 @@ namespace ExchangeLibraryTests.BinanceTests.EndpointSenders
         ///     Тест запроса отмены всех ордеров по паре
         /// </summary>
         [Fact(DisplayName = "Request to cancel all orders Test")]
-        public async Task CancelAllOrdersAsyncTest()
+        public async Task CancelAllOrdersAsync_Test()
         {
             var filePath = "../../../BinanceTests/Jsons/SpotAccountTrade/CancelAllOrdersResponse.json";
             var builder = new Builder();
@@ -288,7 +202,7 @@ namespace ExchangeLibraryTests.BinanceTests.EndpointSenders
         ///     Тест запроса состояния ордера по паре
         /// </summary>
         [Fact(DisplayName = "Request to check the order Test")]
-        public async Task CheckOrderAsyncTest()
+        public async Task CheckOrderAsync_Test()
         {
             var filePath = "../../../BinanceTests/Jsons/SpotAccountTrade/CheckOrderResponse.json";
             var builder = new Builder();
@@ -305,18 +219,14 @@ namespace ExchangeLibraryTests.BinanceTests.EndpointSenders
             // Act
             var result = await tradeSender.CheckOrderAsync(query, cancellationToken: CancellationToken.None);
 
-            var properties = typeof(CheckOrderResponseModel).GetProperties();
-            for (var i = 0; i < properties.Length; i++)
-            {
-                Assert.Equal(properties[i].GetValue(_expectedCheckOrderResponse), properties[i].GetValue(result));
-            }
+            TestHelper.CheckingAssertions(_expectedCheckOrderResponse, result);
         }
 
         /// <summary>
         ///     Тест запроса состояния всех открытых оредров (или по опред паре)
         /// </summary>
         [Fact(DisplayName = "Request to check all open orders Test")]
-        public async Task CheckAllOpenOrdersAsyncTest()
+        public async Task CheckAllOpenOrdersAsync_Test()
         {
             var filePath = "../../../BinanceTests/Jsons/SpotAccountTrade/CheckAllOpenOrdersResponse.json";
             var builder = new Builder();
@@ -332,18 +242,16 @@ namespace ExchangeLibraryTests.BinanceTests.EndpointSenders
             // Act
             var result = (await tradeSender.CheckAllOpenOrdersAsync(query, cancellationToken: CancellationToken.None)).ToList();
 
-            var properties = typeof(CheckOrderResponseModel).GetProperties();
             Assert.Equal(2, result.Count);
             for (var j = 0; j < 2; j++)
             {
-                for (var i = 0; i < properties.Length; i++)
-                {
-                    Assert.Equal(properties[i].GetValue(_expectedCheckOrderResponse), properties[i].GetValue(result[j]));
-                }
+                TestHelper.CheckingAssertions(_expectedCheckOrderResponse, result[j]);
 
                 // изменение данных тут, чтобы не плодить объекты
                 _expectedCheckOrderResponse.ClientOrderId = "1";
                 _expectedCheckOrderResponse.OrigQuoteOrderQty = 15;
+                _expectedCheckOrderResponse.ExecutedQty = 10.2;
+                _expectedCheckOrderResponse.CumulativeQuoteQty = 10.3;
                 _expectedCheckOrderResponse.Symbol = "asd";
             }
         }
@@ -352,7 +260,7 @@ namespace ExchangeLibraryTests.BinanceTests.EndpointSenders
         ///     Тест запроса всех ордеров по паре
         /// </summary>
         [Fact(DisplayName = "Request to get all orders Test")]
-        public async Task GetAllOrdersAsyncTest()
+        public async Task GetAllOrdersAsync_Test()
         {
             var filePath = "../../../BinanceTests/Jsons/SpotAccountTrade/GetAllOrdersResponse.json";
             var builder = new Builder();
@@ -368,21 +276,41 @@ namespace ExchangeLibraryTests.BinanceTests.EndpointSenders
             // Act
             var result = (await tradeSender.GetAllOrdersAsync(query, cancellationToken: CancellationToken.None)).ToList();
 
-            var properties = typeof(CheckOrderResponseModel).GetProperties();
             Assert.Equal(2, result.Count);
             for (var j = 0; j < 2; j++)
             {
-                for (var i = 0; i < properties.Length; i++)
-                {
-                    Assert.Equal(properties[i].GetValue(_expectedCheckOrderResponse), properties[i].GetValue(result[j]));
-                }
+                TestHelper.CheckingAssertions(_expectedCheckOrderResponse, result[j]);
 
                 // изменение данных тут, чтобы не плодить объекты
                 _expectedCheckOrderResponse.ClientOrderId = "1";
                 _expectedCheckOrderResponse.OrigQuoteOrderQty = 15;
+                _expectedCheckOrderResponse.ExecutedQty = 10.2;
+                _expectedCheckOrderResponse.CumulativeQuoteQty = 10.3;
                 _expectedCheckOrderResponse.Symbol = "asd";
                 _expectedCheckOrderResponse.Status = OrderStatusType.Filled;
             }
+        }
+
+        /// <summary>
+        ///     Тест запроса информации по аккаунту
+        /// </summary>
+        [Fact(DisplayName = "Request to get account information Test")]
+        internal async Task<AccountInformationModel> GetAccountInformationAsync_Test()
+        {
+            var filePath = "../../../BinanceTests/Jsons/SpotAccountTrade/GetAccountInformation.json";
+            var query = new Builder().GetResult().GetQuery();
+            var url = CreateSignUrl(BinanceEndpoints.ACCOUNT_INFORMATION, query, "apiSecretKey");
+
+            using var client = TestHelper.CreateMockHttpClient(url, filePath);
+            IBinanceClient binanceClient = new BinanceClient(client, "", "apiSecretKey");
+            ISpotAccountTradeSender tradeSender = new SpotAccountTradeSender(binanceClient);
+
+            // Act
+            var result = await tradeSender.GetAccountInformationAsync(query, cancellationToken: CancellationToken.None);
+
+            TestHelper.CheckingAssertions(_expectedAccountInformationResponse, result);
+
+            return result;
         }
 
         #endregion

@@ -1,5 +1,6 @@
 ﻿using BinanceExchange.Enums;
 using BinanceExchange.Enums.Helper;
+using Common.Enums;
 using System.Text.Json;
 
 namespace BinanceExchange.Models

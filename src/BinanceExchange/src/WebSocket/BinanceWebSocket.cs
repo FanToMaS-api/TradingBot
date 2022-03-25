@@ -1,4 +1,5 @@
-﻿using NLog;
+﻿using Common.WebSocket;
+using NLog;
 using System;
 using System.Collections.Generic;
 using System.Net.WebSockets;
@@ -11,7 +12,7 @@ namespace BinanceExchange.WebSocket
     /// <summary>
     ///     Оболочка над Binance websocket
     /// </summary>
-    internal class BinanceWebSocket : IDisposable
+    internal class BinanceWebSocket : IWebSocket
     {
         #region Fields
 
@@ -21,7 +22,7 @@ namespace BinanceExchange.WebSocket
         private readonly List<CancellationTokenRegistration> _onMessageReceivedCancellationTokenRegistrations = new();
         private CancellationTokenSource _loopCancellationTokenSource;
         private readonly Uri _uri;
-        private readonly int _receiveBufferSize = 8192;
+        private readonly int _receiveBufferSize = 8 * 1024 * 512; // 4 Kb
         private bool _isDisposed;
 
         #endregion
@@ -42,15 +43,16 @@ namespace BinanceExchange.WebSocket
         /// <summary>
         ///     Событие, возникающее при закрытии веб-сокета
         /// </summary>
-        public Func<BinanceWebSocket, CancellationToken, Task> OnClosed { get; set; }
+        internal Func<BinanceWebSocket, CancellationToken, Task> OnClosed { get; set; }
+
+        /// <inheritdoc />
+        public Action OnStreamClosed { get; set; }
 
         #endregion
 
         #region Public methods
 
-        /// <summary>
-        ///     Подключается к сокету сервера
-        /// </summary>
+        /// <inheritdoc />
         public async Task ConnectAsync(CancellationToken cancellationToken)
         {
             if (_webSocketHumble.State != WebSocketState.Open)
@@ -67,9 +69,7 @@ namespace BinanceExchange.WebSocket
             }
         }
 
-        /// <summary>
-        ///     Отключается от сокету сервера
-        /// </summary>
+        /// <inheritdoc />
         public async Task DisconnectAsync(CancellationToken cancellationToken)
         {
             if (_loopCancellationTokenSource != null)
@@ -84,9 +84,7 @@ namespace BinanceExchange.WebSocket
             }
         }
 
-        /// <summary>
-        ///     Добавляет обработчик на получение ответа от сокета 
-        /// </summary>
+        /// <inheritdoc />
         public void AddOnMessageReceivedFunc(Func<string, Task> onMessageReceivedFunc, CancellationToken cancellationToken)
         {
             _onMessageReceivedFunctions.Add(onMessageReceivedFunc);
@@ -100,9 +98,7 @@ namespace BinanceExchange.WebSocket
             }
         }
 
-        /// <summary>
-        ///     Отправляет запрос веб-сокету
-        /// </summary>
+        /// <inheritdoc />
         public async Task SendAsync(string message, CancellationToken cancellationToken)
         {
             var byteArray = Encoding.ASCII.GetBytes(message);
@@ -135,11 +131,12 @@ namespace BinanceExchange.WebSocket
                     try
                     {
                         receiveResult = await _webSocketHumble.ReceiveAsync(buffer, cancellationToken);
-                        
+
                         if (receiveResult.MessageType == WebSocketMessageType.Close)
                         {
                             Log.Error($"The web socket has been closed");
-                            OnClosed?.Invoke(this, cancellationToken);
+                            OnStreamClosed?.Invoke();
+                            await OnClosed?.Invoke(this, cancellationToken);
 
                             break;
                         }
@@ -193,9 +190,9 @@ namespace BinanceExchange.WebSocket
             }
 
             DisconnectAsync(CancellationToken.None).Wait();
-            _webSocketHumble.Dispose();
+            _webSocketHumble?.Dispose();
             _onMessageReceivedCancellationTokenRegistrations.ForEach(ct => ct.Dispose());
-            _loopCancellationTokenSource.Dispose();
+            _loopCancellationTokenSource?.Dispose();
 
             _isDisposed = true;
         }

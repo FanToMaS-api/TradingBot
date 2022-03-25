@@ -25,7 +25,6 @@ namespace BinanceExchange.Models
         /// </summary>
         public void SetProperties(ref Utf8JsonReader reader)
         {
-            var propertyName = "";
             while (reader.Read())
             {
                 if (reader.TokenType == JsonTokenType.StartObject)
@@ -35,7 +34,7 @@ namespace BinanceExchange.Models
 
                 if (reader.TokenType == JsonTokenType.PropertyName)
                 {
-                    propertyName = reader.GetString();
+                    var propertyName = reader.GetString();
                     reader.Read();
 
                     switch (propertyName)
@@ -59,7 +58,7 @@ namespace BinanceExchange.Models
     /// <summary>
     ///     Содержит информацию о частях заполнения ордера
     /// </summary>
-    public class FillModel
+    public class FillModel : IEquatable<FillModel>
     {
         /// <summary>
         ///     Цена
@@ -127,6 +126,16 @@ namespace BinanceExchange.Models
             }
 
             result.Fills.Add(workItem);
+        }
+
+        /// <inheritdoc />
+        public bool Equals(FillModel other)
+        {
+            return Price == other.Price
+                && Quantity == other.Quantity
+                && CommissionAsset == other.CommissionAsset
+                && TradeId == other.TradeId
+                && Commission == other.Commission;
         }
     }
 

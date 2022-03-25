@@ -44,5 +44,10 @@ namespace BinanceExchange.EndpointSenders
         ///     Получить все ордера по паре (открытые, завершенные, отмененные)
         /// </summary>
         Task<IEnumerable<CheckOrderResponseModel>> GetAllOrdersAsync(Dictionary<string, object> query, CancellationToken cancellationToken = default);
+
+        /// <summary>
+        ///     Получить информацию об аккаунте
+        /// </summary>
+        Task<AccountInformationModel> GetAccountInformationAsync(Dictionary<string, object> query, CancellationToken cancellationToken = default);
     }
 }

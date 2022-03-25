@@ -73,7 +73,7 @@ namespace BinanceExchange.WebSocket.Marketdata
         public static MarketdataWebSocket CreateCandlestickStream(
             string symbol,
             CandlestickIntervalType candleStickInterval) =>
-            new MarketdataWebSocket(
+            new(
                 new BinanceWebSocketHumble(new ClientWebSocket()),
                 $"{BaseUrl}/ws/{symbol.ToLower()}{MarketdataStreamType.CandlestickStream.ToUrl()}{candleStickInterval.ToUrl()}");
 
@@ -86,7 +86,7 @@ namespace BinanceExchange.WebSocket.Marketdata
             string symbol,
             CandlestickIntervalType candleStickInterval,
             IBinanceWebSocketHumble webSocketHumble) =>
-            new MarketdataWebSocket(
+            new(
                 webSocketHumble,
                 $"{BaseUrl}/ws/{symbol.ToLower()}{MarketdataStreamType.CandlestickStream.ToUrl()}{candleStickInterval.ToUrl()}");
 
@@ -94,7 +94,7 @@ namespace BinanceExchange.WebSocket.Marketdata
         ///     Получать статистику всех мини-тикеров за 24 часа
         /// </summary>
         public static MarketdataWebSocket CreateAllMarketMiniTickersStream() =>
-            new MarketdataWebSocket(
+            new(
                 new BinanceWebSocketHumble(new ClientWebSocket()),
                 $"{BaseUrl}/ws/{MarketdataStreamType.AllMarketMiniTickersStream.ToUrl()}");
 
@@ -102,7 +102,7 @@ namespace BinanceExchange.WebSocket.Marketdata
         ///     Получать статистику всех мини-тикеров за 24 часа
         /// </summary>
         public static MarketdataWebSocket CreateAllMarketMiniTickersStream(IBinanceWebSocketHumble webSocketHumble) =>
-            new MarketdataWebSocket(
+            new(
                  webSocketHumble,
                  $"{BaseUrl}/ws/{MarketdataStreamType.AllMarketMiniTickersStream.ToUrl()}");
 
@@ -123,7 +123,7 @@ namespace BinanceExchange.WebSocket.Marketdata
         ///     Получать статистику всех тикеров за 24 часа
         /// </summary>
         public static MarketdataWebSocket CreateAllTickersStream(IBinanceWebSocketHumble webSocketHumble) =>
-            new MarketdataWebSocket(
+            new(
                 webSocketHumble,
                 $"{BaseUrl}/ws/{MarketdataStreamType.AllMarketTickersStream.ToUrl()}");
 
@@ -131,7 +131,7 @@ namespace BinanceExchange.WebSocket.Marketdata
         ///     Получать обновления лучшей цены покупки или продажи или количество в режиме реального времени для всех символов
         /// </summary>
         public static MarketdataWebSocket CreateAllBookTickersStream() =>
-            new MarketdataWebSocket(
+            new(
                new BinanceWebSocketHumble(new ClientWebSocket()),
                $"{BaseUrl}/ws/{MarketdataStreamType.AllBookTickersStream.ToUrl()}");
 
@@ -140,7 +140,7 @@ namespace BinanceExchange.WebSocket.Marketdata
         /// </summary>
         public static MarketdataWebSocket CreateAllBookTickersStream(
             IBinanceWebSocketHumble webSocketHumble) =>
-            new MarketdataWebSocket(webSocketHumble, $"{BaseUrl}/ws/{MarketdataStreamType.AllBookTickersStream.ToUrl()}");
+            new(webSocketHumble, $"{BaseUrl}/ws/{MarketdataStreamType.AllBookTickersStream.ToUrl()}");
 
         /// <summary>
         ///     Получать лучший ордера спроса и предложения

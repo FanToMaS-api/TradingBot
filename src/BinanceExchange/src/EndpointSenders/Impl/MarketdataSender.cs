@@ -1,7 +1,6 @@
-﻿using Common.JsonConvertWrapper;
-using Common.JsonConvertWrapper.Converters;
-using BinanceExchange.Client;
+﻿using BinanceExchange.Client;
 using BinanceExchange.Models;
+using Common.JsonConvertWrapper;
 using NLog;
 using System.Collections.Generic;
 using System.Net.Http;
@@ -28,7 +27,7 @@ namespace BinanceExchange.EndpointSenders.Impl
             _client = client;
             _converter = new JsonDeserializerWrapper();
             _converter.AddConverter(new OrderBookModelConverter());
-            _converter.AddConverter(new CandleStickModelEnumerableConverter());
+            _converter.AddConverter(new CandlestickModelEnumerableConverter());
             _converter.AddConverter(new ExchangeInfoModelConverter());;
         }
 
@@ -37,12 +36,11 @@ namespace BinanceExchange.EndpointSenders.Impl
         #region Public methods
 
         /// <inheritdoc />
-        public async Task<ExchangeInfoModel> GetExchangeInfoAsync(Dictionary<string, object> query, CancellationToken cancellationToken = default)
+        public async Task<ExchangeInfoModel> GetExchangeInfoAsync(CancellationToken cancellationToken = default)
         {
             var result = await _client.SendPublicAsync(
                 BinanceEndpoints.EXCHANGE_INFO,
                 HttpMethod.Get,
-                query: query,
                 cancellationToken: cancellationToken);
 
             return _converter.Deserialize<ExchangeInfoModel>(result);
@@ -114,7 +112,7 @@ namespace BinanceExchange.EndpointSenders.Impl
         public async Task<IEnumerable<DayPriceChangeModel>> GetDayPriceChangeAsync(string symbol, CancellationToken cancellationToken = default)
         {
             var isNull = string.IsNullOrEmpty(symbol);
-            var responce = await _client.SendPublicAsync(
+            var response = await _client.SendPublicAsync(
                 BinanceEndpoints.DAY_PRICE_CHANGE,
                 HttpMethod.Get,
                 query: new Dictionary<string, object>
@@ -127,20 +125,20 @@ namespace BinanceExchange.EndpointSenders.Impl
             {
                 var result = new List<DayPriceChangeModel>
                 {
-                    _converter.Deserialize<DayPriceChangeModel>(responce)
+                    _converter.Deserialize<DayPriceChangeModel>(response)
                 };
 
                 return result;
             }
 
-            return _converter.Deserialize<IEnumerable<DayPriceChangeModel>>(responce);
+            return _converter.Deserialize<IEnumerable<DayPriceChangeModel>>(response);
         }
 
         /// <inheritdoc />
         public async Task<IEnumerable<SymbolPriceTickerModel>> GetSymbolPriceTickerAsync(string symbol, CancellationToken cancellationToken = default)
         {
             var isNull = string.IsNullOrEmpty(symbol);
-            var responce = await _client.SendPublicAsync(
+            var response = await _client.SendPublicAsync(
                 BinanceEndpoints.SYMBOL_PRICE_TICKER,
                 HttpMethod.Get,
                 query: new Dictionary<string, object>
@@ -153,13 +151,13 @@ namespace BinanceExchange.EndpointSenders.Impl
             {
                 var result = new List<SymbolPriceTickerModel>
                 {
-                    _converter.Deserialize<SymbolPriceTickerModel>(responce)
+                    _converter.Deserialize<SymbolPriceTickerModel>(response)
                 };
 
                 return result;
             }
 
-            return _converter.Deserialize<IEnumerable<SymbolPriceTickerModel>>(responce);
+            return _converter.Deserialize<IEnumerable<SymbolPriceTickerModel>>(response);
         }
 
         /// <inheritdoc />
@@ -168,7 +166,7 @@ namespace BinanceExchange.EndpointSenders.Impl
             CancellationToken cancellationToken = default)
         {
             var isNull = string.IsNullOrEmpty(symbol);
-            var responce = await _client.SendPublicAsync(
+            var response = await _client.SendPublicAsync(
                 BinanceEndpoints.SYMBOL_ORDER_BOOK_TICKER,
                 HttpMethod.Get,
                 query: new Dictionary<string, object>
@@ -181,13 +179,13 @@ namespace BinanceExchange.EndpointSenders.Impl
             {
                 var result = new List<SymbolOrderBookTickerModel>
                 {
-                    _converter.Deserialize<SymbolOrderBookTickerModel>(responce)
+                    _converter.Deserialize<SymbolOrderBookTickerModel>(response)
                 };
 
                 return result;
             }
 
-            return _converter.Deserialize<IEnumerable<SymbolOrderBookTickerModel>>(responce);
+            return _converter.Deserialize<IEnumerable<SymbolOrderBookTickerModel>>(response);
         }
 
         #endregion

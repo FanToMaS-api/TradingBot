@@ -2,7 +2,7 @@
 using StackExchange.Redis;
 using System;
 
-namespace Common.Redis
+namespace Redis
 {
     /// <inheritdoc cref="IRedisDatabase"/>
     public class RedisDatabase : IRedisDatabase

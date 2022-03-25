@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Common.Redis
+namespace Redis
 {
     /// <summary>
     ///     База данных Redis

@@ -13,7 +13,7 @@ namespace BinanceExchange.Models
         #region .ctor
 
         /// <inheritdoc cref="RequestWeightModel"/>
-        public RequestWeightModel(ApiType type, Dictionary<string, long> weights)
+        public RequestWeightModel(ApiType type, Dictionary<string, int> weights)
         {
             Type = type;
             Weights = weights;
@@ -34,7 +34,7 @@ namespace BinanceExchange.Models
         /// <remarks>
         ///     Если у запроса фиксированный вес, то в <code>string = "default"</code> 
         /// </remarks>
-        public Dictionary<string, long> Weights { get; set; }
+        public Dictionary<string, int> Weights { get; set; }
 
         #endregion
         

@@ -8,6 +8,6 @@
         /// <summary>
         ///     ID ордера, назначенный пользователем или сгенерированный
         /// </summary>
-        public string OrigClientOrderId { get; set; }
+        public string OrigClientOrderId { get; internal set; }
     }
 }

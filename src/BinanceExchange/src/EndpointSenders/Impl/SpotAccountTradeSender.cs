@@ -1,7 +1,7 @@
-﻿using Common.JsonConvertWrapper;
-using Common.JsonConvertWrapper.Converters;
-using BinanceExchange.Client;
+﻿using BinanceExchange.Client;
 using BinanceExchange.Models;
+using Common.JsonConvertWrapper;
+using Common.JsonConvertWrapper.Converters;
 using NLog;
 using System.Collections.Generic;
 using System.Net.Http;
@@ -33,6 +33,7 @@ namespace BinanceExchange.EndpointSenders.Impl
             _converter.AddConverter(new CheckOrderResponseModelConverter());
             _converter.AddConverter(new EnumerableDeserializer<CancelOrderResponseModel>());
             _converter.AddConverter(new EnumerableDeserializer<CheckOrderResponseModel>());
+            _converter.AddConverter(new AccountInformationModelConverter());
         }
 
         #endregion
@@ -122,6 +123,18 @@ namespace BinanceExchange.EndpointSenders.Impl
                 cancellationToken: cancellationToken);
 
             return _converter.Deserialize<IEnumerable<CheckOrderResponseModel>>(result);
+        }
+
+        /// <inheritdoc />
+        public async Task<AccountInformationModel> GetAccountInformationAsync(Dictionary<string, object> query, CancellationToken cancellationToken = default)
+        {
+            var result = await _client.SendSignedAsync(
+                BinanceEndpoints.ACCOUNT_INFORMATION,
+                HttpMethod.Get,
+                query: query,
+                cancellationToken: cancellationToken);
+
+            return _converter.Deserialize<AccountInformationModel>(result);
         }
 
         #endregion

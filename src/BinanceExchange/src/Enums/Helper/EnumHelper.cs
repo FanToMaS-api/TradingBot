@@ -37,6 +37,7 @@
             return streamType switch
             {
                 "@trade" => MarketdataStreamType.TradeStream,
+                "@bookTicker" => MarketdataStreamType.IndividualSymbolBookTickerStream,
                 "@kline_" => MarketdataStreamType.CandlestickStream,
                 "@miniTicker" => MarketdataStreamType.IndividualSymbolMiniTickerStream,
                 "@aggTrade" => MarketdataStreamType.AggregateTradeStream,
@@ -90,17 +91,6 @@
                 "TAKE_PROFIT" => OrderType.TakeProfit,
                 "TAKE_PROFIT_LIMIT" => OrderType.TakeProfitLimit,
                 _ => throw new System.Exception($"Failed to convert '{type}' to {nameof(OrderType)}"),
-            };
-
-        /// <summary>
-        ///     Переводит тип ордера в формате бинанса в удобный для работы <see cref="OrderSideType"/>
-        /// </summary>
-        public static OrderSideType ConvertToOrderSideType(this string type) =>
-            type switch
-            {
-                "BUY" => OrderSideType.Buy,
-                "SELL" => OrderSideType.Sell,
-                _ => throw new System.Exception($"Failed to convert '{type}' to {nameof(OrderSideType)}"),
             };
 
         /// <summary>
@@ -164,6 +154,7 @@
                 MarketdataStreamType.IndividualSymbolMiniTickerStream => "@miniTicker",
                 MarketdataStreamType.AllMarketMiniTickersStream => "!miniTicker@arr",
                 MarketdataStreamType.IndividualSymbolTickerStream => "@ticker",
+                MarketdataStreamType.IndividualSymbolBookTickerStream => "@bookTicker",
                 MarketdataStreamType.AllMarketTickersStream => "!ticker@arr",
                 MarketdataStreamType.AllBookTickersStream => "!bookTicker",
                 MarketdataStreamType.PartialBookDepthStream => "@depth",
@@ -194,19 +185,6 @@
                 CandlestickIntervalType.OneMonth => "1M",
                 _ => intervalType.ToString(),
             };
-
-        /// <summary>
-        ///     Получить строку из типа для отправки запроса бинансу
-        /// </summary>
-        public static string ToUrl(this OrderSideType type)
-        {
-            return type switch
-            {
-                OrderSideType.Sell => "SELL",
-                OrderSideType.Buy => "BUY",
-                _ => type.ToString(),
-            };
-        }
 
         /// <summary>
         ///     Получить строку из типа для отправки запроса бинансу

@@ -12,7 +12,7 @@ namespace BinanceExchange
         /// <summary>
         ///     Вес запроса статуса системы
         /// </summary>
-        public RequestWeightModel SistemStatusWeight { get; } = new RequestWeightModel(
+        public RequestWeightModel SystemStatusWeight { get; } = new RequestWeightModel(
             Enums.ApiType.Sapi,
             new()
             {
@@ -103,7 +103,7 @@ namespace BinanceExchange
         /// <summary>
         ///     Вес запроса свечей для монеты
         /// </summary>
-        public RequestWeightModel CandleStickDataWeight { get; } = new RequestWeightModel(
+        public RequestWeightModel CandlestickDataWeight { get; } = new RequestWeightModel(
             Enums.ApiType.Api,
             new()
             {
@@ -201,7 +201,17 @@ namespace BinanceExchange
         /// <summary>
         ///     Вес запроса на получение всех ордеров аккаунта по паре
         /// </summary>
-        public RequestWeightModel AllOrdersWeight { get; } = new RequestWeightModel(
+        public RequestWeightModel GetAllOrdersWeight { get; } = new RequestWeightModel(
+            Enums.ApiType.Api,
+            new()
+            {
+                { RequestWeightModel.GetDefaultKey(), 10 }
+            });
+
+        /// <summary>
+        ///     Вес запроса на получение информации об аккаунте
+        /// </summary>
+        public RequestWeightModel AccountInformationWeight { get; } = new RequestWeightModel(
             Enums.ApiType.Api,
             new()
             {

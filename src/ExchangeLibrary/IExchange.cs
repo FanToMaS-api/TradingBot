@@ -1,4 +1,6 @@
-﻿using Common.Models;
+﻿using Common.Enums;
+using Common.Models;
+using Common.WebSocket;
 using System;
 using System.Collections.Generic;
 using System.Threading;
@@ -32,7 +34,7 @@ namespace ExchangeLibrary
         ///     Получить информацию о таксе за все монеты или за определенную
         /// </summary>
         /// <param name="symbol"> Обозначение пары </param>
-        Task<TradeFeeModel> GetTradeFeeAsync(string symbol = null, long recvWindow = 5000, CancellationToken cancellationToken = default);
+        Task<IEnumerable<TradeFeeModel>> GetTradeFeeAsync(string symbol = null, long recvWindow = 5000, CancellationToken cancellationToken = default);
 
         #endregion
 
@@ -55,7 +57,7 @@ namespace ExchangeLibrary
         Task<IEnumerable<TradeModel>> GetRecentTradesAsync(string symbol, int limit = 500, CancellationToken cancellationToken = default);
 
         /// <summary>
-        ///     Возвращает исторические сделки
+        ///     Возвращает исторические сделки по паре
         /// </summary>
         /// <param name="symbol"> Пара </param>
         /// <param name="fromId"> Идентификатор сделки для получения. По умолчанию получают самые последние сделки </param>
@@ -70,7 +72,7 @@ namespace ExchangeLibrary
         /// <param name="startTime"> Время начала построения </param>
         /// <param name="endTime"> Окончание периода </param>
         /// <param name="limit"> Кол-во свечей (максимум 1000, по умолчанию 500) </param>
-        Task<IEnumerable<CandlestickModel>> GetCandlstickAsync(
+        Task<IEnumerable<CandlestickModel>> GetCandlestickAsync(
             string symbol,
             string interval,
             long? startTime = null,
@@ -84,19 +86,19 @@ namespace ExchangeLibrary
         Task<double> GetAveragePriceAsync(string symbol, CancellationToken cancellationToken = default);
 
         /// <summary>
-        ///     Возвращает 24 статистику о цене для пары или для всех пар если <code><paramref name="symbol" /> = null or ""</code>)
+        ///     Возвращает 24 статистику о цене для пары или для всех пар, если <code><paramref name="symbol" /> = null or ""</code>
         /// </summary>
         Task<IEnumerable<DayPriceChangeModel>> GetDayPriceChangeAsync(string symbol, CancellationToken cancellationToken = default);
 
         /// <summary>
-        ///     Возвращает последнюю цену для пары или для всех пар (если <code><paramref name="symbol" /> = null or ""</code>)
+        ///     Возвращает последнюю цену для пары или для всех пар, если <code><paramref name="symbol" /> = null or ""</code>
         /// </summary>
         Task<IEnumerable<SymbolPriceModel>> GetSymbolPriceTickerAsync(string symbol, CancellationToken cancellationToken = default);
 
         /// <summary>
         ///     Возвращает лучшую цену/количество в стакане для символа или символов
         /// </summary>
-        Task<IEnumerable<BestSymbolOrderModel>> GetSymbolOrderBookTickerAsync(string symbol, CancellationToken cancellationToken = default);
+        Task<IEnumerable<BestSymbolOrderModel>> GetBestSymbolOrdersAsync(string symbol, CancellationToken cancellationToken = default);
 
         #endregion
 
@@ -108,63 +110,87 @@ namespace ExchangeLibrary
         /// <typeparam name="T"> Объект для работы с данными полученными со стрима </typeparam>
         /// <param name="symbol"> Пара </param>
         /// <param name="onMessageReceivedFunc"> Функция обрабатываюащя данные объекта <see cref="{T}"/> </param>
+        /// <param name="cancellationToken"> Токен для передачи в функцию обработки выше </param>
         /// <param name="streamType"> Тип стрима </param>
-        Task SubscribeNewStreamAsync<T>(
+        /// <remarks> 
+        ///     Возможные значения стримов для Binance:
+        ///     <br/>
+        ///     @aggTrade - торговая информация для одного ордера тейкера (Модель <see cref="AggregateSymbolTradeStreamModel"/>)
+        ///     <br/>
+        ///     @bookTicker - лучшая цена, количество для указанного символа (Модель <see cref="BookTickerStreamModel"/>)
+        ///     <br/>
+        ///     @miniTicker - выборка информации о статистике бегущего окна за 24 часа для символа (Модель <see cref="MiniTickerStreamModel"/>)
+        ///     <br/>
+        ///     @ticker - информация о статистике бегущего окна за 24 часа для символа (Модель <see cref="TickerStreamModel"/>)
+        ///     <br/>
+        ///     @trade - информация о торговле тикером (Модель <see cref="SymbolTradeStreamModel"/>)
+        /// </remarks>
+        IWebSocket SubscribeNewStream<T>(
             string symbol,
-            Func<T, Task> onMessageReceivedFunc,
             string streamType,
-            CancellationToken cancellationToken = default);
+            Func<T, CancellationToken, Task> onMessageReceivedFunc,
+            CancellationToken cancellationToken,
+            Action onStreamClosedFunc = null);
 
         /// <summary>
         ///     Подписывается на стрим данных по свечам для опред пары
         /// </summary>
         /// <param name="symbol"> Пара </param>
         /// <param name="onMessageReceivedFunc"> Функция обрабатываюащя данные объекта <see cref="CandlestickStreamModel"/> </param>
+        /// <param name="cancellationToken"> Токен для передачи в функцию обработки выше </param>
         /// <param name="candleStickInterval"> Интервал свечей </param>
-        Task SubscribeCandlestickStreamAsync(
+        IWebSocket SubscribeCandlestickStream(
             string symbol,
             string candleStickInterval,
-            Func<CandlestickStreamModel, Task> onMessageReceivedFunc,
-            CancellationToken cancellationToken = default);
+            Func<CandlestickStreamModel, CancellationToken, Task> onMessageReceivedFunc,
+            CancellationToken cancellationToken,
+            Action onStreamClosedFunc = null);
 
         /// <summary>
         ///     Подписывается на стрим статистики всех мини-тикеров за 24 часа
         /// </summary>
         /// <param name="onMessageReceivedFunc"> Функция обрабатываюащя данные объекта <see cref="TickerStreamModel"/> </param>
-        Task SubscribeAllMarketTickersStreamAsync(
-            Func<IEnumerable<TickerStreamModel>, Task> onMessageReceivedFunc,
-            CancellationToken cancellationToken = default);
+        IWebSocket SubscribeAllMarketTickersStream(
+            Func<IEnumerable<TickerStreamModel>, CancellationToken, Task> onMessageReceivedFunc,
+            CancellationToken cancellationToken,
+            Action onStreamClosedFunc = null);
 
         /// <summary>
         ///     Подписывается на стрим обновлений лучшей цены покупки или продажи или количество
         ///     в режиме реального времени для всех символов
         /// </summary>
         /// <param name="onMessageReceivedFunc"> Функция обрабатываюащя данные объекта <see cref="BookTickerStreamModel"/> </param>
-        Task SubscribeAllBookTickersStreamAsync(
-            Func<IEnumerable<BookTickerStreamModel>, Task> onMessageReceivedFunc,
-            CancellationToken cancellationToken = default);
+        /// <param name="cancellationToken"> Токен для передачи в функцию обработки выше </param>
+        IWebSocket SubscribeAllBookTickersStream(
+            Func<BookTickerStreamModel, CancellationToken, Task> onMessageReceivedFunc,
+            CancellationToken cancellationToken,
+            Action onStreamClosedFunc = null);
 
         /// <summary>
         ///     Подписывается на стрим статистики всех мини-тикеров за 24 часа
         /// </summary>
         /// <param name="onMessageReceivedFunc"> Функция обрабатывающая данные объекта <see cref="MiniTickerStreamModel"/> </param>
-        Task SubscribeAllMarketMiniTickersStreamAsync(
-            Func<IEnumerable<MiniTickerStreamModel>, Task> onMessageReceivedFunc,
-            CancellationToken cancellationToken = default);
+        /// <param name="cancellationToken"> Токен для передачи в функцию обработки выше </param>
+        IWebSocket SubscribeAllMarketMiniTickersStream(
+            Func<IEnumerable<MiniTickerStreamModel>, CancellationToken, Task> onMessageReceivedFunc,
+            CancellationToken cancellationToken,
+            Action onStreamClosedFunc = null);
 
         /// <summary>
         ///     Подписывается на стрим лучших ордеров спроса и предложений
         /// </summary>
         /// <param name="symbol"> Пара (в нижнем регистре) </param>
         /// <param name="onMessageReceivedFunc"> Функция обрабатываюащя данные объекта <see cref="OrderBookModel"/> </param>
-        /// <param name="levels"> Кол-во оредеров. Допустимые значения 5, 10, 20 </param>
+        /// <param name="cancellationToken"> Токен для передачи в функцию обработки выше </param>
+        /// <param name="levels"> Кол-во ордеров. Допустимые значения 5, 10, 20 </param>
         /// <param name="activateFastReceive"> Активировать прием данных раз в 100 миллисекунд </param>
-        Task SubscribePartialBookDepthStreamAsync(
+        IWebSocket SubscribePartialBookDepthStream(
             string symbol,
-            Func<OrderBookModel, Task> onMessageReceivedFunc,
+            Func<OrderBookModel, CancellationToken, Task> onMessageReceivedFunc,
+            CancellationToken cancellationToken,
+            Action onStreamClosedFunc = null,
             int levels = 10,
-            bool activateFastReceive = false,
-            CancellationToken cancellationToken = default);
+            bool activateFastReceive = false);
 
         #endregion
 
@@ -174,10 +200,19 @@ namespace ExchangeLibrary
         ///     Создать новый лимитный ордер
         /// </summary>
         /// <param name="isTest"> Тестовый ли запрос </param>
+        /// <remarks> 
+        ///     Возможные значения <paramref name="timeOnForceType"/> для Binance:
+        ///     <br/>
+        ///     GTC - Good Til Canceled - ордер будет висеть до тех пор, пока его не отменят (по-умолчанию)
+        ///     <br/>
+        ///     IOC - Immediate Or Cancel - будет куплено то количество, которое можно купить немедленно. Все, что не удалось купить, будет отменено
+        ///     <br/>
+        ///     FOK - Fill or Kill - либо будет куплено все указанное количество немедленно, либо не будет куплено вообще ничего, ордер отменится
+        /// </remarks>
         Task<FullOrderResponseModel> CreateNewLimitOrderAsync(
             string symbol,
-            string sideType,
-            string forceType,
+            OrderSideType sideType,
+            string timeOnForceType,
             double price,
             double quantity,
             long recvWindow = 5000,
@@ -190,7 +225,7 @@ namespace ExchangeLibrary
         /// <param name="isTest"> Тестовый ли запрос </param>
         Task<FullOrderResponseModel> CreateNewMarketOrderAsync(
             string symbol,
-            string sideType,
+            OrderSideType sideType,
             double quantity,
             long recvWindow = 5000,
             bool isTest = true,
@@ -202,7 +237,7 @@ namespace ExchangeLibrary
         /// <param name="isTest"> Тестовый ли запрос </param>
         Task<FullOrderResponseModel> CreateNewStopLossOrderAsync(
             string symbol,
-            string sideType,
+            OrderSideType sideType,
             double quantity,
             double stopPrice,
             long recvWindow = 5000,
@@ -213,10 +248,19 @@ namespace ExchangeLibrary
         ///     Создать новый лимитный стоп-лосс ордер
         /// </summary>
         /// <param name="isTest"> Тестовый ли запрос </param>
+        /// <remarks> 
+        ///     Возможные значения <paramref name="timeOnForceType"/> для Binance:
+        ///     <br/>
+        ///     GTC - Good Til Canceled - ордер будет висеть до тех пор, пока его не отменят (по-умолчанию)
+        ///     <br/>
+        ///     IOC - Immediate Or Cancel - будет куплено то количество, которое можно купить немедленно. Все, что не удалось купить, будет отменено
+        ///     <br/>
+        ///     FOK - Fill or Kill - либо будет куплено все указанное количество немедленно, либо не будет куплено вообще ничего, ордер отменится
+        /// </remarks>
         Task<FullOrderResponseModel> CreateNewStopLossLimitOrderAsync(
             string symbol,
-            string sideType,
-            string forceType,
+            OrderSideType sideType,
+            string timeOnForceType,
             double price,
             double quantity,
             double stopPrice,
@@ -230,7 +274,7 @@ namespace ExchangeLibrary
         /// <param name="isTest"> Тестовый ли запрос </param>
         Task<FullOrderResponseModel> CreateNewTakeProfitOrderAsync(
             string symbol,
-            string sideType,
+            OrderSideType sideType,
             double quantity,
             double stopPrice,
             long recvWindow = 5000,
@@ -241,10 +285,19 @@ namespace ExchangeLibrary
         ///     Создать новый TakeProfitLimit ордер
         /// </summary>
         /// <param name="isTest"> Тестовый ли запрос </param>
+        /// <remarks> 
+        ///     Возможные значения <paramref name="timeOnForceType"/> для Binance:
+        ///     <br/>
+        ///     GTC - Good Til Canceled - ордер будет висеть до тех пор, пока его не отменят (по-умолчанию)
+        ///     <br/>
+        ///     IOC - Immediate Or Cancel - будет куплено то количество, которое можно купить немедленно. Все, что не удалось купить, будет отменено
+        ///     <br/>
+        ///     FOK - Fill or Kill - либо будет куплено все указанное количество немедленно, либо не будет куплено вообще ничего, ордер отменится
+        /// </remarks>
         Task<FullOrderResponseModel> CreateNewTakeProfitLimitOrderAsync(
             string symbol,
-            string sideType,
-            string forceType,
+            OrderSideType sideType,
+            string timeOnForceType,
             double price,
             double quantity,
             double stopPrice,
@@ -258,7 +311,7 @@ namespace ExchangeLibrary
         /// <param name="isTest"> Тестовый ли запрос </param>
         Task<FullOrderResponseModel> CreateNewLimitMakerOrderAsync(
             string symbol,
-            string sideType,
+            OrderSideType sideType,
             double price,
             double quantity,
             long recvWindow = 5000,
@@ -318,6 +371,11 @@ namespace ExchangeLibrary
             int limit = 500,
             long recvWindow = 5000,
             CancellationToken cancellationToken = default);
+
+        /// <summary>
+        ///     Получить информацию об аккаунте
+        /// </summary>
+        Task<AccountInformationModel> GetAccountInformationAsync(CancellationToken cancellationToken);
 
         #endregion
     }

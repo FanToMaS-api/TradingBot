@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 namespace BinanceExchange.WebSocket
 {
     /// <summary>
-    ///     Обработчик веб-сокетов Binance
+    ///     Оболочка над веб-сокетами
     /// </summary>
     internal interface IBinanceWebSocketHumble : IDisposable
     {

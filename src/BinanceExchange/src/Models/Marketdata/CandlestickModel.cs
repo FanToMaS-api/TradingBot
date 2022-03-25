@@ -94,7 +94,7 @@ namespace BinanceExchange.Models
     /// <summary>
     ///     Конвертирует данные в массив объектов
     /// </summary>
-    internal class CandleStickModelEnumerableConverter : JsonConverter<IEnumerable<CandlestickModel>>
+    internal class CandlestickModelEnumerableConverter : JsonConverter<IEnumerable<CandlestickModel>>
     {
         /// <inheritdoc />
         public override IEnumerable<CandlestickModel> Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
@@ -124,7 +124,7 @@ namespace BinanceExchange.Models
     /// <summary>
     ///     Нормально конвертирует полученные данные
     /// </summary>
-    internal class CandleStickModelConverter : JsonConverter<CandlestickModel>
+    internal class CandlestickModelConverter : JsonConverter<CandlestickModel>
     {
         /// <inheritdoc />
         public override CandlestickModel Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)

@@ -8,17 +8,17 @@
         /// <summary>
         ///     Заблокирован ли трейдер
         /// </summary>
-        public bool IsLocked { get; set; }
+        public bool IsLocked { get; internal set; }
 
         /// <summary>
         ///     Если торговля запрещена, указывает время до ее восстановления
         /// </summary>
-        public long PlannedRecoverTimeUnix { get; set; }
+        public long PlannedRecoverTimeUnix { get; internal set; }
 
         /// <summary>
         ///     Время обновления
         /// </summary>
-        public long UpdateTimeUnix { get; set; }
+        public long UpdateTimeUnix { get; internal set; }
     }
 }
 
