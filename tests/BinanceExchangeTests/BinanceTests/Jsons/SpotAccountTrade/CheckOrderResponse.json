@@ -1,0 +1,20 @@
+{
+  "symbol": "LTCBTC",
+  "orderId": 28,
+  "orderListId": -1,
+  "clientOrderId": "6gCrw2kRUAF9CvJDGP16IP",
+  "price": "0.1",
+  "origQty": "1.0",
+  "executedQty": "10.1",
+  "cummulativeQuoteQty": "10.2",
+  "status": "NEW",
+  "timeInForce": "GTC",
+  "type": "LIMIT",
+  "side": "BUY",
+  "stopPrice": "0.001",
+  "icebergQty": "0.002",
+  "time": 1499827319559,
+  "updateTime": 1499827319559,
+  "isWorking": true,
+  "origQuoteOrderQty": "0.000300"
+}
