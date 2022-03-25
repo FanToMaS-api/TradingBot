@@ -5,10 +5,6 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<Folder Include="Redis\" />
-	</ItemGroup>
-
-	<ItemGroup>
 		<AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
 			<_Parameter1>BinanceExchangeTests</_Parameter1>
 		</AssemblyAttribute>

@@ -1,4 +1,5 @@
 ﻿using ExchangeLibrary;
+using Redis;
 
 namespace BinanceExchange
 {
@@ -10,6 +11,7 @@ namespace BinanceExchange
         /// <summary>
         ///     Создать Binance биржу
         /// </summary>
-        public static IExchange CreateExchange(OptionsBase options) => new BinanceExchange((BinanceExchangeOptions)options);
+        public static IExchange CreateExchange(OptionsBase options, IRedisDatabase redisDatabase) =>
+            new BinanceExchange((BinanceExchangeOptions)options, redisDatabase);
     }
 }
