@@ -23,6 +23,7 @@
 	
   <ItemGroup>
     <ProjectReference Include="..\ExchangeLibrary\ExchangeLibrary.csproj" />
+    <ProjectReference Include="..\Redis\Redis.csproj" />
   </ItemGroup>
 
 </Project>

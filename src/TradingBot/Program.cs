@@ -1,13 +1,16 @@
 ﻿using BinanceExchange;
-using Common.Models;
-using Common.WebSocket;
 using NLog;
+using Redis;
+using StackExchange.Redis;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Telegram.Builder;
+using Telegram.Client;
+using Telegram.Client.Impl;
 using TradingBot.Configuration;
 
 namespace TradingBot
@@ -20,8 +23,10 @@ namespace TradingBot
         {
             var apiKey = ConfigurationManager.AppSettings.Get(ConfigKeys.API_KEY);
             var secretKey = ConfigurationManager.AppSettings.Get(ConfigKeys.SECRET_KEY);
+            var redisConnectionString = ConfigurationManager.AppSettings.Get(ConfigKeys.REDIS_CONNECTION_STRING);
             var binanceOptions = new BinanceExchangeOptions() { ApiKey = apiKey, SecretKey = secretKey };
-            var binance = BinanceExchangeFactory.CreateExchange(binanceOptions);
+            var binance = BinanceExchangeFactory.CreateExchange(
+                binanceOptions, new RedisDatabase(ConnectionMultiplexer.Connect(redisConnectionString)));
             using var cts = new CancellationTokenSource();
 
             //var info = await binance.GetAccountInformationAsync(cts.Token);
@@ -42,6 +47,17 @@ namespace TradingBot
             //        }
             //    }
             //}
+
+            var botToken = ConfigurationManager.AppSettings.Get(ConfigKeys.TELEGRAM_TOKEN);
+            var chatId = long.Parse(ConfigurationManager.AppSettings.Get(ConfigKeys.TELEGRAM_CHANNEL_ID));
+
+            ITelegramClient telegramClient = new TelegramClient(botToken);
+            var builder = new TelegramMessageBuilder();
+            builder.SetChatId(chatId);
+            builder.SetMessageText("**Test/Test**\n\nНовая разница: 10.23\n\nРазница за последние 3 таймфрейма: -12.25");
+            builder.SetInlineButton("Test Inline button", "https://en.wikipedia.org/wiki/Site");
+            var message = builder.GetResult();
+            await telegramClient.SendMessageAsync(message, cts.Token);
 
             var pairs = (await binance.GetSymbolPriceTickerAsync(null))
                 .Where(_ => _.Symbol.Contains("USDT", StringComparison.CurrentCultureIgnoreCase))

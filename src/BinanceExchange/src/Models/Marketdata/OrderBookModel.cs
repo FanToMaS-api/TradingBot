@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Globalization;
 
 namespace BinanceExchange.Models
 {
@@ -80,9 +81,9 @@ namespace BinanceExchange.Models
         internal static void CreatePair(ref Utf8JsonReader reader, OrderBookModel result, string lastPropertyName)
         {
             var workItem = new PriceQtyPair();
-            workItem.Price = double.Parse(reader.GetString());
+            workItem.Price = double.Parse(reader.GetString(), CultureInfo.InvariantCulture);
             reader.Read();
-            workItem.Quantity = double.Parse(reader.GetString());
+            workItem.Quantity = double.Parse(reader.GetString(), CultureInfo.InvariantCulture);
             switch (lastPropertyName)
             {
                 case "bids":
