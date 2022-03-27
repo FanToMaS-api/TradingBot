@@ -1,0 +1,21 @@
+{
+  "iisSettings": {
+    "windowsAuthentication": false,
+    "anonymousAuthentication": true,
+    "iisExpress": {
+      "applicationUrl": "http://localhost:5555",
+      "sslPort": 0
+    }
+  },
+  "profiles": {
+    "SignalsSender": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "REDIS_CONNECTION_STRING": "127.0.0.1:6379"
+      },
+      "applicationUrl": "http://localhost:5555",
+      "dotnetRunMessages": "true"
+    }
+  }
+}

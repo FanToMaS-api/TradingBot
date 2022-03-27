@@ -5,6 +5,9 @@ on: push
 jobs:
   build:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        dotnet-version: ['5.0' ]
 
     steps:
     - uses: actions/checkout@v2
@@ -14,10 +17,10 @@ jobs:
         dotnet-version: 5.0.x
         
     - name: Restore dependencies
-      run: dotnet restore
+      run: dotnet restore TraidingBot.sln
 
     - name: Build
-      run: dotnet build --no-restore
+      run: dotnet build --no-restore TraidingBot.sln
 
     - name: Test with dotnet
-      run: dotnet test --logger trx
+      run: dotnet test --logger trx TraidingBot.sln

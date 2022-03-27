@@ -1,4 +1,5 @@
-﻿using System.Text.Json;
+﻿using System.Globalization;
+using System.Text.Json;
 
 namespace Common.JsonConvertWrapper
 {
@@ -31,7 +32,7 @@ namespace Common.JsonConvertWrapper
         /// </summary>
         public static double ReadDoubleAndNext(this ref Utf8JsonReader reader)
         {
-            var res = double.Parse(reader.GetString());
+            var res = double.Parse(reader.GetString(), CultureInfo.InvariantCulture);
             reader.Read();
 
             return res;

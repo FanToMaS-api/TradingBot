@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -39,7 +40,7 @@ namespace Common.JsonConvertWrapper.Converters
                 TypeCode.Int64 when reader.TokenType == JsonTokenType.Number => reader.GetInt64(),
                 TypeCode.Int64 when reader.TokenType == JsonTokenType.String => long.Parse(reader.GetString()),
                 TypeCode.Double when reader.TokenType == JsonTokenType.Number => reader.GetDouble(),
-                TypeCode.Double when reader.TokenType == JsonTokenType.String => double.Parse(reader.GetString()),
+                TypeCode.Double when reader.TokenType == JsonTokenType.String => double.Parse(reader.GetString(), CultureInfo.InvariantCulture),
                 TypeCode.Boolean => reader.GetBoolean(),
                 TypeCode.String => reader.GetString(),
                 _ => reader.GetString(),

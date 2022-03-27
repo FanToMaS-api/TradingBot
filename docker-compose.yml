@@ -1,0 +1,33 @@
+version: "3.9"
+services:
+  redis:
+    image: redis:6.2.6-alpine
+    container_name: redis
+    ports:
+      - "6379:6379"
+    restart: always
+    volumes: 
+      - cache:/data/redis
+    networks:
+      - signal_service_network
+
+  signal_service:
+    build: .
+    container_name: signal_service
+    depends_on:
+      - redis
+    ports:
+      - "5555:5555"
+    env_file:
+      - redis.env
+    volumes:
+      - cache:/data/signal_service
+    networks:
+      - signal_service_network
+
+volumes:
+  cache:
+    driver: local
+
+networks:
+  signal_service_network:

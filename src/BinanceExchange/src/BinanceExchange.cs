@@ -13,11 +13,10 @@ using Common.Enums;
 using Common.JsonConvertWrapper;
 using Common.JsonConvertWrapper.Converters;
 using Common.Models;
-using Common.Redis;
 using Common.WebSocket;
 using ExchangeLibrary;
 using NLog;
-using StackExchange.Redis;
+using Redis;
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
@@ -51,14 +50,10 @@ namespace BinanceExchange
         #region .ctor
 
         /// <inheritdoc cref="BinanceExchange"/>
-        public BinanceExchange(BinanceExchangeOptions exchangeOptions)
+        public BinanceExchange(BinanceExchangeOptions exchangeOptions, IRedisDatabase redisDatabase)
         {
             _httpClient = new();
-            _redisDatabase = new RedisDatabase(
-                ConnectionMultiplexer.Connect(new ConfigurationOptions
-                {
-                    EndPoints = { "localhost:6379" }
-                }));
+            _redisDatabase = redisDatabase;
             _client = new BinanceClient(_httpClient, exchangeOptions.ApiKey, exchangeOptions.SecretKey);
             _walletSender = new WalletSender(_client);
             _marketdataSender = new MarketdataSender(_client);

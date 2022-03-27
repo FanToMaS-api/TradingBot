@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -108,13 +109,13 @@ namespace BinanceExchange.Models
                 switch (propertyName)
                 {
                     case "price":
-                        workItem.Price = double.Parse(reader.GetString());
+                        workItem.Price = double.Parse(reader.GetString(), CultureInfo.InvariantCulture);
                         continue;
                     case "qty":
-                        workItem.Quantity = double.Parse(reader.GetString());
+                        workItem.Quantity = double.Parse(reader.GetString(), CultureInfo.InvariantCulture);
                         continue;
                     case "commission":
-                        workItem.Commission = double.Parse(reader.GetString());
+                        workItem.Commission = double.Parse(reader.GetString(), CultureInfo.InvariantCulture);
                         continue;
                     case "commissionAsset":
                         workItem.CommissionAsset = reader.GetString();
