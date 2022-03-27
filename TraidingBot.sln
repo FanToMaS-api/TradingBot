@@ -23,9 +23,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Redis", "src\Redis\Redis.cs
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Services", "Services", "{E375AE6C-06A9-4987-B35C-116B5EB27793}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Telegram", "src\Services\Telegram\Telegram.csproj", "{8B103418-4073-48FE-84A0-CEF26FF4AE9D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Telegram", "src\Services\Telegram\Telegram.csproj", "{8B103418-4073-48FE-84A0-CEF26FF4AE9D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SignalsSender", "tests\SignalsSender\SignalsSender.csproj", "{935D6D52-698B-4005-8FD8-17E0C37CA06C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SignalsSender", "tests\SignalsSender\SignalsSender.csproj", "{935D6D52-698B-4005-8FD8-17E0C37CA06C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Analytic", "src\Services\Analytic\Analytic.csproj", "{E624F70E-C7D5-4672-BC78-7C43F6D045E1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -69,6 +71,10 @@ Global
 		{935D6D52-698B-4005-8FD8-17E0C37CA06C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{935D6D52-698B-4005-8FD8-17E0C37CA06C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{935D6D52-698B-4005-8FD8-17E0C37CA06C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E624F70E-C7D5-4672-BC78-7C43F6D045E1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E624F70E-C7D5-4672-BC78-7C43F6D045E1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E624F70E-C7D5-4672-BC78-7C43F6D045E1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E624F70E-C7D5-4672-BC78-7C43F6D045E1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -84,6 +90,7 @@ Global
 		{E375AE6C-06A9-4987-B35C-116B5EB27793} = {518C7A56-4FA5-4D28-9972-D5E3712DB386}
 		{8B103418-4073-48FE-84A0-CEF26FF4AE9D} = {E375AE6C-06A9-4987-B35C-116B5EB27793}
 		{935D6D52-698B-4005-8FD8-17E0C37CA06C} = {12F24765-46E3-4F00-98C4-0B86F8EB2464}
+		{E624F70E-C7D5-4672-BC78-7C43F6D045E1} = {E375AE6C-06A9-4987-B35C-116B5EB27793}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {0CE21AF9-B1BE-48B3-8D32-314E4E50D733}

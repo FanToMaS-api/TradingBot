@@ -296,6 +296,7 @@ namespace BinanceExchange
             {
                 throw new TooManyRequestsException(rateLimit.Expiration, rateLimit.Value, rateLimit.Key);
             }
+
             var builder = new Builder();
             builder.SetSymbol(symbol);
             var query = builder.GetResult().GetQuery();

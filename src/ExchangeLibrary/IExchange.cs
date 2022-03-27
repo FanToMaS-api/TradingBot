@@ -48,7 +48,10 @@ namespace ExchangeLibrary
         /// <summary>
         ///     Получить книгу ордеров по определенной паре
         /// </summary>
-        /// <param name="limit"> Глубина запроса (кол-во записей) </param>
+        /// <param name="limit"> 
+        ///     Необходимое кол-во ордеров.
+        ///     Возможные значения: 5, 10, 20, 50, 100, 500, 1000, 5000
+        /// </param>
         Task<OrderBookModel> GetOrderBookAsync(string symbol, int limit = 100, CancellationToken cancellationToken = default);
 
         /// <summary>

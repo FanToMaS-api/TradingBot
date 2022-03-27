@@ -238,7 +238,7 @@ namespace BinanceExchangeTests.BinanceTests
             // сначала возвращаю null, так как база пуста
             database.StringGetWithExpiry(Arg.Any<RedisKey>()).Returns(new RedisValueWithExpiry(new RedisValue(string.Empty), null));
             var actualKey = "";
-            int actualValueLimit = 0;
+            var actualValueLimit = 0;
             var actualExpiry = TimeSpan.FromSeconds(0);
             database.StringSet(key, valueLimit, expiry).Returns(callInfo =>
             {
