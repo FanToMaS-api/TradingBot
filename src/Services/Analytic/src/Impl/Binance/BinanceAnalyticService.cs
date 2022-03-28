@@ -129,16 +129,13 @@ namespace Analytic.Binance
             var cancellationToken = _cts.Token;
             try
             {
-                var models = await DataReceivedAsync(cancellationToken);
-                var modelsFilteredByPrice = FilterModels<PriceFilter>(models);
-                var modelsFilteredByName = FilterModels<NameFilter>(models);
-                var extendedModels = await ExtendedDataReceivedAsync(modelsFilteredByName, cancellationToken);
-                var modelsFilteredByVolume = FilterModels<VolumeFilter>(models);
-                if (modelsFilteredByVolume.Any())
+                var filteredModels = await DataReceivedAndFilterAsync(cancellationToken);
+                var extendedFilteredModels = await ExtendedDataReceivedAndFilterAsync(filteredModels, cancellationToken);
+                if (extendedFilteredModels.Any())
                 {
-                    OnModelsFiltered?.Invoke(this, modelsFilteredByVolume);
+                    OnModelsFiltered?.Invoke(this, extendedFilteredModels.ToArray());
 
-                    await ModelsAnalyzeAsync(modelsFilteredByVolume, cancellationToken);
+                    await ModelsAnalyzeAsync(extendedFilteredModels, cancellationToken);
                 }
             }
             catch (Exception ex)
@@ -148,17 +145,22 @@ namespace Analytic.Binance
         }
 
         /// <summary>
-        ///     Получение общих данных с биржи
+        ///     Получение общих данных с биржи и их первоначальная фильтрация
         /// </summary>
-        private async Task<InfoModel[]> DataReceivedAsync(CancellationToken cancellationToken)
+        private async Task<List<InfoModel>> DataReceivedAndFilterAsync(CancellationToken cancellationToken)
         {
             var models = await _exchange.GetSymbolPriceTickerAsync(null, cancellationToken);
+            var result = new List<InfoModel>();
+
+            // все фильтры кроме фильтра объемов, так как оно тестируется после получения доп. данных
+            var priceNameFilters = Filters.Where(_ => _ is not VolumeFilter);
             foreach (var model in models)
             {
                 if (!_infoModels.ContainsKey(model.ShortName))
                 {
                     _infoModels[model.ShortName] = new()
                     {
+                        TradeObjectName = model.ShortName,
                         LastPrice = model.Price,
                     };
 
@@ -169,9 +171,14 @@ namespace Analytic.Binance
                 (infoModel.PrevPrice, infoModel.LastPrice) = (infoModel.LastPrice, model.Price);
                 var lastDeviation = GetDeviation(infoModel.PrevPrice, infoModel.LastPrice);
                 infoModel.PricePercentDeviations.Add(lastDeviation);
+
+                if (priceNameFilters.All(_ => _.CheckConditions(infoModel)))
+                {
+                    result.Add(infoModel);
+                }
             }
 
-            return _infoModels.Values.ToArray();
+            return result;
         }
 
         /// <summary>
@@ -180,52 +187,22 @@ namespace Analytic.Binance
         private static double GetDeviation(double oldPrice, double newPrice) => (newPrice / (double)oldPrice - 1) * 100;
 
         /// <summary>
-        ///     Фильтрация моделей по определенному фильтру
+        ///     Получение дополнительных данных и их фильтрация
         /// </summary>
-        private InfoModel[] FilterModels<T>(InfoModel[] modelsToFilter)
-            where T : IFilter
+        private async Task<List<InfoModel>> ExtendedDataReceivedAndFilterAsync(List<InfoModel> models, CancellationToken cancellationToken)
         {
-            var priceFilters = Filters.Where(_ => _ is T);
-            var result = Array.Empty<InfoModel>();
-            Array.Copy(modelsToFilter, result, modelsToFilter.Length);
-            foreach (var filter in Filters)
-            {
-                result = filter.Filter(result);
-            }
-
-            return result;
-        }
-
-        /// <summary>
-        ///     Получение дополнительных данных
-        /// </summary>
-        private async Task<InfoModel[]> ExtendedDataReceivedAsync(InfoModel[] models, CancellationToken cancellationToken)
-        {
+            var volumeFilters = Filters.Where(_ => _ is VolumeFilter);
+            var result = new List<InfoModel>();
             foreach (var model in models)
             {
                 var extendedModel = await _exchange.GetOrderBookAsync(model.TradeObjectName, 5000, cancellationToken);
                 model.BidVolume = extendedModel.Bids.Sum(_ => _.Quantity);
                 model.AskVolume = extendedModel.Asks.Sum(_ => _.Quantity);
-            }
 
-            return models;
-        }
-
-        /// <summary>
-        ///     Фильтрует модели по всем фильтрам
-        /// </summary>
-        private InfoModel[] FilterModels(List<InfoModel> modelsToFilter)
-        {
-            var result = Array.Empty<InfoModel>();
-            modelsToFilter.CopyTo(result);
-            foreach (var filter in Filters)
-            {
-                result = filter.Filter(result);
-            }
-
-            if (result.Any())
-            {
-                OnModelsFiltered?.Invoke(this, result);
+                if (volumeFilters.All(_ => _.CheckConditions(model)))
+                {
+                    result.Add(model);
+                }
             }
 
             return result;
@@ -234,7 +211,7 @@ namespace Analytic.Binance
         /// <summary>
         ///     Запускает анализ каждой модели для решения о дальнейшей покупке
         /// </summary>
-        private async Task ModelsAnalyzeAsync(InfoModel[] models, CancellationToken cancellationToken)
+        private async Task ModelsAnalyzeAsync(List<InfoModel> models, CancellationToken cancellationToken)
         {
             var modelsToBuy = new List<AnalyticResultModel>();
             foreach (var model in models)

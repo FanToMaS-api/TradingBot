@@ -384,10 +384,10 @@ namespace BinanceExchangeTests.BinanceTests
             SetArgumentsEvent -= SetArgumentsEventHandler;
 
             Assert.Equal(2, result.Count);
-            Assert.Equal("ADABNB", result[0].Symbol);
+            Assert.Equal("ADABNB", result[0].ShortName);
             Assert.Equal(0.001, result[0].MakerCommission);
             Assert.Equal(0.002, result[0].TakerCommission);
-            Assert.Equal("BNBBTC", result[1].Symbol);
+            Assert.Equal("BNBBTC", result[1].ShortName);
             Assert.Equal(0.003, result[1].MakerCommission);
             Assert.Equal(0.004, result[1].TakerCommission);
             Assert.Equal(expectedKey, _actualKey);

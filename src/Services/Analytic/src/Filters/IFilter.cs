@@ -1,4 +1,5 @@
 ﻿using Analytic.Models;
+using System.Collections.Generic;
 
 namespace Analytic.Filters
 {
@@ -13,8 +14,8 @@ namespace Analytic.Filters
         public string FilterName { get; }
 
         /// <summary>
-        ///     Фильтрует данные
+        ///     Проверяет модель на соответствие условию
         /// </summary>
-        InfoModel[] Filter(InfoModel[] models);
+        bool CheckConditions(InfoModel model);
     }
 }

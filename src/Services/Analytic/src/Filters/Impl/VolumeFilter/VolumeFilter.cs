@@ -1,6 +1,5 @@
 ﻿using Analytic.Models;
 using System;
-using System.Collections.Generic;
 
 namespace Analytic.Filters
 {
@@ -79,49 +78,18 @@ namespace Analytic.Filters
         #region Public methods
 
         /// <inheritdoc />
-        public InfoModel[] Filter(InfoModel[] models)
+        public bool CheckConditions(InfoModel model)
         {
-            if (FilterType != VolumeFilterType.Default && !Limit.HasValue && VolumeType == VolumeType.Default)
-            {
-                throw new Exception("A non-default filter type is selected but no filtering limit is specified");
-            }
-
-            var result = new List<InfoModel>();
-            foreach (var model in models)
-            {
-                if (TradeObjectName is not null && model.TradeObjectName != TradeObjectName)
-                {
-                    continue;
-                }
-
-                switch (FilterType)
-                {
-                    case VolumeFilterType.Default:
-                        if (model.AskVolume * (1 + PercentDeviation) > model.BidVolume)
-                        {
-                            result.Add(model);
-                        }
-
-                        break;
-
-                    case VolumeFilterType.GreaterThan:
-                        if (IsSatisfiesCondition(model, _ => _ > Limit))
-                        {
-                            result.Add(model);
-                        }
-
-                        break;
-                    case VolumeFilterType.LessThan:
-                        if (IsSatisfiesCondition(model, _ => _ < Limit))
-                        {
-                            result.Add(model);
-                        }
-
-                        break;
-                }
-            }
-
-            return result.ToArray();
+            return FilterType != VolumeFilterType.Default && !Limit.HasValue && VolumeType == VolumeType.Default
+                ? throw new Exception("A non-default filter type is selected but no filtering limit is specified")
+                : (TradeObjectName is null || model.TradeObjectName == TradeObjectName)
+                    && FilterType switch
+                    {
+                        VolumeFilterType.Default => model.AskVolume * (1 + PercentDeviation) > model.BidVolume,
+                        VolumeFilterType.GreaterThan => IsSatisfiesCondition(model, _ => _ > Limit),
+                        VolumeFilterType.LessThan => IsSatisfiesCondition(model, _ => _ < Limit),
+                        _ => throw new NotImplementedException(),
+                    };
         }
 
         #endregion

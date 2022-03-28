@@ -14,12 +14,14 @@ namespace BinanceExchange
         {
             CreateMap<SymbolInfoModel, SymbolRuleTradingModel>()
                 .ForMember(_ => _.Status, _ => _.MapFrom(_ => _.Status));
-            CreateMap<SymbolPriceTickerModel, SymbolPriceModel>();
+            CreateMap<SymbolPriceTickerModel, SymbolPriceModel>()
+                .ForMember(_ => _.ShortName, _ => _.MapFrom(_ => _.Symbol));
             CreateMap<PriceQtyPair, OrderModel>();
 
             CreateMap<Models.TradeFeeModel, Common.Models.TradeFeeModel>()
-                .ForMember(_ => _.Symbol, _ => _.MapFrom(_ => _.Coin));
-            CreateMap<CoinModel, TradeObject>();
+                .ForMember(_ => _.ShortName, _ => _.MapFrom(_ => _.Coin));
+            CreateMap<CoinModel, TradeObject>()
+                .ForMember(_ => _.ShortName, _ => _.MapFrom(_ => _.Coin));
             CreateMap<Models.DayPriceChangeModel, Common.Models.DayPriceChangeModel>();
             CreateMap<Models.CandlestickModel, Common.Models.CandlestickModel>();
             CreateMap<Models.BalanceModel, Common.Models.BalanceModel>();

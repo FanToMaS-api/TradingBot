@@ -8,11 +8,8 @@ using Redis;
 using Scheduler;
 using SignalsSender.Configuration;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Telegram.Builder;
 using Telegram.Client;
 using Telegram.Client.Impl;
 
@@ -21,7 +18,7 @@ namespace SignalsSender
     /// <summary>
     ///     Содержит основную логику работы
     /// </summary>
-    public class Service : IDisposable
+    public class Service : IService
     {
         #region Fields
 

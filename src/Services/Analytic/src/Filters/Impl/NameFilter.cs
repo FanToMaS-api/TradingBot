@@ -1,4 +1,5 @@
 ﻿using Analytic.Models;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace Analytic.Filters
@@ -24,7 +25,7 @@ namespace Analytic.Filters
         public string[] NeededNames { get; }
 
         /// <inheritdoc />
-        public InfoModel[] Filter(InfoModel[] models) =>
-            models.Where(m => NeededNames.Any(_ => m.TradeObjectName.Contains(_))).ToArray();
+        public bool CheckConditions(InfoModel model) =>
+            NeededNames.Any(_ => model.TradeObjectName.Contains(_));
     }
 }

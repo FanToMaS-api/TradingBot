@@ -56,45 +56,19 @@ namespace Analytic.Filters
         #region Public methods
 
         /// <inheritdoc />
-        public InfoModel[] Filter(InfoModel[] models)
+        public bool CheckConditions(InfoModel model)
         {
-            var result = new List<InfoModel>();
-            foreach (var model in models)
-            {
-                var summDeviations = 0d;
-                Array.ForEach(model.PricePercentDeviations.ToArray(), _ => summDeviations += _);
-                if (TradeObjectName is not null && model.TradeObjectName != TradeObjectName)
+            var summDeviations = 0d;
+            Array.ForEach(model.PricePercentDeviations.ToArray(), _ => summDeviations += _);
+
+            return (TradeObjectName is null || model.TradeObjectName == TradeObjectName) 
+                && FilterType switch
                 {
-                    continue;
-                }
-
-                switch (FilterType)
-                {
-                    case PriceFilterType.GreaterThan:
-                        if (summDeviations > Limit)
-                        {
-                            result.Add(model);
-                        }
-
-                        continue;
-                    case PriceFilterType.LessThan:
-                        if (summDeviations < Limit)
-                        {
-                            result.Add(model);
-                        }
-
-                        continue;
-                    case PriceFilterType.Equal:
-                        if (summDeviations == Limit)
-                        {
-                            result.Add(model);
-                        }
-
-                        continue;
-                }
-            }
-
-            return result.ToArray();
+                    PriceFilterType.GreaterThan => summDeviations > Limit,
+                    PriceFilterType.LessThan => summDeviations < Limit,
+                    PriceFilterType.Equal => summDeviations == Limit,
+                    _ => false
+                };
         }
 
         #endregion
