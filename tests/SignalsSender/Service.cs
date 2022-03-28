@@ -1,6 +1,8 @@
 ﻿using Analytic;
+using Analytic.AnalyticUnits;
 using Analytic.Binance;
 using Analytic.Filters;
+using Analytic.Models;
 using BinanceExchange;
 using ExchangeLibrary;
 using NLog;
@@ -8,8 +10,11 @@ using Redis;
 using Scheduler;
 using SignalsSender.Configuration;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Telegram.Builder;
 using Telegram.Client;
 using Telegram.Client.Impl;
 
@@ -57,112 +62,123 @@ namespace SignalsSender
         {
             var cancellationToken = _cancellationTokenSource.Token;
 
-            var nameFilter = new NameFilter("NameFilter", new[] { "USDT", "BTC", "ETH" });
+            //  TODO добавить группы фильтров
+            var nameFilter = new NameFilter("NameFilter", _baseTickers);
             var priceFilter = new PriceFilter("AnyFilter", null, PriceFilterType.GreaterThan, 2.55);
-            var btcFilter = new PriceFilter("BTCFilter", "BTC", PriceFilterType.GreaterThan, 4.5);
-            var ethFilter = new PriceFilter("ETHFilter", "ETH", PriceFilterType.GreaterThan, 3.5);
+            var allFilter = new PriceFilter("AllFilter", null, PriceFilterType.LessThan, 20);
+            var btcFilter = new PriceFilter("BTCFilter", "BTC", PriceFilterType.GreaterThan, 5.7);
+            var ethFilter = new PriceFilter("ETHFilter", "ETH", PriceFilterType.GreaterThan, 4.5);
             var volumeFilter = new VolumeFilter("VolumeFilter", null);
             _analyticService.AddFilter(nameFilter);
             _analyticService.AddFilter(priceFilter);
+            _analyticService.AddFilter(allFilter);
             _analyticService.AddFilter(btcFilter);
             _analyticService.AddFilter(ethFilter);
             _analyticService.AddFilter(volumeFilter);
-            _analyticService.OnModelsFiltered += (obj, models) =>
-            {
-                _logger.Info("Filtered models received");
-            };
+            _analyticService.OnModelsFiltered += OnModelsFilteredReceived;
+            _analyticService.OnModelsReadyToBuy += OnModelsToBuyReceived;
+
+            var profile = new DefaultAnalyticProfile("DefaultProfile");
+            var profileGroup = new ProfileGroup("DefaultGroupProfile");
+            profileGroup.AddAnalyticUnit(profile);
+            _analyticService.AddProfileGroup(profileGroup);
             await _analyticService.RunAsync(cancellationToken);
+        }
 
-            //var builder = new TelegramMessageBuilder();
-            //builder.SetChatId(_settings.ChannelId);
+        /// <summary>
+        ///     Обработчик получения отфильтрованных моделей
+        /// </summary>
+        private void OnModelsFilteredReceived(object sender, InfoModel[] models)
+        {
+            var tasks = new List<Task>();
+            var builder = new TelegramMessageBuilder();
+            builder.SetChatId(_settings.ChannelId);
+            foreach (var model in models)
+            {
+                try
+                {
+                    var symbol = _baseTickers.FirstOrDefault(_ =>
+                        model.TradeObjectName.Contains(_, StringComparison.InvariantCultureIgnoreCase));
+                    if (string.IsNullOrEmpty(symbol))
+                    {
+                        _logger?.Error("Failed to parse symbol");
+                        return;
+                    }
 
-            //var pairs = (await _exchange.GetSymbolPriceTickerAsync(null))
-            //    .Where(p => _baseTickers.Any(_ => p.ShortName.Contains(_, StringComparison.InvariantCultureIgnoreCase)))
-            //    .ToDictionary(_ => _.ShortName, _ => new List<double>());
-            //_logger.Info($"Всего пар: {pairs.Count}");
+                    var pairSymbols = model.TradeObjectName.Insert(model.TradeObjectName.Length - symbol.Length, "/");
+                    var pairName = pairSymbols.Replace("/", "_");
+                    var message = $"*{pairSymbols}*\nНовая разница: *{model.LastDeviation:0.00}%*" +
+                        $"\nРазница за последние 5 таймфреймов: *{model.Sum5Deviations:0.00}%*" +
+                        $"\nПоследняя цена: *{model.LastPrice:0.0000}*" +
+                        $"\nОбъем спроса: *{model.AskVolume:0,0.0}*" +
+                        $"\nОбъем предложения: *{model.BidVolume:0,0.0}*";
+                    message = message.Replace(".", "\\.");
+                    message = message.Replace("-", "\\-");
+                    builder.SetMessageText(message);
+                    var url = _baseUrl.Replace("<pair>", pairName);
+                    builder.SetInlineButton("Перейти", $"{url}");
+                    var telegramMessage = builder.GetResult();
+                    tasks.Add(_telegramClient.SendMessageAsync(telegramMessage, CancellationToken.None));
+                }
+                catch (Exception ex)
+                {
+                    _logger.Error(ex, "Failed to send message wtih filtered models to telegram");
+                }
+            }
 
-            //var delay = TimeSpan.FromMinutes(1);
-            //var percent = 2.55;
-            //try
-            //{
-            //    {
-            //        while (true)
-            //        {
-            //            var newPairs = (await _exchange.GetSymbolPriceTickerAsync(null))
-            //                .Where(p => _baseTickers.Any(_ => p.ShortName.Contains(_, StringComparison.InvariantCultureIgnoreCase)))
-            //                .ToList();
-            //            _logger?.Trace("Новые данные получены");
+            try
+            {
+                Task.WaitAll(tasks.ToArray());
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex, "Failed to send message with filtered models to telegram");
+            }
+        }
 
-            //            newPairs.ForEach(async pair =>
-            //            {
-            //                var pricesCount = pairs[pair.ShortName].Count;
-            //                if (pricesCount > 250)
-            //                {
-            //                    pairs[pair.ShortName].RemoveRange(0, pricesCount - 5);
-            //                    pricesCount = pairs[pair.ShortName].Count;
-            //                }
+        private void OnModelsToBuyReceived(object sender, AnalyticResultModel[] models)
+        {
+            _logger.Info("Models to buy received!");
+            var tasks = new List<Task>();
+            var builder = new TelegramMessageBuilder();
+            builder.SetChatId(_settings.ChannelId);
+            foreach (var model in models)
+            {
+                try
+                {
+                    var symbol = _baseTickers.FirstOrDefault(_ =>
+                        model.TradeObjectName.Contains(_, StringComparison.InvariantCultureIgnoreCase));
+                    if (string.IsNullOrEmpty(symbol))
+                    {
+                        _logger?.Error("Failed to parse symbol");
+                        return;
+                    }
 
-            //                if (pricesCount == 0)
-            //                {
-            //                    pairs[pair.ShortName].Add(pair.Price);
-            //                    return;
-            //                }
+                    var pairSymbols = model.TradeObjectName.Insert(model.TradeObjectName.Length - symbol.Length, "/");
+                    var pairName = pairSymbols.Replace("/", "_");
+                    var message = $"*Совет купить {pairSymbols}*\n*По цене: {model.RecommendedPurchasePrice:0.0000000}*";
+                    message = message.Replace(".", "\\.");
+                    message = message.Replace("-", "\\-");
+                    builder.SetMessageText(message);
+                    var url = _baseUrl.Replace("<pair>", pairName);
+                    builder.SetInlineButton("Купить", $"{url}");
+                    var telegramMessage = builder.GetResult();
+                    tasks.Add(_telegramClient.SendMessageAsync(telegramMessage, CancellationToken.None));
+                }
+                catch (Exception ex)
+                {
+                    _logger.Error(ex, "Failed to send message with models to buy to telegram");
+                }
+            }
 
-            //                var newDeviation = GetDeviation(pairs[pair.ShortName].Last(), pair.Price);
-            //                var lastDeviation = 0d;
-            //                var preLastDeviation = 0d;
-            //                if (pricesCount > 1)
-            //                {
-            //                    lastDeviation = GetDeviation(pairs[pair.ShortName][pricesCount - 2], pairs[pair.ShortName].Last());
-            //                }
-
-            //                if (pricesCount > 2)
-            //                {
-            //                    preLastDeviation = GetDeviation(pairs[pair.ShortName][pricesCount - 3], pairs[pair.ShortName][pricesCount - 2]);
-            //                }
-
-            //                var sumDeviation = newDeviation + lastDeviation + preLastDeviation;
-            //                if (newDeviation >= percent || sumDeviation >= percent)
-            //                {
-            //                    _logger?.Info($"Покупай {pair.ShortName} Новая разница {newDeviation:0.00} Разница за последние 3 таймфрейма: {sumDeviation:0.00}");
-
-            //                    try
-            //                    {
-            //                        var symbol = _baseTickers.FirstOrDefault(_ => pair.ShortName.Contains(_, StringComparison.InvariantCultureIgnoreCase));
-            //                        if (string.IsNullOrEmpty(symbol))
-            //                        {
-            //                            _logger?.Error("Failed to parse symbol");
-            //                            return;
-            //                        }
-
-            //                        var pairSymbols = pair.ShortName.Insert(pair.ShortName.Length - symbol.Length, "/");
-            //                        var pairUrl = pairSymbols.Replace("/", "_");
-            //                        var message = $"*{pairSymbols}*\nНовая разница: *{newDeviation:0.00}*\nРазница за последние 3 таймфрейма: *{sumDeviation:0.00}*\nПоследняя цена: {pair.Price}";
-            //                        message = message.Replace(".", "\\.");
-            //                        message = message.Replace("-", "\\-");
-            //                        builder.SetMessageText(message);
-            //                        var url = _baseUrl.Replace("<pair>", pairUrl);
-            //                        builder.SetInlineButton("Купить", $"{url}");
-            //                        var telegramMessage = builder.GetResult();
-            //                        await _telegramClient.SendMessageAsync(telegramMessage, cancellationToken);
-            //                    }
-            //                    catch (Exception ex)
-            //                    {
-            //                        _logger?.Error(ex, "Failed to send to Telegram");
-            //                    }
-            //                }
-
-            //                pairs[pair.ShortName].Add(pair.Price);
-            //            });
-
-            //            await Task.Delay(delay);
-            //        }
-            //    }
-            //}
-            //catch (Exception ex)
-            //{
-            //    _logger?.Error(ex);
-            //}
+            try
+            {
+                Task.WaitAll(tasks.ToArray());
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex, "Failed to send message with filtered models to telegram");
+            }
         }
 
         #endregion

@@ -33,6 +33,16 @@ namespace Analytic.Models
         public double AskVolume { get; internal set; }
 
         /// <summary>
+        ///     Последнее отклонение
+        /// </summary>
+        public double LastDeviation { get; internal set; }
+
+        /// <summary>
+        ///     Суммарное отклонение за 5 таймфреймов
+        /// </summary>
+        public double Sum5Deviations { get; internal set; }
+
+        /// <summary>
         ///     Отклонения цены за последние таймфреймы в процентах
         /// </summary>
         public List<double> PricePercentDeviations { get; internal set; } = new();

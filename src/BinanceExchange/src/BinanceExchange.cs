@@ -299,7 +299,7 @@ namespace BinanceExchange
 
             var builder = new Builder();
             builder.SetSymbol(symbol);
-            var query = builder.GetResult().GetQuery();
+            var query = builder.GetResult(false).GetQuery();
             var result = await _marketdataSender.GetAveragePriceAsync(query, cancellationToken);
 
             IncrementCallsMade(requestWeight, RequestWeightModel.GetDefaultKey());

@@ -31,7 +31,7 @@ namespace Analytic
         /// <summary>
         ///     Событие, возникающее, если есть торговые объекты для покупки
         /// </summary>
-        EventHandler<AnalyticResultModel[]> OnReadyToBuy { get; }
+        EventHandler<AnalyticResultModel[]> OnModelsReadyToBuy { get; set; }
 
         /// <summary>
         ///     Запускает сервис аналитики

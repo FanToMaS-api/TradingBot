@@ -1,6 +1,7 @@
 ﻿using Analytic.Models;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Analytic.Filters
 {
@@ -21,7 +22,7 @@ namespace Analytic.Filters
         public PriceFilter(string filterName, string tradeObjectName, PriceFilterType filterType, double limit)
         {
             FilterName = filterName;
-            TradeObjectName = tradeObjectName;
+            TargetTradeObjectName = tradeObjectName;
             FilterType = filterType;
             Limit = limit;
         }
@@ -39,7 +40,7 @@ namespace Analytic.Filters
         /// <remarks>
         ///     <see langword="null"/> - для фильтрации всех
         /// </remarks>
-        public string TradeObjectName { get; }
+        public string TargetTradeObjectName { get; }
 
         /// <summary>
         ///     Тип фильтра цен
@@ -58,11 +59,10 @@ namespace Analytic.Filters
         /// <inheritdoc />
         public bool CheckConditions(InfoModel model)
         {
-            var summDeviations = 0d;
-            Array.ForEach(model.PricePercentDeviations.ToArray(), _ => summDeviations += _);
+            var summDeviations = model.PricePercentDeviations.Take(5).Sum();
+            model.Sum5Deviations = summDeviations;
 
-            return (TradeObjectName is null || model.TradeObjectName == TradeObjectName) 
-                && FilterType switch
+            return FilterType switch
                 {
                     PriceFilterType.GreaterThan => summDeviations > Limit,
                     PriceFilterType.LessThan => summDeviations < Limit,

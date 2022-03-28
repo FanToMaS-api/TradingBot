@@ -23,7 +23,7 @@ namespace Analytic.Binance
         private readonly IRecurringJobScheduler _scheduler;
         private readonly Dictionary<string, InfoModel> _infoModels = new();
         private TriggerKey _triggerKey;
-        private readonly CancellationTokenSource _cts;
+        private readonly CancellationToken _cancellationToken;
 
         #endregion
 
@@ -37,7 +37,7 @@ namespace Analytic.Binance
         {
             _exchange = exchange;
             _scheduler = recurringJobScheduler;
-            _cts = cancellationTokenSource;
+            _cancellationToken = cancellationTokenSource.Token;
         }
 
         #endregion
@@ -54,7 +54,7 @@ namespace Analytic.Binance
         public EventHandler<InfoModel[]> OnModelsFiltered { get; set; }
 
         /// <inheritdoc />
-        public EventHandler<AnalyticResultModel[]> OnReadyToBuy { get; set; }
+        public EventHandler<AnalyticResultModel[]> OnModelsReadyToBuy { get; set; }
 
         #endregion
 
@@ -63,15 +63,15 @@ namespace Analytic.Binance
         /// <inheritdoc />
         public async Task RunAsync(CancellationToken cancellationToken)
         {
-            // каждые 45 секунд вызываем метода анализа
-            _triggerKey = await _scheduler.ScheduleAsync(Cron.Secondly(45), AnalyzeAsync);
+            cancellationToken.Register(() => StopAsync(CancellationToken.None).GetAwaiter().GetResult());
+
+            // каждую 1 секунд вызываем метода анализа
+            _triggerKey = await _scheduler.ScheduleAsync("0 * * ? * *", AnalyzeAsync);
         }
 
         /// <inheritdoc />
-        public async Task StopAsync(CancellationToken cancellationToken)
-        {
+        public async Task StopAsync(CancellationToken cancellationToken) =>
             await _scheduler.UnscheduleAsync(_triggerKey);
-        }
 
         #region Add/Remove methods
 
@@ -126,16 +126,20 @@ namespace Analytic.Binance
         /// </summary>
         private async Task AnalyzeAsync(IServiceProvider serviceProvider)
         {
-            var cancellationToken = _cts.Token;
+            if (_cancellationToken.IsCancellationRequested)
+            {
+                await _scheduler.UnscheduleAsync(_triggerKey);
+            }
+
             try
             {
-                var filteredModels = await DataReceivedAndFilterAsync(cancellationToken);
-                var extendedFilteredModels = await ExtendedDataReceivedAndFilterAsync(filteredModels, cancellationToken);
+                var filteredModels = await DataReceivedAndFilterAsync(_cancellationToken);
+                var extendedFilteredModels = await ExtendedDataReceivedAndFilterAsync(filteredModels, _cancellationToken);
                 if (extendedFilteredModels.Any())
                 {
                     OnModelsFiltered?.Invoke(this, extendedFilteredModels.ToArray());
 
-                    await ModelsAnalyzeAsync(extendedFilteredModels, cancellationToken);
+                    await ModelsAnalyzeAsync(extendedFilteredModels, _cancellationToken);
                 }
             }
             catch (Exception ex)
@@ -152,10 +156,17 @@ namespace Analytic.Binance
             var models = await _exchange.GetSymbolPriceTickerAsync(null, cancellationToken);
             var result = new List<InfoModel>();
 
-            // все фильтры кроме фильтра объемов, так как оно тестируется после получения доп. данных
-            var priceNameFilters = Filters.Where(_ => _ is not VolumeFilter);
+            // отделяю дефолтные фильтры для цены
+            var priceDefaultFilters = Filters
+                .Where(_ => _ is PriceFilter && string.IsNullOrEmpty((_ as PriceFilter).TargetTradeObjectName));
+            var nameFilters = Filters.Where(_ => _ is NameFilter);
             foreach (var model in models)
             {
+                if (!nameFilters.All(_ => _.CheckConditions(new() { TradeObjectName = model.ShortName })))
+                {
+                    continue;
+                }
+
                 if (!_infoModels.ContainsKey(model.ShortName))
                 {
                     _infoModels[model.ShortName] = new()
@@ -168,11 +179,32 @@ namespace Analytic.Binance
                 }
 
                 var infoModel = _infoModels[model.ShortName];
-                (infoModel.PrevPrice, infoModel.LastPrice) = (infoModel.LastPrice, model.Price);
+                (infoModel.PrevPrice, infoModel.LastPrice) = (infoModel.LastPrice, model.Price); // Swap
+
                 var lastDeviation = GetDeviation(infoModel.PrevPrice, infoModel.LastPrice);
                 infoModel.PricePercentDeviations.Add(lastDeviation);
+                infoModel.LastDeviation = lastDeviation;
+                if (infoModel.PricePercentDeviations.Count > 40)
+                {
+                    infoModel.PricePercentDeviations.RemoveRange(0, 30);
+                }
 
-                if (priceNameFilters.All(_ => _.CheckConditions(infoModel)))
+                // выбираю специальные фильтры для пары, если они есть
+                var specialPriceFilters = Filters
+                    .Where(_ => _ is PriceFilter
+                        && !string.IsNullOrEmpty((_ as PriceFilter).TargetTradeObjectName)
+                        && model.ShortName.Contains((_ as PriceFilter).TargetTradeObjectName));
+                if (specialPriceFilters.Any())
+                {
+                    if (specialPriceFilters.All(_ => _.CheckConditions(infoModel)))
+                    {
+                        result.Add(infoModel);
+                    }
+
+                    continue;
+                }
+
+                if (priceDefaultFilters.All(_ => _.CheckConditions(infoModel)))
                 {
                     result.Add(infoModel);
                 }
@@ -199,7 +231,7 @@ namespace Analytic.Binance
                 model.BidVolume = extendedModel.Bids.Sum(_ => _.Quantity);
                 model.AskVolume = extendedModel.Asks.Sum(_ => _.Quantity);
 
-                if (volumeFilters.All(_ => _.CheckConditions(model)))
+                if (volumeFilters.Any(_ => _.CheckConditions(model)))
                 {
                     result.Add(model);
                 }
@@ -218,7 +250,7 @@ namespace Analytic.Binance
             {
                 foreach (var profileGroup in ProfileGroups)
                 {
-                    var (isSuccessful, analyticModel) = await profileGroup.TryAnalyzeAsync(model, cancellationToken);
+                    var (isSuccessful, analyticModel) = await profileGroup.TryAnalyzeAsync(_exchange, model, cancellationToken);
                     if (!isSuccessful)
                     {
                         continue;
@@ -239,7 +271,7 @@ namespace Analytic.Binance
 
             if (modelsToBuy.Any())
             {
-                OnReadyToBuy?.Invoke(this, modelsToBuy.ToArray());
+                OnModelsReadyToBuy?.Invoke(this, modelsToBuy.ToArray());
             }
         }
 

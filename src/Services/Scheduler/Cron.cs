@@ -13,66 +13,37 @@ namespace Scheduler
         ///     Ежесекундно
         /// </summary>
         public static string Secondly()
-            => "* * * * * ? *";
+            => "* * * ? * *";
 
         /// <summary>
         ///     Каждые N секунд
         /// </summary>
         public static string Secondly(int N)
-            => $"0/{N} * * * * ? *";
+            => $"0/{N} 0 0 ? * * *";
 
         /// <summary>
         ///     Ежеминутно
         /// </summary>
-        public static string Minutely(int second = 0)
-            => $"{second} * * * * ? *";
-
-        /// <summary>
-        ///     В определенные минуты
-        /// </summary>
-        public static string AtMinutes(int[] minutes)
-            => $"0 {string.Join(',', minutes)} * ? * * *";
+        public static string Minutely()
+            => $"0 * * ? * *";
 
         /// <summary>
         ///     Каждые сколько-то минут
         /// </summary>
         public static string EveryNthMinute(int every)
-            => $"0 0/{every} * * * ? *";
+            => $"0 */{every} * ? * *";
 
         /// <summary>
         ///     Ежечасно
         /// </summary>
-        public static string Hourly(int minute = 0, int second = 0)
-            => $"{second} {minute} * * * ? *";
+        public static string Hourly()
+            => $"0 0 * ? * *";
 
         /// <summary>
-        ///     Ежедневно
+        ///     Ежедневно в 12 ночи
         /// </summary>
-        public static string Daily(int hour = 0, int minute = 0, int second = 0)
-            => $"{second} {minute} {hour} * * ? *";
-
-        /// <summary>
-        ///     Еженедельно
-        /// </summary>
-        public static string Weekly(DayOfWeek dayOfWeek = DayOfWeek.Monday, int hour = 0, int minute = 0, int second = 0)
-            => $"{second} {minute} {hour} * * {(int)dayOfWeek} *";
-
-        /// <summary>
-        ///     Ежемесячно
-        /// </summary>
-        public static string Monthly(int day = 1, int hour = 0, int minute = 0, int second = 0)
-            => $"{second} {minute} {hour} {day} * ? *";
-
-        /// <summary>
-        ///     Ежегодно
-        /// </summary>
-        public static Cron Yearly(int month = 1, int day = 1, int hour = 0, int minute = 0, int second = 0)
-            => $"{second} {minute} {hour} {day} {month} ? *";
-
-        /// <summary>
-        ///     Никогда (31 февраля каждого года)
-        /// </summary>
-        public static Cron Never() => Yearly(2, 31);
+        public static string Daily()
+            => $"0 0 0 * * ?";
 
         #endregion
 

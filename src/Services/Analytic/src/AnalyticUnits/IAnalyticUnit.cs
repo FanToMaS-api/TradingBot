@@ -1,4 +1,5 @@
 ﻿using Analytic.Models;
+using ExchangeLibrary;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -23,7 +24,10 @@ namespace Analytic.AnalyticUnits
         ///     <see langword="true, model"/> Если объект стоит купить <br/>
         ///     <see langword="false"/> Если объект не стоит покупать
         /// </returns>
-        Task<(bool isSuccessfulAnalyze, AnalyticResultModel resultModel)> TryAnalyzeAsync(InfoModel model, CancellationToken cancellationToken);
+        Task<(bool isSuccessfulAnalyze, AnalyticResultModel resultModel)> TryAnalyzeAsync(
+            IExchange exchange,
+            InfoModel model,
+            CancellationToken cancellationToken);
 
         /// <summary>
         ///     Удаляет анализатор или профиль анализаторов

@@ -1,5 +1,5 @@
 ﻿using Analytic.Models;
-using System;
+using ExchangeLibrary;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -9,7 +9,7 @@ namespace Analytic.AnalyticUnits
     /// <summary>
     ///     Группа профилей
     /// </summary>
-    internal class ProfileGroup : IProfileGroup
+    public class ProfileGroup : IProfileGroup
     {
         #region .ctor
 
@@ -34,17 +34,21 @@ namespace Analytic.AnalyticUnits
         #region Public methods
 
         /// <inheritdoc />
-        public async Task<(bool isSuccessfulAnalyze, AnalyticResultModel resultModel)> TryAnalyzeAsync(InfoModel model, CancellationToken cancellationToken)
+        public async Task<(bool isSuccessfulAnalyze, AnalyticResultModel resultModel)> TryAnalyzeAsync(
+            IExchange exchange,
+            InfoModel model,
+            CancellationToken cancellationToken)
         {
             var analyticResultModel = new AnalyticResultModel()
             {
                 TradeObjectName = model.TradeObjectName,
             };
+
             var count = 0;
             var isOneSuccessful = false;
             foreach (var unit in AnalyticUnits)
             {
-                var (isSuccessful, resultModel) = await unit.TryAnalyzeAsync(model, cancellationToken);
+                var (isSuccessful, resultModel) = await unit.TryAnalyzeAsync(exchange, model, cancellationToken);
                 if (isSuccessful)
                 {
                     isOneSuccessful = true;
@@ -53,7 +57,7 @@ namespace Analytic.AnalyticUnits
                 }
             }
 
-            analyticResultModel.RecommendedPurchasePrice /= count;
+            analyticResultModel.RecommendedPurchasePrice /= count == 0 ? 0 : count;
             return (isOneSuccessful, analyticResultModel);
         }
 
