@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
 
-namespace Scraper.Common.Schedule
+namespace Scheduler
 {
     /// <summary>
-    /// Параметры планировщика повторяющихся заданий
+    ///     Параметры планировщика повторяющихся заданий
     /// </summary>
     internal sealed class RecurringJobSchedulerOptions
     {

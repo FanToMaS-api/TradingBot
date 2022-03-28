@@ -7,11 +7,17 @@ namespace Analytic.Filters
     /// <summary>
     ///     Фильтр цен
     /// </summary>
-    internal class PriceFilter : IFilter
+    public class PriceFilter : IFilter
     {
         #region .ctor
 
-        /// <inheritdoc cref="PriceFilter"/>
+        /// <summary>
+        ///     Фильтр цен
+        /// </summary>
+        /// <param name="filterName"> Название фильтра </param>
+        /// <param name="tradeObjectName"> Название объекта торговли. <see langword="null"/> - для фильтрации всех </param>
+        /// <param name="filterType"> Тип фильтра цен </param>
+        /// <param name="limit"> Ограничение </param>
         public PriceFilter(string filterName, string tradeObjectName, PriceFilterType filterType, double limit)
         {
             FilterName = filterName;

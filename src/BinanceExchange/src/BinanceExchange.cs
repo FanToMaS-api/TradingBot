@@ -373,7 +373,6 @@ namespace BinanceExchange
             CancellationToken cancellationToken,
             Action onStreamClosedFunc = null)
         {
-            // TODO переписать или с фабрикой или с интерфейсом для удобного тестирования
             var streamType = stream.ConvertToMarketdataStreamType();
             var webSoket = new MarketdataWebSocket(symbol, streamType);
             webSoket.OnClosed += OnCloseHandler;
@@ -412,7 +411,6 @@ namespace BinanceExchange
             CancellationToken cancellationToken,
             Action onStreamClosedFunc = null)
         {
-            // TODO переписать или с фабрикой или с интерфейсом для удобного тестирования
             var interval = candleStickInterval.ConvertToCandleStickIntervalType();
             var webSoket = MarketdataWebSocket.CreateCandlestickStream(symbol, interval);
             webSoket.OnClosed += OnCloseHandler;
@@ -446,7 +444,6 @@ namespace BinanceExchange
             CancellationToken cancellationToken,
             Action onStreamClosedFunc = null)
         {
-            // TODO переписать или с фабрикой или с интерфейсом для удобного тестирования
             var webSoket = MarketdataWebSocket.CreateAllTickersStream();
             webSoket.OnClosed += OnCloseHandler;
             webSoket.OnStreamClosed += onStreamClosedFunc;
@@ -479,7 +476,6 @@ namespace BinanceExchange
             CancellationToken cancellationToken,
             Action onStreamClosedFunc = null)
         {
-            // TODO переписать или с фабрикой или с интерфейсом для удобного тестирования
             var webSoket = MarketdataWebSocket.CreateAllBookTickersStream();
             webSoket.OnClosed += OnCloseHandler;
             webSoket.OnStreamClosed += onStreamClosedFunc;
@@ -512,7 +508,6 @@ namespace BinanceExchange
             CancellationToken cancellationToken,
             Action onStreamClosedFunc = null)
         {
-            // TODO переписать или с фабрикой или с интерфейсом для удобного тестирования
             var webSoket = MarketdataWebSocket.CreateAllMarketMiniTickersStream();
             webSoket.OnClosed += OnCloseHandler;
             webSoket.OnStreamClosed += onStreamClosedFunc;
@@ -542,7 +537,6 @@ namespace BinanceExchange
             int levels = 10,
             bool activateFastReceive = false)
         {
-            // TODO переписать или с фабрикой или с интерфейсом для удобного тестирования
             var webSoket = MarketdataWebSocket.CreatePartialBookDepthStream(symbol, levels, activateFastReceive);
             webSoket.OnStreamClosed += onStreamClosedFunc;
             webSoket.OnClosed += OnCloseHandler;

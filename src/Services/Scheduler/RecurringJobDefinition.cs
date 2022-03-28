@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 
-namespace Scraper.Common.Schedule
+namespace Scheduler
 {
     /// <summary>
     ///     Определение повторяющейся работы

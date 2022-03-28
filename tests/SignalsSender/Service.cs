@@ -1,7 +1,11 @@
-﻿using BinanceExchange;
+﻿using Analytic;
+using Analytic.Binance;
+using Analytic.Filters;
+using BinanceExchange;
 using ExchangeLibrary;
 using NLog;
 using Redis;
+using Scheduler;
 using SignalsSender.Configuration;
 using System;
 using System.Collections.Generic;
@@ -25,7 +29,9 @@ namespace SignalsSender
         private readonly SignalSenderConfig _settings;
         private readonly IExchange _exchange;
         private readonly ITelegramClient _telegramClient;
-        private readonly string _baseUrl = "https://www.binance.com/ru/trade/";
+        private readonly IRecurringJobScheduler _scheduler;
+        private readonly IAnalyticService _analyticService;
+        private readonly string _baseUrl = "https://www.binance.com/en/trade/<pair>/?layout=pro";
         private readonly string[] _baseTickers = new[] { "USDT", "BTC", "ETH" };
         private readonly CancellationTokenSource _cancellationTokenSource = new();
 
@@ -33,11 +39,13 @@ namespace SignalsSender
 
         #region .ctor
 
-        public Service(SignalSenderConfig settings, IRedisDatabase redisDatabase)
+        public Service(SignalSenderConfig settings, IRedisDatabase redisDatabase, IRecurringJobScheduler scheduler)
         {
             _settings = settings;
+            _scheduler = scheduler;
             var binanceOptions = new BinanceExchangeOptions() { ApiKey = settings.ApiKey, SecretKey = settings.SecretKey };
             _exchange = BinanceExchangeFactory.CreateExchange(binanceOptions, redisDatabase);
+            _analyticService = new BinanceAnalyticService(_exchange, _scheduler, _cancellationTokenSource);
             _telegramClient = new TelegramClient(settings.TelegramToken);
         }
 
@@ -50,96 +58,114 @@ namespace SignalsSender
         /// </summary>
         public async Task RunAsync()
         {
-            var builder = new TelegramMessageBuilder();
-            builder.SetChatId(_settings.ChannelId);
-
             var cancellationToken = _cancellationTokenSource.Token;
-            var pairs = (await _exchange.GetSymbolPriceTickerAsync(null))
-                .Where(p => _baseTickers.Any(_ => p.ShortName.Contains(_, StringComparison.InvariantCultureIgnoreCase)))
-                .ToDictionary(_ => _.ShortName, _ => new List<double>());
-            _logger.Info($"Всего пар: {pairs.Count}");
 
-            var delay = TimeSpan.FromMinutes(1);
-            var percent = 2.55;
-            try
+            var nameFilter = new NameFilter("NameFilter", new[] { "USDT", "BTC", "ETH" });
+            var priceFilter = new PriceFilter("AnyFilter", null, PriceFilterType.GreaterThan, 2.55);
+            var btcFilter = new PriceFilter("BTCFilter", "BTC", PriceFilterType.GreaterThan, 4.5);
+            var ethFilter = new PriceFilter("ETHFilter", "ETH", PriceFilterType.GreaterThan, 3.5);
+            var volumeFilter = new VolumeFilter("VolumeFilter", null);
+            _analyticService.AddFilter(nameFilter);
+            _analyticService.AddFilter(priceFilter);
+            _analyticService.AddFilter(btcFilter);
+            _analyticService.AddFilter(ethFilter);
+            _analyticService.AddFilter(volumeFilter);
+            _analyticService.OnModelsFiltered += (obj, models) =>
             {
-                {
-                    while (true)
-                    {
-                        var newPairs = (await _exchange.GetSymbolPriceTickerAsync(null))
-                            .Where(p => _baseTickers.Any(_ => p.ShortName.Contains(_, StringComparison.InvariantCultureIgnoreCase)))
-                            .ToList();
-                        _logger?.Trace("Новые данные получены");
+                _logger.Info("Filtered models received");
+            };
+            await _analyticService.RunAsync(cancellationToken);
 
-                        newPairs.ForEach(async pair =>
-                        {
-                            var pricesCount = pairs[pair.ShortName].Count;
-                            if (pricesCount > 250)
-                            {
-                                pairs[pair.ShortName].RemoveRange(0, pricesCount - 5);
-                                pricesCount = pairs[pair.ShortName].Count;
-                            }
+            //var builder = new TelegramMessageBuilder();
+            //builder.SetChatId(_settings.ChannelId);
 
-                            if (pricesCount == 0)
-                            {
-                                pairs[pair.ShortName].Add(pair.Price);
-                                return;
-                            }
+            //var pairs = (await _exchange.GetSymbolPriceTickerAsync(null))
+            //    .Where(p => _baseTickers.Any(_ => p.ShortName.Contains(_, StringComparison.InvariantCultureIgnoreCase)))
+            //    .ToDictionary(_ => _.ShortName, _ => new List<double>());
+            //_logger.Info($"Всего пар: {pairs.Count}");
 
-                            var newDeviation = GetDeviation(pairs[pair.ShortName].Last(), pair.Price);
-                            var lastDeviation = 0d;
-                            var preLastDeviation = 0d;
-                            if (pricesCount > 1)
-                            {
-                                lastDeviation = GetDeviation(pairs[pair.ShortName][pricesCount - 2], pairs[pair.ShortName].Last());
-                            }
+            //var delay = TimeSpan.FromMinutes(1);
+            //var percent = 2.55;
+            //try
+            //{
+            //    {
+            //        while (true)
+            //        {
+            //            var newPairs = (await _exchange.GetSymbolPriceTickerAsync(null))
+            //                .Where(p => _baseTickers.Any(_ => p.ShortName.Contains(_, StringComparison.InvariantCultureIgnoreCase)))
+            //                .ToList();
+            //            _logger?.Trace("Новые данные получены");
 
-                            if (pricesCount > 2)
-                            {
-                                preLastDeviation = GetDeviation(pairs[pair.ShortName][pricesCount - 3], pairs[pair.ShortName][pricesCount - 2]);
-                            }
+            //            newPairs.ForEach(async pair =>
+            //            {
+            //                var pricesCount = pairs[pair.ShortName].Count;
+            //                if (pricesCount > 250)
+            //                {
+            //                    pairs[pair.ShortName].RemoveRange(0, pricesCount - 5);
+            //                    pricesCount = pairs[pair.ShortName].Count;
+            //                }
 
-                            var sumDeviation = newDeviation + lastDeviation + preLastDeviation;
-                            if (newDeviation >= percent || sumDeviation >= percent)
-                            {
-                                _logger?.Info($"Покупай {pair.ShortName} Новая разница {newDeviation:0.00} Разница за последние 3 таймфрейма: {sumDeviation:0.00}");
+            //                if (pricesCount == 0)
+            //                {
+            //                    pairs[pair.ShortName].Add(pair.Price);
+            //                    return;
+            //                }
 
-                                try
-                                {
-                                    var symbol = _baseTickers.FirstOrDefault(_ => pair.ShortName.Contains(_, StringComparison.InvariantCultureIgnoreCase));
-                                    if (string.IsNullOrEmpty(symbol))
-                                    {
-                                        _logger?.Error("Failed to parse symbol");
-                                        return;
-                                    }
+            //                var newDeviation = GetDeviation(pairs[pair.ShortName].Last(), pair.Price);
+            //                var lastDeviation = 0d;
+            //                var preLastDeviation = 0d;
+            //                if (pricesCount > 1)
+            //                {
+            //                    lastDeviation = GetDeviation(pairs[pair.ShortName][pricesCount - 2], pairs[pair.ShortName].Last());
+            //                }
 
-                                    var pairSymbols = pair.ShortName.Insert(pair.ShortName.Length - symbol.Length, "/");
-                                    var pairUrl = pairSymbols.Replace("/", "_");
-                                    var message = $"*{pairSymbols}*\nНовая разница: *{newDeviation:0.00}*\nРазница за последние 3 таймфрейма: *{sumDeviation:0.00}*\nПоследняя цена: {pair.Price}";
-                                    message = message.Replace(".", "\\.");
-                                    message = message.Replace("-", "\\-");
-                                    builder.SetMessageText(message);
-                                    builder.SetInlineButton("Купить", $"{_baseUrl}{pairUrl}");
-                                    var telegramMessage = builder.GetResult();
-                                    await _telegramClient.SendMessageAsync(telegramMessage, cancellationToken);
-                                }
-                                catch (Exception ex)
-                                {
-                                    _logger?.Error(ex, "Failed to send to Telegram");
-                                }
-                            }
+            //                if (pricesCount > 2)
+            //                {
+            //                    preLastDeviation = GetDeviation(pairs[pair.ShortName][pricesCount - 3], pairs[pair.ShortName][pricesCount - 2]);
+            //                }
 
-                            pairs[pair.ShortName].Add(pair.Price);
-                        });
+            //                var sumDeviation = newDeviation + lastDeviation + preLastDeviation;
+            //                if (newDeviation >= percent || sumDeviation >= percent)
+            //                {
+            //                    _logger?.Info($"Покупай {pair.ShortName} Новая разница {newDeviation:0.00} Разница за последние 3 таймфрейма: {sumDeviation:0.00}");
 
-                        await Task.Delay(delay);
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                _logger?.Error(ex);
-            }
+            //                    try
+            //                    {
+            //                        var symbol = _baseTickers.FirstOrDefault(_ => pair.ShortName.Contains(_, StringComparison.InvariantCultureIgnoreCase));
+            //                        if (string.IsNullOrEmpty(symbol))
+            //                        {
+            //                            _logger?.Error("Failed to parse symbol");
+            //                            return;
+            //                        }
+
+            //                        var pairSymbols = pair.ShortName.Insert(pair.ShortName.Length - symbol.Length, "/");
+            //                        var pairUrl = pairSymbols.Replace("/", "_");
+            //                        var message = $"*{pairSymbols}*\nНовая разница: *{newDeviation:0.00}*\nРазница за последние 3 таймфрейма: *{sumDeviation:0.00}*\nПоследняя цена: {pair.Price}";
+            //                        message = message.Replace(".", "\\.");
+            //                        message = message.Replace("-", "\\-");
+            //                        builder.SetMessageText(message);
+            //                        var url = _baseUrl.Replace("<pair>", pairUrl);
+            //                        builder.SetInlineButton("Купить", $"{url}");
+            //                        var telegramMessage = builder.GetResult();
+            //                        await _telegramClient.SendMessageAsync(telegramMessage, cancellationToken);
+            //                    }
+            //                    catch (Exception ex)
+            //                    {
+            //                        _logger?.Error(ex, "Failed to send to Telegram");
+            //                    }
+            //                }
+
+            //                pairs[pair.ShortName].Add(pair.Price);
+            //            });
+
+            //            await Task.Delay(delay);
+            //        }
+            //    }
+            //}
+            //catch (Exception ex)
+            //{
+            //    _logger?.Error(ex);
+            //}
         }
 
         #endregion

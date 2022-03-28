@@ -4,9 +4,8 @@ using System.Threading.Tasks;
 using Common;
 using Microsoft.Extensions.DependencyInjection;
 using Quartz;
-using Scheduler;
 
-namespace Scraper.Common.Schedule
+namespace Scheduler
 {
     /// <summary>
     ///     Инициализатор повторяющихся задач
@@ -59,7 +58,7 @@ namespace Scraper.Common.Schedule
             Cron cronExpression,
             Func<T, IServiceProvider, Task> action)
         {
-            ConfigureRecurringJob(services, cronExpression, sp => action(sp.GetRequiredService<T>(), sp));
+            services.ConfigureRecurringJob(cronExpression, sp => action(sp.GetRequiredService<T>(), sp));
         }
 
         /// <summary>
@@ -70,7 +69,7 @@ namespace Scraper.Common.Schedule
             Cron cronExpression,
             Func<T, Task> action)
         {
-            ConfigureRecurringJob<T>(services, cronExpression, (service, _) => action(service));
+            services.ConfigureRecurringJob<T>(cronExpression, (service, _) => action(service));
         }
 
         /// <summary>

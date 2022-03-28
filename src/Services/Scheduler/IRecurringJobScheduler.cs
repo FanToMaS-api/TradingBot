@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Quartz;
 
-namespace Scraper.Common.Schedule
+namespace Scheduler
 {
     /// <summary>
     ///     Сервис задач по расписанию

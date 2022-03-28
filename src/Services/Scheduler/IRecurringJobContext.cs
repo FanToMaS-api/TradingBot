@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Scraper.Common.Schedule
+namespace Scheduler
 {
     /// <summary>
     ///     Контекст задач

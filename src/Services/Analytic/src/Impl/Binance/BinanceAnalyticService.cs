@@ -5,7 +5,6 @@ using ExchangeLibrary;
 using NLog;
 using Quartz;
 using Scheduler;
-using Scraper.Common.Schedule;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,7 +14,7 @@ using System.Threading.Tasks;
 namespace Analytic.Binance
 {
     /// <inheritdoc cref="IAnalyticService"/>
-    internal class BinanceAnalyticService : IAnalyticService
+    public class BinanceAnalyticService : IAnalyticService
     {
         #region Fields
 
@@ -52,10 +51,10 @@ namespace Analytic.Binance
         public List<IFilter> Filters { get; } = new();
 
         /// <inheritdoc />
-        public EventHandler<InfoModel[]> OnModelsFiltered { get; }
+        public EventHandler<InfoModel[]> OnModelsFiltered { get; set; }
 
         /// <inheritdoc />
-        public EventHandler<AnalyticResultModel[]> OnReadyToBuy { get; }
+        public EventHandler<AnalyticResultModel[]> OnReadyToBuy { get; set; }
 
         #endregion
 

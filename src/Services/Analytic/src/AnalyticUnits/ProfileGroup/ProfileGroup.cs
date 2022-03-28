@@ -44,7 +44,8 @@ namespace Analytic.AnalyticUnits
             var isOneSuccessful = false;
             foreach (var unit in AnalyticUnits)
             {
-                if (await unit.TryAnalyzeAsync(model, out var resultModel, cancellationToken))
+                var (isSuccessful, resultModel) = await unit.TryAnalyzeAsync(model, cancellationToken);
+                if (isSuccessful)
                 {
                     isOneSuccessful = true;
                     analyticResultModel.RecommendedPurchasePrice += resultModel.RecommendedPurchasePrice;

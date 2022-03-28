@@ -26,7 +26,7 @@ namespace Analytic
         /// <summary>
         ///     Событие, возникающее после фильтрации полученных данных 
         /// </summary>
-        EventHandler<InfoModel[]> OnModelsFiltered { get; }
+        EventHandler<InfoModel[]> OnModelsFiltered { get; set; }
 
         /// <summary>
         ///     Событие, возникающее, если есть торговые объекты для покупки

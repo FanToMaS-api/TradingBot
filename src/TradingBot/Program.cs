@@ -1,6 +1,8 @@
-﻿using BinanceExchange;
+﻿using Analytic.Binance;
+using BinanceExchange;
 using NLog;
 using Redis;
+using Scheduler;
 using StackExchange.Redis;
 using System;
 using System.Collections.Generic;

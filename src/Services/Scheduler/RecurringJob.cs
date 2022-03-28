@@ -2,7 +2,7 @@ using System;
 using System.Threading.Tasks;
 using Quartz;
 
-namespace Scraper.Common.Schedule
+namespace Scheduler
 {
     /// <summary>
     ///     Повторяющаяся задача

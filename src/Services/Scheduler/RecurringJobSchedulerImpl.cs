@@ -7,7 +7,7 @@ using NLog;
 using Quartz;
 using Quartz.Impl;
 
-namespace Scraper.Common.Schedule
+namespace Scheduler
 {
     /// <inheritdoc cref="IRecurringJobScheduler"/>
     internal sealed class RecurringJobSchedulerImpl : IRecurringJobScheduler, IRecurringJobContext, IAsyncDisposable
