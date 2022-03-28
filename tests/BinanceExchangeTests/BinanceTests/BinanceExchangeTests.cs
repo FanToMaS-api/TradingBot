@@ -352,15 +352,15 @@ namespace BinanceExchangeTests.BinanceTests
 
             MockRedisIncrementOrCreateKeyValue(_redisDatabase);
 
-            var result = (await _binanceExchange.GetAllCoinsInformationAsync()).ToList();
+            var result = (await _binanceExchange.GetAllTradeObjectInformationAsync()).ToList();
 
             SetArgumentsEvent -= SetArgumentsEventHandler;
 
             Assert.Equal(2, result.Count);
             Assert.Equal("Bitcoin", result[0].Name);
             Assert.Equal("MyCoin", result[1].Name);
-            Assert.Equal("BTC", result[0].Coin);
-            Assert.Equal("MyCoin", result[1].Coin);
+            Assert.Equal("BTC", result[0].ShortName);
+            Assert.Equal("MyCoin", result[1].ShortName);
             Assert.Equal(expectedKey, _actualKey);
             Assert.Equal(expectedInterval, _actualInterval);
             Assert.Equal(expectedWeight, _actualWeight);

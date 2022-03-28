@@ -19,7 +19,7 @@ namespace BinanceExchange
 
             CreateMap<Models.TradeFeeModel, Common.Models.TradeFeeModel>()
                 .ForMember(_ => _.Symbol, _ => _.MapFrom(_ => _.Coin));
-            CreateMap<Models.CoinModel, Common.Models.CoinModel>();
+            CreateMap<CoinModel, TradeObject>();
             CreateMap<Models.DayPriceChangeModel, Common.Models.DayPriceChangeModel>();
             CreateMap<Models.CandlestickModel, Common.Models.CandlestickModel>();
             CreateMap<Models.BalanceModel, Common.Models.BalanceModel>();

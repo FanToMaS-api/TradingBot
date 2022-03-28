@@ -1,4 +1,4 @@
-﻿using Common.Models;
+﻿using Analytic.Models;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -10,8 +10,25 @@ namespace Analytic.AnalyticUnits
     public interface IAnalyticUnit
     {
         /// <summary>
-        ///     Анализирует торговый актив
+        ///     Уникальное название элемента анализа
         /// </summary>
-        Task<AnalyticResultModel> AnalyzeAsync(string name, CancellationToken cancellationToken);
+        public string Name { get; }
+
+        /// <summary>
+        ///     Анализирует объект торговли
+        /// </summary>
+        /// <param name="model"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns> 
+        ///     <see langword="true, model"/> Если объект стоит купить <br/>
+        ///     <see langword="false"/> Если объект не стоит покупать
+        /// </returns>
+        Task<(bool isSuccessfulAnalyze, AnalyticResultModel resultModel)> TryAnalyzeAsync(InfoModel model, CancellationToken cancellationToken);
+
+        /// <summary>
+        ///     Удаляет анализатор или профиль анализаторов
+        /// </summary>
+        /// <returns> True, если удаление прошло успешно </returns>
+        bool Remove(string name);
     }
 }

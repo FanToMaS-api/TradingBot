@@ -8,7 +8,7 @@
         /// <summary>
         ///     Название пары
         /// </summary>
-        public string Symbol { get; internal set; }
+        public string ShortName { get; internal set; }
 
         /// <summary>
         ///     Цена

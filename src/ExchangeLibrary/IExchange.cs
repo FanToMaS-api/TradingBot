@@ -28,7 +28,7 @@ namespace ExchangeLibrary
         /// <summary>
         ///     Получить всю информацию о монетах
         /// </summary>
-        Task<IEnumerable<CoinModel>> GetAllCoinsInformationAsync(long recvWindow = 5000, CancellationToken cancellationToken = default);
+        Task<IEnumerable<TradeObject>> GetAllTradeObjectInformationAsync(long recvWindow = 5000, CancellationToken cancellationToken = default);
 
         /// <summary>
         ///     Получить информацию о таксе за все монеты или за определенную

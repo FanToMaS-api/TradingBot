@@ -144,7 +144,7 @@ namespace BinanceExchange
         }
 
         /// <inheritdoc />
-        public async Task<IEnumerable<Common.Models.CoinModel>> GetAllCoinsInformationAsync(long recvWindow = 5000, CancellationToken cancellationToken = default)
+        public async Task<IEnumerable<TradeObject>> GetAllTradeObjectInformationAsync(long recvWindow = 5000, CancellationToken cancellationToken = default)
         {
             var requestWeight = _requestsWeightStorage.AllCoinsInfoWeight;
             if (CheckLimit(requestWeight.Type, out var rateLimit))
@@ -159,7 +159,7 @@ namespace BinanceExchange
 
             IncrementCallsMade(requestWeight, RequestWeightModel.GetDefaultKey());
 
-            return _mapper.Map<IEnumerable<Common.Models.CoinModel>>(result);
+            return _mapper.Map<IEnumerable<TradeObject>>(result);
         }
 
         #endregion

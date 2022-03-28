@@ -16,10 +16,5 @@ namespace Analytic.AnalyticUnits
         ///     Добавить профиль аналитики
         /// </summary>
         void AddAnalyticUnit(IAnalyticUnit unit);
-
-        /// <summary>
-        ///     Удалить профиль аналитики
-        /// </summary>
-        void RemoveAnaliticUnit(IAnalyticUnit unit);
     }
 }

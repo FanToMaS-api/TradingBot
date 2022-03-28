@@ -1,4 +1,4 @@
-﻿namespace Common.Models
+﻿namespace Analytic.Models
 {
     /// <summary>
     ///     Модель результата работы аналитического сервиса
@@ -8,16 +8,11 @@
         /// <summary>
         ///     Название объекта торговли
         /// </summary>
-        public string Symbol { get; set; }
+        public string TradeObjectName { get; set; }
 
         /// <summary>
         ///     Рекомендуемая цена покупки
         /// </summary>
         public double RecommendedPurchasePrice { get; set; }
-
-        /// <summary>
-        ///     Рекомендуемая цена продажи
-        /// </summary>
-        public double RecommendedSellingPrice { get; set; }
     }
 }

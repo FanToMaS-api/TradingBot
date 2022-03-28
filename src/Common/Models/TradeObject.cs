@@ -3,12 +3,12 @@
     /// <summary>
     ///     Модель объекта торговли
     /// </summary>
-    public class CoinModel
+    public class TradeObject
     {
         /// <summary>
-        ///     Обозначение монеты
+        ///     Кратное наименовение
         /// </summary>
-        public string Coin { get; internal set; }
+        public string ShortName { get; internal set; }
 
         /// <summary>
         ///     Название валюты

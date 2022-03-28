@@ -5,7 +5,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Quartz" Version="3.4.0" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\..\ExchangeLibrary\ExchangeLibrary.csproj" />
+    <ProjectReference Include="..\Scheduler\Scheduler.csproj" />
   </ItemGroup>
 
 </Project>

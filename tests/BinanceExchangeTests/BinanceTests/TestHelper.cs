@@ -198,7 +198,7 @@ namespace BinanceExchangeTests.BinanceTests
         public static Common.Models.SymbolPriceModel CreateExpectedSymbolPriceTickerModel(string symbol, double price) =>
             new()
             {
-                Symbol = symbol,
+                ShortName = symbol,
                 Price = price
             };
 
