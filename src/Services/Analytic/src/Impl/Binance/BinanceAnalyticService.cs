@@ -245,7 +245,7 @@ namespace Analytic.Binance
             {
                 var model = models[i];
                 var extendedModel = await _exchange.GetOrderBookAsync(model.TradeObjectName, 1000, cancellationToken);
-                model.BidVolume = extendedModel.Bids.Sum(_ => _..Quantity);
+                model.BidVolume = extendedModel.Bids.Sum(_ => _.Quantity);
                 model.AskVolume = extendedModel.Asks.Sum(_ => _.Quantity);
 
                 // если у модели есть спец группа фильтров, то по общим ее фильтровать не надо

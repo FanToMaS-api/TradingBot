@@ -76,13 +76,11 @@ namespace SignalsSender
 
             var specialFilterGroupBTC = new FilterGroup("BTC_SpecialFilterGroup", FilterGroupType.Special, "BTC");
             var btcDeviationFilter = new PriceDeviationFilter("BTCFilter", ComparisonType.GreaterThan, 5.7);
-            specialFilterGroupBTC.AddFilter(priceDeviationFilter);
             specialFilterGroupBTC.AddFilter(btcDeviationFilter);
             _analyticService.AddFilterGroup(specialFilterGroupBTC);
 
             var specialFilterGroupETH = new FilterGroup("ETH_SpecialFilterGroup", FilterGroupType.Special, "ETH");
             var ethDeviationFilter = new PriceDeviationFilter("ETHFilter", ComparisonType.GreaterThan, 4.5);
-            specialFilterGroupETH.AddFilter(priceDeviationFilter);
             specialFilterGroupETH.AddFilter(ethDeviationFilter);
             _analyticService.AddFilterGroup(specialFilterGroupETH);
 
