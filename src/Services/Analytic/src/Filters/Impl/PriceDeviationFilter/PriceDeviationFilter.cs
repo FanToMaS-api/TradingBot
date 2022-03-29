@@ -15,13 +15,11 @@ namespace Analytic.Filters
         ///     Фильтр цен
         /// </summary>
         /// <param name="filterName"> Название фильтра </param>
-        /// <param name="tradeObjectName"> Название объекта торговли. <see langword="null"/> - для фильтрации всех </param>
         /// <param name="comparisonType"> Тип фильтра цен </param>
         /// <param name="limit"> Ограничение </param>
-        public PriceDeviationFilter(string filterName, string tradeObjectName, ComparisonType comparisonType, double limit, int timeframeNumber = 5)
+        public PriceDeviationFilter(string filterName, ComparisonType comparisonType, double limit, int timeframeNumber = 5)
         {
             FilterName = filterName;
-            TargetTradeObjectName = tradeObjectName;
             ComparisonType = comparisonType;
             Limit = limit;
             TimeframeNumber = timeframeNumber;
@@ -33,9 +31,6 @@ namespace Analytic.Filters
 
         /// <inheritdoc />
         public string FilterName { get; }
-
-        /// <inheritdoc />
-        public string TargetTradeObjectName { get; }
 
         /// <summary>
         ///     Тип сравнения

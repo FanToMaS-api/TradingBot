@@ -62,19 +62,39 @@ namespace SignalsSender
         {
             var cancellationToken = _cancellationTokenSource.Token;
 
-            //  TODO добавить группы фильтров
+            var paramountFilterGroup = new FilterGroup("ParamountFilterGroup", FilterGroupType.Paramount, null);
             var nameFilter = new NameFilter("NameFilter", _baseTickers);
-            var priceDeviationFilter = new PriceDeviationFilter("AnyFilter", null, ComparisonType.GreaterThan, 2.55);
-            var usdtPriceFilter = new PriceFilter("USDTFilter", "USDT", ComparisonType.LessThan, 20);
-            var btcDeviationFilter = new PriceDeviationFilter("BTCFilter", "BTC", ComparisonType.GreaterThan, 5.7);
-            var ethDeviationFilter = new PriceDeviationFilter("ETHFilter", "ETH", ComparisonType.GreaterThan, 4.5);
-            var volumeFilter = new VolumeFilter("VolumeFilter", null);
-            _analyticService.AddFilter(nameFilter);
-            _analyticService.AddFilter(priceDeviationFilter);
-            _analyticService.AddFilter(usdtPriceFilter);
-            _analyticService.AddFilter(btcDeviationFilter);
-            _analyticService.AddFilter(ethDeviationFilter);
-            _analyticService.AddFilter(volumeFilter);
+            paramountFilterGroup.AddFilter(nameFilter);
+            _analyticService.AddFilterGroup(paramountFilterGroup);
+
+            var specialFilterGroupUSDT = new FilterGroup("USDT_SpecialFilterGroup", FilterGroupType.Special, "USDT");
+            var priceDeviationFilter = new PriceDeviationFilter("AnyFilter", ComparisonType.GreaterThan, 2.55);
+            var usdtPriceFilter = new PriceFilter("USDTFilter", ComparisonType.LessThan, 20);
+            specialFilterGroupUSDT.AddFilter(priceDeviationFilter);
+            specialFilterGroupUSDT.AddFilter(usdtPriceFilter);
+            _analyticService.AddFilterGroup(specialFilterGroupUSDT);
+
+            var specialFilterGroupBTC = new FilterGroup("BTC_SpecialFilterGroup", FilterGroupType.Special, "BTC");
+            var btcDeviationFilter = new PriceDeviationFilter("BTCFilter", ComparisonType.GreaterThan, 5.7);
+            specialFilterGroupBTC.AddFilter(priceDeviationFilter);
+            specialFilterGroupBTC.AddFilter(btcDeviationFilter);
+            _analyticService.AddFilterGroup(specialFilterGroupBTC);
+
+            var specialFilterGroupETH = new FilterGroup("ETH_SpecialFilterGroup", FilterGroupType.Special, "ETH");
+            var ethDeviationFilter = new PriceDeviationFilter("ETHFilter", ComparisonType.GreaterThan, 4.5);
+            specialFilterGroupETH.AddFilter(priceDeviationFilter);
+            specialFilterGroupETH.AddFilter(ethDeviationFilter);
+            _analyticService.AddFilterGroup(specialFilterGroupETH);
+
+            var commonFilterGroup = new FilterGroup("CommonFilterGroup", FilterGroupType.Common, null);
+            commonFilterGroup.AddFilter(priceDeviationFilter);
+            _analyticService.AddFilterGroup(commonFilterGroup);
+
+            var commonLatestFilterGroup = new FilterGroup("CommonLatestFilterGroup", FilterGroupType.CommonLatest, null);
+            var volumeFilter = new VolumeFilter("VolumeFilter");
+            commonLatestFilterGroup.AddFilter(volumeFilter);
+            _analyticService.AddFilterGroup(commonLatestFilterGroup);
+
             _analyticService.OnModelsFiltered += OnModelsFilteredReceived;
             _analyticService.OnModelsReadyToBuy += OnModelsToBuyReceived;
 
@@ -118,7 +138,7 @@ namespace SignalsSender
                     var url = _baseUrl.Replace("<pair>", pairName);
                     builder.SetInlineButton("Перейти", $"{url}");
                     var telegramMessage = builder.GetResult();
-                    tasks.Add(_telegramClient.SendMessageAsync(telegramMessage, CancellationToken.None));
+                    // tasks.Add(_telegramClient.SendMessageAsync(telegramMessage, CancellationToken.None));
                 }
                 catch (Exception ex)
                 {
@@ -163,7 +183,7 @@ namespace SignalsSender
                     var url = _baseUrl.Replace("<pair>", pairName);
                     builder.SetInlineButton("Купить", $"{url}");
                     var telegramMessage = builder.GetResult();
-                    tasks.Add(_telegramClient.SendMessageAsync(telegramMessage, CancellationToken.None));
+                    // tasks.Add(_telegramClient.SendMessageAsync(telegramMessage, CancellationToken.None));
                 }
                 catch (Exception ex)
                 {

@@ -24,14 +24,12 @@ namespace Analytic.Filters
         /// <param name="limit"> Порог при недефолтной фильтрации </param>
         public VolumeFilter(
             string filterName,
-            string tradeObjectName,
             VolumeComparisonType volumeComparisonType = VolumeComparisonType.Default,
             VolumeType volumeType = VolumeType.Default,
             double percentDeviation = 0.3,
             double? limit = null)
         {
             FilterName = filterName;
-            TargetTradeObjectName = tradeObjectName;
             VolumeComparisonType = volumeComparisonType;
             Limit = limit;
             VolumeType = volumeType;
@@ -44,9 +42,6 @@ namespace Analytic.Filters
 
         /// <inheritdoc />
         public string FilterName { get; }
-
-        /// <inheritdoc />
-        public string TargetTradeObjectName { get; }
 
         /// <summary>
         ///     Тип сравнения объемов
@@ -79,8 +74,7 @@ namespace Analytic.Filters
         public bool CheckConditions(InfoModel model) =>
             VolumeComparisonType != VolumeComparisonType.Default && !Limit.HasValue && VolumeType == VolumeType.Default
             ? throw new Exception("A non-default filter type is selected but no filtering limit is specified")
-            : (TargetTradeObjectName is null || model.TradeObjectName == TargetTradeObjectName)
-                && VolumeComparisonType switch
+            : VolumeComparisonType switch
                 {
                     VolumeComparisonType.Default => model.AskVolume * (1 + PercentDeviation) > model.BidVolume,
                     VolumeComparisonType.GreaterThan => IsSatisfiesCondition(model, _ => _ > Limit),

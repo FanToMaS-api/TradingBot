@@ -21,7 +21,7 @@ namespace Analytic
         /// <summary>
         ///     Фильтры данных
         /// </summary>
-        List<IFilter> Filters { get; }
+        List<IFilterGroup> FilterGroups { get; }
 
         /// <summary>
         ///     Событие, возникающее после фильтрации полученных данных 
@@ -59,17 +59,17 @@ namespace Analytic
         /// </summary>
         /// <returns> True, если удаление прошло успешно </returns>
         bool RemoveProfile(string profileName);
-        
-        /// <summary>
-        ///     Добавить новый фильтр
-        /// </summary>
-        void AddFilter(IFilter filter);
 
         /// <summary>
-        ///     Удалить фильтр
+        ///     Добавить группу фильтров
+        /// </summary>
+        void AddFilterGroup(IFilterGroup filterGroup);
+
+        /// <summary>
+        ///     Удалить группу фильтров
         /// </summary>
         /// <returns> True, если удаление прошло успешно </returns>
-        bool RemoveFilter(IFilter filter);
+        bool RemoveFilterGroup(IFilterGroup filterGroup);
 
         /// <summary>
         ///     Удалить фильтр

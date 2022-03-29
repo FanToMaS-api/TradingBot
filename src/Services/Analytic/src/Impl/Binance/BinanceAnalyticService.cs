@@ -49,7 +49,7 @@ namespace Analytic.Binance
         public List<IProfileGroup> ProfileGroups { get; } = new();
 
         /// <inheritdoc />
-        public List<IFilter> Filters { get; } = new();
+        public List<IFilterGroup> FilterGroups { get; } = new();
 
         /// <inheritdoc />
         public EventHandler<InfoModel[]> OnModelsFiltered { get; set; }
@@ -80,19 +80,19 @@ namespace Analytic.Binance
         public void AddProfileGroup(IProfileGroup profileGroup) => ProfileGroups.Add(profileGroup);
 
         /// <inheritdoc />
-        public void AddFilter(IFilter filter) => Filters.Add(filter);
+        public void AddFilterGroup(IFilterGroup filterGroup) => FilterGroups.Add(filterGroup);
 
         /// <inheritdoc />
-        public bool RemoveFilter(IFilter filter) => Filters.Remove(filter);
+        public bool RemoveFilterGroup(IFilterGroup filterGroup) => FilterGroups.Remove(filterGroup);
 
         /// <inheritdoc />
         public bool RemoveFilter(string filterName)
         {
-            foreach (var filter in Filters)
+            foreach (var group in FilterGroups)
             {
-                if (filter.FilterName == filterName)
+                if (group.ContainsFilter(filterName))
                 {
-                    return Filters.Remove(filter);
+                    return FilterGroups.Remove(group);
                 }
             }
 
@@ -161,11 +161,11 @@ namespace Analytic.Binance
         {
             var result = new List<InfoModel>();
 
-            var priceDefaultFilters = GetDefaultFilters();
-            var nameFilters = Filters.Where(_ => _.Type == FilterType.NameFilter);
+            var paramountFilters = FilterGroups.Where(_ => _.Type == FilterGroupType.Paramount).ToArray();
+            var commonFilters = FilterGroups.Where(_ => _.Type == FilterGroupType.Common).ToArray();
             foreach (var model in models)
             {
-                if (!nameFilters.All(_ => _.CheckConditions(new(model.Name, -1)))) // просто отсеивание неподходящих моделей
+                if (!paramountFilters.All(_ => _.CheckConditions(new(model.Name, model.Price))))
                 {
                     continue;
                 }
@@ -180,6 +180,7 @@ namespace Analytic.Binance
                 var infoModel = _infoModels[model.Name];
                 CalculateData(infoModel, model);
 
+                // если у модели есть спец группа фильтров, то по общим ее фильтровать не надо
                 var specialPriceFilters = GetSpecialFiltersForModel(model);
                 if (specialPriceFilters.Any())
                 {
@@ -191,7 +192,7 @@ namespace Analytic.Binance
                     continue;
                 }
 
-                if (priceDefaultFilters.All(_ => _.CheckConditions(infoModel)))
+                if (commonFilters.All(_ => _.CheckConditions(infoModel)))
                 {
                     result.Add(infoModel);
                 }
@@ -199,14 +200,6 @@ namespace Analytic.Binance
 
             return result;
         }
-
-        /// <summary>
-        ///     Возвращает фильтры для цены, работающие для всех объектов торговли
-        /// </summary>
-        private IEnumerable<IFilter> GetDefaultFilters() =>
-            Filters.Where(_ =>
-                (_.Type == FilterType.PriceFilter || _.Type == FilterType.PriceDeviationFilter)
-                && string.IsNullOrEmpty(_.TargetTradeObjectName));
 
         /// <summary>
         ///     Производит новые расчеты для модели <paramref name="infoModel"/>
@@ -231,40 +224,44 @@ namespace Analytic.Binance
         private static double GetDeviation(double oldPrice, double newPrice) => (newPrice / (double)oldPrice - 1) * 100;
 
         /// <summary>
-        ///     Возвращает фильтры для конкретной модели
+        ///     Возвращает группы фильтров для конкретной модели
         /// </summary>
-        private IEnumerable<IFilter> GetSpecialFiltersForModel(TradeObjectNamePriceModel model) =>
-            Filters.Where(_ =>
-                (_.Type == FilterType.PriceFilter || _.Type == FilterType.PriceDeviationFilter)
-                && !string.IsNullOrEmpty(_.TargetTradeObjectName)
-                && model.Name.Contains(_.TargetTradeObjectName, StringComparison.InvariantCultureIgnoreCase));
+        private IFilterGroup[] GetSpecialFiltersForModel(TradeObjectNamePriceModel model) =>
+            FilterGroups.Where(_ => _.Type == FilterGroupType.Special && _.IsFilter(model.Name)).ToArray();
+
+        /// <summary>
+        ///     Возвращает группы для последней фильтрации для конкретной модели
+        /// </summary>
+        private IFilterGroup[] GetSpecialLatestFiltersForModel(InfoModel model) =>
+            FilterGroups.Where(_ => _.Type == FilterGroupType.SpecialLatest && _.IsFilter(model.TradeObjectName)).ToArray();
 
         /// <summary>
         ///     Получение дополнительных данных и их фильтрация
         /// </summary>
         private async Task<List<InfoModel>> GetExtendedFilteredModelsAsync(List<InfoModel> models, CancellationToken cancellationToken)
         {
-            var volumeFilters = Filters.Where(_ => _.Type == FilterType.VolumeFilter && string.IsNullOrEmpty(_.TargetTradeObjectName));
+            var commonLatestFilters = FilterGroups.Where(_ => _.Type == FilterGroupType.CommonLatest).ToArray();
             for (var i = 0; i < models.Count; i++)
             {
                 var model = models[i];
-                var extendedModel = await _exchange.GetOrderBookAsync(model.TradeObjectName, 5000, cancellationToken);
+                var extendedModel = await _exchange.GetOrderBookAsync(model.TradeObjectName, 1000, cancellationToken);
                 model.BidVolume = extendedModel.Bids.Sum(_ => _.Quantity);
                 model.AskVolume = extendedModel.Asks.Sum(_ => _.Quantity);
 
-                var specialFilters = GetSpecialVolumeFiltersForModel(model);
+                // если у модели есть спец группа фильтров, то по общим ее фильтровать не надо
+                var specialFilters = GetSpecialLatestFiltersForModel(model);
                 if (specialFilters.Any())
                 {
                     if (!specialFilters.All(_ => _.CheckConditions(model)))
                     {
                         models.Remove(model);
                         i--;
-                    }
 
-                    continue;
+                        continue;
+                    }
                 }
 
-                if (!volumeFilters.All(_ => _.CheckConditions(model)))
+                if (!commonLatestFilters.All(_ => _.CheckConditions(model)))
                 {
                     models.Remove(model);
                     i--;
@@ -273,15 +270,6 @@ namespace Analytic.Binance
 
             return models;
         }
-
-        /// <summary>
-        ///     Возвращает фильтры для конкретной модели
-        /// </summary>
-        private IEnumerable<IFilter> GetSpecialVolumeFiltersForModel(InfoModel model) =>
-            Filters.Where(_ =>
-                _.Type == FilterType.VolumeFilter
-                && string.IsNullOrEmpty(_.TargetTradeObjectName)
-                && model.TradeObjectName.Contains(_.TargetTradeObjectName, StringComparison.InvariantCultureIgnoreCase));
 
         /// <summary>
         ///     Запускает анализ каждой модели для решения о дальнейшей покупке

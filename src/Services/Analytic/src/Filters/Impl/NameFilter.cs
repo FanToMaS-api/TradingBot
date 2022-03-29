@@ -23,9 +23,6 @@ namespace Analytic.Filters
         /// <inheritdoc />
         public string FilterName { get; }
 
-        /// <inheritdoc />
-        public string TargetTradeObjectName { get; }
-
         /// <summary>
         ///     Названия торговых объектов участвующих в анализе
         /// </summary>
