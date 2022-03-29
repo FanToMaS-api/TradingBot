@@ -30,12 +30,12 @@ namespace Analytic.Models
         public double PrevPrice { get; internal set; }
 
         /// <summary>
-        ///     Объем предложения
+        ///     Объем спроса
         /// </summary>
         public double BidVolume { get; internal set; }
 
         /// <summary>
-        ///     Объем спроса
+        ///     Объем предложения
         /// </summary>
         public double AskVolume { get; internal set; }
 

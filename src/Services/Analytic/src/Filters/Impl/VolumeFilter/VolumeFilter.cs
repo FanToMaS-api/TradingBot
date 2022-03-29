@@ -4,35 +4,31 @@ using System;
 namespace Analytic.Filters
 {
     /// <summary>
-    ///     Фильтр объемов купли/продажи
+    ///     Фильтр объемов спроса и предложения
     /// </summary>
     public class VolumeFilter : IFilter
     {
         #region .ctor
 
         /// <summary>
-        ///     Фильтр объемов купли/продажи
+        ///     Фильтр объемов спроса и предложения
         /// </summary>
         /// <param name="filterName"> Название фильтра </param>
-        /// <param name="tradeObjectName">
-        ///     Название объекта торговли <br/>
-        ///     <see langword="null"/> - для фильтрации всех
-        /// </param>
-        /// <param name="volumeComparisonType"> Тип фильтра </param>
         /// <param name="volumeType"> Тип объемов для фильтрации </param>
+        /// <param name="volumeComparisonType"> Тип фильтра </param>
         /// <param name="percentDeviation"> Отклонение для объемов при дефолтной фильтрации </param>
         /// <param name="limit"> Порог при недефолтной фильтрации </param>
         public VolumeFilter(
             string filterName,
-            VolumeComparisonType volumeComparisonType = VolumeComparisonType.Default,
             VolumeType volumeType = VolumeType.Default,
+            VolumeComparisonType volumeComparisonType = VolumeComparisonType.Default,
             double percentDeviation = 0.3,
             double? limit = null)
         {
             FilterName = filterName;
-            VolumeComparisonType = volumeComparisonType;
             Limit = limit;
             VolumeType = volumeType;
+            VolumeComparisonType = volumeComparisonType;
             PercentDeviation = percentDeviation;
         }
 
@@ -76,7 +72,7 @@ namespace Analytic.Filters
             ? throw new Exception("A non-default filter type is selected but no filtering limit is specified")
             : VolumeComparisonType switch
                 {
-                    VolumeComparisonType.Default => model.AskVolume * (1 + PercentDeviation) > model.BidVolume,
+                    VolumeComparisonType.Default => model.BidVolume > model.AskVolume * (1 + PercentDeviation),
                     VolumeComparisonType.GreaterThan => IsSatisfiesCondition(model, _ => _ > Limit),
                     VolumeComparisonType.LessThan => IsSatisfiesCondition(model, _ => _ < Limit),
                     _ => throw new NotImplementedException(),

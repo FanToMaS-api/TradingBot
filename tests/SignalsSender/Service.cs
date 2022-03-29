@@ -130,15 +130,15 @@ namespace SignalsSender
                     var message = $"*{pairSymbols}*\nНовая разница: *{model.LastDeviation:0.00}%*" +
                         $"\nРазница за последние 5 таймфреймов: *{model.SumDeviations:0.00}%*" +
                         $"\nПоследняя цена: *{model.LastPrice:0.0000}*" +
-                        $"\nОбъем спроса: *{model.AskVolume:0,0.0}*" +
-                        $"\nОбъем предложения: *{model.BidVolume:0,0.0}*";
+                        $"\nОбъем спроса: *{model.BidVolume:0,0.0}*" +
+                        $"\nОбъем предложения: *{model.AskVolume:0,0.0}*";
                     message = message.Replace(".", "\\.");
                     message = message.Replace("-", "\\-");
                     builder.SetMessageText(message);
                     var url = _baseUrl.Replace("<pair>", pairName);
                     builder.SetInlineButton("Перейти", $"{url}");
                     var telegramMessage = builder.GetResult();
-                    // tasks.Add(_telegramClient.SendMessageAsync(telegramMessage, CancellationToken.None));
+                    tasks.Add(_telegramClient.SendMessageAsync(telegramMessage, CancellationToken.None));
                 }
                 catch (Exception ex)
                 {
@@ -183,7 +183,7 @@ namespace SignalsSender
                     var url = _baseUrl.Replace("<pair>", pairName);
                     builder.SetInlineButton("Купить", $"{url}");
                     var telegramMessage = builder.GetResult();
-                    // tasks.Add(_telegramClient.SendMessageAsync(telegramMessage, CancellationToken.None));
+                    tasks.Add(_telegramClient.SendMessageAsync(telegramMessage, CancellationToken.None));
                 }
                 catch (Exception ex)
                 {

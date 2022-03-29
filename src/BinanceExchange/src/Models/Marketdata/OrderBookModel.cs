@@ -80,8 +80,10 @@ namespace BinanceExchange.Models
         /// </summary>
         internal static void CreatePair(ref Utf8JsonReader reader, OrderBookModel result, string lastPropertyName)
         {
-            var workItem = new PriceQtyPair();
-            workItem.Price = double.Parse(reader.GetString(), CultureInfo.InvariantCulture);
+            var workItem = new PriceQtyPair
+            {
+                Price = double.Parse(reader.GetString(), CultureInfo.InvariantCulture)
+            };
             reader.Read();
             workItem.Quantity = double.Parse(reader.GetString(), CultureInfo.InvariantCulture);
             switch (lastPropertyName)
