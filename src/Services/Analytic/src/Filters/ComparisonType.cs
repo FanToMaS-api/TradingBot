@@ -1,9 +1,9 @@
 ﻿namespace Analytic.Filters
 {
     /// <summary>
-    ///     Тип фильтра цен
+    ///     Тип сравнения
     /// </summary>
-    public enum PriceFilterType
+    public enum ComparisonType
     {
         /// <summary>
         ///     Больше чем

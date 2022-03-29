@@ -1,6 +1,4 @@
 ﻿using Analytic.Models;
-using System;
-using System.Collections.Generic;
 using System.Linq;
 
 namespace Analytic.Filters
@@ -17,13 +15,13 @@ namespace Analytic.Filters
         /// </summary>
         /// <param name="filterName"> Название фильтра </param>
         /// <param name="tradeObjectName"> Название объекта торговли. <see langword="null"/> - для фильтрации всех </param>
-        /// <param name="filterType"> Тип фильтра цен </param>
+        /// <param name="comparisonType"> Тип фильтра цен </param>
         /// <param name="limit"> Ограничение </param>
-        public PriceFilter(string filterName, string tradeObjectName, PriceFilterType filterType, double limit)
+        public PriceFilter(string filterName, string tradeObjectName, ComparisonType comparisonType, double limit)
         {
             FilterName = filterName;
             TargetTradeObjectName = tradeObjectName;
-            FilterType = filterType;
+            ComparisonType = comparisonType;
             Limit = limit;
         }
 
@@ -34,42 +32,35 @@ namespace Analytic.Filters
         /// <inheritdoc />
         public string FilterName { get; }
 
-        /// <summary>
-        ///     Название объекта торговли
-        /// </summary>
-        /// <remarks>
-        ///     <see langword="null"/> - для фильтрации всех
-        /// </remarks>
+        /// <inheritdoc />
         public string TargetTradeObjectName { get; }
 
         /// <summary>
-        ///     Тип фильтра цен
+        ///     Тип сравнения
         /// </summary>
-        public PriceFilterType FilterType { get; }
+        public ComparisonType ComparisonType { get; }
 
         /// <summary>
         ///     Ограничение
         /// </summary>
         public double Limit { get; }
 
+        /// <inheritdoc />
+        public FilterType Type => FilterType.PriceFilter;
+
         #endregion
 
         #region Public methods
 
         /// <inheritdoc />
-        public bool CheckConditions(InfoModel model)
-        {
-            var summDeviations = model.PricePercentDeviations.Take(5).Sum();
-            model.Sum5Deviations = summDeviations;
-
-            return FilterType switch
-                {
-                    PriceFilterType.GreaterThan => summDeviations > Limit,
-                    PriceFilterType.LessThan => summDeviations < Limit,
-                    PriceFilterType.Equal => summDeviations == Limit,
-                    _ => false
-                };
-        }
+        public bool CheckConditions(InfoModel model) =>
+            ComparisonType switch
+            {
+                ComparisonType.GreaterThan => model.LastPrice > Limit,
+                ComparisonType.LessThan => model.LastPrice < Limit,
+                ComparisonType.Equal => model.LastPrice == Limit,
+                _ => false
+            };
 
         #endregion
     }

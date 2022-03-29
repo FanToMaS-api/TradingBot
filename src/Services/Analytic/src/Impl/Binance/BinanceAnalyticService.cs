@@ -1,6 +1,7 @@
 ﻿using Analytic.AnalyticUnits;
 using Analytic.Filters;
 using Analytic.Models;
+using Common.Models;
 using ExchangeLibrary;
 using NLog;
 using Quartz;
@@ -65,7 +66,7 @@ namespace Analytic.Binance
         {
             cancellationToken.Register(() => StopAsync(CancellationToken.None).GetAwaiter().GetResult());
 
-            // каждую 1 секунд вызываем метода анализа
+            // каждую 1 минуту вызываем метода анализа
             _triggerKey = await _scheduler.ScheduleAsync("0 * * ? * *", AnalyzeAsync);
         }
 
@@ -122,7 +123,7 @@ namespace Analytic.Binance
         #region Private methods
 
         /// <summary>
-        ///     Задача анализа текузей ситуации на рынке
+        ///     Задача анализа текущей ситуации на рынке
         /// </summary>
         private async Task AnalyzeAsync(IServiceProvider serviceProvider)
         {
@@ -133,13 +134,18 @@ namespace Analytic.Binance
 
             try
             {
-                var filteredModels = await DataReceivedAndFilterAsync(_cancellationToken);
-                var extendedFilteredModels = await ExtendedDataReceivedAndFilterAsync(filteredModels, _cancellationToken);
+                var models = await _exchange.GetSymbolPriceTickerAsync(null, _cancellationToken);
+                var filteredModels = GetFilteredData(models);
+                var extendedFilteredModels = await GetExtendedFilteredModelsAsync(filteredModels, _cancellationToken);
                 if (extendedFilteredModels.Any())
                 {
                     OnModelsFiltered?.Invoke(this, extendedFilteredModels.ToArray());
 
-                    await ModelsAnalyzeAsync(extendedFilteredModels, _cancellationToken);
+                    var analyzedModels = await GetAnalyzedModelsAsync(extendedFilteredModels, _cancellationToken);
+                    if (analyzedModels.Any())
+                    {
+                        OnModelsReadyToBuy?.Invoke(this, analyzedModels.ToArray());
+                    }
                 }
             }
             catch (Exception ex)
@@ -151,49 +157,30 @@ namespace Analytic.Binance
         /// <summary>
         ///     Получение общих данных с биржи и их первоначальная фильтрация
         /// </summary>
-        private async Task<List<InfoModel>> DataReceivedAndFilterAsync(CancellationToken cancellationToken)
+        private List<InfoModel> GetFilteredData(IEnumerable<TradeObjectNamePriceModel> models)
         {
-            var models = await _exchange.GetSymbolPriceTickerAsync(null, cancellationToken);
             var result = new List<InfoModel>();
 
-            // отделяю дефолтные фильтры для цены
-            var priceDefaultFilters = Filters
-                .Where(_ => _ is PriceFilter && string.IsNullOrEmpty((_ as PriceFilter).TargetTradeObjectName));
-            var nameFilters = Filters.Where(_ => _ is NameFilter);
+            var priceDefaultFilters = GetDefaultFilters();
+            var nameFilters = Filters.Where(_ => _.Type == FilterType.NameFilter);
             foreach (var model in models)
             {
-                if (!nameFilters.All(_ => _.CheckConditions(new() { TradeObjectName = model.ShortName })))
+                if (!nameFilters.All(_ => _.CheckConditions(new(model.Name, -1)))) // просто отсеивание неподходящих моделей
                 {
                     continue;
                 }
 
-                if (!_infoModels.ContainsKey(model.ShortName))
+                if (!_infoModels.ContainsKey(model.Name))
                 {
-                    _infoModels[model.ShortName] = new()
-                    {
-                        TradeObjectName = model.ShortName,
-                        LastPrice = model.Price,
-                    };
+                    _infoModels[model.Name] = new(model.Name, model.Price);
 
                     continue;
                 }
 
-                var infoModel = _infoModels[model.ShortName];
-                (infoModel.PrevPrice, infoModel.LastPrice) = (infoModel.LastPrice, model.Price); // Swap
+                var infoModel = _infoModels[model.Name];
+                CalculateData(infoModel, model);
 
-                var lastDeviation = GetDeviation(infoModel.PrevPrice, infoModel.LastPrice);
-                infoModel.PricePercentDeviations.Add(lastDeviation);
-                infoModel.LastDeviation = lastDeviation;
-                if (infoModel.PricePercentDeviations.Count > 40)
-                {
-                    infoModel.PricePercentDeviations.RemoveRange(0, 30);
-                }
-
-                // выбираю специальные фильтры для пары, если они есть
-                var specialPriceFilters = Filters
-                    .Where(_ => _ is PriceFilter
-                        && !string.IsNullOrEmpty((_ as PriceFilter).TargetTradeObjectName)
-                        && model.ShortName.Contains((_ as PriceFilter).TargetTradeObjectName));
+                var specialPriceFilters = GetSpecialFiltersForModel(model);
                 if (specialPriceFilters.Any())
                 {
                     if (specialPriceFilters.All(_ => _.CheckConditions(infoModel)))
@@ -214,41 +201,97 @@ namespace Analytic.Binance
         }
 
         /// <summary>
+        ///     Возвращает фильтры для цены, работающие для всех объектов торговли
+        /// </summary>
+        private IEnumerable<IFilter> GetDefaultFilters() =>
+            Filters.Where(_ =>
+                (_.Type == FilterType.PriceFilter || _.Type == FilterType.PriceDeviationFilter)
+                && string.IsNullOrEmpty(_.TargetTradeObjectName));
+
+        /// <summary>
+        ///     Производит новые расчеты для модели <paramref name="infoModel"/>
+        /// </summary>
+        private static void CalculateData(InfoModel infoModel, TradeObjectNamePriceModel model)
+        {
+            (infoModel.PrevPrice, infoModel.LastPrice) = (infoModel.LastPrice, model.Price); // Swap
+
+            var lastDeviation = GetDeviation(infoModel.PrevPrice, infoModel.LastPrice);
+            infoModel.PricePercentDeviations.Add(lastDeviation);
+            infoModel.LastDeviation = lastDeviation;
+            if (infoModel.PricePercentDeviations.Count > 40)
+            {
+                // пока нет сохранения в бд, удаляю с целью экономии памяти
+                infoModel.PricePercentDeviations.RemoveRange(0, 30);
+            }
+        }
+
+        /// <summary>
         ///     Возвращает процентное отклонение новой цены от старой
         /// </summary>
         private static double GetDeviation(double oldPrice, double newPrice) => (newPrice / (double)oldPrice - 1) * 100;
 
         /// <summary>
+        ///     Возвращает фильтры для конкретной модели
+        /// </summary>
+        private IEnumerable<IFilter> GetSpecialFiltersForModel(TradeObjectNamePriceModel model) =>
+            Filters.Where(_ =>
+                (_.Type == FilterType.PriceFilter || _.Type == FilterType.PriceDeviationFilter)
+                && !string.IsNullOrEmpty(_.TargetTradeObjectName)
+                && model.Name.Contains(_.TargetTradeObjectName, StringComparison.InvariantCultureIgnoreCase));
+
+        /// <summary>
         ///     Получение дополнительных данных и их фильтрация
         /// </summary>
-        private async Task<List<InfoModel>> ExtendedDataReceivedAndFilterAsync(List<InfoModel> models, CancellationToken cancellationToken)
+        private async Task<List<InfoModel>> GetExtendedFilteredModelsAsync(List<InfoModel> models, CancellationToken cancellationToken)
         {
-            var volumeFilters = Filters.Where(_ => _ is VolumeFilter);
-            var result = new List<InfoModel>();
-            foreach (var model in models)
+            var volumeFilters = Filters.Where(_ => _.Type == FilterType.VolumeFilter && string.IsNullOrEmpty(_.TargetTradeObjectName));
+            for (var i = 0; i < models.Count; i++)
             {
+                var model = models[i];
                 var extendedModel = await _exchange.GetOrderBookAsync(model.TradeObjectName, 5000, cancellationToken);
                 model.BidVolume = extendedModel.Bids.Sum(_ => _.Quantity);
                 model.AskVolume = extendedModel.Asks.Sum(_ => _.Quantity);
 
-                if (volumeFilters.Any(_ => _.CheckConditions(model)))
+                var specialFilters = GetSpecialVolumeFiltersForModel(model);
+                if (specialFilters.Any())
                 {
-                    result.Add(model);
+                    if (!specialFilters.All(_ => _.CheckConditions(model)))
+                    {
+                        models.Remove(model);
+                        i--;
+                    }
+
+                    continue;
+                }
+
+                if (!volumeFilters.All(_ => _.CheckConditions(model)))
+                {
+                    models.Remove(model);
+                    i--;
                 }
             }
 
-            return result;
+            return models;
         }
+
+        /// <summary>
+        ///     Возвращает фильтры для конкретной модели
+        /// </summary>
+        private IEnumerable<IFilter> GetSpecialVolumeFiltersForModel(InfoModel model) =>
+            Filters.Where(_ =>
+                _.Type == FilterType.VolumeFilter
+                && string.IsNullOrEmpty(_.TargetTradeObjectName)
+                && model.TradeObjectName.Contains(_.TargetTradeObjectName, StringComparison.InvariantCultureIgnoreCase));
 
         /// <summary>
         ///     Запускает анализ каждой модели для решения о дальнейшей покупке
         /// </summary>
-        private async Task ModelsAnalyzeAsync(List<InfoModel> models, CancellationToken cancellationToken)
+        private async Task<List<AnalyticResultModel>> GetAnalyzedModelsAsync(List<InfoModel> models, CancellationToken cancellationToken)
         {
             var modelsToBuy = new List<AnalyticResultModel>();
             foreach (var model in models)
             {
-                foreach (var profileGroup in ProfileGroups)
+                foreach (var profileGroup in ProfileGroups.Where(_ => _.IsActive))
                 {
                     var (isSuccessful, analyticModel) = await profileGroup.TryAnalyzeAsync(_exchange, model, cancellationToken);
                     if (!isSuccessful)
@@ -269,10 +312,7 @@ namespace Analytic.Binance
                 }
             }
 
-            if (modelsToBuy.Any())
-            {
-                OnModelsReadyToBuy?.Invoke(this, modelsToBuy.ToArray());
-            }
+            return modelsToBuy;
         }
 
         #endregion

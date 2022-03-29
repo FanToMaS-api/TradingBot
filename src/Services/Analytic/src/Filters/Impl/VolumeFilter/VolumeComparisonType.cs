@@ -1,9 +1,9 @@
 ﻿namespace Analytic.Filters
 {
     /// <summary>
-    ///     Тип фильтра объемов
+    ///     Тип сравнения объемов
     /// </summary>
-    public enum VolumeFilterType
+    public enum VolumeComparisonType
     {
         /// <summary>
         ///     Объем покупки должен быть больше объема продажи

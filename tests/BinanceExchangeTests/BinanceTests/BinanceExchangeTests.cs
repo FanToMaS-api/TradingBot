@@ -417,7 +417,7 @@ namespace BinanceExchangeTests.BinanceTests
             SetArgumentsEvent -= SetArgumentsEventHandler;
 
             Assert.Equal(2, result.Count);
-            Assert.Equal($"ETHBTC_0", result[0].Symbol);
+            Assert.Equal($"ETHBTC_0", result[0].Name);
             Assert.Equal("Trading", result[0].Status);
             Assert.Equal("ETH", result[0].BaseAsset);
             Assert.Equal("BTC", result[0].QuoteAsset);
@@ -426,7 +426,7 @@ namespace BinanceExchangeTests.BinanceTests
             Assert.True(result[0].IsIcebergAllowed);
             Assert.True(result[0].IsOcoAllowed);
 
-            Assert.Equal($"ETHBTC_1", result[1].Symbol);
+            Assert.Equal($"ETHBTC_1", result[1].Name);
             Assert.Equal("Trading", result[1].Status);
             Assert.Equal("ETH", result[1].BaseAsset);
             Assert.Equal("BTC", result[1].QuoteAsset);
@@ -661,7 +661,7 @@ namespace BinanceExchangeTests.BinanceTests
             foreach (var kvp in symbolWeightKey)
             {
                 var (expectedKey, expectedInterval, expectedWeight) = GetExpectedArguments(requestWeight, kvp.Value);
-                var expectedResult = new List<SymbolPriceModel>();
+                var expectedResult = new List<TradeObjectNamePriceModel>();
 
                 // Act
                 var result = (await _binanceExchange.GetSymbolPriceTickerAsync(kvp.Key)).ToList();
@@ -1299,7 +1299,7 @@ namespace BinanceExchangeTests.BinanceTests
         private (string expectedKey, TimeSpan expectedInterval, int expectedWeight) GetExpectedArguments(RequestWeightModel model, string weightKey)
         {
             var rateLimit = (_binanceExchange as BinanceExchange.BinanceExchange).GetRateLimit(model.Type);
-            var expectedKey = (_binanceExchange as BinanceExchange.BinanceExchange).GetRedisKey(rateLimit.Type);
+            var expectedKey = BinanceExchange.BinanceExchange.GetRedisKey(rateLimit.Type);
             var expectedInterval = rateLimit.Interval;
             var expectedWeight = model.Weights[weightKey];
 

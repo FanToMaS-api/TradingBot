@@ -64,16 +64,16 @@ namespace SignalsSender
 
             //  TODO добавить группы фильтров
             var nameFilter = new NameFilter("NameFilter", _baseTickers);
-            var priceFilter = new PriceFilter("AnyFilter", null, PriceFilterType.GreaterThan, 2.55);
-            var allFilter = new PriceFilter("AllFilter", null, PriceFilterType.LessThan, 20);
-            var btcFilter = new PriceFilter("BTCFilter", "BTC", PriceFilterType.GreaterThan, 5.7);
-            var ethFilter = new PriceFilter("ETHFilter", "ETH", PriceFilterType.GreaterThan, 4.5);
+            var priceDeviationFilter = new PriceDeviationFilter("AnyFilter", null, ComparisonType.GreaterThan, 2.55);
+            var usdtPriceFilter = new PriceFilter("USDTFilter", "USDT", ComparisonType.LessThan, 20);
+            var btcDeviationFilter = new PriceDeviationFilter("BTCFilter", "BTC", ComparisonType.GreaterThan, 5.7);
+            var ethDeviationFilter = new PriceDeviationFilter("ETHFilter", "ETH", ComparisonType.GreaterThan, 4.5);
             var volumeFilter = new VolumeFilter("VolumeFilter", null);
             _analyticService.AddFilter(nameFilter);
-            _analyticService.AddFilter(priceFilter);
-            _analyticService.AddFilter(allFilter);
-            _analyticService.AddFilter(btcFilter);
-            _analyticService.AddFilter(ethFilter);
+            _analyticService.AddFilter(priceDeviationFilter);
+            _analyticService.AddFilter(usdtPriceFilter);
+            _analyticService.AddFilter(btcDeviationFilter);
+            _analyticService.AddFilter(ethDeviationFilter);
             _analyticService.AddFilter(volumeFilter);
             _analyticService.OnModelsFiltered += OnModelsFilteredReceived;
             _analyticService.OnModelsReadyToBuy += OnModelsToBuyReceived;
@@ -108,7 +108,7 @@ namespace SignalsSender
                     var pairSymbols = model.TradeObjectName.Insert(model.TradeObjectName.Length - symbol.Length, "/");
                     var pairName = pairSymbols.Replace("/", "_");
                     var message = $"*{pairSymbols}*\nНовая разница: *{model.LastDeviation:0.00}%*" +
-                        $"\nРазница за последние 5 таймфреймов: *{model.Sum5Deviations:0.00}%*" +
+                        $"\nРазница за последние 5 таймфреймов: *{model.SumDeviations:0.00}%*" +
                         $"\nПоследняя цена: *{model.LastPrice:0.0000}*" +
                         $"\nОбъем спроса: *{model.AskVolume:0,0.0}*" +
                         $"\nОбъем предложения: *{model.BidVolume:0,0.0}*";
@@ -184,11 +184,6 @@ namespace SignalsSender
         #endregion
 
         #region Private methods
-
-        /// <summary>
-        ///     Возвращает процентное отклонение новой цены от старой
-        /// </summary>
-        private static double GetDeviation(double oldPrice, double newPrice) => (newPrice / (double)oldPrice - 1) * 100;
 
         /// <inheritdoc />
         public void Dispose() => _cancellationTokenSource?.Dispose();

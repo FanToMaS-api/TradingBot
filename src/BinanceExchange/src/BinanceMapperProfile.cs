@@ -12,10 +12,11 @@ namespace BinanceExchange
     {
         public BinanceMapperProfile()
         {
-            CreateMap<SymbolInfoModel, SymbolRuleTradingModel>()
-                .ForMember(_ => _.Status, _ => _.MapFrom(_ => _.Status));
-            CreateMap<SymbolPriceTickerModel, SymbolPriceModel>()
-                .ForMember(_ => _.ShortName, _ => _.MapFrom(_ => _.Symbol));
+            CreateMap<SymbolInfoModel, TradeObjectRuleTradingModel>()
+                .ForMember(_ => _.Status, _ => _.MapFrom(_ => _.Status))
+                .ForMember(_ => _.Name, _ => _.MapFrom(_ => _.Symbol));
+            CreateMap<SymbolPriceTickerModel, TradeObjectNamePriceModel>()
+                .ForMember(_ => _.Name, _ => _.MapFrom(_ => _.Symbol));
             CreateMap<PriceQtyPair, OrderModel>();
 
             CreateMap<Models.TradeFeeModel, Common.Models.TradeFeeModel>()
@@ -30,11 +31,11 @@ namespace BinanceExchange
             CreateMap<Models.OrderBookModel, Common.Models.OrderBookModel>();
             CreateMap<Models.TradeModel, Common.Models.TradeModel>();
             CreateMap<Models.MiniTickerStreamModel, Common.Models.MiniTickerStreamModel>();
-            CreateMap<Models.TickerStreamModel, Common.Models.TickerStreamModel>();
+            CreateMap<Models.TickerStreamModel, Common.Models.TradeObjectStreamModel>();
 
             CreateMap<Models.BookTickerStreamModel, Common.Models.BookTickerStreamModel>();
-            CreateMap<Models.AggregateSymbolTradeStreamModel, Common.Models.AggregateSymbolTradeStreamModel>();
-            CreateMap<Models.SymbolTradeStreamModel, Common.Models.SymbolTradeStreamModel>();
+            CreateMap<Models.AggregateSymbolTradeStreamModel, Common.Models.AggregateTradeStreamModel>();
+            CreateMap<Models.SymbolTradeStreamModel, Common.Models.TradeStreamModel>();
      
             CreateMap<Models.CancelOrderResponseModel, Common.Models.CancelOrderResponseModel>();
             CreateMap<Models.CheckOrderResponseModel, Common.Models.CheckOrderResponseModel>();

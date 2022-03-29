@@ -167,7 +167,7 @@ namespace BinanceExchange
         #region Marketdata
 
         /// <inheritdoc />
-        public async Task<IEnumerable<SymbolRuleTradingModel>> GetExchangeInfoAsync(CancellationToken cancellationToken = default)
+        public async Task<IEnumerable<TradeObjectRuleTradingModel>> GetExchangeInfoAsync(CancellationToken cancellationToken = default)
         {
             var requestWeight = _requestsWeightStorage.ExchangeInfoWeight;
             if (CheckLimit(requestWeight.Type, out var rateLimit))
@@ -179,7 +179,7 @@ namespace BinanceExchange
 
             IncrementCallsMade(requestWeight, RequestWeightModel.GetDefaultKey());
 
-            return _mapper.Map<IEnumerable<SymbolRuleTradingModel>>(model.Symbols);
+            return _mapper.Map<IEnumerable<TradeObjectRuleTradingModel>>(model.Symbols);
         }
 
         /// <inheritdoc />
@@ -325,7 +325,7 @@ namespace BinanceExchange
         }
 
         /// <inheritdoc />
-        public async Task<IEnumerable<SymbolPriceModel>> GetSymbolPriceTickerAsync(string symbol, CancellationToken cancellationToken = default)
+        public async Task<IEnumerable<TradeObjectNamePriceModel>> GetSymbolPriceTickerAsync(string symbol, CancellationToken cancellationToken = default)
         {
             var requestWeight = _requestsWeightStorage.SymbolPriceTickerWeight;
             if (CheckLimit(requestWeight.Type, out var rateLimit))
@@ -338,7 +338,7 @@ namespace BinanceExchange
             var key = string.IsNullOrEmpty(symbol) ? "null" : RequestWeightModel.GetDefaultKey();
             IncrementCallsMade(requestWeight, key);
 
-            return _mapper.Map<IEnumerable<SymbolPriceModel>>(result);
+            return _mapper.Map<IEnumerable<TradeObjectNamePriceModel>>(result);
         }
 
         /// <inheritdoc />
@@ -427,7 +427,7 @@ namespace BinanceExchange
                    }
                    catch (Exception ex)
                    {
-                       _logger.Warn(ex, $"Failed to recieve {nameof(Common.Models.TickerStreamModel)}");
+                       _logger.Warn(ex, $"Failed to recieve {nameof(Common.Models.TradeObjectStreamModel)}");
                    }
                },
                cancellationToken);
@@ -440,7 +440,7 @@ namespace BinanceExchange
         ///     Проверено ручным тестированием, после изменений необходимы ручные проверки!
         /// </remarks>
         public IWebSocket SubscribeAllMarketTickersStream(
-            Func<IEnumerable<Common.Models.TickerStreamModel>, CancellationToken, Task> onMessageReceivedFunc,
+            Func<IEnumerable<Common.Models.TradeObjectStreamModel>, CancellationToken, Task> onMessageReceivedFunc,
             CancellationToken cancellationToken,
             Action onStreamClosedFunc = null)
         {
@@ -454,12 +454,12 @@ namespace BinanceExchange
                    try
                    {
                        var models = _converter.Deserialize<IEnumerable<Models.TickerStreamModel>>(content);
-                       var neededModels = _mapper.Map<IEnumerable<Common.Models.TickerStreamModel>>(models);
+                       var neededModels = _mapper.Map<IEnumerable<Common.Models.TradeObjectStreamModel>>(models);
                        await onMessageReceivedFunc?.Invoke(neededModels, cancellationToken);
                    }
                    catch (Exception ex)
                    {
-                       _logger.Warn(ex, $"Failed to recieve {nameof(Common.Models.TickerStreamModel)}");
+                       _logger.Warn(ex, $"Failed to recieve {nameof(Common.Models.TradeObjectStreamModel)}");
                    }
                },
                cancellationToken);
@@ -1008,7 +1008,7 @@ namespace BinanceExchange
         /// <summary>
         ///     Возвращает Redis-ключ для лимита
         /// </summary>
-        internal string GetRedisKey(RateLimitType type) => $"tc_binance_{type.ToString().ToLower()}";
+        internal static string GetRedisKey(RateLimitType type) => $"tc_binance_{type.ToString().ToLower()}";
 
         /// <summary>
         ///     Возвращает модель ограничения скорости

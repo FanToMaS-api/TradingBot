@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace Analytic.AnalyticUnits
 {
     /// <summary>
-    ///     Профиль анализа (содержит одну определенную логику анализа)
+    ///     Протейший анализатор покупки AveragePrice > BestAskPrice
     /// </summary>
     public class DefaultAnalyticProfile : IAnalyticProfile
     {
@@ -39,7 +39,7 @@ namespace Analytic.AnalyticUnits
             var averagePrice = await exchange.GetAveragePriceAsync(model.TradeObjectName, cancellationToken);
             var bestAskPrice = (await exchange.GetBestSymbolOrdersAsync(model.TradeObjectName, cancellationToken))
                 .OrderByDescending(_ => _.AskPrice)
-                .FirstOrDefault()?.AskPrice ?? 0;
+                .FirstOrDefault()?.AskPrice ?? double.MaxValue;
             var isSuccessfulAnalyze = bestAskPrice < averagePrice;
             var resultModel = new AnalyticResultModel
             {

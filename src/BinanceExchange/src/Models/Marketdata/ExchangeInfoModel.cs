@@ -73,12 +73,11 @@ namespace BinanceExchange.Models
         /// </summary>
         public void SetProperties(ref Utf8JsonReader reader)
         {
-            var lastPropertyName = "";
             while (reader.Read() && reader.TokenType != JsonTokenType.EndObject)
             {
                 if (reader.TokenType == JsonTokenType.PropertyName)
                 {
-                    lastPropertyName = reader.GetString();
+                    var lastPropertyName = reader.GetString();
                     reader.Read();
 
                     if (lastPropertyName == "filters")

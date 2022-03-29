@@ -12,46 +12,37 @@ namespace Scheduler
         /// <summary>
         ///     Ежесекундно
         /// </summary>
-        public static string Secondly()
-            => "* * * ? * *";
+        public static string Secondly() => "* * * ? * *";
 
         /// <summary>
         ///     Каждые N секунд
         /// </summary>
-        public static string Secondly(int N)
-            => $"0/{N} 0 0 ? * * *";
+        public static string Secondly(int N) => $"0/{N} 0 0 ? * * *";
 
         /// <summary>
         ///     Ежеминутно
         /// </summary>
-        public static string Minutely()
-            => $"0 * * ? * *";
+        public static string Minutely() => $"0 * * ? * *";
 
         /// <summary>
         ///     Каждые сколько-то минут
         /// </summary>
-        public static string EveryNthMinute(int every)
-            => $"0 */{every} * ? * *";
+        public static string EveryNthMinute(int every) => $"0 */{every} * ? * *";
 
         /// <summary>
         ///     Ежечасно
         /// </summary>
-        public static string Hourly()
-            => $"0 0 * ? * *";
+        public static string Hourly() => $"0 0 * ? * *";
 
         /// <summary>
         ///     Ежедневно в 12 ночи
         /// </summary>
-        public static string Daily()
-            => $"0 0 0 * * ?";
+        public static string Daily() => $"0 0 0 * * ?";
 
         #endregion
 
         /// <inheritdoc cref="Cron"/>
-        public Cron(string value)
-        {
-            Value = value;
-        }
+        public Cron(string value) => Value = value;
 
         /// <summary>
         ///     Выражение
@@ -76,14 +67,8 @@ namespace Scheduler
         /// <inheritdoc />
         public override int GetHashCode() => Value.GetHashCode();
 
-        public static bool operator ==(Cron left, Cron right)
-        {
-            return left.Equals(right);
-        }
+        public static bool operator ==(Cron left, Cron right) => left.Equals(right);
 
-        public static bool operator !=(Cron left, Cron right)
-        {
-            return !(left == right);
-        }
+        public static bool operator !=(Cron left, Cron right) => !(left == right);
     }
 }

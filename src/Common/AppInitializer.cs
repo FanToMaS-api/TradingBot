@@ -22,31 +22,20 @@ namespace Common
                 {
                     var service = sp.GetRequiredService<T>();
                     await action.Invoke(service, sp);
-                }
-            );
+                });
         }
 
         /// <summary>
         ///     Настройка для инициализации
         /// </summary>
-        public static void ConfigureForInitialization<T>(this IServiceCollection services, Func<T, Task> action)
-        {
-            services.ConfigureForInitialization<T>(
-                async (service, _) => await action.Invoke(service)
-            );
-        }
+        public static void ConfigureForInitialization<T>(this IServiceCollection services, Func<T, Task> action) => 
+            services.ConfigureForInitialization<T>(async (service, _) => await action.Invoke(service));
 
         /// <summary>
         ///     Настройка для инициализации
         /// </summary>
-        public static void ConfigureForInitialization(
-            this IServiceCollection services,
-            Func<IServiceProvider, Task> action)
-        {
-            services.Configure<AppInitializerOptions>(
-                options => { options.InitActions.Add(action); }
-            );
-        }
+        public static void ConfigureForInitialization(this IServiceCollection services, Func<IServiceProvider, Task> action) =>
+            services.Configure<AppInitializerOptions>(options => { options.InitActions.Add(action); });
 
         /// <summary>
         ///     Выполняет заданные действия

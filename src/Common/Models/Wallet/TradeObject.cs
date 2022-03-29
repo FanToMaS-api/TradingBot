@@ -11,7 +11,7 @@
         public string ShortName { get; internal set; }
 
         /// <summary>
-        ///     Название валюты
+        ///     Полное наименование
         /// </summary>
         public string Name { get; internal set; }
     }

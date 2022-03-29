@@ -13,6 +13,9 @@ namespace Scheduler
         public const string ActionKey = nameof(ActionKey);
         public const string ContextKey = nameof(ContextKey);
 
+        /// <summary>
+        ///     Выполняет указанную задачу
+        /// </summary>
         public async Task Execute(IJobExecutionContext context)
         {
             if (!context.MergedJobDataMap.TryGetValue(ServiceProviderKey, out var obj) ||

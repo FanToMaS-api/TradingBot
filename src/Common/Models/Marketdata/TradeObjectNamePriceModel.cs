@@ -1,14 +1,14 @@
 ﻿namespace Common.Models
 {
     /// <summary>
-    ///     Модель текущей цены пары
+    ///     Модель текущей цены объекта торговли
     /// </summary>
-    public class SymbolPriceModel
+    public class TradeObjectNamePriceModel
     {
         /// <summary>
-        ///     Название пары
+        ///     Название объекта торговли
         /// </summary>
-        public string ShortName { get; internal set; }
+        public string Name { get; internal set; }
 
         /// <summary>
         ///     Цена

@@ -1,5 +1,4 @@
 ﻿using Analytic.Models;
-using System.Collections.Generic;
 
 namespace Analytic.Filters
 {
@@ -12,6 +11,19 @@ namespace Analytic.Filters
         ///     Название фильтра
         /// </summary>
         public string FilterName { get; }
+
+        /// <summary>
+        ///     Тип фильтра
+        /// </summary>
+        public FilterType Type { get; }
+
+        /// <summary>
+        ///     Название объекта торговли
+        /// </summary>
+        /// <remarks>
+        ///     <see langword="null"/> - для фильтрации всех
+        /// </remarks>
+        public string TargetTradeObjectName { get; }
 
         /// <summary>
         ///     Проверяет модель на соответствие условию

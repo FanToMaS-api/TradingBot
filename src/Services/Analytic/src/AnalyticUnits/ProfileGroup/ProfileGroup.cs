@@ -7,16 +7,17 @@ using System.Threading.Tasks;
 namespace Analytic.AnalyticUnits
 {
     /// <summary>
-    ///     Группа профилей
+    ///     Группа профилей аналитики
     /// </summary>
     public class ProfileGroup : IProfileGroup
     {
         #region .ctor
 
         /// <inheritdoc cref="ProfileGroup"/>
-        public ProfileGroup(string name)
+        public ProfileGroup(string name, bool isActive = true)
         {
             Name = name;
+            IsActive = isActive;
         }
 
         #endregion
@@ -28,6 +29,9 @@ namespace Analytic.AnalyticUnits
 
         /// <inheritdoc />
         public string Name { get; }
+
+        /// <inheritdoc />
+        public bool IsActive { get; private set; }
 
         #endregion
 
@@ -83,6 +87,9 @@ namespace Analytic.AnalyticUnits
 
             return false;
         }
+
+        /// <inheritdoc />
+        public void ChangeProfileActivity(bool isActive) => IsActive = isActive;
 
         #endregion
     }

@@ -7,6 +7,13 @@ namespace Analytic.Models
     /// </summary>
     public class InfoModel
     {
+        /// <inheritdoc cref="InfoModel"/>
+        public InfoModel(string name, double lastPrice)
+        {
+            TradeObjectName = name;
+            LastPrice = lastPrice;
+        }
+
         /// <summary>
         ///     Название объекта торговли
         /// </summary>
@@ -40,7 +47,7 @@ namespace Analytic.Models
         /// <summary>
         ///     Суммарное отклонение за 5 таймфреймов
         /// </summary>
-        public double Sum5Deviations { get; internal set; }
+        public double SumDeviations { get; internal set; }
 
         /// <summary>
         ///     Отклонения цены за последние таймфреймы в процентах

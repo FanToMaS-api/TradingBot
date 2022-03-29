@@ -89,8 +89,7 @@ namespace Scheduler
                         }
                     },
                     cancellationToken
-                )
-            );
+                ));
 
             return triggerKey;
         }
@@ -107,8 +106,7 @@ namespace Scheduler
                         [RecurringJob.ServiceProviderKey] = _serviceProvider,
                         [RecurringJob.ContextKey] = this,
                         [RecurringJob.ActionKey] = func,
-                    }
-                )
+                    })
                 .Build();
 
             var trigger = TriggerBuilder.Create()

@@ -43,34 +43,22 @@ namespace Scheduler
             services.Configure<RecurringJobSchedulerOptions>(
                 options =>
                 {
-                    options.RecurringJobs.Add(
-                        new RecurringJobDefinition(cronExpression, action)
-                    );
-                }
-            );
+                    options.RecurringJobs.Add(new RecurringJobDefinition(cronExpression, action));
+                });
         }
 
         /// <summary>
         ///     Настраивает повторяющуюся задачу
         /// </summary>
-        public static void ConfigureRecurringJob<T>(
-            this IServiceCollection services,
-            Cron cronExpression,
-            Func<T, IServiceProvider, Task> action)
-        {
+        public static void ConfigureRecurringJob<T>(this IServiceCollection services, Cron cronExpression, Func<T, IServiceProvider, Task> action) =>
             services.ConfigureRecurringJob(cronExpression, sp => action(sp.GetRequiredService<T>(), sp));
-        }
 
         /// <summary>
         ///     Настраивает повторяющуюся задачу
         /// </summary>
-        public static void ConfigureRecurringJob<T>(
-            this IServiceCollection services,
-            Cron cronExpression,
-            Func<T, Task> action)
-        {
+        public static void ConfigureRecurringJob<T>(this IServiceCollection services, Cron cronExpression, Func<T, Task> action) =>
             services.ConfigureRecurringJob<T>(cronExpression, (service, _) => action(service));
-        }
+
 
         /// <summary>
         ///     Запланировать задачу

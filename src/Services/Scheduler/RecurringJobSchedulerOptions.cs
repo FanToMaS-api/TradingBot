@@ -10,6 +10,6 @@ namespace Scheduler
         /// <summary>
         ///     Список повторяющихся задач
         /// </summary>
-        public List<RecurringJobDefinition> RecurringJobs { get; } = new List<RecurringJobDefinition>();
+        public List<RecurringJobDefinition> RecurringJobs { get; } = new();
     }
 }

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 namespace Analytic.AnalyticUnits
 {
     /// <summary>
-    ///     Обозначает элемент занимающийся анализом торгового актива
+    ///     Анализирует торговый объект
     /// </summary>
     public interface IAnalyticUnit
     {
@@ -18,8 +18,9 @@ namespace Analytic.AnalyticUnits
         /// <summary>
         ///     Анализирует объект торговли
         /// </summary>
-        /// <param name="model"></param>
-        /// <param name="cancellationToken"></param>
+        /// <param name="exchange"> Биржа </param>
+        /// <param name="model"> Модель </param>
+        /// <param name="cancellationToken"> Токен отмены </param>
         /// <returns> 
         ///     <see langword="true, model"/> Если объект стоит купить <br/>
         ///     <see langword="false"/> Если объект не стоит покупать

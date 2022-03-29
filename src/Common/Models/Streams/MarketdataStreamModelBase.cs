@@ -11,8 +11,8 @@
         public long EventTimeUnix { get; internal set; }
 
         /// <summary>
-        ///     Пара тикеров
+        ///     Краткое наименование объекта торговли
         /// </summary>
-        public string Symbol { get; internal set; }
+        public string ShortName { get; internal set; }
     }
 }
