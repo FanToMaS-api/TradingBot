@@ -22,7 +22,7 @@
   - [LastTradeId](#P-BinanceExchange-Models-AggregateSymbolTradeStreamModel-LastTradeId "BinanceExchange.Models.AggregateSymbolTradeStreamModel.LastTradeId")
   - [Price](#P-BinanceExchange-Models-AggregateSymbolTradeStreamModel-Price "BinanceExchange.Models.AggregateSymbolTradeStreamModel.Price")
   - [Quantity](#P-BinanceExchange-Models-AggregateSymbolTradeStreamModel-Quantity "BinanceExchange.Models.AggregateSymbolTradeStreamModel.Quantity")
-  - [Streamтип](#P-BinanceExchange-Models-AggregateSymbolTradeStreamModel-Streamтип "BinanceExchange.Models.AggregateSymbolTradeStreamModel.Streamтип")
+  - [StreamType](#P-BinanceExchange-Models-AggregateSymbolTradeStreamModel-Streamтип "BinanceExchange.Models.AggregateSymbolTradeStreamModel.Streamтип")
   - [TradeTimeUnix](#P-BinanceExchange-Models-AggregateSymbolTradeStreamModel-TradeTimeUnix "BinanceExchange.Models.AggregateSymbolTradeStreamModel.TradeTimeUnix")
 - [AveragePriceModel](#T-BinanceExchange-Models-AveragePriceModel "BinanceExchange.Models.AveragePriceModel")
   - [AveragePrice](#P-BinanceExchange-Models-AveragePriceModel-AveragePrice "BinanceExchange.Models.AveragePriceModel.AveragePrice")
@@ -39,7 +39,7 @@
   - [BestBidPrice](#P-BinanceExchange-Models-BookTickerStreamModel-BestBidPrice "BinanceExchange.Models.BookTickerStreamModel.BestBidPrice")
   - [BestBidQuantity](#P-BinanceExchange-Models-BookTickerStreamModel-BestBidQuantity "BinanceExchange.Models.BookTickerStreamModel.BestBidQuantity")
   - [OrderBookUpdatedId](#P-BinanceExchange-Models-BookTickerStreamModel-OrderBookUpdatedId "BinanceExchange.Models.BookTickerStreamModel.OrderBookUpdatedId")
-  - [Streamтип](#P-BinanceExchange-Models-BookTickerStreamModel-Streamтип "BinanceExchange.Models.BookTickerStreamModel.Streamтип")
+  - [StreamType](#P-BinanceExchange-Models-BookTickerStreamModel-Streamтип "BinanceExchange.Models.BookTickerStreamModel.Streamтип")
   - [Symbol](#P-BinanceExchange-Models-BookTickerStreamModel-Symbol "BinanceExchange.Models.BookTickerStreamModel.Symbol")
   - [SetProperties()](#M-BinanceExchange-Models-BookTickerStreamModel-SetProperties-System-Text-Json-Utf8JsonReader@- "BinanceExchange.Models.BookTickerStreamModel.SetProperties(System.Text.Json.Utf8JsonReader@)")
 - [CancelOrderResponseModel](#T-BinanceExchange-Models-CancelOrderResponseModel "BinanceExchange.Models.CancelOrderResponseModel")
@@ -69,7 +69,7 @@
   - [Write()](#M-BinanceExchange-Models-CandlestickModelEnumerableConverter-Write-System-Text-Json-Utf8JsonWriter,System-Collections-Generic-IEnumerable{BinanceExchange-Models-CandlestickModel},System-Text-Json-JsonSerializerOptions- "BinanceExchange.Models.CandlestickModelEnumerableConverter.Write(System.Text.Json.Utf8JsonWriter,System.Collections.Generic.IEnumerable{BinanceExchange.Models.CandlestickModel},System.Text.Json.JsonSerializerOptions)")
 - [CandlestickStreamModel](#T-BinanceExchange-Models-CandlestickStreamModel "BinanceExchange.Models.CandlestickStreamModel")
   - [Kline](#P-BinanceExchange-Models-CandlestickStreamModel-Kline "BinanceExchange.Models.CandlestickStreamModel.Kline")
-  - [Streamтип](#P-BinanceExchange-Models-CandlestickStreamModel-Streamтип "BinanceExchange.Models.CandlestickStreamModel.Streamтип")
+  - [StreamType](#P-BinanceExchange-Models-CandlestickStreamModel-Streamтип "BinanceExchange.Models.CandlestickStreamModel.Streamтип")
 - [CheckOrderResponseModel](#T-BinanceExchange-Models-CheckOrderResponseModel "BinanceExchange.Models.CheckOrderResponseModel")
   - [IcebergQty](#P-BinanceExchange-Models-CheckOrderResponseModel-IcebergQty "BinanceExchange.Models.CheckOrderResponseModel.IcebergQty")
   - [IsWorking](#P-BinanceExchange-Models-CheckOrderResponseModel-IsWorking "BinanceExchange.Models.CheckOrderResponseModel.IsWorking")
@@ -123,7 +123,7 @@
   - [TransactTimeUnix](#P-BinanceExchange-Models-FullOrderResponseModel-TransactTimeUnix "BinanceExchange.Models.FullOrderResponseModel.TransactTimeUnix")
   - [SetProperties()](#M-BinanceExchange-Models-FullOrderResponseModel-SetProperties-System-Text-Json-Utf8JsonReader@- "BinanceExchange.Models.FullOrderResponseModel.SetProperties(System.Text.Json.Utf8JsonReader@)")
 - [IMarketdataStreamModel](#T-BinanceExchange-Models-IMarketdataStreamModel "BinanceExchange.Models.IMarketdataStreamModel")
-  - [Streamтип](#P-BinanceExchange-Models-IMarketdataStreamModel-Streamтип "BinanceExchange.Models.IMarketdataStreamModel.Streamтип")
+  - [StreamType](#P-BinanceExchange-Models-IMarketdataStreamModel-Streamтип "BinanceExchange.Models.IMarketdataStreamModel.Streamтип")
 - [KlineModel](#T-BinanceExchange-Models-KlineModel "BinanceExchange.Models.KlineModel")
   - [BasePurchaseVolume](#P-BinanceExchange-Models-KlineModel-BasePurchaseVolume "BinanceExchange.Models.KlineModel.BasePurchaseVolume")
   - [ClosePrice](#P-BinanceExchange-Models-KlineModel-ClosePrice "BinanceExchange.Models.KlineModel.ClosePrice")
@@ -152,13 +152,13 @@
   - [MinPrice](#P-BinanceExchange-Models-MiniTickerStreamModel-MinPrice "BinanceExchange.Models.MiniTickerStreamModel.MinPrice")
   - [OpenPrice](#P-BinanceExchange-Models-MiniTickerStreamModel-OpenPrice "BinanceExchange.Models.MiniTickerStreamModel.OpenPrice")
   - [QuotePurchaseVolume](#P-BinanceExchange-Models-MiniTickerStreamModel-QuotePurchaseVolume "BinanceExchange.Models.MiniTickerStreamModel.QuotePurchaseVolume")
-  - [Streamтип](#P-BinanceExchange-Models-MiniTickerStreamModel-Streamтип "BinanceExchange.Models.MiniTickerStreamModel.Streamтип")
+  - [StreamType](#P-BinanceExchange-Models-MiniTickerStreamModel-Streamтип "BinanceExchange.Models.MiniTickerStreamModel.Streamтип")
   - [SetProperties()](#M-BinanceExchange-Models-MiniTickerStreamModel-SetProperties-System-Text-Json-Utf8JsonReader@- "BinanceExchange.Models.MiniTickerStreamModel.SetProperties(System.Text.Json.Utf8JsonReader@)")
 - [OrderBookModel](#T-BinanceExchange-Models-OrderBookModel "BinanceExchange.Models.OrderBookModel")
   - [Asks](#P-BinanceExchange-Models-OrderBookModel-Asks "BinanceExchange.Models.OrderBookModel.Asks")
   - [Bids](#P-BinanceExchange-Models-OrderBookModel-Bids "BinanceExchange.Models.OrderBookModel.Bids")
   - [LastUpdateId](#P-BinanceExchange-Models-OrderBookModel-LastUpdateId "BinanceExchange.Models.OrderBookModel.LastUpdateId")
-  - [Streamтип](#P-BinanceExchange-Models-OrderBookModel-Streamтип "BinanceExchange.Models.OrderBookModel.Streamтип")
+  - [StreamType](#P-BinanceExchange-Models-OrderBookModel-Streamтип "BinanceExchange.Models.OrderBookModel.Streamтип")
   - [SetProperties()](#M-BinanceExchange-Models-OrderBookModel-SetProperties-System-Text-Json-Utf8JsonReader@- "BinanceExchange.Models.OrderBookModel.SetProperties(System.Text.Json.Utf8JsonReader@)")
 - [OrderParamWrapper](#T-BinanceExchange-Models-OrderParamWrapper "BinanceExchange.Models.OrderParamWrapper")
   - [CanSet](#P-BinanceExchange-Models-OrderParamWrapper-CanSet "BinanceExchange.Models.OrderParamWrapper.CanSet")
@@ -172,13 +172,13 @@
   - [IcebergQty](#P-BinanceExchange-Models-OrderQueryModel-IcebergQty "BinanceExchange.Models.OrderQueryModel.IcebergQty")
   - [Limit](#P-BinanceExchange-Models-OrderQueryModel-Limit "BinanceExchange.Models.OrderQueryModel.Limit")
   - [OrderId](#P-BinanceExchange-Models-OrderQueryModel-OrderId "BinanceExchange.Models.OrderQueryModel.OrderId")
-  - [OrderResponseтип](#P-BinanceExchange-Models-OrderQueryModel-OrderResponseтип "BinanceExchange.Models.OrderQueryModel.OrderResponseтип")
-  - [Orderтип](#P-BinanceExchange-Models-OrderQueryModel-Orderтип "BinanceExchange.Models.OrderQueryModel.Orderтип")
+  - [OrderResponseType](#P-BinanceExchange-Models-OrderQueryModel-OrderResponseтип "BinanceExchange.Models.OrderQueryModel.OrderResponseтип")
+  - [OrderType](#P-BinanceExchange-Models-OrderQueryModel-Orderтип "BinanceExchange.Models.OrderQueryModel.Orderтип")
   - [OrigClientOrderId](#P-BinanceExchange-Models-OrderQueryModel-OrigClientOrderId "BinanceExchange.Models.OrderQueryModel.OrigClientOrderId")
   - [Price](#P-BinanceExchange-Models-OrderQueryModel-Price "BinanceExchange.Models.OrderQueryModel.Price")
   - [Quantity](#P-BinanceExchange-Models-OrderQueryModel-Quantity "BinanceExchange.Models.OrderQueryModel.Quantity")
   - [RecvWindow](#P-BinanceExchange-Models-OrderQueryModel-RecvWindow "BinanceExchange.Models.OrderQueryModel.RecvWindow")
-  - [Sideтип](#P-BinanceExchange-Models-OrderQueryModel-Sideтип "BinanceExchange.Models.OrderQueryModel.Sideтип")
+  - [SideType](#P-BinanceExchange-Models-OrderQueryModel-Sideтип "BinanceExchange.Models.OrderQueryModel.Sideтип")
   - [StartTime](#P-BinanceExchange-Models-OrderQueryModel-StartTime "BinanceExchange.Models.OrderQueryModel.StartTime")
   - [StopPrice](#P-BinanceExchange-Models-OrderQueryModel-StopPrice "BinanceExchange.Models.OrderQueryModel.StopPrice")
   - [Symbol](#P-BinanceExchange-Models-OrderQueryModel-Symbol "BinanceExchange.Models.OrderQueryModel.Symbol")
@@ -192,7 +192,7 @@
   - [OrderId](#P-BinanceExchange-Models-OrderResponseModelBase-OrderId "BinanceExchange.Models.OrderResponseModelBase.OrderId")
   - [OrderListId](#P-BinanceExchange-Models-OrderResponseModelBase-OrderListId "BinanceExchange.Models.OrderResponseModelBase.OrderListId")
   - [OrderSide](#P-BinanceExchange-Models-OrderResponseModelBase-OrderSide "BinanceExchange.Models.OrderResponseModelBase.OrderSide")
-  - [Orderтип](#P-BinanceExchange-Models-OrderResponseModelBase-Orderтип "BinanceExchange.Models.OrderResponseModelBase.Orderтип")
+  - [OrderType](#P-BinanceExchange-Models-OrderResponseModelBase-Orderтип "BinanceExchange.Models.OrderResponseModelBase.Orderтип")
   - [OrigQty](#P-BinanceExchange-Models-OrderResponseModelBase-OrigQty "BinanceExchange.Models.OrderResponseModelBase.OrigQty")
   - [Price](#P-BinanceExchange-Models-OrderResponseModelBase-Price "BinanceExchange.Models.OrderResponseModelBase.Price")
   - [Status](#P-BinanceExchange-Models-OrderResponseModelBase-Status "BinanceExchange.Models.OrderResponseModelBase.Status")
@@ -205,7 +205,7 @@
   - [CreatePair()](#M-BinanceExchange-Models-PriceQtyPair-CreatePair-System-Text-Json-Utf8JsonReader@,BinanceExchange-Models-OrderBookModel,System-String- "BinanceExchange.Models.PriceQtyPair.CreatePair(System.Text.Json.Utf8JsonReader@,BinanceExchange.Models.OrderBookModel,System.String)")
 - [RequestWeightModel](#T-BinanceExchange-Models-RequestWeightModel "BinanceExchange.Models.RequestWeightModel")
   - [#ctor()](#M-BinanceExchange-Models-RequestWeightModel-#ctor-BinanceExchange-Enums-Apiтип,System-Collections-Generic-Dictionary{System-String,System-Int32}- "BinanceExchange.Models.RequestWeightModel.#ctor(BinanceExchange.Enums.Apiтип,System.Collections.Generic.Dictionary{System.String,System.Int32})")
-  - [тип](#P-BinanceExchange-Models-RequestWeightModel-тип "BinanceExchange.Models.RequestWeightModel.тип")
+  - [Type](#P-BinanceExchange-Models-RequestWeightModel-тип "BinanceExchange.Models.RequestWeightModel.тип")
   - [Weights](#P-BinanceExchange-Models-RequestWeightModel-Weights "BinanceExchange.Models.RequestWeightModel.Weights")
   - [GetDefaultKey()](#M-BinanceExchange-Models-RequestWeightModel-GetDefaultKey "BinanceExchange.Models.RequestWeightModel.GetDefaultKey")
 - [SymbolInfoModel](#T-BinanceExchange-Models-SymbolInfoModel "BinanceExchange.Models.SymbolInfoModel")
@@ -213,7 +213,7 @@
   - [BaseAssetPrecision](#P-BinanceExchange-Models-SymbolInfoModel-BaseAssetPrecision "BinanceExchange.Models.SymbolInfoModel.BaseAssetPrecision")
   - [IsIcebergAllowed](#P-BinanceExchange-Models-SymbolInfoModel-IsIcebergAllowed "BinanceExchange.Models.SymbolInfoModel.IsIcebergAllowed")
   - [IsOcoAllowed](#P-BinanceExchange-Models-SymbolInfoModel-IsOcoAllowed "BinanceExchange.Models.SymbolInfoModel.IsOcoAllowed")
-  - [Orderтипs](#P-BinanceExchange-Models-SymbolInfoModel-Orderтипs "BinanceExchange.Models.SymbolInfoModel.Orderтипs")
+  - [OrderTypes](#P-BinanceExchange-Models-SymbolInfoModel-Orderтипs "BinanceExchange.Models.SymbolInfoModel.Orderтипs")
   - [QuoteAsset](#P-BinanceExchange-Models-SymbolInfoModel-QuoteAsset "BinanceExchange.Models.SymbolInfoModel.QuoteAsset")
   - [QuotePrecision](#P-BinanceExchange-Models-SymbolInfoModel-QuotePrecision "BinanceExchange.Models.SymbolInfoModel.QuotePrecision")
   - [Status](#P-BinanceExchange-Models-SymbolInfoModel-Status "BinanceExchange.Models.SymbolInfoModel.Status")
@@ -234,7 +234,7 @@
   - [Price](#P-BinanceExchange-Models-SymbolTradeStreamModel-Price "BinanceExchange.Models.SymbolTradeStreamModel.Price")
   - [Quantity](#P-BinanceExchange-Models-SymbolTradeStreamModel-Quantity "BinanceExchange.Models.SymbolTradeStreamModel.Quantity")
   - [SellerOrderId](#P-BinanceExchange-Models-SymbolTradeStreamModel-SellerOrderId "BinanceExchange.Models.SymbolTradeStreamModel.SellerOrderId")
-  - [Streamтип](#P-BinanceExchange-Models-SymbolTradeStreamModel-Streamтип "BinanceExchange.Models.SymbolTradeStreamModel.Streamтип")
+  - [StreamType](#P-BinanceExchange-Models-SymbolTradeStreamModel-Streamтип "BinanceExchange.Models.SymbolTradeStreamModel.Streamтип")
   - [TradeId](#P-BinanceExchange-Models-SymbolTradeStreamModel-TradeId "BinanceExchange.Models.SymbolTradeStreamModel.TradeId")
   - [TradeTimeUnix](#P-BinanceExchange-Models-SymbolTradeStreamModel-TradeTimeUnix "BinanceExchange.Models.SymbolTradeStreamModel.TradeTimeUnix")
 - [SystemStatusModel](#T-BinanceExchange-Models-SystemStatusModel "BinanceExchange.Models.SystemStatusModel")
@@ -259,7 +259,7 @@
   - [PricePercentChange](#P-BinanceExchange-Models-TickerStreamModel-PricePercentChange "BinanceExchange.Models.TickerStreamModel.PricePercentChange")
   - [StatisticCloseTimeUnix](#P-BinanceExchange-Models-TickerStreamModel-StatisticCloseTimeUnix "BinanceExchange.Models.TickerStreamModel.StatisticCloseTimeUnix")
   - [StatisticOpenTimeUnix](#P-BinanceExchange-Models-TickerStreamModel-StatisticOpenTimeUnix "BinanceExchange.Models.TickerStreamModel.StatisticOpenTimeUnix")
-  - [Streamтип](#P-BinanceExchange-Models-TickerStreamModel-Streamтип "BinanceExchange.Models.TickerStreamModel.Streamтип")
+  - [StreamType](#P-BinanceExchange-Models-TickerStreamModel-Streamтип "BinanceExchange.Models.TickerStreamModel.Streamтип")
   - [TradeNumber](#P-BinanceExchange-Models-TickerStreamModel-TradeNumber "BinanceExchange.Models.TickerStreamModel.TradeNumber")
   - [WeightedAveragePrice](#P-BinanceExchange-Models-TickerStreamModel-WeightedAveragePrice "BinanceExchange.Models.TickerStreamModel.WeightedAveragePrice")
   - [SetProperties()](#M-BinanceExchange-Models-TickerStreamModel-SetProperties-System-Text-Json-Utf8JsonReader@- "BinanceExchange.Models.TickerStreamModel.SetProperties(System.Text.Json.Utf8JsonReader@)")
@@ -402,7 +402,7 @@
 
 <a name='P-BinanceExchange-Models-AggregateSymbolTradeStreamModel-Streamтип'></a>
 
-### Streamтип `свойство`
+### StreamType `свойство`
 
 <a name='P-BinanceExchange-Models-AggregateSymbolTradeStreamModel-TradeTimeUnix'></a>
 
@@ -499,7 +499,7 @@
 
 <a name='P-BinanceExchange-Models-BookTickerStreamModel-Streamтип'></a>
 
-### Streamтип `свойство`
+### StreamType `свойство`
 
 Тип стрима с которого получаем данные
 
@@ -591,7 +591,7 @@
 
 Устанавливает св-ва для [CandlestickModel](#T-BinanceExchange-Models-CandlestickModel "BinanceExchange.Models.CandlestickModel")
 
-| Name   | тип                                                                                                                                                                              | Description                                             |
+| Name   | Type                                                                                                                                                                             | Description                                             |
 | ------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------- |
 | reader | [System.Text.Json.Utf8JsonReader@](http://msdn.microsoft.com/query/dev14.query?appId=Dev14IDEF1&l=EN-US&k=k:System.Text.Json.Utf8JsonReader@ "System.Text.Json.Utf8JsonReader@") | Reader с указателем на начало массива с данными о свече |
 
@@ -609,7 +609,7 @@
 
 <a name='P-BinanceExchange-Models-CandlestickStreamModel-Streamтип'></a>
 
-### Streamтип `свойство`
+### StreamType `свойство`
 
 <a name='T-BinanceExchange-Models-CheckOrderResponseModel'></a>
 
@@ -1091,7 +1091,7 @@ Id сделки
 
 <a name='P-BinanceExchange-Models-MiniTickerStreamModel-Streamтип'></a>
 
-### Streamтип `свойство`
+### StreamType `свойство`
 
 <a name='M-BinanceExchange-Models-MiniTickerStreamModel-SetProperties-System-Text-Json-Utf8JsonReader@-'></a>
 
@@ -1204,13 +1204,13 @@ Id ордера
 
 <a name='P-BinanceExchange-Models-OrderQueryModel-OrderResponseтип'></a>
 
-### OrderResponseтип `свойство`
+### OrderResponseType `свойство`
 
 Информация возврата, если удалось создать ордер
 
 <a name='P-BinanceExchange-Models-OrderQueryModel-Orderтип'></a>
 
-### Orderтип `свойство`
+### OrderType `свойство`
 
 <a name='P-BinanceExchange-Models-OrderQueryModel-OrigClientOrderId'></a>
 
@@ -1238,7 +1238,7 @@ Id ордера
 
 <a name='P-BinanceExchange-Models-OrderQueryModel-Sideтип'></a>
 
-### Sideтип `свойство`
+### SideType `свойство`
 
 <a name='P-BinanceExchange-Models-OrderQueryModel-StartTime'></a>
 
@@ -1318,7 +1318,7 @@ Id ордера
 
 <a name='P-BinanceExchange-Models-OrderResponseModelBase-Orderтип'></a>
 
-### Orderтип `свойство`
+### OrderType `свойство`
 
 Тип ордера
 
@@ -1396,7 +1396,7 @@ This constructor has no parameters.
 
 <a name='P-BinanceExchange-Models-RequestWeightModel-тип'></a>
 
-### тип `свойство`
+### Type `свойство`
 
 Тип ограничения скорости
 
@@ -1452,7 +1452,7 @@ string = "default"
 
 <a name='P-BinanceExchange-Models-SymbolInfoModel-Orderтипs'></a>
 
-### Orderтипs `свойство`
+### OrderTypes `свойство`
 
 Допустимые виды ордеров по паре
 
@@ -1578,7 +1578,7 @@ string = "default"
 
 <a name='P-BinanceExchange-Models-SymbolTradeStreamModel-Streamтип'></a>
 
-### Streamтип `свойство`
+### StreamType `свойство`
 
 <a name='P-BinanceExchange-Models-SymbolTradeStreamModel-TradeId'></a>
 
@@ -1726,7 +1726,7 @@ Id последней сделки
 
 <a name='P-BinanceExchange-Models-TickerStreamModel-Streamтип'></a>
 
-### Streamтип `свойство`
+### StreamType `свойство`
 
 <a name='P-BinanceExchange-Models-TickerStreamModel-TradeNumber'></a>
 
