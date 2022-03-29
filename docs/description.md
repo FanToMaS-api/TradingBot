@@ -22,7 +22,7 @@
 
    Непрерывное получение данных рынка.
 
-## <a name="Кошелек">Кошелек</a>
+## <b name="Кошелек">Кошелек</b>
 
 - ```c#
   Task<bool> GetSystemStatusAsync(CancellationToken cancellationToken = default);
@@ -63,7 +63,7 @@
 
   Возвращает коллекцию элементов типа `TradeFeeModel`, содержащую обозначение пары, а также комиссии на куплю и продажу.
 
-## <a name="Рыночные_данные">Рыночные данные</a>
+## <b name="Рыночные_данные">Рыночные данные</b>
 
 - ```c#
   Task<IEnumerable<SymbolRuleTradingModel>> GetExchangeInfoAsync(CancellationToken cancellationToken = default);
@@ -167,3 +167,193 @@
   В качестве параметров получает название пары. Если оно не передано (`null` или `""`), то тикеры для всех пар будут возвращены в виде коллекции.
 
   Возвращает коллекцию из объектов `BestSymbolOrderModel`, при указании названия пары - состоящую из одного элемента, каждый из которых содержит название пары, лучшую цену и количество спроса и предложения.
+
+## <b name="Торговля">Торговля</b>
+
+- ```c#
+  public async Task<Common.Models.FullOrderResponseModel> CreateNewORDERTYPEAsync(
+              string symbol,
+              OrderSideType sideType,
+              long recvWindow = 5000,
+              bool isTest = true,
+              CancellationToken cancellationToken = default)
+  ```
+
+  Создать новый ордер типа `ORDERTYPE`.
+
+  | Тип ордера `ORDERTYPE` | Дополнительные параметры                        | Подробнее                                                    |
+  | ---------------------- | ----------------------------------------------- | ------------------------------------------------------------ |
+  | `Limit`                | `timeInForce`, `quantity`, `price`              | <button href="https://www.binance.com/en/support/faq/360033779452#:~:text=to%20learn%20more.-,Limit%20Order,-What%20is%20a">➙</button> |
+  | `Market`               | `quantity`                                      | <button href="https://www.binance.com/en/support/faq/360033779452#:~:text=to%20learn%20more.-,Market%20Order,-What%20is%20a">➙</button> |
+  | `StopLoss`             | `quantity`, `stopPrice`                         | <button href="https://www.binance.com/en/support/faq/360033779452#:~:text=to%20learn%20more.-,Stop%20Limit%20Order,-What%20is%20a">➙</button> |
+  | `StopLossLimit`        | `timeInForce`, `quantity`, `price`, `stopPrice` | <button href="https://www.binance.com/en/support/faq/360033779452#:~:text=to%20learn%20more.-,Stop%20Market%20Order,-What%20is%20a">➙</button> |
+  | `TakeProfit`           | `quantity`, `stopPrice`                         | <button href="https://www.binance.com/en/support/faq/360033779452#:~:text=to%20learn%20more.-,Trailing%20Stop%20Order,-What%20is%20a">➙</button> |
+  | `TakeProfitLimit`      | `timeInForce`, `quantity`, `price`, `stopPrice` | <button href="https://www.binance.com/en/support/faq/360033779452#:~:text=to%20learn%20more.-,Post%20Only%20Order,-What%20is%20a">➙</button> |
+  | `LimitMarket`          | `quantity`, `price`                             | <button href="https://www.binance.com/en/support/faq/360033779452#:~:text=not%20executed%20immediately.-,Limit%20TP/SL%20Order,-(Strategy%20Order)">➙</button> |
+
+  Параметры, которые необходимо передать в методы этого типа следующие:
+
+  | Параметр      | Описание                                                     |
+  | ------------- | ------------------------------------------------------------ |
+  | `symbol`      | Название пары (символа)                                      |
+  | `sideType`    | Тип операции (купить/продать)                                |
+  | `quantity`    | Объем совершаемой операции                                   |
+  | `stopPrice`   | Стоп-цена                                                    |
+  | `timeInForce` | Тип периода активности ордера (`Good Til Canceled`,`Immediate Or Cancel`,`Fill or Kill`) |
+  | `price`       | Цена                                                         |
+  | `isTest`      | Признак тестового запроса                                    |
+
+  Метод возвращает информацию о времени выполнения транзакции и полную информацию о каждой части заполнения ордера.
+
+- ```c#
+  public async Task<Common.Models.CancelOrderResponseModel> CancelOrderAsync(
+              string symbol,
+              long? orderId = null,
+              string origClientOrderId = null,
+              long recvWindow = 5000,
+              CancellationToken cancellationToken = default)
+  ```
+
+  Отменить ордер по названию пары, идентификатору ордера.
+
+  Необходимо отправить либо `orderId`, либо `origClientOrderId`.
+
+- ```c#
+  public async Task<IEnumerable<Common.Models.CancelOrderResponseModel>> CancelAllOrdersAsync(
+              string symbol,
+              long recvWindow = 5000,
+              CancellationToken cancellationToken = default)
+  ```
+
+  Отменить все ордеры по названию пары.
+
+- ```c#
+  public async Task<Common.Models.CheckOrderResponseModel> CheckOrderAsync(
+              string symbol,
+              long? orderId = null,
+              string origClientOrderId = null,
+              long recvWindow = 5000,
+              CancellationToken cancellationToken = default)
+  ```
+
+  Проверить состояние ордера.
+
+  Необходимо отправить либо `orderId`, либо `origClientOrderId`.
+
+- ```c#
+  public async Task<IEnumerable<Common.Models.CheckOrderResponseModel>> CheckAllOpenOrdersAsync(
+              string symbol,
+              long recvWindow = 5000,
+              CancellationToken cancellationToken = default)
+  ```
+
+  Проверить состояние либо всех открытых ордеров, либо тех из них, что соответсвуют указанной паре.
+
+- ```c#
+  public async Task<IEnumerable<Common.Models.CheckOrderResponseModel>> GetAllOrdersAsync(
+              string symbol,
+              long? orderId = null,
+              long? startTime = null,
+              long? endTime = null,
+              int limit = 500,
+              long recvWindow = 5000,
+              CancellationToken cancellationToken = default)
+  ```
+
+  Получить состояние всех ордеров, соответствующих параметрам.
+
+- ```c#
+  public async Task<Common.Models.AccountInformationModel> GetAccountInformationAsync(CancellationToken cancellationToken)
+  ```
+
+  Получить информацию об аккаунте.
+
+  Возвращает комиссии, разрешения, баланс и т. д.
+
+## <b name="Подписка">Подписка на потоки рыночных данных</b>
+
+Перечисленные ниже методы предлагают подписку на потоки данных, основанную на использовании веб-сокетов - это предоставляет непрерывный поток информации, получение которых другими способами было описано выше.
+
+- ```c#
+  public IWebSocket SubscribeNewStream<T>(
+              string symbol,
+              string stream,
+              Func<T, CancellationToken, Task> onMessageReceivedFunc,
+              CancellationToken cancellationToken,
+              Action onStreamClosedFunc = null)
+  ```
+
+  Подписывается на стрим данных. 
+
+  Возможные значения стримов для Binance:
+
+  | Значение     | Пояснение                                                    |
+  | ------------ | :----------------------------------------------------------- |
+  | `aggTrade`   | Торговая информация для одного ордера тейкера (Модель `AggregateSymbolTradeStreamModel`) |
+  | `bookTicker` | Лучшая цена, количество для указанного символа (Модель `BookTickerStreamModel`) |
+  | `miniTicker` | Выборка информации о статистике бегущего окна за 24 часа для символа (Модель `MiniTickerStreamModel`) |
+  | `ticker`     | Информация о статистике бегущего окна за 24 часа для символа (Модель `TickerStreamModel`) |
+  | `trade`      | Информация о торговле тикером (Модель `SymbolTradeStreamModel`) |
+
+- ```c#
+  public IWebSocket SubscribeCandlestickStream(
+              string symbol,
+              string candleStickInterval,
+              Func<Common.Models.CandlestickStreamModel, CancellationToken, Task> onMessageReceivedFunc,
+              CancellationToken cancellationToken,
+              Action onStreamClosedFunc = null)
+  ```
+
+  Подписывается на стрим данных по свечам для определенной пары.
+  `onMessageReceivedFunc` 	Функция, обрабатывающая данные объекта `CandlestickStreamModel`
+  `candleStickInterval`	Интервал свечей
+
+- ```c#
+  public IWebSocket SubscribeAllMarketTickersStream(
+              Func<IEnumerable<Common.Models.TickerStreamModel>, CancellationToken, Task> onMessageReceivedFunc,
+              CancellationToken cancellationToken,
+              Action onStreamClosedFunc = null)
+  ```
+
+  Подписывается на стрим статистики всех мини-тикеров за 24 часа.
+
+  `onMessageReceivedFunc` 	Функция, обрабатывающая данные объекта `TickerStreamModel`
+
+- ```c#
+  public IWebSocket SubscribeAllBookTickersStream(
+              Func<Common.Models.BookTickerStreamModel, CancellationToken, Task> onMessageReceivedFunc,
+              CancellationToken cancellationToken,
+              Action onStreamClosedFunc = null)
+  ```
+
+  Подписывается на стрим обновлений лучшей цены покупки или продажи или количество в режиме реального времени для всех символов.
+
+  `onMessageReceivedFunc` 	Функция, обрабатывающая данные объекта `BookTickerStreamModel`
+
+- ```c#
+  public IWebSocket SubscribeAllMarketMiniTickersStream(
+              Func<IEnumerable<Common.Models.MiniTickerStreamModel>, CancellationToken, Task> onMessageReceivedFunc,
+              CancellationToken cancellationToken,
+              Action onStreamClosedFunc = null)
+  ```
+
+  Подписывается на стрим статистики всех мини-тикеров за 24 часа.
+
+  `onMessageReceivedFunc` 	Функция, обрабатывающая данные объекта `MiniTickerStreamModel`
+
+- ```c#
+  IWebSocket SubscribePartialBookDepthStream(
+              string symbol,
+              Func<OrderBookModel, CancellationToken, Task> onMessageReceivedFunc,
+              CancellationToken cancellationToken,
+              Action onStreamClosedFunc = null,
+              int levels = 10,
+              bool activateFastReceive = false);
+  ```
+
+​		Подписывается на стрим лучших ордеров спроса и предложений.
+
+​		`onMessageReceivedFunc` 	Функция, обрабатывающая данные объекта `OrderBookModel`
+
+​		`levels`	Кол-во ордеров. Допустимые значения 5, 10, 20.
+​		`activateFastReceive`	Активировать прием данных раз в 100 миллисекунд.
