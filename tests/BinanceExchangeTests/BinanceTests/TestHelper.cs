@@ -195,10 +195,10 @@ namespace BinanceExchangeTests.BinanceTests
         /// <summary>
         ///     Возвращает модель текущей цены пары
         /// </summary>
-        public static Common.Models.SymbolPriceModel CreateExpectedSymbolPriceTickerModel(string symbol, double price) =>
+        public static Common.Models.TradeObjectNamePriceModel CreateExpectedSymbolPriceTickerModel(string symbol, double price) =>
             new()
             {
-                Symbol = symbol,
+                Name = symbol,
                 Price = price
             };
 

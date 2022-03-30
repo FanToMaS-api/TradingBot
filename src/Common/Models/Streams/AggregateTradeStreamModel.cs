@@ -3,7 +3,7 @@
     /// <summary>
     ///     Модель данных с потока торговой информации, которая агрегируется для одного ордера тейкера
     /// </summary>
-    public class AggregateSymbolTradeStreamModel : MarketdataStreamModelBase
+    public class AggregateTradeStreamModel : MarketdataStreamModelBase
     {
         /// <summary>
         ///     Совокупное Id сделки

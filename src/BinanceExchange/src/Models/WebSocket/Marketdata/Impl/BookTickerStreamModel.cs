@@ -36,7 +36,7 @@ namespace BinanceExchange.Models
         public double BestBidPrice { get; set; }
 
         /// <summary>
-        ///    Лучшая объем спроса
+        ///    Лучший объем спроса
         /// </summary>
         [JsonPropertyName("B")]
         public double BestBidQuantity { get; set; }
@@ -48,7 +48,7 @@ namespace BinanceExchange.Models
         public double BestAskPrice { get; set; }
 
         /// <summary>
-        ///    Лучшая объем предложения
+        ///    Лучший объем предложения
         /// </summary>
         [JsonPropertyName("A")]
         public double BestAskQuantity { get; set; }
@@ -56,7 +56,7 @@ namespace BinanceExchange.Models
         /// <inheritdoc />
         public void SetProperties(ref Utf8JsonReader reader)
         {
-            string lastPropertyName = "";
+            var lastPropertyName = "";
             while (reader.Read() && reader.TokenType != JsonTokenType.EndObject)
             {
                 if (reader.TokenType == JsonTokenType.PropertyName)

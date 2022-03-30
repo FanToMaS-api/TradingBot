@@ -1,17 +1,17 @@
 ﻿namespace Common.Models
 {
     /// <summary>
-    ///     Содержит правила торговли для пары
+    ///     Содержит правила торговли для объекта торговли
     /// </summary>
-    public class SymbolRuleTradingModel
+    public class TradeObjectRuleTradingModel
     {
         /// <summary>
-        ///     Пара
+        ///     Наименовение объекта торговли
         /// </summary>
-        public string Symbol { get; internal set; }
+        public string Name { get; internal set; }
 
         /// <summary>
-        ///     Статус пары
+        ///     Статус объекта торговли
         /// </summary>
         public string Status { get; internal set; }
 

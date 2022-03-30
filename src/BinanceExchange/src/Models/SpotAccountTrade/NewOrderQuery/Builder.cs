@@ -11,7 +11,7 @@ namespace BinanceExchange.Models
     /// <summary>
     ///     Строитель запросов новых ордеров
     /// </summary>
-    internal class Builder : IBuilder
+    internal class Builder
     {
         #region Fields
 
@@ -30,10 +30,14 @@ namespace BinanceExchange.Models
 
         #region Public methods
 
-        /// <inheritdoc />
+        /// <summary>
+        ///     Сброс строителя
+        /// </summary>
         public void Reset() => _newQueryModel = new OrderQueryModel();
 
-        /// <inheritdoc />
+        /// <summary>
+        ///     Установить цену
+        /// </summary>
         public void SetPrice(double price)
         {
             if (price <= 0)
@@ -45,7 +49,9 @@ namespace BinanceExchange.Models
             _newQueryModel.Price.ValueStr = price.ToString();
         }
 
-        /// <inheritdoc />
+        /// <summary>
+        ///     Установить кол-во
+        /// </summary>
         public void SetQuantity(double quantity)
         {
             if (quantity <= 0)
@@ -57,7 +63,9 @@ namespace BinanceExchange.Models
             _newQueryModel.Quantity.ValueStr = quantity.ToString();
         }
 
-        /// <inheritdoc />
+        /// <summary>
+        ///     Установить id ордера (для отмены)
+        /// </summary>
         public void SetOrderId(long orderId)
         {
             if (orderId <= 0)
@@ -69,7 +77,9 @@ namespace BinanceExchange.Models
             _newQueryModel.OrderId.ValueStr = orderId.ToString();
         }
 
-        /// <inheritdoc />
+        /// <summary>
+        ///     Установить время начала построения свечей (для выгрузки)
+        /// </summary>
         public void SetStartTime(long startTime)
         {
             if (startTime <= 0)
@@ -81,7 +91,9 @@ namespace BinanceExchange.Models
             _newQueryModel.StartTime.ValueStr = startTime.ToString();
         }
 
-        /// <inheritdoc />
+        /// <summary>
+        ///     Установить интервал свечи
+        /// </summary>
         public void SetCandlestickInterval(string candlestickInterval)
         {
             // выдает ошибку если неверное значение
@@ -91,14 +103,18 @@ namespace BinanceExchange.Models
             _newQueryModel.CandlestickInterval.ValueStr = interval.ToUrl();
         }
 
-        /// <inheritdoc />
+        /// <summary>
+        ///     Установить интервал свечи
+        /// </summary>
         public void SetCandlestickInterval(CandlestickIntervalType candlestickInterval)
         {
             _newQueryModel.CandlestickInterval.IsUse = true;
             _newQueryModel.CandlestickInterval.ValueStr = candlestickInterval.ToUrl();
         }
 
-        /// <inheritdoc />
+        /// <summary>
+        ///     Установить окончание периода построения свечей (для выгрузки)
+        /// </summary>
         public void SetEndTime(long endTime)
         {
             if (endTime <= 0 || !_newQueryModel.StartTime.IsUse)
@@ -110,7 +126,9 @@ namespace BinanceExchange.Models
             _newQueryModel.EndTime.ValueStr = endTime.ToString();
         }
 
-        /// <inheritdoc />
+        /// <summary>
+        ///     Установить глубину запроса (лимит выдачи данных)
+        /// </summary>
         public void SetLimit(int limit)
         {
             if (limit <= 0)
@@ -122,7 +140,9 @@ namespace BinanceExchange.Models
             _newQueryModel.Limit.ValueStr = limit.ToString();
         }
 
-        /// <inheritdoc />
+        /// <summary>
+        ///     Установить нижнюю границу по id для выгрузки данных
+        /// </summary>
         public void SetFromId(long fromId)
         {
             if (fromId <= 0)
@@ -134,14 +154,18 @@ namespace BinanceExchange.Models
             _newQueryModel.FromId.ValueStr = fromId.ToString();
         }
 
-        /// <inheritdoc />
+        /// <summary>
+        ///     Установить Идентификатор заказа клиента
+        /// </summary>
         public void SetOrigClientOrderId(string origClientOrderId)
         {
             _newQueryModel.OrigClientOrderId.IsUse = true;
             _newQueryModel.OrigClientOrderId.ValueStr = origClientOrderId;
         }
 
-        /// <inheritdoc />
+        /// <summary>
+        ///     Установить кол-во для айсберг-ордера
+        /// </summary>
         public void SetIcebergQuantity(double icebergQty)
         {
             if (icebergQty <= 0 || !_newQueryModel.IcebergQty.CanSet)
@@ -158,7 +182,9 @@ namespace BinanceExchange.Models
             _newQueryModel.TimeInForce.CanSet = false;
         }
 
-        /// <inheritdoc />
+        /// <summary>
+        ///     Установить формат ответа сервера на запрос
+        /// </summary>
         public void SetOrderResponseType(OrderResponseType orderResponseType)
         {
             if (!_newQueryModel.OrderResponseType.CanSet)
@@ -172,7 +198,9 @@ namespace BinanceExchange.Models
             _newQueryModel.OrderResponseType.ValueStr = orderResponseType.ToUrl();
         }
 
-        /// <inheritdoc />
+        /// <summary>
+        ///     Установить тип ордера (покупка, продажа)
+        /// </summary>
         public void SetOrderSideType(OrderSideType sideType)
         {
             if (!_newQueryModel.SideType.CanSet)
@@ -186,7 +214,9 @@ namespace BinanceExchange.Models
             _newQueryModel.SideType.ValueStr = sideType.ToUrl();
         }
 
-        /// <inheritdoc />
+        /// <summary>
+        ///     Установить тип ордера (покупка, продажа)
+        /// </summary>
         public void SetOrderSideType(string side)
         {
             var sideType = side.ConvertToOrderSideType();
@@ -201,7 +231,9 @@ namespace BinanceExchange.Models
             _newQueryModel.SideType.ValueStr = sideType.ToUrl();
         }
 
-        /// <inheritdoc />
+        /// <summary>
+        ///     Установить тип ордера
+        /// </summary>
         public void SetOrderType(string order)
         {
             var orderType = order.ConvertToOrderType();
@@ -215,7 +247,9 @@ namespace BinanceExchange.Models
             _newQueryModel.OrderType.ValueStr = orderType.ToUrl();
         }
 
-        /// <inheritdoc />
+        /// <summary>
+        ///     Установить тип ордера
+        /// </summary>
         public void SetOrderType(OrderType orderType)
         {
             // специальный хардкод, для получения полной информации
@@ -227,14 +261,18 @@ namespace BinanceExchange.Models
             _newQueryModel.OrderType.ValueStr = orderType.ToUrl();
         }
 
-        /// <inheritdoc />
+        /// <summary>
+        ///     Установить кол-во миллисекунд, которое прибавляется к timestamp и формирует окно действия запроса
+        /// </summary>
         public void SetRecvWindow(long recvWindow)
         {
             _newQueryModel.RecvWindow.IsUse = true;
             _newQueryModel.RecvWindow.ValueStr = recvWindow.ToString();
         }
 
-        /// <inheritdoc />
+        /// <summary>
+        ///     Установить стоп цену
+        /// </summary>
         public void SetStopPrice(double stopPrice)
         {
             if (stopPrice <= 0 || !_newQueryModel.StopPrice.CanSet)
@@ -248,7 +286,9 @@ namespace BinanceExchange.Models
             _newQueryModel.StopPrice.ValueStr = stopPrice.ToString();
         }
 
-        /// <inheritdoc />
+        /// <summary>
+        ///     Установить пару
+        /// </summary>
         public void SetSymbol(string symbol, bool canBeNull = false)
         {
             if (!canBeNull && string.IsNullOrEmpty(symbol))
@@ -260,7 +300,9 @@ namespace BinanceExchange.Models
             _newQueryModel.Symbol.ValueStr = symbol;
         }
 
-        /// <inheritdoc />
+        /// <summary>
+        ///     Установить сколько ордер будет активен
+        /// </summary>
         public void SetTimeInForce(string timeInForce)
         {
             var timeInForceType = timeInForce.ConvertToTimeInForceType();
@@ -275,7 +317,9 @@ namespace BinanceExchange.Models
             _newQueryModel.TimeInForce.ValueStr = timeInForceType.ToUrl();
         }
 
-        /// <inheritdoc />
+        /// <summary>
+        ///     Установить сколько ордер будет активен
+        /// </summary>
         public void SetTimeInForce(TimeInForceType timeInForce)
         {
             if (!_newQueryModel.TimeInForce.CanSet)
@@ -324,7 +368,7 @@ namespace BinanceExchange.Models
         /// </remarks>
         private void SetOrderResponseType(OrderType orderType)
         {
-            if (orderType == OrderType.Limit || orderType == OrderType.Market)
+            if (orderType is OrderType.Limit or OrderType.Market)
             {
                 SetOrderResponseType(OrderResponseType.Full);
                 _newQueryModel.OrderResponseType.CanSet = false;
