@@ -1,6 +1,8 @@
-﻿using BinanceExchange;
+﻿using Analytic.Binance;
+using BinanceExchange;
 using NLog;
 using Redis;
+using Scheduler;
 using StackExchange.Redis;
 using System;
 using System.Collections.Generic;
@@ -60,8 +62,8 @@ namespace TradingBot
             await telegramClient.SendMessageAsync(message, cts.Token);
 
             var pairs = (await binance.GetSymbolPriceTickerAsync(null))
-                .Where(_ => _.Symbol.Contains("USDT", StringComparison.CurrentCultureIgnoreCase))
-                .ToDictionary(_ => _.Symbol, _ => new List<double>());
+                .Where(_ => _.Name.Contains("USDT", StringComparison.CurrentCultureIgnoreCase))
+                .ToDictionary(_ => _.Name, _ => new List<double>());
             _logger.Info($"Всего пар: {pairs.Count}");
 
             var delay = TimeSpan.FromMinutes(1);
@@ -69,39 +71,39 @@ namespace TradingBot
             while (true)
             {
                 var newPairs = (await binance.GetSymbolPriceTickerAsync(null))
-                    .Where(_ => _.Symbol.Contains("USDT", StringComparison.CurrentCultureIgnoreCase))
+                    .Where(_ => _.Name.Contains("USDT", StringComparison.CurrentCultureIgnoreCase))
                     .ToList();
                 _logger.Trace("Новые данные получены");
 
                 newPairs.ForEach(pair =>
                 {
-                    var pricesCount = pairs[pair.Symbol].Count;
+                    var pricesCount = pairs[pair.Name].Count;
                     if (pricesCount == 0)
                     {
-                        pairs[pair.Symbol].Add(pair.Price);
+                        pairs[pair.Name].Add(pair.Price);
                         return;
                     }
 
-                    var newDeviation = GetDeviation(pairs[pair.Symbol].Last(), pair.Price);
+                    var newDeviation = GetDeviation(pairs[pair.Name].Last(), pair.Price);
                     var lastDeviation = 0d;
                     var preLastDeviation = 0d;
                     if (pricesCount > 1)
                     {
-                        lastDeviation = GetDeviation(pairs[pair.Symbol][pricesCount - 2], pairs[pair.Symbol].Last());
+                        lastDeviation = GetDeviation(pairs[pair.Name][pricesCount - 2], pairs[pair.Name].Last());
                     }
 
                     if (pricesCount > 2)
                     {
-                        preLastDeviation = GetDeviation(pairs[pair.Symbol][pricesCount - 3], pairs[pair.Symbol][pricesCount - 2]);
+                        preLastDeviation = GetDeviation(pairs[pair.Name][pricesCount - 3], pairs[pair.Name][pricesCount - 2]);
                     }
 
                     var sumDeviation = newDeviation + lastDeviation + preLastDeviation;
                     if (newDeviation >= percent || sumDeviation >= percent)
                     {
-                        _logger.Warn($"Покупай {pair.Symbol} Новая разница {newDeviation:0.00} Разница за последние 3 таймфрейма: {sumDeviation:0.00}");
+                        _logger.Warn($"Покупай {pair.Name} Новая разница {newDeviation:0.00} Разница за последние 3 таймфрейма: {sumDeviation:0.00}");
                     }
 
-                    pairs[pair.Symbol].Add(pair.Price);
+                    pairs[pair.Name].Add(pair.Price);
                 });
 
                 await Task.Delay(delay);

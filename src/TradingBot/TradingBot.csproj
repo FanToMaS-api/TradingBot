@@ -13,12 +13,14 @@
 
 	<ItemGroup>
 	  <PackageReference Include="NLog.Targets.Seq" Version="2.1.0" />
+	  <PackageReference Include="Quartz" Version="3.4.0" />
 	  <PackageReference Include="System.Configuration.ConfigurationManager" Version="6.0.0" />
 	</ItemGroup>
 
 	<ItemGroup>
 	  <ProjectReference Include="..\BinanceExchange\BinanceExchange.csproj" />
 	  <ProjectReference Include="..\ExchangeLibrary\ExchangeLibrary.csproj" />
+	  <ProjectReference Include="..\Services\Analytic\Analytic.csproj" />
 	  <ProjectReference Include="..\Services\Telegram\Telegram.csproj" />
 	</ItemGroup>
 

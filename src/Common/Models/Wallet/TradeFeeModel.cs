@@ -1,16 +1,16 @@
 ﻿namespace Common.Models
 {
     /// <summary>
-    ///     Содержит размеры комиссии по паре
+    ///     Содержит размеры комиссии для объекта торговли
     /// </summary>
     public class TradeFeeModel
     {
         #region Properties
 
         /// <summary>
-        ///     Обозначение пары
+        ///     Краткое обозначение объекта торговли
         /// </summary>
-        public string Symbol { get; internal set; }
+        public string ShortName { get; internal set; }
 
         /// <summary>
         ///     Коммисия продавца

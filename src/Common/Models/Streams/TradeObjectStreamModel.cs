@@ -1,9 +1,9 @@
 ﻿namespace Common.Models
 {
     /// <summary>
-    ///     Модель статистики бегущего окна за 24 часа для одного символа
+    ///     Модель статистики бегущего окна за 24 часа для одного объекта торговли
     /// </summary>
-    public class TickerStreamModel : MarketdataStreamModelBase
+    public class TradeObjectStreamModel : MarketdataStreamModelBase
     {
         /// <summary>
         ///    Цена

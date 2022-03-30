@@ -3,7 +3,7 @@
     /// <summary>
     ///     Модель данных с потока необработанной торговой информации; у каждой сделки есть уникальный покупатель и продавец
     /// </summary>
-    public class SymbolTradeStreamModel : MarketdataStreamModelBase
+    public class TradeStreamModel : MarketdataStreamModelBase
     {
         /// <summary>
         ///     Идентификатор заказа продавца
