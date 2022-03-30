@@ -123,7 +123,7 @@
   - [TransactTimeUnix](#P-BinanceExchange-Models-FullOrderResponseModel-TransactTimeUnix "BinanceExchange.Models.FullOrderResponseModel.TransactTimeUnix")
   - [SetProperties()](#M-BinanceExchange-Models-FullOrderResponseModel-SetProperties-System-Text-Json-Utf8JsonReader@- "BinanceExchange.Models.FullOrderResponseModel.SetProperties(System.Text.Json.Utf8JsonReader@)")
 - [IMarketdataStreamModel](#T-BinanceExchange-Models-IMarketdataStreamModel "BinanceExchange.Models.IMarketdataStreamModel")
-  - [StreamType](#P-BinanceExchange-Models-IMarketdataStreamModel-Streamтип "BinanceExchange.Models.IMarketdataStreamModel.Streamтип")
+  - [StreamType](#P-BinanceExchange-Models-IMarketdataStreamModel-StreamType "BinanceExchange.Models.IMarketdataStreamModel.StreamType")
 - [KlineModel](#T-BinanceExchange-Models-KlineModel "BinanceExchange.Models.KlineModel")
   - [BasePurchaseVolume](#P-BinanceExchange-Models-KlineModel-BasePurchaseVolume "BinanceExchange.Models.KlineModel.BasePurchaseVolume")
   - [ClosePrice](#P-BinanceExchange-Models-KlineModel-ClosePrice "BinanceExchange.Models.KlineModel.ClosePrice")
