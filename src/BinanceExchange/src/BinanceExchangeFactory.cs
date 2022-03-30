@@ -1,4 +1,5 @@
 ﻿using ExchangeLibrary;
+using ExchangeLibrary.Configuration;
 using Redis;
 
 namespace BinanceExchange

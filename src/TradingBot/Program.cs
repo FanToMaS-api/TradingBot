@@ -1,8 +1,6 @@
-﻿using Analytic.Binance;
-using BinanceExchange;
+﻿using BinanceExchange;
 using NLog;
 using Redis;
-using Scheduler;
 using StackExchange.Redis;
 using System;
 using System.Collections.Generic;
@@ -31,6 +29,18 @@ namespace TradingBot
                 binanceOptions, new RedisDatabase(ConnectionMultiplexer.Connect(redisConnectionString)));
             using var cts = new CancellationTokenSource();
 
+            var socket = binance.MarketdataStreams.SubscribeCandlestickStream(
+                "SOLUSDT",
+                "30m", 
+                (model, ct) =>
+                {
+                    Console.WriteLine(model.ClosePrice);
+
+                    return Task.CompletedTask;
+                },
+                cts.Token);
+            await socket.ConnectAsync(cts.Token);
+            
             //var info = await binance.GetAccountInformationAsync(cts.Token);
             //var properties = typeof(AccountInformationModel).GetProperties();
             //foreach (var property in properties)
@@ -61,7 +71,7 @@ namespace TradingBot
             var message = builder.GetResult();
             await telegramClient.SendMessageAsync(message, cts.Token);
 
-            var pairs = (await binance.GetSymbolPriceTickerAsync(null))
+            var pairs = (await binance.Marketdata.GetSymbolPriceTickerAsync(null))
                 .Where(_ => _.Name.Contains("USDT", StringComparison.CurrentCultureIgnoreCase))
                 .ToDictionary(_ => _.Name, _ => new List<double>());
             _logger.Info($"Всего пар: {pairs.Count}");
@@ -70,7 +80,7 @@ namespace TradingBot
             var percent = 2.55;
             while (true)
             {
-                var newPairs = (await binance.GetSymbolPriceTickerAsync(null))
+                var newPairs = (await binance.Marketdata.GetSymbolPriceTickerAsync(null))
                     .Where(_ => _.Name.Contains("USDT", StringComparison.CurrentCultureIgnoreCase))
                     .ToList();
                 _logger.Trace("Новые данные получены");

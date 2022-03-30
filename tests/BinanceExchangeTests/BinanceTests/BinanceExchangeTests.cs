@@ -3,6 +3,7 @@ using BinanceExchange;
 using BinanceExchange.EndpointSenders;
 using BinanceExchange.Enums;
 using BinanceExchange.Models;
+using BinanceExchange.src.RedisRateLimits;
 using BinanceExchangeTests.BinanceTests.EndpointSendersTests;
 using Common.Enums;
 using Common.Models;
@@ -35,7 +36,7 @@ namespace BinanceExchangeTests.BinanceTests
         private readonly IRedisDatabase _redisDatabase;
         private readonly IWalletSender _walletSender;
         private readonly IMarketdataSender _marketdataSender;
-        private readonly ISpotAccountTradeSender _tradeSender;
+        private readonly ISpotTradeSender _tradeSender;
 
         // поля для проверки верного увеличения лимитов ограничения скорости
         private string _actualKey = "";
@@ -56,7 +57,7 @@ namespace BinanceExchangeTests.BinanceTests
             _mapper = new Mapper(config);
             _walletSender = Substitute.For<IWalletSender>();
             _marketdataSender = Substitute.For<IMarketdataSender>();
-            _tradeSender = Substitute.For<ISpotAccountTradeSender>();
+            _tradeSender = Substitute.For<ISpotTradeSender>();
             _redisDatabase = Substitute.For<IRedisDatabase>();
 
             _binanceExchange = SetupBinanceExchange();

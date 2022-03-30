@@ -17,7 +17,7 @@ using Xunit;
 namespace BinanceExchangeTests.BinanceTests.EndpointSendersTests
 {
     /// <summary>
-    ///     Тестирует <see cref="SpotAccountTradeSender"/>
+    ///     Тестирует <see cref="SpotTradeSender"/>
     /// </summary>
     public class SpotAccountTradeSenderTest
     {
@@ -63,7 +63,7 @@ namespace BinanceExchangeTests.BinanceTests.EndpointSendersTests
 
             using var client = TestHelper.CreateMockHttpClient(requestUrl, filePath);
             IBinanceClient binanceClient = new BinanceClient(client, "", "apiSecretKey");
-            ISpotAccountTradeSender tradeSender = new SpotAccountTradeSender(binanceClient);
+            ISpotTradeSender tradeSender = new SpotTradeSender(binanceClient);
 
             // Act
             var result = await tradeSender.SendNewTestOrderAsync(query, cancellationToken: CancellationToken.None);
@@ -102,7 +102,7 @@ namespace BinanceExchangeTests.BinanceTests.EndpointSendersTests
 
             using var client = TestHelper.CreateMockHttpClient(requestUrl, filePath);
             IBinanceClient binanceClient = new BinanceClient(client, "", "apiSecretKey");
-            ISpotAccountTradeSender tradeSender = new SpotAccountTradeSender(binanceClient);
+            ISpotTradeSender tradeSender = new SpotTradeSender(binanceClient);
 
             // Act
             var result = await tradeSender.SendNewOrderAsync(query, cancellationToken: CancellationToken.None);
@@ -127,7 +127,7 @@ namespace BinanceExchangeTests.BinanceTests.EndpointSendersTests
 
             using var client = TestHelper.CreateMockHttpClient(requestUrl, filePath);
             IBinanceClient binanceClient = new BinanceClient(client, "", "apiSecretKey");
-            ISpotAccountTradeSender tradeSender = new SpotAccountTradeSender(binanceClient);
+            ISpotTradeSender tradeSender = new SpotTradeSender(binanceClient);
 
             // Act
             var result = await tradeSender.CancelOrderAsync(query, cancellationToken: CancellationToken.None);
@@ -163,7 +163,7 @@ namespace BinanceExchangeTests.BinanceTests.EndpointSendersTests
 
             using var client = TestHelper.CreateMockHttpClient(requestUrl, filePath);
             IBinanceClient binanceClient = new BinanceClient(client, "", "apiSecretKey");
-            ISpotAccountTradeSender tradeSender = new SpotAccountTradeSender(binanceClient);
+            ISpotTradeSender tradeSender = new SpotTradeSender(binanceClient);
 
             // Act
             var result = (await tradeSender.CancelAllOrdersAsync(query, cancellationToken: CancellationToken.None)).ToList();
@@ -214,7 +214,7 @@ namespace BinanceExchangeTests.BinanceTests.EndpointSendersTests
 
             using var client = TestHelper.CreateMockHttpClient(url, filePath);
             IBinanceClient binanceClient = new BinanceClient(client, "", "apiSecretKey");
-            ISpotAccountTradeSender tradeSender = new SpotAccountTradeSender(binanceClient);
+            ISpotTradeSender tradeSender = new SpotTradeSender(binanceClient);
 
             // Act
             var result = await tradeSender.CheckOrderAsync(query, cancellationToken: CancellationToken.None);
@@ -237,7 +237,7 @@ namespace BinanceExchangeTests.BinanceTests.EndpointSendersTests
 
             using var client = TestHelper.CreateMockHttpClient(url, filePath);
             IBinanceClient binanceClient = new BinanceClient(client, "", "apiSecretKey");
-            ISpotAccountTradeSender tradeSender = new SpotAccountTradeSender(binanceClient);
+            ISpotTradeSender tradeSender = new SpotTradeSender(binanceClient);
 
             // Act
             var result = (await tradeSender.CheckAllOpenOrdersAsync(query, cancellationToken: CancellationToken.None)).ToList();
@@ -271,7 +271,7 @@ namespace BinanceExchangeTests.BinanceTests.EndpointSendersTests
 
             using var client = TestHelper.CreateMockHttpClient(url, filePath);
             IBinanceClient binanceClient = new BinanceClient(client, "", "apiSecretKey");
-            ISpotAccountTradeSender tradeSender = new SpotAccountTradeSender(binanceClient);
+            ISpotTradeSender tradeSender = new SpotTradeSender(binanceClient);
 
             // Act
             var result = (await tradeSender.GetAllOrdersAsync(query, cancellationToken: CancellationToken.None)).ToList();
@@ -303,7 +303,7 @@ namespace BinanceExchangeTests.BinanceTests.EndpointSendersTests
 
             using var client = TestHelper.CreateMockHttpClient(url, filePath);
             IBinanceClient binanceClient = new BinanceClient(client, "", "apiSecretKey");
-            ISpotAccountTradeSender tradeSender = new SpotAccountTradeSender(binanceClient);
+            ISpotTradeSender tradeSender = new SpotTradeSender(binanceClient);
 
             // Act
             var result = await tradeSender.GetAccountInformationAsync(query, cancellationToken: CancellationToken.None);

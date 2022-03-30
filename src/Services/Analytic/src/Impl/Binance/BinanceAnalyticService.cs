@@ -134,7 +134,7 @@ namespace Analytic.Binance
 
             try
             {
-                var models = await _exchange.GetSymbolPriceTickerAsync(null, _cancellationToken);
+                var models = await _exchange.Marketdata.GetSymbolPriceTickerAsync(null, _cancellationToken);
                 var filteredModels = GetFilteredData(models);
                 var extendedFilteredModels = await GetExtendedFilteredModelsAsync(filteredModels, _cancellationToken);
                 if (extendedFilteredModels.Any())
@@ -157,6 +157,7 @@ namespace Analytic.Binance
         /// <summary>
         ///     Получение общих данных с биржи и их первоначальная фильтрация
         /// </summary>
+        // TODO: Вынести в отдельный профиль подумать как связать профили и фильтры можно также GetDataProfile -> Filter -> AnalyzerProfiles?
         private List<InfoModel> GetFilteredData(IEnumerable<TradeObjectNamePriceModel> models)
         {
             var result = new List<InfoModel>();
@@ -238,13 +239,14 @@ namespace Analytic.Binance
         /// <summary>
         ///     Получение дополнительных данных и их фильтрация
         /// </summary>
+        // TODO: Вынести в отдельный профиль
         private async Task<List<InfoModel>> GetExtendedFilteredModelsAsync(List<InfoModel> models, CancellationToken cancellationToken)
         {
             var commonLatestFilters = FilterGroups.Where(_ => _.Type == FilterGroupType.CommonLatest).ToArray();
             for (var i = 0; i < models.Count; i++)
             {
                 var model = models[i];
-                var extendedModel = await _exchange.GetOrderBookAsync(model.TradeObjectName, 1000, cancellationToken);
+                var extendedModel = await _exchange.Marketdata.GetOrderBookAsync(model.TradeObjectName, 1000, cancellationToken);
                 model.BidVolume = extendedModel.Bids.Sum(_ => _.Quantity);
                 model.AskVolume = extendedModel.Asks.Sum(_ => _.Quantity);
 
