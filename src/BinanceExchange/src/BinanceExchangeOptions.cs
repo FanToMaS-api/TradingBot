@@ -1,4 +1,4 @@
-﻿using ExchangeLibrary;
+﻿using ExchangeLibrary.Configuration;
 
 namespace BinanceExchange
 {

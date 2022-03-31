@@ -1,4 +1,4 @@
-﻿namespace ExchangeLibrary
+﻿namespace ExchangeLibrary.Configuration
 {
     /// <summary>
     ///     Базовый класс настроек бирж

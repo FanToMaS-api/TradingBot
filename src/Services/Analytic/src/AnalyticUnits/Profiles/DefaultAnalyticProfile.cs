@@ -36,8 +36,8 @@ namespace Analytic.AnalyticUnits
             InfoModel model,
             CancellationToken cancellationToken)
         {
-            var averagePrice = await exchange.GetAveragePriceAsync(model.TradeObjectName, cancellationToken);
-            var bestAskPrice = (await exchange.GetBestSymbolOrdersAsync(model.TradeObjectName, cancellationToken))
+            var averagePrice = await exchange.Marketdata.GetAveragePriceAsync(model.TradeObjectName, cancellationToken);
+            var bestAskPrice = (await exchange.Marketdata.GetBestSymbolOrdersAsync(model.TradeObjectName, cancellationToken))
                 .OrderByDescending(_ => _.AskPrice)
                 .FirstOrDefault()?.AskPrice ?? double.MaxValue;
             var isSuccessfulAnalyze = bestAskPrice < averagePrice;

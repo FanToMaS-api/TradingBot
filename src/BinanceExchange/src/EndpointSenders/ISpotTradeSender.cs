@@ -8,7 +8,7 @@ namespace BinanceExchange.EndpointSenders
     /// <summary>
     ///     Отвечает за отправку запросов к конечным точкам Spot Account/Trade
     /// </summary>
-    internal interface ISpotAccountTradeSender
+    internal interface ISpotTradeSender
     {
         /// <summary>
         ///     Отправить новый ТЕСТОВЫЙ ордер

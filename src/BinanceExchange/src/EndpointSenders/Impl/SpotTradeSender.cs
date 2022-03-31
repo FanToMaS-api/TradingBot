@@ -10,8 +10,8 @@ using System.Threading.Tasks;
 
 namespace BinanceExchange.EndpointSenders.Impl
 {
-    /// <inheritdoc cref="ISpotAccountTradeSender"/>
-    internal class SpotAccountTradeSender : ISpotAccountTradeSender
+    /// <inheritdoc cref="ISpotTradeSender"/>
+    internal class SpotTradeSender : ISpotTradeSender
     {
         #region Fields
 
@@ -23,8 +23,8 @@ namespace BinanceExchange.EndpointSenders.Impl
 
         #region .ctor
 
-        /// <inheritdoc cref="SpotAccountTradeSender" />
-        public SpotAccountTradeSender(IBinanceClient client)
+        /// <inheritdoc cref="SpotTradeSender" />
+        public SpotTradeSender(IBinanceClient client)
         {
             _client = client;
             _converter = new JsonDeserializerWrapper();

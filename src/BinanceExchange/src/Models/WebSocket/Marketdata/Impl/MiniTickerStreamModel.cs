@@ -53,7 +53,7 @@ namespace BinanceExchange.Models
         /// <inheritdoc />
         public void SetProperties(ref Utf8JsonReader reader)
         {
-            string lastPropertyName = "";
+            var lastPropertyName = "";
             while (reader.Read() && reader.TokenType != JsonTokenType.EndObject)
             {
                 if (reader.TokenType == JsonTokenType.PropertyName)

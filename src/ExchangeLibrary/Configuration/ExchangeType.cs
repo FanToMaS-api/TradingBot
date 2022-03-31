@@ -1,4 +1,4 @@
-﻿namespace ExchangeLibrary
+﻿namespace ExchangeLibrary.Configuration
 {
     /// <summary>
     ///     Типы бирж

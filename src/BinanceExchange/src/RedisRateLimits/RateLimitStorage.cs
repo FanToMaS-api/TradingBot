@@ -2,7 +2,7 @@
 using Common.Models;
 using System;
 
-namespace BinanceExchange
+namespace BinanceExchange.RedisRateLimits
 {
     /// <summary>
     ///     Хранилище лимитов для Binance
