@@ -60,12 +60,12 @@ namespace BinanceExchange.WebSocket
                 _loopCancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
                 await _webSocketHumble.ConnectAsync(_uri, cancellationToken);
                 var task = await Task.Factory.StartNew(
-                    async () => await ReceiveLoopAsync(_loopCancellationTokenSource.Token, _receiveBufferSize),
+                    async () => await ReceiveLoopAsync(_receiveBufferSize, _loopCancellationTokenSource.Token),
                     _loopCancellationTokenSource.Token,
                     TaskCreationOptions.LongRunning,
                     TaskScheduler.Default);
 
-                task.Wait();
+                task.Wait(cancellationToken);
             }
         }
 
@@ -120,7 +120,7 @@ namespace BinanceExchange.WebSocket
         /// <summary>
         ///     Цикл получения данных со стрима сервера
         /// </summary>
-        private async Task ReceiveLoopAsync(CancellationToken cancellationToken, int _receiveBufferSize)
+        private async Task ReceiveLoopAsync(int _receiveBufferSize, CancellationToken cancellationToken)
         {
             WebSocketReceiveResult receiveResult = null;
             try
@@ -166,7 +166,7 @@ namespace BinanceExchange.WebSocket
         ///     Проверяет на успешное завершение таски, бросает исключения если таска провалилась
         /// </summary>
         /// <param name="task"></param>
-        private void CheckTaskException(Task task)
+        private static void CheckTaskException(Task task)
         {
             if (task.Status == TaskStatus.Faulted)
             {

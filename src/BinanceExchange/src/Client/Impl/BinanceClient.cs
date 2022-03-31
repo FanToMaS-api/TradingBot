@@ -81,7 +81,7 @@ namespace BinanceExchange.Client.Impl
 
             if (queryStringBuilder.Length > 0)
             {
-                queryStringBuilder.Append("&");
+                queryStringBuilder.Append('&');
             }
 
             queryStringBuilder.Append($"signature={signature}");
@@ -100,55 +100,49 @@ namespace BinanceExchange.Client.Impl
         /// </summary>
         private async Task<string> SendAsync(string requestUri, HttpMethod httpMethod, object content = null, CancellationToken cancellationToken = default)
         {
-            using (var request = new HttpRequestMessage(httpMethod, _baseUrl + requestUri))
+            using var request = new HttpRequestMessage(httpMethod, _baseUrl + requestUri);
+            if (content is not null)
             {
-                if (content is not null)
-                {
-                    request.Content = new StringContent(JsonSerializer.Serialize(content), Encoding.UTF8, "application/json");
-                }
-
-                if (_apiKey is not null)
-                {
-                    request.Headers.Add("X-MBX-APIKEY", _apiKey);
-                }
-
-                var response = await _client.SendAsync(request, cancellationToken);
-                if (!response.IsSuccessStatusCode)
-                {
-                    await ProcessBadResponseAsync(response, cancellationToken);
-                }
-
-                using (var responseContent = response.Content)
-                {
-                    return await responseContent.ReadAsStringAsync(cancellationToken);
-                }
+                request.Content = new StringContent(JsonSerializer.Serialize(content), Encoding.UTF8, "application/json");
             }
+
+            if (_apiKey is not null)
+            {
+                request.Headers.Add("X-MBX-APIKEY", _apiKey);
+            }
+
+            var response = await _client.SendAsync(request, cancellationToken);
+            if (!response.IsSuccessStatusCode)
+            {
+                await ProcessBadResponseAsync(response, cancellationToken);
+            }
+
+            using var responseContent = response.Content;
+            return await responseContent.ReadAsStringAsync(cancellationToken);
         }
 
         /// <summary>
-        ///     Обработка неверного отвечета с Binance
+        ///     Обработка неверного ответа с Binance
         /// </summary>
-        private async Task ProcessBadResponseAsync(HttpResponseMessage response, CancellationToken cancellationToken)
+        private static async Task ProcessBadResponseAsync(HttpResponseMessage response, CancellationToken cancellationToken)
         {
-            using (HttpContent responseContent = response.Content)
+            using var responseContent = response.Content;
+            var statusCode = (int)response.StatusCode;
+            var message = await response.Content.ReadAsStringAsync(cancellationToken);
+            var httpException = statusCode switch
             {
-                var statusCode = (int)response.StatusCode;
-                var message = await response.Content.ReadAsStringAsync(cancellationToken);
-                BinanceException httpException = statusCode switch
-                {
-                    403 => new BinanceException(BinanceExceptionType.WAFLimit, message),
-                    429 => new BinanceException(BinanceExceptionType.RateLimit, message),
-                    418 => new BinanceException(BinanceExceptionType.Blocked, message),
-                    >= 500 => new BinanceException(BinanceExceptionType.ServerException, message),
-                    >= 400 => new BinanceException(BinanceExceptionType.InvalidRequest, message),
-                    _ => new BinanceException($"Unknown error type with code")
-                };
+                403 => new BinanceException(BinanceExceptionType.WAFLimit, message),
+                429 => new BinanceException(BinanceExceptionType.RateLimit, message),
+                418 => new BinanceException(BinanceExceptionType.Blocked, message),
+                >= 500 => new BinanceException(BinanceExceptionType.ServerException, message),
+                >= 400 => new BinanceException(BinanceExceptionType.InvalidRequest, message),
+                _ => new BinanceException($"Unknown error type with code")
+            };
 
-                httpException.StatusCode = statusCode;
-                httpException.Headers = response.Headers.ToDictionary(a => a.Key, a => a.Value);
+            httpException.StatusCode = statusCode;
+            httpException.Headers = response.Headers.ToDictionary(a => a.Key, a => a.Value);
 
-                throw httpException;
-            }
+            throw httpException;
 
             #endregion
         }
