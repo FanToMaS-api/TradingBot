@@ -1,7 +1,5 @@
 ﻿using AutoMapper;
-using BinanceExchange.Client;
 using BinanceExchange.EndpointSenders;
-using BinanceExchange.EndpointSenders.Impl;
 using BinanceExchange.Exceptions;
 using BinanceExchange.Models;
 using BinanceExchange.RedisRateLimits;
@@ -32,9 +30,9 @@ namespace BinanceExchange.Impl
         #region .ctor
 
         /// <inheritdoc cref="Wallet"/>
-        public Wallet(IBinanceClient binanceClient, IRedisDatabase redisDatabase, IMapper mapper)
+        public Wallet(IWalletSender walletSender, IRedisDatabase redisDatabase, IMapper mapper)
         {
-            _walletSender = new WalletSender(binanceClient);
+            _walletSender = walletSender;
             _redisDatabase = redisDatabase;
             _mapper = mapper;
         }

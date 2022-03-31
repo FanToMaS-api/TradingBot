@@ -68,16 +68,16 @@ namespace BinanceExchange
         #region Properties
 
         /// <inheritdoc />
-        public IWallet Wallet => _wallet ??= new Wallet(_client, _redisDatabase, _mapper);
+        public IWallet Wallet => _wallet ??= new Wallet(new WalletSender(_client), _redisDatabase, _mapper);
 
         /// <inheritdoc />
-        public IMarketdata Marketdata => _marketdata ??= new Marketdata(_client, _redisDatabase, _mapper);
+        public IMarketdata Marketdata => _marketdata ??= new Marketdata(new MarketdataSender(_client), _redisDatabase, _mapper);
 
         /// <inheritdoc />
         public IMarketdataStreams MarketdataStreams => _marketdataStreams ??= new MarketdataStreams(_mapper);
 
         /// <inheritdoc />
-        public ISpotTrade SpotTrade => _spotTrade ??= new SpotTrade(_client, _redisDatabase, _mapper);
+        public ISpotTrade SpotTrade => _spotTrade ??= new SpotTrade(new SpotTradeSender(_client), _redisDatabase, _mapper);
 
         #endregion
 

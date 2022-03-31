@@ -1,5 +1,6 @@
 ﻿using BinanceExchange.Enums;
 using BinanceExchange.Models;
+using BinanceExchange.RedisRateLimits;
 using Common.Enums;
 using RichardSzalay.MockHttp;
 using System;
@@ -28,6 +29,21 @@ namespace BinanceExchangeTests.BinanceTests
             mockHttp.When(url).Respond("application/json", json);
 
             return new HttpClient(mockHttp);
+        }
+
+        /// <summary>
+        ///     Возвращает ожидаемые параметры в методе увеличения совокупного веса запросов
+        /// </summary>
+        public static (string expectedKey, TimeSpan expectedInterval, int expectedWeight) GetExpectedArguments(
+            RequestWeightModel model, 
+            string weightKey)
+        {
+            var rateLimit = RedisHelper.GetRateLimit(model.Type);
+            var expectedKey = RedisHelper.GetRedisKey(rateLimit.Type);
+            var expectedInterval = rateLimit.Interval;
+            var expectedWeight = model.Weights[weightKey];
+
+            return (expectedKey, expectedInterval, expectedWeight);
         }
 
         /// <summary>

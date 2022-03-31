@@ -1,10 +1,10 @@
 ﻿using BinanceExchange.Enums;
 using BinanceExchange.Enums.Helper;
+using BinanceExchange.Impl;
 using BinanceExchange.Models;
 using BinanceExchange.WebSocket;
 using BinanceExchange.WebSocket.Marketdata;
 using Common.JsonConvertWrapper;
-using Common.JsonConvertWrapper.Converters;
 using NSubstitute;
 using System;
 using System.Collections.Generic;
@@ -25,7 +25,7 @@ namespace BinanceExchangeTests.BinanceTests.WebSocketTests
     {
         #region Fields
 
-        private readonly JsonDeserializerWrapper _deserializer = BinanceExchange.BinanceExchange.GetConverter();
+        private readonly JsonDeserializerWrapper _deserializer = MarketdataStreams.GetConverter();
 
         private readonly BookTickerStreamModel _expectedBookTickerStreamModel = new()
         {

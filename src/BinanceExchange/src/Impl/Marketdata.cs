@@ -1,7 +1,5 @@
 ﻿using AutoMapper;
-using BinanceExchange.Client;
 using BinanceExchange.EndpointSenders;
-using BinanceExchange.EndpointSenders.Impl;
 using BinanceExchange.Exceptions;
 using BinanceExchange.Models;
 using BinanceExchange.RedisRateLimits;
@@ -32,9 +30,9 @@ namespace BinanceExchange.Impl
         #region .ctor
 
         /// <inheritdoc cref="Marketdata"/>
-        public Marketdata(IBinanceClient binanceClient, IRedisDatabase redisDatabase, IMapper mapper)
+        public Marketdata(IMarketdataSender marketdataSender, IRedisDatabase redisDatabase, IMapper mapper)
         {
-            _marketdataSender = new MarketdataSender(binanceClient);
+            _marketdataSender = marketdataSender;
             _redisDatabase = redisDatabase;
             _mapper = mapper;
         }

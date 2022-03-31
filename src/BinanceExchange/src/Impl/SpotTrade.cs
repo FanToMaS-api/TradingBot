@@ -1,7 +1,5 @@
 ﻿using AutoMapper;
-using BinanceExchange.Client;
 using BinanceExchange.EndpointSenders;
-using BinanceExchange.EndpointSenders.Impl;
 using BinanceExchange.Enums;
 using BinanceExchange.Exceptions;
 using BinanceExchange.Models;
@@ -33,9 +31,9 @@ namespace BinanceExchange.Impl
         #region .ctor
 
         /// <inheritdoc cref="SpotTrade"/>
-        public SpotTrade(IBinanceClient binanceClient, IRedisDatabase redisDatabase, IMapper mapper)
+        public SpotTrade(ISpotTradeSender tradeSender, IRedisDatabase redisDatabase, IMapper mapper)
         {
-            _tradeSender = new SpotTradeSender(binanceClient);
+            _tradeSender = tradeSender;
             _redisDatabase = redisDatabase;
             _mapper = mapper;
         }
