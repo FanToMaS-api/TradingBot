@@ -42,9 +42,6 @@
   - [StreamType](#P-BinanceExchange-Models-BookTickerStreamModel-Streamтип "BinanceExchange.Models.BookTickerStreamModel.Streamтип")
   - [Symbol](#P-BinanceExchange-Models-BookTickerStreamModel-Symbol "BinanceExchange.Models.BookTickerStreamModel.Symbol")
   - [SetProperties()](#M-BinanceExchange-Models-BookTickerStreamModel-SetProperties-System-Text-Json-Utf8JsonReader@- "BinanceExchange.Models.BookTickerStreamModel.SetProperties(System.Text.Json.Utf8JsonReader@)")
-- [CancelOrderResponseModel](#T-BinanceExchange-Models-CancelOrderResponseModel "BinanceExchange.Models.CancelOrderResponseModel")
-  - [OrigClientOrderId](#P-BinanceExchange-Models-CancelOrderResponseModel-OrigClientOrderId "BinanceExchange.Models.CancelOrderResponseModel.OrigClientOrderId")
-  - [SetProperties()](#M-BinanceExchange-Models-CancelOrderResponseModel-SetProperties-System-Text-Json-Utf8JsonReader@- "BinanceExchange.Models.CancelOrderResponseModel.SetProperties(System.Text.Json.Utf8JsonReader@)")
 - [CandlestickModel](#T-BinanceExchange-Models-CandlestickModel "BinanceExchange.Models.CandlestickModel")
   - [BasePurchaseVolume](#P-BinanceExchange-Models-CandlestickModel-BasePurchaseVolume "BinanceExchange.Models.CandlestickModel.BasePurchaseVolume")
   - [ClosePrice](#P-BinanceExchange-Models-CandlestickModel-ClosePrice "BinanceExchange.Models.CandlestickModel.ClosePrice")
@@ -1112,7 +1109,7 @@ Id сделки
 
 <a name='P-BinanceExchange-Models-OrderBookModel-Streamтип'></a>
 
-### Streamтип `свойство`
+### StreamType `свойство`
 
 <a name='M-BinanceExchange-Models-OrderBookModel-SetProperties-System-Text-Json-Utf8JsonReader@-'></a>
 
