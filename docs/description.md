@@ -185,13 +185,13 @@
 
   | Тип ордера `ORDERTYPE` | Дополнительные параметры                        | Подробнее                                                    |
   | ---------------------- | ----------------------------------------------- | ------------------------------------------------------------ |
-  | `Limit`                | `timeInForce`, `quantity`, `price`              | <button href="https://academy.binance.com/en/articles/what-is-a-limit-order">➙</button> |
-  | `Market`               | `quantity`                                      | <button href="https://academy.binance.com/en/articles/what-is-a-market-order">➙</button> |
-  | `StopLoss`             | `quantity`, `stopPrice`                         | <button href="https://academy.binance.com/en/articles/what-is-a-stop-limit-order">➙</button> |
-  | `StopLossLimit`        | `timeInForce`, `quantity`, `price`, `stopPrice` | <button href="https://academy.binance.com/en/articles/what-is-a-market-order">➙</button> |
-  | `TakeProfit`           | `quantity`, `stopPrice`                         | <button href="https://academy.binance.com/en/articles/what-is-a-stop-limit-order">➙</button> |
-  | `TakeProfitLimit`      | `timeInForce`, `quantity`, `price`, `stopPrice` | <button href="https://www.binance.com/en/support/faq/360036351051">➙</button> |
-  | `LimitMarket`          | `quantity`, `price`                             | <button href="https://www.binance.com/en/support/faq/360042299292">➙</button> |
+  | `Limit`                | `timeInForce`, `quantity`, `price`              | [➙](https://academy.binance.com/en/articles/what-is-a-limit-order) |
+  | `Market`               | `quantity`                                      | [➙](https://academy.binance.com/en/articles/what-is-a-market-order) |
+  | `StopLoss`             | `quantity`, `stopPrice`                         | [➙](https://academy.binance.com/en/articles/what-is-a-stop-limit-order) |
+  | `StopLossLimit`        | `timeInForce`, `quantity`, `price`, `stopPrice` | [➙](https://academy.binance.com/en/articles/what-is-a-market-order) |
+  | `TakeProfit`           | `quantity`, `stopPrice`                         | [➙](https://academy.binance.com/en/articles/what-is-a-stop-limit-order) |
+  | `TakeProfitLimit`      | `timeInForce`, `quantity`, `price`, `stopPrice` | [➙](https://www.binance.com/en/support/faq/360036351051) |
+  | `LimitMarket`          | `quantity`, `price`                             | [➙](https://www.binance.com/en/support/faq/360042299292) |
 
   Параметры, которые необходимо передать в методы этого типа следующие:
 
