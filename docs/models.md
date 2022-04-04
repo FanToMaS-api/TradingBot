@@ -332,7 +332,7 @@
 
 Время обновления
 
-<a name='T-BinanceExchange-Models-AccountInformationModelConverter'></a>
+<a name='#T-BinanceExchange-Models-AccountTradingStatusModel'></a>
 
 ## AccountTradingStatusModel `тип`
 
