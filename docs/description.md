@@ -185,13 +185,13 @@
 
   | Тип ордера `ORDERTYPE` | Дополнительные параметры                        | Подробнее                                                    |
   | ---------------------- | ----------------------------------------------- | ------------------------------------------------------------ |
-  | `Limit`                | `timeInForce`, `quantity`, `price`              | <button href="https://www.binance.com/en/support/faq/360033779452#:~:text=to%20learn%20more.-,Limit%20Order,-What%20is%20a">➙</button> |
-  | `Market`               | `quantity`                                      | <button href="https://www.binance.com/en/support/faq/360033779452#:~:text=to%20learn%20more.-,Market%20Order,-What%20is%20a">➙</button> |
-  | `StopLoss`             | `quantity`, `stopPrice`                         | <button href="https://www.binance.com/en/support/faq/360033779452#:~:text=to%20learn%20more.-,Stop%20Limit%20Order,-What%20is%20a">➙</button> |
-  | `StopLossLimit`        | `timeInForce`, `quantity`, `price`, `stopPrice` | <button href="https://www.binance.com/en/support/faq/360033779452#:~:text=to%20learn%20more.-,Stop%20Market%20Order,-What%20is%20a">➙</button> |
-  | `TakeProfit`           | `quantity`, `stopPrice`                         | <button href="https://www.binance.com/en/support/faq/360033779452#:~:text=to%20learn%20more.-,Trailing%20Stop%20Order,-What%20is%20a">➙</button> |
-  | `TakeProfitLimit`      | `timeInForce`, `quantity`, `price`, `stopPrice` | <button href="https://www.binance.com/en/support/faq/360033779452#:~:text=to%20learn%20more.-,Post%20Only%20Order,-What%20is%20a">➙</button> |
-  | `LimitMarket`          | `quantity`, `price`                             | <button href="https://www.binance.com/en/support/faq/360033779452#:~:text=not%20executed%20immediately.-,Limit%20TP/SL%20Order,-(Strategy%20Order)">➙</button> |
+  | `Limit`                | `timeInForce`, `quantity`, `price`              | <button href="https://academy.binance.com/en/articles/what-is-a-limit-order">➙</button> |
+  | `Market`               | `quantity`                                      | <button href="https://academy.binance.com/en/articles/what-is-a-market-order">➙</button> |
+  | `StopLoss`             | `quantity`, `stopPrice`                         | <button href="https://academy.binance.com/en/articles/what-is-a-stop-limit-order">➙</button> |
+  | `StopLossLimit`        | `timeInForce`, `quantity`, `price`, `stopPrice` | <button href="https://academy.binance.com/en/articles/what-is-a-market-order">➙</button> |
+  | `TakeProfit`           | `quantity`, `stopPrice`                         | <button href="https://academy.binance.com/en/articles/what-is-a-stop-limit-order">➙</button> |
+  | `TakeProfitLimit`      | `timeInForce`, `quantity`, `price`, `stopPrice` | <button href="https://www.binance.com/en/support/faq/360036351051">➙</button> |
+  | `LimitMarket`          | `quantity`, `price`                             | <button href="https://www.binance.com/en/support/faq/360042299292">➙</button> |
 
   Параметры, которые необходимо передать в методы этого типа следующие:
 
