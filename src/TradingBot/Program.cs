@@ -29,18 +29,20 @@ namespace TradingBot
                 binanceOptions, new RedisDatabase(ConnectionMultiplexer.Connect(redisConnectionString)));
             using var cts = new CancellationTokenSource();
 
-            var socket = binance.MarketdataStreams.SubscribeCandlestickStream(
-                "SOLUSDT",
-                "30m", 
-                (model, ct) =>
+            var socket = binance.MarketdataStreams.SubscribeAllMarketTickersStream(
+                (models, ct) =>
                 {
-                    Console.WriteLine(model.ClosePrice);
+                    foreach (var model in models.Where(_ => _.ShortName.Contains("APEUSDT")))
+                    {
+                        Console.WriteLine(model.ShortName + " " + model.LastPrice);
+                    }
 
                     return Task.CompletedTask;
                 },
                 cts.Token);
             await socket.ConnectAsync(cts.Token);
-            
+
+
             //var info = await binance.GetAccountInformationAsync(cts.Token);
             //var properties = typeof(AccountInformationModel).GetProperties();
             //foreach (var property in properties)
