@@ -94,7 +94,7 @@ namespace SignalsSender
             _analyticService.AddFilterGroup(commonLatestFilterGroup);
 
             _analyticService.OnModelsFiltered += OnModelsFilteredReceived;
-            _analyticService.OnModelsReadyToBuy += OnModelsToBuyReceived;
+            _analyticService.OnSuccessfulAnalize += OnModelsToBuyReceived;
 
             var profile = new DefaultAnalyticProfile("DefaultProfile");
             var profileGroup = new ProfileGroup("DefaultGroupProfile");

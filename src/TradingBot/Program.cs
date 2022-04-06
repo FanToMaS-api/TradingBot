@@ -5,7 +5,9 @@ using StackExchange.Redis;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
+using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Telegram.Builder;
@@ -31,16 +33,19 @@ namespace TradingBot
 
             var socket = binance.MarketdataStreams.SubscribeCandlestickStream(
                 "SOLUSDT",
-                "30m", 
-                (model, ct) =>
+                "1m",
+                async (model, ct) =>
                 {
-                    Console.WriteLine(model.ClosePrice);
-
-                    return Task.CompletedTask;
+                    using var sw = new StreamWriter("SOLUSDT_15_min.txt", true);
+                    sw.WriteLine(model.ClosePrice.ToString());
                 },
                 cts.Token);
-            await socket.ConnectAsync(cts.Token);
-            
+            try
+            {
+                await socket.ConnectAsync(cts.Token);
+            }
+            catch { }
+
             //var info = await binance.GetAccountInformationAsync(cts.Token);
             //var properties = typeof(AccountInformationModel).GetProperties();
             //foreach (var property in properties)

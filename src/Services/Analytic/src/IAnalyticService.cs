@@ -17,7 +17,7 @@ namespace Analytic
         ///     Профили аналитики
         /// </summary>
         List<IProfileGroup> ProfileGroups { get; }
-        
+
         /// <summary>
         ///     Фильтры данных
         /// </summary>
@@ -29,9 +29,9 @@ namespace Analytic
         EventHandler<InfoModel[]> OnModelsFiltered { get; set; }
 
         /// <summary>
-        ///     Событие, возникающее, если есть торговые объекты для покупки
+        ///     Событие, возникающее, если есть торговые объекты для покупки (продажи)
         /// </summary>
-        EventHandler<AnalyticResultModel[]> OnModelsReadyToBuy { get; set; }
+        EventHandler<AnalyticResultModel[]> OnSuccessfulAnalize { get; set; }
 
         /// <summary>
         ///     Запускает сервис аналитики

@@ -50,9 +50,6 @@ namespace Analytic.AnalyticUnits
             return (isSuccessfulAnalyze, resultModel);
         }
 
-        /// <inheritdoc />
-        public bool Remove(string name) => false;
-
         #endregion
     }
 }

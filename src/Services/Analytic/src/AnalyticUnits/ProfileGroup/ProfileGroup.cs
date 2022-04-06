@@ -25,7 +25,7 @@ namespace Analytic.AnalyticUnits
         #region Properties
 
         /// <inheritdoc />
-        public List<IAnalyticUnit> AnalyticUnits { get; } = new();
+        public List<IAnalyticProfile> AnalyticUnits { get; } = new();
 
         /// <inheritdoc />
         public string Name { get; }
@@ -67,7 +67,7 @@ namespace Analytic.AnalyticUnits
 
         /// <inheritdoc />
 
-        public void AddAnalyticUnit(IAnalyticUnit unit) => AnalyticUnits.Add(unit);
+        public void AddAnalyticUnit(IAnalyticProfile unit) => AnalyticUnits.Add(unit);
 
         /// <inheritdoc />
         public bool Remove(string name)
@@ -77,11 +77,6 @@ namespace Analytic.AnalyticUnits
                 if (unit.Name == name)
                 {
                     return AnalyticUnits.Remove(unit);
-                }
-
-                if (unit.Remove(name))
-                {
-                    return true;
                 }
             }
 

@@ -55,7 +55,7 @@ namespace Analytic.Binance
         public EventHandler<InfoModel[]> OnModelsFiltered { get; set; }
 
         /// <inheritdoc />
-        public EventHandler<AnalyticResultModel[]> OnModelsReadyToBuy { get; set; }
+        public EventHandler<AnalyticResultModel[]> OnSuccessfulAnalize { get; set; }
 
         #endregion
 
@@ -144,7 +144,7 @@ namespace Analytic.Binance
                     var analyzedModels = await GetAnalyzedModelsAsync(extendedFilteredModels, _cancellationToken);
                     if (analyzedModels.Any())
                     {
-                        OnModelsReadyToBuy?.Invoke(this, analyzedModels.ToArray());
+                        OnSuccessfulAnalize?.Invoke(this, analyzedModels.ToArray());
                     }
                 }
             }
@@ -296,7 +296,7 @@ namespace Analytic.Binance
                         continue;
                     }
 
-                    // усредняем
+                    // усредняем, если другой фильтр уже добавил эту модель в выборку
                     conflictedModel.RecommendedPurchasePrice += analyticModel.RecommendedPurchasePrice;
                     conflictedModel.RecommendedPurchasePrice /= 2;
                 }

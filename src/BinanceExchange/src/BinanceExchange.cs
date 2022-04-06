@@ -1,10 +1,8 @@
 ﻿using AutoMapper;
 using BinanceExchange.Client;
 using BinanceExchange.Client.Impl;
-using BinanceExchange.EndpointSenders;
 using BinanceExchange.EndpointSenders.Impl;
 using BinanceExchange.Impl;
-using Common.JsonConvertWrapper;
 using ExchangeLibrary;
 using NLog;
 using Redis;
