@@ -30,14 +30,19 @@ namespace BinanceExchange
 
             CreateMap<Models.OrderBookModel, Common.Models.OrderBookModel>();
             CreateMap<Models.TradeModel, Common.Models.TradeModel>();
-            CreateMap<Models.MiniTickerStreamModel, Common.Models.MiniTickerStreamModel>();
+
+            CreateMap<MiniTickerStreamModel, MiniTradeObjectStreamModel>()
+                .ForMember(_ => _.ShortName, _ => _.MapFrom(_ => _.Symbol));
             CreateMap<TickerStreamModel, TradeObjectStreamModel>()
                 .ForMember(_ => _.ShortName, _ => _.MapFrom(_ => _.Symbol));
+            CreateMap<Models.BookTickerStreamModel, Common.Models.BookTickerStreamModel>()
+                .ForMember(_ => _.ShortName, _ => _.MapFrom(_ => _.Symbol));
+            CreateMap<AggregateSymbolTradeStreamModel, AggregateTradeStreamModel>()
+                .ForMember(_ => _.ShortName, _ => _.MapFrom(_ => _.Symbol));
+            CreateMap<SymbolTradeStreamModel, TradeStreamModel>()
+                .ForMember(_ => _.ShortName, _ => _.MapFrom(_ => _.Symbol));
 
-            CreateMap<Models.BookTickerStreamModel, Common.Models.BookTickerStreamModel>();
-            CreateMap<AggregateSymbolTradeStreamModel, AggregateTradeStreamModel>();
-            CreateMap<SymbolTradeStreamModel, TradeStreamModel>();
-     
+
             CreateMap<Models.CancelOrderResponseModel, Common.Models.CancelOrderResponseModel>();
             CreateMap<Models.CheckOrderResponseModel, Common.Models.CheckOrderResponseModel>();
 

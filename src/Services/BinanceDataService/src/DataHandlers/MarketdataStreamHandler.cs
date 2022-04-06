@@ -1,8 +1,14 @@
-﻿using Common.Models;
+﻿using AutoMapper;
+using BinanceDatabase.Entities;
+using BinanceDatabase.Repositories;
+using Common.Models;
 using Common.WebSocket;
 using DataServiceLibrary;
 using ExchangeLibrary;
+using Microsoft.Extensions.DependencyInjection;
 using NLog;
+using Quartz;
+using Scheduler;
 using System;
 using System.Collections.Generic;
 using System.Threading;
@@ -19,9 +25,12 @@ namespace BinanceDataService.DataHandlers
 
         private readonly ILogger _logger = LogManager.GetCurrentClassLogger();
         private readonly IExchange _exchange;
-        private readonly List<MiniTickerStreamModel> _receivedModelsStorage = new();
-        private readonly List<MiniTickerStreamModel> _assistantModelsStorage = new();
-        private bool _isSavingDataNow;
+        private readonly IRecurringJobScheduler _scheduler;
+        private readonly IMapper _mapper;
+        private TriggerKey _triggerKey;
+        private readonly List<MiniTradeObjectStreamModel> _mainModelsStorage = new();
+        private readonly List<MiniTradeObjectStreamModel> _assistantModelsStorage = new();
+        private bool _isAssistantStorageSaving;
         private CancellationTokenSource _cancellationTokenSource;
         private bool _isDisposed;
         private IWebSocket _webSocket;
@@ -31,9 +40,11 @@ namespace BinanceDataService.DataHandlers
         #region .ctor
 
         /// <inheritdoc cref="MarketdataStreamHandler"/>
-        public MarketdataStreamHandler(IExchange exchange)
+        public MarketdataStreamHandler(IExchange exchange, IRecurringJobScheduler scheduler, IMapper mapper)
         {
             _exchange = exchange;
+            _scheduler = scheduler;
+            _mapper = mapper;
         }
 
         #endregion
@@ -41,19 +52,20 @@ namespace BinanceDataService.DataHandlers
         #region Public methods
 
         /// <inheritdoc />
-        public Task StartAsync(CancellationToken cancellationToken)
+        public async Task StartAsync(CancellationToken cancellationToken)
         {
             _cancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
             _webSocket = _exchange.MarketdataStreams.SubscribeAllMarketMiniTickersStream(HandleAsync, cancellationToken, OnClosedHandler);
 
             Task.Run(async () => await StartWebSocket(_cancellationTokenSource.Token), cancellationToken);
 
-            return Task.CompletedTask;
+            _triggerKey = await _scheduler.ScheduleAsync(Cron.EveryNthMinute(2), SaveDataAsync);
         }
 
         /// <inheritdoc />
         public Task StopAsync()
         {
+            _scheduler?.UnscheduleAsync(_triggerKey);
             _cancellationTokenSource?.Cancel();
             _cancellationTokenSource?.Dispose();
 
@@ -82,31 +94,58 @@ namespace BinanceDataService.DataHandlers
         /// <summary>
         ///     Обрабатывает полученные данные
         /// </summary>
-        private async Task HandleAsync(IEnumerable<MiniTickerStreamModel> models, CancellationToken cancellationToken)
+        private Task HandleAsync(IEnumerable<MiniTradeObjectStreamModel> models, CancellationToken cancellationToken)
         {
             try
             {
-                if (_isSavingDataNow)
+                if (_isAssistantStorageSaving)
                 {
-                    _assistantModelsStorage.AddRange(models);
-                    return;
+                    _mainModelsStorage.AddRange(models);
+                    return Task.CompletedTask;
                 }
 
-                _receivedModelsStorage.AddRange(models);
-
-                if (_receivedModelsStorage.Count > 10_000)
-                {
-                    _isSavingDataNow = true;
-
-                    _isSavingDataNow = false;
-                }
-
-                _receivedModelsStorage.AddRange(_assistantModelsStorage);
+                _assistantModelsStorage.AddRange(models);
             }
             catch (Exception ex)
             {
                 _logger.Error(ex, "Failed to handle received models");
             }
+
+            return Task.CompletedTask;
+        }
+
+        /// <summary>
+        ///     Сохраняет полученные данные
+        /// </summary>
+        /// <param name="serviceProvider"></param>
+        /// <returns></returns>
+        private async Task SaveDataAsync(IServiceProvider serviceProvider)
+        {
+            _isAssistantStorageSaving = !_isAssistantStorageSaving;
+
+            if (_isAssistantStorageSaving)
+            {
+                await SaveDataAsync(serviceProvider, _assistantModelsStorage);
+
+                return;
+            }
+
+            await SaveDataAsync(serviceProvider, _mainModelsStorage);
+        }
+
+        /// <summary>
+        ///     Маппит и сохраняет данные в бд
+        /// </summary>
+        private async Task SaveDataAsync(IServiceProvider serviceProvider, IEnumerable<MiniTradeObjectStreamModel> streamModels)
+        {
+            using var database = serviceProvider.GetRequiredService<IUnitOfWork>();
+            var hotData = _mapper.Map<IEnumerable<HotMiniTickerEntity>>(streamModels);
+
+            await database.HotUnitOfWork.HotMiniTickers.AddRangeAsync(hotData, _cancellationTokenSource.Token);
+
+            // TODO: группировка обычных данных MiniTickerEntity по интервалам
+
+            await database.SaveChangesAsync(_cancellationTokenSource.Token);
         }
 
         /// <summary>

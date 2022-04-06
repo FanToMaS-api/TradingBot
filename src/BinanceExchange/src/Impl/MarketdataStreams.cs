@@ -178,7 +178,7 @@ namespace BinanceExchange.Impl
         ///     Проверено ручным тестированием, после изменений необходимы ручные проверки!
         /// </remarks>
         public IWebSocket SubscribeAllMarketMiniTickersStream(
-            Func<IEnumerable<Common.Models.MiniTickerStreamModel>, CancellationToken, Task> onMessageReceivedFunc,
+            Func<IEnumerable<Common.Models.MiniTradeObjectStreamModel>, CancellationToken, Task> onMessageReceivedFunc,
             CancellationToken cancellationToken,
             Action onStreamClosedFunc = null)
         {
@@ -190,7 +190,7 @@ namespace BinanceExchange.Impl
                async content =>
                {
                    var models = _converter.Deserialize<IEnumerable<MiniTickerStreamModel>>(content);
-                   var neededModels = _mapper.Map<IEnumerable<Common.Models.MiniTickerStreamModel>>(models);
+                   var neededModels = _mapper.Map<IEnumerable<Common.Models.MiniTradeObjectStreamModel>>(models);
 
                    await onMessageReceivedFunc?.Invoke(neededModels, cancellationToken);
                },
