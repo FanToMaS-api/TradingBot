@@ -50,6 +50,7 @@ namespace BinanceExchange
             CreateMap<Models.FullOrderResponseModel, Common.Models.FullOrderResponseModel>();
 
             CreateMap<Models.CandlestickStreamModel, Common.Models.CandlestickStreamModel>()
+                .ForMember(_ => _.ShortName, _ => _.MapFrom(_ => _.Symbol))
                 .ForMember(_ => _.KineStartTimeUnix, _ => _.MapFrom(_ => _.Kline.KineStartTimeUnix))
                 .ForMember(_ => _.KineStopTimeUnix, _ => _.MapFrom(_ => _.Kline.KineStopTimeUnix))
                 .ForMember(_ => _.Interval, _ => _.MapFrom(_ => _.Kline.Interval.ToUrl()))
