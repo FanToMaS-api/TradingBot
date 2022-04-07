@@ -15,7 +15,7 @@ using System.Threading.Tasks;
 namespace Analytic.Binance
 {
     /// <inheritdoc cref="IAnalyticService"/>
-    public class BinanceAnalyticService : IAnalyticService
+    internal class BinanceAnalyticService : IAnalyticService
     {
         #region Fields
 
@@ -24,7 +24,7 @@ namespace Analytic.Binance
         private readonly IRecurringJobScheduler _scheduler;
         private readonly Dictionary<string, InfoModel> _infoModels = new();
         private TriggerKey _triggerKey;
-        private readonly CancellationToken _cancellationToken;
+        private CancellationTokenSource _cancellationTokenSource;
 
         #endregion
 
@@ -33,12 +33,10 @@ namespace Analytic.Binance
         /// <inheritdoc cref="BinanceAnalyticService"/>
         public BinanceAnalyticService(
             IExchange exchange,
-            IRecurringJobScheduler recurringJobScheduler,
-            CancellationTokenSource cancellationTokenSource)
+            IRecurringJobScheduler recurringJobScheduler)
         {
             _exchange = exchange;
             _scheduler = recurringJobScheduler;
-            _cancellationToken = cancellationTokenSource.Token;
         }
 
         #endregion
@@ -64,6 +62,7 @@ namespace Analytic.Binance
         /// <inheritdoc />
         public async Task RunAsync(CancellationToken cancellationToken)
         {
+            _cancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
             cancellationToken.Register(() => StopAsync(CancellationToken.None).GetAwaiter().GetResult());
 
             // каждую 1 минуту вызываем метода анализа
@@ -127,21 +126,21 @@ namespace Analytic.Binance
         /// </summary>
         private async Task AnalyzeAsync(IServiceProvider serviceProvider)
         {
-            if (_cancellationToken.IsCancellationRequested)
+            if (_cancellationTokenSource.IsCancellationRequested)
             {
                 await _scheduler.UnscheduleAsync(_triggerKey);
             }
 
             try
             {
-                var models = await _exchange.Marketdata.GetSymbolPriceTickerAsync(null, _cancellationToken);
+                var models = await _exchange.Marketdata.GetSymbolPriceTickerAsync(null, _cancellationTokenSource.Token);
                 var filteredModels = GetFilteredData(models);
-                var extendedFilteredModels = await GetExtendedFilteredModelsAsync(filteredModels, _cancellationToken);
+                var extendedFilteredModels = await GetExtendedFilteredModelsAsync(filteredModels, _cancellationTokenSource.Token);
                 if (extendedFilteredModels.Any())
                 {
                     OnModelsFiltered?.Invoke(this, extendedFilteredModels.ToArray());
 
-                    var analyzedModels = await GetAnalyzedModelsAsync(extendedFilteredModels, _cancellationToken);
+                    var analyzedModels = await GetAnalyzedModelsAsync(extendedFilteredModels, _cancellationTokenSource.Token);
                     if (analyzedModels.Any())
                     {
                         OnModelsReadyToBuy?.Invoke(this, analyzedModels.ToArray());
@@ -281,6 +280,8 @@ namespace Analytic.Binance
             var modelsToBuy = new List<AnalyticResultModel>();
             foreach (var model in models)
             {
+                var counter = 0d;
+                AnalyticResultModel conflictedModel = null;
                 foreach (var profileGroup in ProfileGroups.Where(_ => _.IsActive))
                 {
                     var (isSuccessful, analyticModel) = await profileGroup.TryAnalyzeAsync(_exchange, model, cancellationToken);
@@ -289,7 +290,8 @@ namespace Analytic.Binance
                         continue;
                     }
 
-                    var conflictedModel = modelsToBuy.FirstOrDefault(_ => _.TradeObjectName == analyticModel.TradeObjectName);
+                    // TODO: протестировать
+                    conflictedModel = modelsToBuy.FirstOrDefault(_ => _.TradeObjectName == analyticModel.TradeObjectName);
                     if (conflictedModel is null)
                     {
                         modelsToBuy.Add(analyticModel);
@@ -298,11 +300,26 @@ namespace Analytic.Binance
 
                     // усредняем
                     conflictedModel.RecommendedPurchasePrice += analyticModel.RecommendedPurchasePrice;
-                    conflictedModel.RecommendedPurchasePrice /= 2;
+                    counter++;
+                }
+
+                if (conflictedModel is not null)
+                {
+                    conflictedModel.RecommendedPurchasePrice /= counter;
                 }
             }
 
             return modelsToBuy;
+        }
+
+        #endregion
+
+        #region Implemetation IDisposable
+
+        /// <inheritdoc />
+        public void Dispose()
+        {
+            _cancellationTokenSource?.Dispose();
         }
 
         #endregion

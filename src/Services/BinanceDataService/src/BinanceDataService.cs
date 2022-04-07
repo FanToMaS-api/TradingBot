@@ -1,9 +1,5 @@
 ﻿using DataServiceLibrary;
-using System;
-using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -12,7 +8,7 @@ namespace BinanceDataService
     /// <summary>
     ///     Сервис по получению и обработке данных с бинанса
     /// </summary>
-    public class BinanceDataService : IDataService
+    internal class BinanceDataService : IDataService
     {
         #region Fields
 

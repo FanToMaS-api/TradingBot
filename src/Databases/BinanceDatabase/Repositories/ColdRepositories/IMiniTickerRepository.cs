@@ -1,4 +1,7 @@
 ﻿using BinanceDatabase.Entities;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace BinanceDatabase.Repositories.ColdRepositories
 {
@@ -7,5 +10,9 @@ namespace BinanceDatabase.Repositories.ColdRepositories
     /// </summary>
     public interface IMiniTickerRepository : IRepositoryBase<MiniTickerEntity>
     {
+        /// <summary>
+        ///     Множественное добавление сущностей
+        /// </summary>
+        Task AddRangeAsync(IEnumerable<MiniTickerEntity> miniTickerEntities, CancellationToken cancellationToken = default);
     }
 }

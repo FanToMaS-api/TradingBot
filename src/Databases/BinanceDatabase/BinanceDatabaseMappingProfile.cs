@@ -8,7 +8,7 @@ namespace BinanceDatabase
     /// <summary>
     ///     Профиль маппинга для сущностей базы данных
     /// </summary>
-    internal class BinanceDatabaseMappingProfile : Profile
+    public class BinanceDatabaseMappingProfile : Profile
     {
         /// <inheritdoc cref="BinanceDatabaseMappingProfile"/>
         public BinanceDatabaseMappingProfile()

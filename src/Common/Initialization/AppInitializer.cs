@@ -3,7 +3,7 @@ using Microsoft.Extensions.Options;
 using System;
 using System.Threading.Tasks;
 
-namespace Common
+namespace Common.Initialization
 {
     /// <summary>
     ///     Расширение для запуска сервисов при старте приложения
@@ -28,7 +28,7 @@ namespace Common
         /// <summary>
         ///     Настройка для инициализации
         /// </summary>
-        public static void ConfigureForInitialization<T>(this IServiceCollection services, Func<T, Task> action) => 
+        public static void ConfigureForInitialization<T>(this IServiceCollection services, Func<T, Task> action) =>
             services.ConfigureForInitialization<T>(async (service, _) => await action.Invoke(service));
 
         /// <summary>

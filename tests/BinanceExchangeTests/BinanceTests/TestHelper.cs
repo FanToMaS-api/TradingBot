@@ -1,7 +1,9 @@
-﻿using BinanceExchange.Enums;
+﻿using BinanceExchange;
+using BinanceExchange.Enums;
 using BinanceExchange.Models;
 using BinanceExchange.RedisRateLimits;
 using Common.Enums;
+using NSubstitute;
 using RichardSzalay.MockHttp;
 using System;
 using System.Collections.Generic;
@@ -17,25 +19,33 @@ namespace BinanceExchangeTests.BinanceTests
     internal static class TestHelper
     {
         /// <summary>
-        ///     Создает мок HttpClient
+        ///     Создает мок IHttpClientFactory
         /// </summary>
         /// <param name="filePath"> Путь к файлу с json-response </param>
-        public static HttpClient CreateMockHttpClient(string url, string filePath)
+        public static IHttpClientFactory CreateMockIHttpClientFactory(string url, string filePath)
         {
             var basePath = AppDomain.CurrentDomain.BaseDirectory;
             var path = Path.Combine(basePath, filePath);
             var json = File.ReadAllText(path);
             using var mockHttp = new MockHttpMessageHandler();
             mockHttp.When(url).Respond("application/json", json);
+            var factory = Substitute.For<IHttpClientFactory>();
+            factory.CreateClient().Returns(new HttpClient(mockHttp));
 
-            return new HttpClient(mockHttp);
+            return factory;
         }
+
+        /// <summary>
+        ///     Создать настройки для биржи бинанса
+        /// </summary>
+        public static BinanceExchangeOptions CreateBinanceExchangeOptions(string apiKey, string secretKey) =>
+            new() { ApiKey = apiKey, SecretKey = secretKey };
 
         /// <summary>
         ///     Возвращает ожидаемые параметры в методе увеличения совокупного веса запросов
         /// </summary>
         public static (string expectedKey, TimeSpan expectedInterval, int expectedWeight) GetExpectedArguments(
-            RequestWeightModel model, 
+            RequestWeightModel model,
             string weightKey)
         {
             var rateLimit = RedisHelper.GetRateLimit(model.Type);

@@ -61,8 +61,9 @@ namespace BinanceExchangeTests.BinanceTests.EndpointSendersTests
             var query = builder.GetResult().GetQuery();
             var requestUrl = CreateSignUrl(BinanceEndpoints.NEW_TEST_ORDER, query, "apiSecretKey");
 
-            using var client = TestHelper.CreateMockHttpClient(requestUrl, filePath);
-            IBinanceClient binanceClient = new BinanceClient(client, "", "apiSecretKey");
+            var clientFactory = TestHelper.CreateMockIHttpClientFactory(requestUrl, filePath);
+            var options = TestHelper.CreateBinanceExchangeOptions("", "apiSecretKey");
+            IBinanceClient binanceClient = new BinanceClient(clientFactory, options);
             ISpotTradeSender tradeSender = new SpotTradeSender(binanceClient);
 
             // Act
@@ -100,8 +101,9 @@ namespace BinanceExchangeTests.BinanceTests.EndpointSendersTests
             var query = builder.GetResult().GetQuery();
             var requestUrl = CreateSignUrl(BinanceEndpoints.NEW_ORDER, query, "apiSecretKey");
 
-            using var client = TestHelper.CreateMockHttpClient(requestUrl, filePath);
-            IBinanceClient binanceClient = new BinanceClient(client, "", "apiSecretKey");
+            var clientFactory = TestHelper.CreateMockIHttpClientFactory(requestUrl, filePath);
+            var options = TestHelper.CreateBinanceExchangeOptions("", "apiSecretKey");
+            IBinanceClient binanceClient = new BinanceClient(clientFactory, options);
             ISpotTradeSender tradeSender = new SpotTradeSender(binanceClient);
 
             // Act
@@ -125,8 +127,9 @@ namespace BinanceExchangeTests.BinanceTests.EndpointSendersTests
             var query = builder.GetResult().GetQuery();
             var requestUrl = CreateSignUrl(BinanceEndpoints.CANCEL_ORDER, query, "apiSecretKey");
 
-            using var client = TestHelper.CreateMockHttpClient(requestUrl, filePath);
-            IBinanceClient binanceClient = new BinanceClient(client, "", "apiSecretKey");
+            var clientFactory = TestHelper.CreateMockIHttpClientFactory(requestUrl, filePath);
+            var options = TestHelper.CreateBinanceExchangeOptions("", "apiSecretKey");
+            IBinanceClient binanceClient = new BinanceClient(clientFactory, options);
             ISpotTradeSender tradeSender = new SpotTradeSender(binanceClient);
 
             // Act
@@ -161,8 +164,9 @@ namespace BinanceExchangeTests.BinanceTests.EndpointSendersTests
             var query = builder.GetResult().GetQuery();
             var requestUrl = CreateSignUrl(BinanceEndpoints.CANCEL_All_ORDERS, query, "apiSecretKey");
 
-            using var client = TestHelper.CreateMockHttpClient(requestUrl, filePath);
-            IBinanceClient binanceClient = new BinanceClient(client, "", "apiSecretKey");
+            var clientFactory = TestHelper.CreateMockIHttpClientFactory(requestUrl, filePath);
+            var options = TestHelper.CreateBinanceExchangeOptions("", "apiSecretKey");
+            IBinanceClient binanceClient = new BinanceClient(clientFactory, options);
             ISpotTradeSender tradeSender = new SpotTradeSender(binanceClient);
 
             // Act
@@ -212,8 +216,9 @@ namespace BinanceExchangeTests.BinanceTests.EndpointSendersTests
             var query = builder.GetResult().GetQuery();
             var url = CreateSignUrl(BinanceEndpoints.CHECK_ORDER, query, "apiSecretKey");
 
-            using var client = TestHelper.CreateMockHttpClient(url, filePath);
-            IBinanceClient binanceClient = new BinanceClient(client, "", "apiSecretKey");
+            var clientFactory = TestHelper.CreateMockIHttpClientFactory(url, filePath);
+            var options = TestHelper.CreateBinanceExchangeOptions("", "apiSecretKey");
+            IBinanceClient binanceClient = new BinanceClient(clientFactory, options);
             ISpotTradeSender tradeSender = new SpotTradeSender(binanceClient);
 
             // Act
@@ -235,8 +240,9 @@ namespace BinanceExchangeTests.BinanceTests.EndpointSendersTests
             var query = builder.GetResult().GetQuery();
             var url = CreateSignUrl(BinanceEndpoints.CHECK_ALL_OPEN_ORDERS, query, "apiSecretKey");
 
-            using var client = TestHelper.CreateMockHttpClient(url, filePath);
-            IBinanceClient binanceClient = new BinanceClient(client, "", "apiSecretKey");
+            var clientFactory = TestHelper.CreateMockIHttpClientFactory(url, filePath);
+            var options = TestHelper.CreateBinanceExchangeOptions("", "apiSecretKey");
+            IBinanceClient binanceClient = new BinanceClient(clientFactory, options);
             ISpotTradeSender tradeSender = new SpotTradeSender(binanceClient);
 
             // Act
@@ -269,8 +275,9 @@ namespace BinanceExchangeTests.BinanceTests.EndpointSendersTests
             var query = builder.GetResult().GetQuery();
             var url = CreateSignUrl(BinanceEndpoints.GET_ALL_ORDERS, query, "apiSecretKey");
 
-            using var client = TestHelper.CreateMockHttpClient(url, filePath);
-            IBinanceClient binanceClient = new BinanceClient(client, "", "apiSecretKey");
+            var clientFactory = TestHelper.CreateMockIHttpClientFactory(url, filePath);
+            var options = TestHelper.CreateBinanceExchangeOptions("", "apiSecretKey");
+            IBinanceClient binanceClient = new BinanceClient(clientFactory, options);
             ISpotTradeSender tradeSender = new SpotTradeSender(binanceClient);
 
             // Act
@@ -301,8 +308,9 @@ namespace BinanceExchangeTests.BinanceTests.EndpointSendersTests
             var query = new Builder().GetResult().GetQuery();
             var url = CreateSignUrl(BinanceEndpoints.ACCOUNT_INFORMATION, query, "apiSecretKey");
 
-            using var client = TestHelper.CreateMockHttpClient(url, filePath);
-            IBinanceClient binanceClient = new BinanceClient(client, "", "apiSecretKey");
+            var clientFactory = TestHelper.CreateMockIHttpClientFactory(url, filePath);
+            var options = TestHelper.CreateBinanceExchangeOptions("", "apiSecretKey");
+            IBinanceClient binanceClient = new BinanceClient(clientFactory, options);
             ISpotTradeSender tradeSender = new SpotTradeSender(binanceClient);
 
             // Act

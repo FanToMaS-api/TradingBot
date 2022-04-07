@@ -3,8 +3,12 @@ using Analytic.AnalyticUnits;
 using Analytic.Binance;
 using Analytic.Filters;
 using Analytic.Models;
+using AutoMapper;
+using BinanceDataService;
 using BinanceExchange;
+using DataServiceLibrary;
 using ExchangeLibrary;
+using Microsoft.Extensions.DependencyInjection;
 using NLog;
 using Redis;
 using Scheduler;
@@ -31,8 +35,11 @@ namespace SignalsSender
         private readonly SignalSenderConfig _settings;
         private readonly IExchange _exchange;
         private readonly ITelegramClient _telegramClient;
+        private readonly IServiceScopeFactory _scopeFactory;
+        private readonly IMapper _mapper;
         private readonly IRecurringJobScheduler _scheduler;
         private readonly IAnalyticService _analyticService;
+        private IDataService _dataService;
         private readonly string _baseUrl = "https://www.binance.com/en/trade/<pair>/?layout=pro";
         private readonly string[] _baseTickers = new[] { "USDT", "BTC", "ETH" };
         private readonly CancellationTokenSource _cancellationTokenSource = new();
@@ -41,14 +48,22 @@ namespace SignalsSender
 
         #region .ctor
 
-        public Service(SignalSenderConfig settings, IRedisDatabase redisDatabase, IRecurringJobScheduler scheduler)
+        public Service(
+            SignalSenderConfig settings,
+            IServiceScopeFactory scopeFactory,
+            IRecurringJobScheduler scheduler,
+            IExchange exchange,
+            IAnalyticService analyticService,
+            ITelegramClient telegramClient,
+            IMapper mapper)
         {
             _settings = settings;
             _scheduler = scheduler;
-            var binanceOptions = new BinanceExchangeOptions() { ApiKey = settings.ApiKey, SecretKey = settings.SecretKey };
-            _exchange = BinanceExchangeFactory.CreateExchange(binanceOptions, redisDatabase);
-            _analyticService = new BinanceAnalyticService(_exchange, _scheduler, _cancellationTokenSource);
-            _telegramClient = new TelegramClient(settings.TelegramToken);
+            _mapper = mapper;
+            _scopeFactory = scopeFactory;
+            _exchange = exchange;
+            _analyticService = analyticService;
+            _telegramClient = telegramClient;
         }
 
         #endregion
@@ -61,6 +76,13 @@ namespace SignalsSender
         public async Task RunAsync()
         {
             var cancellationToken = _cancellationTokenSource.Token;
+
+            using var scope = _scopeFactory.CreateScope();
+            var dataServiceFactory = scope.ServiceProvider.GetRequiredService<IBinanceDataServiceFactory>();
+            var dataHandler = dataServiceFactory.CreateDataHandler();
+            _dataService = dataServiceFactory.CreateDataService(dataHandler);
+
+             await _dataService.StartAsync();
 
             var paramountFilterGroup = new FilterGroup("ParamountFilterGroup", FilterGroupType.Paramount, null);
             var nameFilter = new NameFilter("NameFilter", _baseTickers);
@@ -100,7 +122,7 @@ namespace SignalsSender
             var profileGroup = new ProfileGroup("DefaultGroupProfile");
             profileGroup.AddAnalyticUnit(profile);
             _analyticService.AddProfileGroup(profileGroup);
-            await _analyticService.RunAsync(cancellationToken);
+            // await _analyticService.RunAsync(cancellationToken);
         }
 
         /// <summary>
@@ -204,7 +226,11 @@ namespace SignalsSender
         #region Private methods
 
         /// <inheritdoc />
-        public void Dispose() => _cancellationTokenSource?.Dispose();
+        public void Dispose()
+        {
+            _dataService.Dispose();
+            _cancellationTokenSource?.Dispose();
+        }
 
         #endregion
     }

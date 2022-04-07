@@ -1,4 +1,5 @@
 ﻿using BinanceDatabase.Entities;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -34,6 +35,10 @@ namespace BinanceDatabase.Repositories.ColdRepositories.Impl
         /// <inheritdoc />
         public async Task AddAsync(MiniTickerEntity entity, CancellationToken cancellationToken = default)
             => await _appDbContext.MiniTickers.AddAsync(entity, cancellationToken);
+
+        /// <inheritdoc />
+        public async Task AddRangeAsync(IEnumerable<MiniTickerEntity> miniTickerEntities, CancellationToken cancellationToken = default)
+            => await _appDbContext.MiniTickers.AddRangeAsync(miniTickerEntities, cancellationToken);
 
         #endregion
     }
