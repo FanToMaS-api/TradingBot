@@ -1,16 +1,14 @@
 ﻿using Analytic;
 using Analytic.AnalyticUnits;
-using Analytic.Binance;
+using Analytic.AnalyticUnits.Profiles.SSA;
 using Analytic.Filters;
 using Analytic.Models;
 using AutoMapper;
 using BinanceDataService;
-using BinanceExchange;
 using DataServiceLibrary;
 using ExchangeLibrary;
 using Microsoft.Extensions.DependencyInjection;
 using NLog;
-using Redis;
 using Scheduler;
 using SignalsSender.Configuration;
 using System;
@@ -20,7 +18,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Telegram.Builder;
 using Telegram.Client;
-using Telegram.Client.Impl;
 
 namespace SignalsSender
 {
@@ -90,7 +87,7 @@ namespace SignalsSender
             _analyticService.AddFilterGroup(paramountFilterGroup);
 
             var specialFilterGroupUSDT = new FilterGroup("USDT_SpecialFilterGroup", FilterGroupType.Special, "USDT");
-            var priceDeviationFilter = new PriceDeviationFilter("AnyFilter", ComparisonType.GreaterThan, 2.55);
+            var priceDeviationFilter = new PriceDeviationFilter("AnyFilter", ComparisonType.GreaterThan, 0.8);
             var usdtPriceFilter = new PriceFilter("USDTFilter", ComparisonType.LessThan, 20);
             specialFilterGroupUSDT.AddFilter(priceDeviationFilter);
             specialFilterGroupUSDT.AddFilter(usdtPriceFilter);
@@ -110,19 +107,21 @@ namespace SignalsSender
             commonFilterGroup.AddFilter(priceDeviationFilter);
             _analyticService.AddFilterGroup(commonFilterGroup);
 
-            var commonLatestFilterGroup = new FilterGroup("CommonLatestFilterGroup", FilterGroupType.CommonLatest, null);
-            var volumeFilter = new VolumeFilter("VolumeFilter");
-            commonLatestFilterGroup.AddFilter(volumeFilter);
-            _analyticService.AddFilterGroup(commonLatestFilterGroup);
+            //var commonLatestFilterGroup = new FilterGroup("CommonLatestFilterGroup", FilterGroupType.CommonLatest, null);
+            //var volumeFilter = new VolumeFilter("VolumeFilter");
+            //commonLatestFilterGroup.AddFilter(volumeFilter);
+            //_analyticService.AddFilterGroup(commonLatestFilterGroup);
 
             _analyticService.OnModelsFiltered += OnModelsFilteredReceived;
             _analyticService.OnSuccessfulAnalize += OnModelsToBuyReceived;
 
-            var profile = new DefaultAnalyticProfile("DefaultProfile");
+            // var profile = new DefaultAnalyticProfile("DefaultProfile");
+            var ssaProfile = new SsaAnalyticPofile("SsaProfile");
             var profileGroup = new ProfileGroup("DefaultGroupProfile");
-            profileGroup.AddAnalyticUnit(profile);
+            // profileGroup.AddAnalyticUnit(profile);
+            profileGroup.AddAnalyticUnit(ssaProfile);
             _analyticService.AddProfileGroup(profileGroup);
-            // await _analyticService.RunAsync(cancellationToken);
+            await _analyticService.RunAsync(cancellationToken);
         }
 
         /// <summary>
@@ -149,7 +148,7 @@ namespace SignalsSender
                     var pairName = pairSymbols.Replace("/", "_");
                     var message = $"*{pairSymbols}*\nНовая разница: *{model.LastDeviation:0.00}%*" +
                         $"\nРазница за последние 5 таймфреймов: *{model.SumDeviations:0.00}%*" +
-                        $"\nПоследняя цена: *{model.LastPrice:0.0000}*" +
+                        $"\nПоследняя цена: *{model.LastPrice}*" +
                         $"\nОбъем спроса: *{model.BidVolume:0,0.0}*" +
                         $"\nОбъем предложения: *{model.AskVolume:0,0.0}*";
                     message = message.Replace(".", "\\.");
@@ -176,9 +175,11 @@ namespace SignalsSender
             }
         }
 
+        /// <summary>
+        ///     Обработчик получения модели на покупку
+        /// </summary>
         private void OnModelsToBuyReceived(object sender, AnalyticResultModel[] models)
         {
-            _logger.Info("Models to buy received!");
             var tasks = new List<Task>();
             var builder = new TelegramMessageBuilder();
             builder.SetChatId(_settings.ChannelId);
@@ -196,12 +197,25 @@ namespace SignalsSender
 
                     var pairSymbols = model.TradeObjectName.Insert(model.TradeObjectName.Length - symbol.Length, "/");
                     var pairName = pairSymbols.Replace("/", "_");
-                    var message = $"*Совет купить {pairSymbols}*\n*По цене: {model.RecommendedPurchasePrice:0.0000000}*";
+                    var message = $"*{pairSymbols}*\n*Покупка по цене: {model.RecommendedPurchasePrice}*";
+                    if (model.RecommendedSellingPrice is not null)
+                    {
+                        message += $"\n*Продажа по цене: {model.RecommendedSellingPrice.Value}*";
+                    }
+
                     message = message.Replace(".", "\\.");
                     message = message.Replace("-", "\\-");
                     builder.SetMessageText(message);
-                    var url = _baseUrl.Replace("<pair>", pairName);
-                    builder.SetInlineButton("Купить", $"{url}");
+                    if (model.HasPredictionImage)
+                    {
+                        builder.SetImage(model.ImagePath);
+                    }
+                    else
+                    {
+                        var url = _baseUrl.Replace("<pair>", pairName);
+                        builder.SetInlineButton("Купить", $"{url}");
+                    }
+
                     var telegramMessage = builder.GetResult();
                     tasks.Add(_telegramClient.SendMessageAsync(telegramMessage, CancellationToken.None));
                 }

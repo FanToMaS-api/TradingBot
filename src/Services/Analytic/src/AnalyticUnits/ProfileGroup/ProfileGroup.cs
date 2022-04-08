@@ -1,5 +1,5 @@
 ﻿using Analytic.Models;
-using ExchangeLibrary;
+using Microsoft.Extensions.DependencyInjection;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -39,29 +39,39 @@ namespace Analytic.AnalyticUnits
 
         /// <inheritdoc />
         public async Task<(bool isSuccessfulAnalyze, AnalyticResultModel resultModel)> TryAnalyzeAsync(
-            IExchange exchange,
+            IServiceScopeFactory serviceScopeFactory,
             InfoModel model,
             CancellationToken cancellationToken)
         {
-            var analyticResultModel = new AnalyticResultModel()
-            {
-                TradeObjectName = model.TradeObjectName,
-            };
+            AnalyticResultModel analyticResultModel = null;
 
             var count = 0;
             var isOneSuccessful = false;
             foreach (var unit in AnalyticUnits)
             {
-                var (isSuccessful, resultModel) = await unit.TryAnalyzeAsync(exchange, model, cancellationToken);
+                var (isSuccessful, resultModel) = await unit.TryAnalyzeAsync(serviceScopeFactory, model, cancellationToken);
                 if (isSuccessful)
                 {
-                    isOneSuccessful = true;
+                    if (!isOneSuccessful)
+                    {
+                        analyticResultModel = resultModel;
+                        isOneSuccessful = true;
+                        continue;
+                    }
+
                     analyticResultModel.RecommendedPurchasePrice += resultModel.RecommendedPurchasePrice;
+                    analyticResultModel.RecommendedSellingPrice += resultModel.RecommendedSellingPrice;
                     count++;
                 }
             }
 
-            analyticResultModel.RecommendedPurchasePrice /= count == 0 ? 0 : count;
+            // TODO: Усреднять через список полученных моделей
+            if (isOneSuccessful)
+            {
+                analyticResultModel.RecommendedPurchasePrice /= count == 0 ? 0 : count;
+                analyticResultModel.RecommendedSellingPrice /= count == 0 ? 0 : count;
+            }
+
             return (isOneSuccessful, analyticResultModel);
         }
 

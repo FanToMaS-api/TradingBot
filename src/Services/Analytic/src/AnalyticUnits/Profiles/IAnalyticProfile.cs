@@ -1,5 +1,5 @@
 ﻿using Analytic.Models;
-using ExchangeLibrary;
+using Microsoft.Extensions.DependencyInjection;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -18,7 +18,6 @@ namespace Analytic.AnalyticUnits
         /// <summary>
         ///     Анализирует объект торговли
         /// </summary>
-        /// <param name="exchange"> Биржа </param>
         /// <param name="model"> Модель </param>
         /// <param name="cancellationToken"> Токен отмены </param>
         /// <returns> 
@@ -26,7 +25,7 @@ namespace Analytic.AnalyticUnits
         ///     <see langword="false"/> Если объект не стоит покупать
         /// </returns>
         Task<(bool isSuccessfulAnalyze, AnalyticResultModel resultModel)> TryAnalyzeAsync(
-            IExchange exchange,
+            IServiceScopeFactory serviceScopeFactory,
             InfoModel model,
             CancellationToken cancellationToken);
     }

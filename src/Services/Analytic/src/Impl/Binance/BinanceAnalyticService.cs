@@ -3,6 +3,7 @@ using Analytic.Filters;
 using Analytic.Models;
 using Common.Models;
 using ExchangeLibrary;
+using Microsoft.Extensions.DependencyInjection;
 using NLog;
 using Quartz;
 using Scheduler;
@@ -21,6 +22,7 @@ namespace Analytic.Binance
 
         private readonly Logger _logger = LogManager.GetCurrentClassLogger();
         private readonly IExchange _exchange;
+        private readonly IServiceScopeFactory _serviceScopeFactory;
         private readonly IRecurringJobScheduler _scheduler;
         private readonly Dictionary<string, InfoModel> _infoModels = new();
         private TriggerKey _triggerKey;
@@ -33,9 +35,11 @@ namespace Analytic.Binance
         /// <inheritdoc cref="BinanceAnalyticService"/>
         public BinanceAnalyticService(
             IExchange exchange,
+            IServiceScopeFactory serviceScopeFactory,
             IRecurringJobScheduler recurringJobScheduler)
         {
             _exchange = exchange;
+            _serviceScopeFactory = serviceScopeFactory;
             _scheduler = recurringJobScheduler;
         }
 
@@ -280,32 +284,15 @@ namespace Analytic.Binance
             var modelsToBuy = new List<AnalyticResultModel>();
             foreach (var model in models)
             {
-                var counter = 0d;
-                AnalyticResultModel conflictedModel = null;
                 foreach (var profileGroup in ProfileGroups.Where(_ => _.IsActive))
                 {
-                    var (isSuccessful, analyticModel) = await profileGroup.TryAnalyzeAsync(_exchange, model, cancellationToken);
+                    var (isSuccessful, analyticModel) = await profileGroup.TryAnalyzeAsync(_serviceScopeFactory, model, cancellationToken);
                     if (!isSuccessful)
                     {
                         continue;
                     }
 
-                    // TODO: протестировать
-                    conflictedModel = modelsToBuy.FirstOrDefault(_ => _.TradeObjectName == analyticModel.TradeObjectName);
-                    if (conflictedModel is null)
-                    {
-                        modelsToBuy.Add(analyticModel);
-                        continue;
-                    }
-
-                    // усредняем, если другой фильтр уже добавил эту модель в выборку
-                    conflictedModel.RecommendedPurchasePrice += analyticModel.RecommendedPurchasePrice;
-                    counter++;
-                }
-
-                if (conflictedModel is not null)
-                {
-                    conflictedModel.RecommendedPurchasePrice /= counter;
+                    modelsToBuy.Add(analyticModel);
                 }
             }
 

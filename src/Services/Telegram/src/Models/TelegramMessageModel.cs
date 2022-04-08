@@ -1,4 +1,6 @@
-﻿namespace Telegram.Models
+﻿using Telegram.Bot.Types;
+
+namespace Telegram.Models
 {
     /// <summary>
     ///     Модель сообщения для телеграмма
@@ -14,6 +16,11 @@
         ///     Id чата для отправки
         /// </summary>
         public long ChatId { get; set; }
+
+        /// <summary>
+        ///     Картинки
+        /// </summary>
+        public InputMediaPhoto Image { get; set; }
 
         /// <summary>
         ///     Тект сообщения

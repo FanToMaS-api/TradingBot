@@ -1,4 +1,5 @@
 ﻿using BinanceDatabase.Entities;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -40,6 +41,17 @@ namespace BinanceDatabase.Repositories.HotRepositories.Impl
         /// <inheritdoc />
         public async Task AddRangeAsync(IEnumerable<HotMiniTickerEntity> miniTickerEntities, CancellationToken cancellationToken = default)
             => await _appDbContext.HotMiniTickers.AddRangeAsync(miniTickerEntities, cancellationToken);
+
+        /// <inheritdoc />
+        public async Task<HotMiniTickerEntity[]> GetArrayAsync(string pair, int neededCount = 2000, CancellationToken cancellationToken = default)
+            =>
+            neededCount >= 2500
+            ? throw new Exception($"{nameof(neededCount)} should be less than 2500")
+            : await CreateQuery()
+                .Where(_ => _.Pair == pair)
+                .OrderBy(_ => _.ReceivedTime)
+                .Take(neededCount)
+                .ToArrayAsync(cancellationToken);
 
         /// <inheritdoc />
         public void RemoveUntil(DateTime until)

@@ -33,6 +33,11 @@ namespace BinanceDatabase
         /// </summary>
         public DbSet<MiniTickerEntity> MiniTickers { get; set; }
 
+        /// <summary>
+        ///     Таблица предсказанных данных
+        /// </summary>
+        public DbSet<PredictionEntity> Predictions { get; set; }
+
         #endregion
 
         #region Public methods
@@ -56,6 +61,7 @@ namespace BinanceDatabase
             // Setup
             HotMiniTickerEntity.Setup(modelBuilder.Entity<HotMiniTickerEntity>());
             MiniTickerEntity.Setup(modelBuilder.Entity<MiniTickerEntity>());
+            PredictionEntity.Setup(modelBuilder.Entity<PredictionEntity>());
         }
 
         #endregion

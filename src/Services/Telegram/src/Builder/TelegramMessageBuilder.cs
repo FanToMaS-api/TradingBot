@@ -1,4 +1,6 @@
-﻿using Telegram.Models;
+﻿using System.IO;
+using Telegram.Bot.Types;
+using Telegram.Models;
 
 namespace Telegram.Builder
 {
@@ -45,12 +47,33 @@ namespace Telegram.Builder
         }
 
         /// <summary>
-        ///     Удалить inline конпку
+        ///     Удалить inline кнопку
         /// </summary>
         public void DeleteInlineButton()
         {
             _messageModel.Type = MessageType.Default;
             _messageModel.InlineKeyboardButton = null;
+        }
+
+        /// <summary>
+        ///     Установить изображение
+        /// </summary>
+        /// <param name="pathToImage"> Путь к нужному изображению </param>
+        public void SetImage(string pathToImage)
+        {
+            _messageModel.Type = MessageType.WithImage;
+            var imageStream = System.IO.File.OpenRead(pathToImage);
+            var mediaPhoto = new InputMediaPhoto(new InputMedia(imageStream, Path.GetFileNameWithoutExtension(pathToImage)));
+            _messageModel.Image = mediaPhoto;
+        }
+
+        /// <summary>
+        ///     Удалить изображение
+        /// </summary>
+        public void DeleteImage()
+        {
+            _messageModel.Type = MessageType.Default;
+            _messageModel.Image = null;
         }
 
         /// <summary>
