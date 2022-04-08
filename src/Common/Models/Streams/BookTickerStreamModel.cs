@@ -12,9 +12,9 @@
         public long OrderBookUpdatedId { get; internal set; }
 
         /// <summary>
-        ///     Имя пары
+        ///     Имя торгового объекта
         /// </summary>
-        public string Symbol { get; internal set; }
+        public string ShortName { get; internal set; }
 
         /// <summary>
         ///    Лучшая цена спроса

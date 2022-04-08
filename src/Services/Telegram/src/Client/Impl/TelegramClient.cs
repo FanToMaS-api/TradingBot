@@ -3,13 +3,13 @@ using System.Threading.Tasks;
 using Telegram.Bot;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.ReplyMarkups;
+using Telegram.Configuration;
 using Telegram.Models;
 
 namespace Telegram.Client.Impl
 {
-
     /// <inheritdoc cref="ITelegramClient"/>
-    public class TelegramClient : ITelegramClient
+    internal class TelegramClient : ITelegramClient
     {
         #region Fields
 
@@ -20,9 +20,9 @@ namespace Telegram.Client.Impl
         #region .ctor
 
         /// <inheritdoc cref="ITelegramClient"/>
-        public TelegramClient(string token)
+        public TelegramClient(TelegramOptions telegramOptions)
         {
-            _client = new TelegramBotClient(token);
+            _client = new TelegramBotClient(telegramOptions.Token);
         }
 
         #endregion

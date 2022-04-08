@@ -1,6 +1,8 @@
-using Common;
+using AutoMapper;
+using BinanceDatabase;
+using BinanceExchange;
+using BinanceDataService;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Redis;
@@ -8,16 +10,18 @@ using Scheduler;
 using SignalsSender.Configuration;
 using System;
 using System.Threading.Tasks;
+using Common.Initialization;
+using Common.Extensions;
+using Analytic;
+using Telegram;
 
 namespace SignalsSender
 {
     public class Startup
     {
-        private readonly SignalSenderConfig _settings = new();
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
-            Configuration.GetSection(SignalSenderConfig.Name).Bind(_settings);
         }
 
         public IConfiguration Configuration { get; }
@@ -25,16 +29,29 @@ namespace SignalsSender
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddSingleton<IService, Service>((sp) =>
+            var mapperConfig = new MapperConfiguration(
+            mc =>
             {
-                var redisDatabase = sp.GetRequiredService<IRedisDatabase>();
-                var scheduler = sp.GetRequiredService<IRecurringJobScheduler>();
-                return new Service(_settings, redisDatabase, scheduler);
-            });
-            services.AddRecurringJobScheduler();
+                mc.AddProfile(new BinanceDatabaseMappingProfile());
+                mc.AddProfile(new BinanceMapperProfile());
+            }
+        );
+
+            services.AddSingleton(mapperConfig.CreateMapper());
+            services.AddBinanceDatabase(Configuration);
             services.AddRedis(Configuration);
+            services.AddRecurringJobScheduler();
+
+            services.AddBinanceExchange(Configuration);
+            services.LoadOptions<SignalSenderConfig>(Configuration);
+            services.AddDataServiceFactory();
+            services.AddBinanceAnalyticService();
+            services.AddTelegramClient(Configuration);
+
+            services.AddSingleton<IService, Service>();
+
             services.AddRazorPages();
-            services.ConfigureForInitialization<IService>( async _=> await _.RunAsync());
+            services.ConfigureForInitialization<IService>(async _ => await _.RunAsync());
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -43,6 +60,7 @@ namespace SignalsSender
             // app.UseMiddleware<InitializationMiddleware>();
             app.UseRouting();
 
+            serviceProvider.ApplyDatabaseMigration();
             var task = Task.Run(async () => await AppInitializer.InitializeAsync(serviceProvider));
             Task.WaitAll(task);
         }

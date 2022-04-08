@@ -21,7 +21,7 @@
         public string MessageText { get; set; }
 
         /// <summary>
-        ///     Кнопка для перезода по ссылке внизу сообщения
+        ///     Кнопка для перехода по ссылке внизу сообщения
         /// </summary>
         public InlineKeyboardButtonModel InlineKeyboardButton { get; set; }
     }

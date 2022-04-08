@@ -5,7 +5,7 @@ namespace BinanceExchange
     /// <summary>
     ///     Содержит все конечные точки Binance
     /// </summary>
-    public static class BinanceEndpoints
+    internal static class BinanceEndpoints
     {
         #region Wallet
 
