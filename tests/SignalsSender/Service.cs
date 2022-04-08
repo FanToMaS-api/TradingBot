@@ -38,7 +38,7 @@ namespace SignalsSender
         private readonly IAnalyticService _analyticService;
         private IDataService _dataService;
         private readonly string _baseUrl = "https://www.binance.com/en/trade/<pair>/?layout=pro";
-        private readonly string[] _baseTickers = new[] { "USDT", "BTC", "ETH" };
+        private readonly string[] _baseTickers = new[] { "USDT", "BTC", "ETH", "BNB" };
         private readonly CancellationTokenSource _cancellationTokenSource = new();
 
         #endregion
@@ -87,7 +87,7 @@ namespace SignalsSender
             _analyticService.AddFilterGroup(paramountFilterGroup);
 
             var specialFilterGroupUSDT = new FilterGroup("USDT_SpecialFilterGroup", FilterGroupType.Special, "USDT");
-            var priceDeviationFilter = new PriceDeviationFilter("AnyFilter", ComparisonType.GreaterThan, 0.8);
+            var priceDeviationFilter = new PriceDeviationFilter("AnyFilter", ComparisonType.GreaterThan, 2.55);
             var usdtPriceFilter = new PriceFilter("USDTFilter", ComparisonType.LessThan, 20);
             specialFilterGroupUSDT.AddFilter(priceDeviationFilter);
             specialFilterGroupUSDT.AddFilter(usdtPriceFilter);
@@ -107,18 +107,18 @@ namespace SignalsSender
             commonFilterGroup.AddFilter(priceDeviationFilter);
             _analyticService.AddFilterGroup(commonFilterGroup);
 
-            //var commonLatestFilterGroup = new FilterGroup("CommonLatestFilterGroup", FilterGroupType.CommonLatest, null);
-            //var volumeFilter = new VolumeFilter("VolumeFilter");
-            //commonLatestFilterGroup.AddFilter(volumeFilter);
-            //_analyticService.AddFilterGroup(commonLatestFilterGroup);
+            var commonLatestFilterGroup = new FilterGroup("CommonLatestFilterGroup", FilterGroupType.CommonLatest, null);
+            var volumeFilter = new VolumeFilter("VolumeFilter");
+            commonLatestFilterGroup.AddFilter(volumeFilter);
+            _analyticService.AddFilterGroup(commonLatestFilterGroup);
 
             _analyticService.OnModelsFiltered += OnModelsFilteredReceived;
             _analyticService.OnSuccessfulAnalize += OnModelsToBuyReceived;
 
-            // var profile = new DefaultAnalyticProfile("DefaultProfile");
+            var profile = new DefaultAnalyticProfile("DefaultProfile");
             var ssaProfile = new SsaAnalyticPofile("SsaProfile");
             var profileGroup = new ProfileGroup("DefaultGroupProfile");
-            // profileGroup.AddAnalyticUnit(profile);
+            profileGroup.AddAnalyticUnit(profile);
             profileGroup.AddAnalyticUnit(ssaProfile);
             _analyticService.AddProfileGroup(profileGroup);
             await _analyticService.RunAsync(cancellationToken);
