@@ -11,7 +11,7 @@ namespace Analytic
     /// <summary>
     ///     Сервис аналитики
     /// </summary>
-    public interface IAnalyticService
+    public interface IAnalyticService : IDisposable
     {
         /// <summary>
         ///     Профили аналитики

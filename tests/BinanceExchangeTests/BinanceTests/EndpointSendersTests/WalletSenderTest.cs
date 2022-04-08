@@ -26,8 +26,9 @@ namespace BinanceExchangeTests.BinanceTests.EndpointSendersTests
         internal async Task<SystemStatusModel> GetSystemStatusAsync_Test()
         {
             var filePath = "../../../BinanceTests/Jsons/Wallet/SYSTEM_STATUS.json";
-            using var client = TestHelper.CreateMockHttpClient(BinanceEndpoints.SYSTEM_STATUS, filePath);
-            IBinanceClient binanceClient = new BinanceClient(client, "", "");
+            var clientFactory = TestHelper.CreateMockIHttpClientFactory(BinanceEndpoints.SYSTEM_STATUS, filePath);
+            var options = TestHelper.CreateBinanceExchangeOptions("", "");
+            IBinanceClient binanceClient = new BinanceClient(clientFactory, options);
             IWalletSender walletEndpointSender = new WalletSender(binanceClient);
 
             // Act
@@ -46,8 +47,9 @@ namespace BinanceExchangeTests.BinanceTests.EndpointSendersTests
         internal async Task<IEnumerable<CoinModel>> GetAllCoinsInformationAsync_Test()
         {
             var filePath = "../../../BinanceTests/Jsons/Wallet/ALL_COINS_INFORMATION.json";
-            using var client = TestHelper.CreateMockHttpClient(BinanceEndpoints.ALL_COINS_INFORMATION, filePath);
-            IBinanceClient binanceClient = new BinanceClient(client, "testApiKey", "testSecretKey");
+            var clientFactory = TestHelper.CreateMockIHttpClientFactory(BinanceEndpoints.ALL_COINS_INFORMATION, filePath);
+            var options = TestHelper.CreateBinanceExchangeOptions("testApiKey", "testSecretKey");
+            IBinanceClient binanceClient = new BinanceClient(clientFactory, options);
             IWalletSender walletEndpointSender = new WalletSender(binanceClient);
 
             // Act
@@ -69,8 +71,9 @@ namespace BinanceExchangeTests.BinanceTests.EndpointSendersTests
         internal async Task<AccountTradingStatusModel> GetAccountTradingStatusAsync_Test()
         {
             var filePath = "../../../BinanceTests/Jsons/Wallet/ACCOUNT_API_TRADING_STATUS.json";
-            using var client = TestHelper.CreateMockHttpClient(BinanceEndpoints.ACCOUNT_API_TRADING_STATUS, filePath);
-            IBinanceClient binanceClient = new BinanceClient(client, "testApiKey", "testSecretKey");
+            var clientFactory = TestHelper.CreateMockIHttpClientFactory(BinanceEndpoints.ACCOUNT_API_TRADING_STATUS, filePath);
+            var options = TestHelper.CreateBinanceExchangeOptions("testApiKey", "testSecretKey");
+            IBinanceClient binanceClient = new BinanceClient(clientFactory, options);
             IWalletSender walletEndpointSender = new WalletSender(binanceClient);
 
             // Act
@@ -93,8 +96,9 @@ namespace BinanceExchangeTests.BinanceTests.EndpointSendersTests
         internal async Task<IEnumerable<TradeFeeModel>> GetTradeFeeAsync_Test()
         {
             var filePath = "../../../BinanceTests/Jsons/Wallet/TRADE_FEE.json";
-            using var client = TestHelper.CreateMockHttpClient(BinanceEndpoints.TRADE_FEE, filePath);
-            IBinanceClient binanceClient = new BinanceClient(client, "testApiKey", "testSecretKey");
+            var clientFactory = TestHelper.CreateMockIHttpClientFactory(BinanceEndpoints.TRADE_FEE, filePath);
+            var options = TestHelper.CreateBinanceExchangeOptions("testApiKey", "testSecretKey");
+            IBinanceClient binanceClient = new BinanceClient(clientFactory, options);
             IWalletSender walletEndpointSender = new WalletSender(binanceClient);
 
             // Act

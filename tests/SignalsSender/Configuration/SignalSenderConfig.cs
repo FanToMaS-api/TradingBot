@@ -1,26 +1,14 @@
-﻿namespace SignalsSender.Configuration
+﻿using Common.Models;
+
+namespace SignalsSender.Configuration
 {
-    public class SignalSenderConfig
+    /// <summary>
+    ///     Настройки сервиса уведомлений
+    /// </summary>
+    public class SignalSenderConfig : OptionsBase
     {
-        /// <summary>
-        ///     Название блока настроек
-        /// </summary>
-        public const string Name = "Settings";
-
-        /// <summary>
-        ///     Токен
-        /// </summary>
-        public string ApiKey { get; set; } = string.Empty;
-
-        /// <summary>
-        ///     Секретный токен
-        /// </summary>
-        public string SecretKey { get; set; } = string.Empty;
-
-        /// <summary>
-        ///     Токен для телеграмма
-        /// </summary>
-        public string TelegramToken { get; set; } = string.Empty;
+        /// <inheritdoc />
+        public override string Name => "Settings";
 
         /// <summary>
         ///     Id канала в телеграмме

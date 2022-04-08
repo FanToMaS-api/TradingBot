@@ -1,7 +1,7 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using Common;
+using Common.Initialization;
 using Microsoft.Extensions.DependencyInjection;
 using Quartz;
 

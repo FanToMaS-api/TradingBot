@@ -3,7 +3,7 @@
     /// <summary>
     ///     Усеченная модель 24-часового скользящего окна по символу
     /// </summary>
-    public class MiniTickerStreamModel : MarketdataStreamModelBase
+    public class MiniTradeObjectStreamModel : MarketdataStreamModelBase
     {
         /// <summary>
         ///     Цена закрытия

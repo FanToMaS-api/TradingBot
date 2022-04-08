@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Databases\BinanceDatabase\BinanceDatabase.csproj" />
+    <ProjectReference Include="..\..\Libraries\DataServiceLibrary\DataServiceLibrary.csproj" />
+    <ProjectReference Include="..\..\Libraries\ExchangeLibrary\ExchangeLibrary.csproj" />
+    <ProjectReference Include="..\Scheduler\Scheduler.csproj" />
+  </ItemGroup>
+
+</Project>

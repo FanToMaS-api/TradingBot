@@ -12,7 +12,8 @@
       "commandName": "Project",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",
-        "REDIS_CONNECTION_STRING": "127.0.0.1:6379"
+        "REDIS_CONNECTION_STRING": "127.0.0.1:6379",
+        "POSTGRES_CONNECTION_STRING": "Server=localhost;UserID=postgres;Port=5432;Database=Binance_TB_Database;Password=0000;Include Error Detail=true"
       },
       "applicationUrl": "http://localhost:5555",
       "dotnetRunMessages": "true"
