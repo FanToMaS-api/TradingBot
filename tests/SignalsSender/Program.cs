@@ -7,7 +7,7 @@ namespace SignalsSender
 {
     public class Program
     {
-        private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
+        private static readonly Logger _logger = LogManager.LoadConfiguration("nlog.config").GetLogger("Program");
 
         public static void Main(string[] args)
         {

@@ -5,14 +5,17 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="AutoMapper" Version="11.0.1" />
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.14.0" />
     <PackageReference Include="NLog.Targets.Seq" Version="2.1.0" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\BinanceExchange\BinanceExchange.csproj" />
+    <ProjectReference Include="..\..\src\Databases\BinanceDatabase\BinanceDatabase.csproj" />
     <ProjectReference Include="..\..\src\Redis\Redis.csproj" />
     <ProjectReference Include="..\..\src\Services\Analytic\Analytic.csproj" />
+    <ProjectReference Include="..\..\src\Services\BinanceDataService\BinanceDataService.csproj" />
     <ProjectReference Include="..\..\src\Services\Scheduler\Scheduler.csproj" />
     <ProjectReference Include="..\..\src\Services\Telegram\Telegram.csproj" />
   </ItemGroup>

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace Common
+namespace Common.Initialization
 {
     /// <summary>
     ///     Настройки инициализации приложения

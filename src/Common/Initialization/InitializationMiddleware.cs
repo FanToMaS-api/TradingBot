@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.AspNetCore.Http;
 
-namespace Common
+namespace Common.Initialization
 {
     /// <summary>
     ///     Компонент настраивающий сервисы и службы

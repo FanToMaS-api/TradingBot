@@ -9,7 +9,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\ExchangeLibrary\ExchangeLibrary.csproj" />
+    <ProjectReference Include="..\..\Libraries\ExchangeLibrary\ExchangeLibrary.csproj" />
     <ProjectReference Include="..\Scheduler\Scheduler.csproj" />
   </ItemGroup>
 

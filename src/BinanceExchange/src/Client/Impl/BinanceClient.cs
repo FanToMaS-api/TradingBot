@@ -21,7 +21,7 @@ namespace BinanceExchange.Client.Impl
 
         private readonly string _apiKey;
         private readonly string _apiSecret;
-        private readonly HttpClient _client;
+        private readonly IHttpClientFactory _httpClientFactory;
         private readonly ILogger _logger = LogManager.GetCurrentClassLogger();
         private readonly string _baseUrl = "https://api.binance.com";
 
@@ -30,11 +30,11 @@ namespace BinanceExchange.Client.Impl
         #region .ctor
 
         /// <inheritdoc cref="BinanceClient"/>
-        public BinanceClient(HttpClient httpClient, string apiKey, string apiSecret)
+        public BinanceClient(IHttpClientFactory httpClientFactory, BinanceExchangeOptions options)
         {
-            _client = httpClient;
-            _apiKey = apiKey;
-            _apiSecret = apiSecret;
+            _httpClientFactory = httpClientFactory;
+            _apiKey = options.ApiKey;
+            _apiSecret = options.SecretKey;
         }
 
         #endregion
@@ -111,7 +111,8 @@ namespace BinanceExchange.Client.Impl
                 request.Headers.Add("X-MBX-APIKEY", _apiKey);
             }
 
-            var response = await _client.SendAsync(request, cancellationToken);
+            using var client = _httpClientFactory.CreateClient();
+            var response = await client.SendAsync(request, cancellationToken);
             if (!response.IsSuccessStatusCode)
             {
                 await ProcessBadResponseAsync(response, cancellationToken);

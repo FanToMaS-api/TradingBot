@@ -25,7 +25,7 @@ namespace ExchangeLibrary
         ///     <br/>
         ///     @bookTicker - лучшая цена, количество для указанного объекта торговли (Модель <see cref="BookTickerStreamModel"/>)
         ///     <br/>
-        ///     @miniTicker - выборка информации о статистике бегущего окна за 24 часа для объекта торговли (Модель <see cref="MiniTickerStreamModel"/>)
+        ///     @miniTicker - выборка информации о статистике бегущего окна за 24 часа для объекта торговли (Модель <see cref="MiniTradeObjectStreamModel"/>)
         ///     <br/>
         ///     @ticker - информация о статистике бегущего окна за 24 часа для объекта торговли (Модель <see cref="TradeObjectStreamModel"/>)
         ///     <br/>
@@ -82,11 +82,11 @@ namespace ExchangeLibrary
         /// <summary>
         ///     Подписывается на стрим статистики всех мини-тикеров за 24 часа
         /// </summary>
-        /// <param name="onMessageReceivedFunc"> Функция обрабатывающая данные объекта <see cref="MiniTickerStreamModel"/> </param>
+        /// <param name="onMessageReceivedFunc"> Функция обрабатывающая данные объекта <see cref="MiniTradeObjectStreamModel"/> </param>
         /// <param name="cancellationToken"> Токен для передачи в функцию обработки выше ее при вызове </param>
         /// <param name="onStreamClosedFunc"> Функция, вызывающаяся при закрытии стрима </param>
         IWebSocket SubscribeAllMarketMiniTickersStream(
-            Func<IEnumerable<MiniTickerStreamModel>, CancellationToken, Task> onMessageReceivedFunc,
+            Func<IEnumerable<MiniTradeObjectStreamModel>, CancellationToken, Task> onMessageReceivedFunc,
             CancellationToken cancellationToken,
             Action onStreamClosedFunc = null);
 

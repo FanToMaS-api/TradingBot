@@ -1,11 +1,11 @@
-﻿using ExchangeLibrary.Configuration;
+﻿using Common.Models;
 
 namespace BinanceExchange
 {
     /// <summary>
     ///     Содержит настройки Binance Exchange
     /// </summary>
-    public class BinanceExchangeOptions : OptionsBase
+    internal class BinanceExchangeOptions : OptionsBase
     {
         /// <inheritdoc />
         public override string Name => "Binance";

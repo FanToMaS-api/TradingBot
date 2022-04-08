@@ -5,7 +5,6 @@ using StackExchange.Redis;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
-using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -23,28 +22,27 @@ namespace TradingBot
 
         static async Task Main()
         {
-            var apiKey = ConfigurationManager.AppSettings.Get(ConfigKeys.API_KEY);
-            var secretKey = ConfigurationManager.AppSettings.Get(ConfigKeys.SECRET_KEY);
-            var redisConnectionString = ConfigurationManager.AppSettings.Get(ConfigKeys.REDIS_CONNECTION_STRING);
-            var binanceOptions = new BinanceExchangeOptions() { ApiKey = apiKey, SecretKey = secretKey };
-            var binance = BinanceExchangeFactory.CreateExchange(
-                binanceOptions, new RedisDatabase(ConnectionMultiplexer.Connect(redisConnectionString)));
-            using var cts = new CancellationTokenSource();
+            //var apiKey = ConfigurationManager.AppSettings.Get(ConfigKeys.API_KEY);
+            //var secretKey = ConfigurationManager.AppSettings.Get(ConfigKeys.SECRET_KEY);
+            //var redisConnectionString = ConfigurationManager.AppSettings.Get(ConfigKeys.REDIS_CONNECTION_STRING);
+            //var binanceOptions = new BinanceExchangeOptions() { ApiKey = apiKey, SecretKey = secretKey };
+            //var binance = BinanceExchangeFactory.CreateExchange(
+            //    binanceOptions, new RedisDatabase(ConnectionMultiplexer.Connect(redisConnectionString)));
+            //using var cts = new CancellationTokenSource();
 
-            var socket = binance.MarketdataStreams.SubscribeCandlestickStream(
-                "SOLUSDT",
-                "1m",
-                async (model, ct) =>
-                {
-                    using var sw = new StreamWriter("SOLUSDT_15_min.txt", true);
-                    sw.WriteLine(model.ClosePrice.ToString());
-                },
-                cts.Token);
-            try
-            {
-                await socket.ConnectAsync(cts.Token);
-            }
-            catch { }
+            //var socket = binance.MarketdataStreams.SubscribeAllMarketTickersStream(
+            //    (models, ct) =>
+            //    {
+            //        foreach (var model in models.Where(_ => _.ShortName.Contains("APEUSDT")))
+            //        {
+            //            Console.WriteLine(model.ShortName + " " + model.LastPrice);
+            //        }
+
+            //        return Task.CompletedTask;
+            //    },
+            //    cts.Token);
+            //await socket.ConnectAsync(cts.Token);
+
 
             //var info = await binance.GetAccountInformationAsync(cts.Token);
             //var properties = typeof(AccountInformationModel).GetProperties();
@@ -65,69 +63,69 @@ namespace TradingBot
             //    }
             //}
 
-            var botToken = ConfigurationManager.AppSettings.Get(ConfigKeys.TELEGRAM_TOKEN);
-            var chatId = long.Parse(ConfigurationManager.AppSettings.Get(ConfigKeys.TELEGRAM_CHANNEL_ID));
+            //    var botToken = ConfigurationManager.AppSettings.Get(ConfigKeys.TELEGRAM_TOKEN);
+            //    var chatId = long.Parse(ConfigurationManager.AppSettings.Get(ConfigKeys.TELEGRAM_CHANNEL_ID));
 
-            ITelegramClient telegramClient = new TelegramClient(botToken);
-            var builder = new TelegramMessageBuilder();
-            builder.SetChatId(chatId);
-            builder.SetMessageText("**Test/Test**\n\nНовая разница: 10.23\n\nРазница за последние 3 таймфрейма: -12.25");
-            builder.SetInlineButton("Test Inline button", "https://en.wikipedia.org/wiki/Site");
-            var message = builder.GetResult();
-            await telegramClient.SendMessageAsync(message, cts.Token);
+            //    ITelegramClient telegramClient = new TelegramClient(botToken);
+            //    var builder = new TelegramMessageBuilder();
+            //    builder.SetChatId(chatId);
+            //    builder.SetMessageText("**Test/Test**\n\nНовая разница: 10.23\n\nРазница за последние 3 таймфрейма: -12.25");
+            //    builder.SetInlineButton("Test Inline button", "https://en.wikipedia.org/wiki/Site");
+            //    var message = builder.GetResult();
+            //    await telegramClient.SendMessageAsync(message, cts.Token);
 
-            var pairs = (await binance.Marketdata.GetSymbolPriceTickerAsync(null))
-                .Where(_ => _.Name.Contains("USDT", StringComparison.CurrentCultureIgnoreCase))
-                .ToDictionary(_ => _.Name, _ => new List<double>());
-            _logger.Info($"Всего пар: {pairs.Count}");
+            //    var pairs = (await binance.Marketdata.GetSymbolPriceTickerAsync(null))
+            //        .Where(_ => _.Name.Contains("USDT", StringComparison.CurrentCultureIgnoreCase))
+            //        .ToDictionary(_ => _.Name, _ => new List<double>());
+            //    _logger.Info($"Всего пар: {pairs.Count}");
 
-            var delay = TimeSpan.FromMinutes(1);
-            var percent = 2.55;
-            while (true)
-            {
-                var newPairs = (await binance.Marketdata.GetSymbolPriceTickerAsync(null))
-                    .Where(_ => _.Name.Contains("USDT", StringComparison.CurrentCultureIgnoreCase))
-                    .ToList();
-                _logger.Trace("Новые данные получены");
+            //    var delay = TimeSpan.FromMinutes(1);
+            //    var percent = 2.55;
+            //    while (true)
+            //    {
+            //        var newPairs = (await binance.Marketdata.GetSymbolPriceTickerAsync(null))
+            //            .Where(_ => _.Name.Contains("USDT", StringComparison.CurrentCultureIgnoreCase))
+            //            .ToList();
+            //        _logger.Trace("Новые данные получены");
 
-                newPairs.ForEach(pair =>
-                {
-                    var pricesCount = pairs[pair.Name].Count;
-                    if (pricesCount == 0)
-                    {
-                        pairs[pair.Name].Add(pair.Price);
-                        return;
-                    }
+            //        newPairs.ForEach(pair =>
+            //        {
+            //            var pricesCount = pairs[pair.Name].Count;
+            //            if (pricesCount == 0)
+            //            {
+            //                pairs[pair.Name].Add(pair.Price);
+            //                return;
+            //            }
 
-                    var newDeviation = GetDeviation(pairs[pair.Name].Last(), pair.Price);
-                    var lastDeviation = 0d;
-                    var preLastDeviation = 0d;
-                    if (pricesCount > 1)
-                    {
-                        lastDeviation = GetDeviation(pairs[pair.Name][pricesCount - 2], pairs[pair.Name].Last());
-                    }
+            //            var newDeviation = GetDeviation(pairs[pair.Name].Last(), pair.Price);
+            //            var lastDeviation = 0d;
+            //            var preLastDeviation = 0d;
+            //            if (pricesCount > 1)
+            //            {
+            //                lastDeviation = GetDeviation(pairs[pair.Name][pricesCount - 2], pairs[pair.Name].Last());
+            //            }
 
-                    if (pricesCount > 2)
-                    {
-                        preLastDeviation = GetDeviation(pairs[pair.Name][pricesCount - 3], pairs[pair.Name][pricesCount - 2]);
-                    }
+            //            if (pricesCount > 2)
+            //            {
+            //                preLastDeviation = GetDeviation(pairs[pair.Name][pricesCount - 3], pairs[pair.Name][pricesCount - 2]);
+            //            }
 
-                    var sumDeviation = newDeviation + lastDeviation + preLastDeviation;
-                    if (newDeviation >= percent || sumDeviation >= percent)
-                    {
-                        _logger.Warn($"Покупай {pair.Name} Новая разница {newDeviation:0.00} Разница за последние 3 таймфрейма: {sumDeviation:0.00}");
-                    }
+            //            var sumDeviation = newDeviation + lastDeviation + preLastDeviation;
+            //            if (newDeviation >= percent || sumDeviation >= percent)
+            //            {
+            //                _logger.Warn($"Покупай {pair.Name} Новая разница {newDeviation:0.00} Разница за последние 3 таймфрейма: {sumDeviation:0.00}");
+            //            }
 
-                    pairs[pair.Name].Add(pair.Price);
-                });
+            //            pairs[pair.Name].Add(pair.Price);
+            //        });
 
-                await Task.Delay(delay);
-            }
+            //        await Task.Delay(delay);
+            //    }
         }
 
-        /// <summary>
-        ///     Возвращает процентное отклонение новой цены от старой
-        /// </summary>
-        private static double GetDeviation(double oldPrice, double newPrice) => (newPrice / (double)oldPrice - 1) * 100;
+        ///// <summary>
+        /////     Возвращает процентное отклонение новой цены от старой
+        ///// </summary>
+        //private static double GetDeviation(double oldPrice, double newPrice) => (newPrice / (double)oldPrice - 1) * 100;
     }
 }
