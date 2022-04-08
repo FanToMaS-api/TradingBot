@@ -82,7 +82,7 @@ namespace SignalsSender
             var dataHandler = dataServiceFactory.CreateDataHandler();
             _dataService = dataServiceFactory.CreateDataService(dataHandler);
 
-             await _dataService.StartAsync();
+            await _dataService.StartAsync();
 
             var paramountFilterGroup = new FilterGroup("ParamountFilterGroup", FilterGroupType.Paramount, null);
             var nameFilter = new NameFilter("NameFilter", _baseTickers);

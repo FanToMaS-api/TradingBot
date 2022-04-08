@@ -8,7 +8,7 @@ namespace BinanceDatabase.Enums
     public static class EnumHelper
     {
         /// <summary>
-        ///     Конвертирует тип агрегирования данных в TimeSpan
+        ///     Переводит интервал объединения в TimeSpan
         /// </summary>
         public static TimeSpan ConvertToTimeSpan(this AggregateDataIntervalType intervalType) =>
             intervalType switch

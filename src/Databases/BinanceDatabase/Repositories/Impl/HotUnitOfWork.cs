@@ -2,7 +2,7 @@
 
 namespace BinanceDatabase.Repositories
 {
-    /// <inheritdoc cref="IColdUnitOfWork"/>
+    /// <inheritdoc cref="IHotUnitOfWork"/>
     internal class HotUnitOfWork : IHotUnitOfWork
     {
         #region .ctor

@@ -8,7 +8,7 @@ namespace BinanceDatabase
     public interface IBinanceDbContextFactory
     {
         /// <summary>
-        ///     Создаnm подключение к БД
+        ///     Создать подключение к БД
         /// </summary>
         IUnitOfWork CreateScopeDatabase();
     }

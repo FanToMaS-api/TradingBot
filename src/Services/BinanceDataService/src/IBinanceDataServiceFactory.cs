@@ -3,7 +3,7 @@
 namespace BinanceDataService
 {
     /// <summary>
-    ///     Фабрика для создания полноценного сервиса обработки данных
+    ///     Фабрика, предоставляющая методы для создания сервиса обработки данных
     /// </summary>
     public interface IBinanceDataServiceFactory
     {

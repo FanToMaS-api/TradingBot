@@ -63,6 +63,8 @@ namespace BinanceDataService.DataHandlers
             Task.Run(async () => await StartWebSocket(_cancellationTokenSource.Token), cancellationToken);
 
             _triggerKey = await _scheduler.ScheduleAsync(Cron.EveryNthMinute(3), SaveDataAsync);
+
+            _logger.Info("Marketdata handler launched successfully!");
         }
 
         /// <inheritdoc />
@@ -71,6 +73,9 @@ namespace BinanceDataService.DataHandlers
             _scheduler?.UnscheduleAsync(_triggerKey);
             _cancellationTokenSource?.Cancel();
             _cancellationTokenSource?.Dispose();
+            _webSocket?.Dispose();
+
+            _logger.Info("Marketdata handler sropped");
 
             return Task.CompletedTask;
         }
@@ -157,6 +162,7 @@ namespace BinanceDataService.DataHandlers
             await database.ColdUnitOfWork.MiniTickers.AddRangeAsync(groupedData, _cancellationTokenSource.Token);
 
             await database.SaveChangesAsync(_cancellationTokenSource.Token);
+            _logger.Trace($"{streamModels.Count()} entities successfully saved");
         }
 
         /// <summary>
@@ -190,7 +196,8 @@ namespace BinanceDataService.DataHandlers
                     isDataLeft = true;
                     if (start - item.EventTime >= interval)
                     {
-                        AddToResultWithAveraging(result, aggregateObject, ref counter, ref isDataLeft);
+                        AveragingFields(aggregateObject, counter);
+                        AddToResult(result, aggregateObject, ref counter, ref isDataLeft);
                         aggregateObject = item;
                         start = item.EventTime;
                         continue;
@@ -202,7 +209,8 @@ namespace BinanceDataService.DataHandlers
 
                 if (isDataLeft)
                 {
-                    AddToResultWithAveraging(result, aggregateObject, ref counter, ref isDataLeft);
+                    AveragingFields(aggregateObject, counter);
+                    AddToResult(result, aggregateObject, ref counter, ref isDataLeft);
                 }
             }
 
@@ -210,17 +218,16 @@ namespace BinanceDataService.DataHandlers
         }
 
         /// <summary>
-        ///     Функция усреднения и добавления усредненной модели в результирующий список
+        ///     Функция добавления усредненной модели в результирующий список и сброса параметров
         /// </summary>
         /// <param name="counter"> Счетчик усредненных моделей </param>
         /// <param name="isDataLeft"> Флаг, что усредненных данных больше нет </param>
-        private void AddToResultWithAveraging(
+        private void AddToResult(
             List<MiniTickerEntity> result,
             MiniTickerEntity aggregateObject,
             ref int counter,
             ref bool isDataLeft)
         {
-            AveragingFields(aggregateObject, counter);
             result.Add(aggregateObject);
             counter = 0;
             isDataLeft = false;
@@ -257,6 +264,8 @@ namespace BinanceDataService.DataHandlers
         /// </summary>
         private void OnClosedHandler()
         {
+            _logger.Info("The websocket has been closed. Restarting stream...");
+
             Task.Run(async () => await _webSocket.ConnectAsync(_cancellationTokenSource.Token), _cancellationTokenSource.Token);
         }
 

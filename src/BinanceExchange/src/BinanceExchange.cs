@@ -22,23 +22,21 @@ namespace BinanceExchange
             SpotTrade = spotTrade;
         }
 
-        // IHttpClientFactory httpClientFactory, // TODO: https://markshevchenko.pro/2019/01/23/how-to-use-ihttpclientfactory/
-
         #endregion
 
         #region Properties
 
         /// <inheritdoc />
-        public IWallet Wallet { get; } // _wallet ??= new Wallet(new WalletSender(_client), _redisDatabase, _mapper);
+        public IWallet Wallet { get; }
 
         /// <inheritdoc />
-        public IMarketdata Marketdata {get;} // _marketdata ??= new Marketdata(new MarketdataSender(_client), _redisDatabase, _mapper);
+        public IMarketdata Marketdata {get;}
 
         /// <inheritdoc />
-        public IMarketdataStreams MarketdataStreams {get;} // _marketdataStreams ??= new MarketdataStreams(_mapper);
+        public IMarketdataStreams MarketdataStreams {get;}
 
         /// <inheritdoc />
-        public ISpotTrade SpotTrade {get;} // _spotTrade ??= new SpotTrade(new SpotTradeSender(_client), _redisDatabase, _mapper);
+        public ISpotTrade SpotTrade {get;}
 
         #endregion
     }

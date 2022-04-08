@@ -20,11 +20,15 @@ namespace BinanceDatabase.Entities
         [Column("id")]
         public int Id { get; set; }
 
-        /// <inheritdoc />
+        /// <summary>
+        ///     Короткое название пары
+        /// </summary>
         [Column("short_name")]
         public string ShortName { get; set; }
 
-        /// <inheritdoc />
+        /// <summary>
+        ///     Время события
+        /// </summary>
         [Column("event_time")]
         public DateTime EventTime { get; set; }
 
@@ -32,27 +36,39 @@ namespace BinanceDatabase.Entities
         [Column("interval")]
         public AggregateDataIntervalType IntervalType { get; set; }
 
-        /// <inheritdoc />
+        /// <summary>
+        ///     Цена закрытия
+        /// </summary>
         [Column("close_price")]
         public double ClosePrice { get; set; }
 
-        /// <inheritdoc />
+        /// <summary>
+        ///     Цена открытия
+        /// </summary>
         [Column("open_price")]
         public double OpenPrice { get; set; }
 
-        /// <inheritdoc />
+        /// <summary>
+        ///     Минимальная цена
+        /// </summary>
         [Column("min_price")]
         public double MinPrice { get; set; }
 
-        /// <inheritdoc />
+        /// <summary>
+        ///     Максимальная цена
+        /// </summary>
         [Column("max_price")]
         public double MaxPrice { get; set; }
 
-        /// <inheritdoc />
+        /// <summary>
+        ///     Объем базового актива, который купили тейкеры
+        /// </summary>
         [Column("base_purchase_volume")]
         public double BasePurchaseVolume { get; set; }
 
-        /// <inheritdoc />
+        /// <summary>
+        ///     Объем актива по котировке тейкера на покупку
+        /// </summary>
         [Column("quote_purchase_volume")]
         public double QuotePurchaseVolume { get; set; }
 

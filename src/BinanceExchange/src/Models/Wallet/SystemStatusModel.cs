@@ -18,7 +18,7 @@ namespace BinanceExchange.Models
         /// <summary>
         ///     Сообщение статуса системы
         /// </summary>
-        [JsonPropertyName("message")]
+        [JsonPropertyName("msg")]
         public string Message { get; set; }
 
         #endregion

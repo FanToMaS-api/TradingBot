@@ -7,7 +7,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace BinanceDatabase.Entities
 {
     /// <summary>
-    ///     Содержит только нужную информацию для расчетов о тикера
+    ///     Содержит только нужную информацию о тикере для расчетов
     /// </summary>
     [Table("hot_mini_tickers")]
     public class HotMiniTickerEntity

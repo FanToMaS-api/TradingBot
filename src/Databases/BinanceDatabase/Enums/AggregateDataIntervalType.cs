@@ -6,7 +6,7 @@
     public enum AggregateDataIntervalType
     {
         /// <summary>
-        ///     Указывает, что аггрегации не проводилось
+        ///     Указывает, что агрегации не проводилось
         /// </summary>
         Default = 0,
 
