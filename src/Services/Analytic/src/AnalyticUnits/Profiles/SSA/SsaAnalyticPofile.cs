@@ -1,4 +1,5 @@
 ﻿using Analytic.Models;
+using BinanceDatabase;
 using BinanceDatabase.Entities;
 using BinanceDatabase.Repositories;
 using ExchangeLibrary;
@@ -56,7 +57,8 @@ namespace Analytic.AnalyticUnits.Profiles.SSA
             CancellationToken cancellationToken)
         {
             using var scope = serviceScopeFactory.CreateScope();
-            using var database = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
+            var databaseFactory = scope.ServiceProvider.GetRequiredService<IBinanceDbContextFactory>();
+            using var database = databaseFactory.CreateScopeDatabase();
             var enities = await database.HotUnitOfWork.HotMiniTickers.GetArrayAsync(model.TradeObjectName, cancellationToken: cancellationToken);
             if (!enities.Any())
             {

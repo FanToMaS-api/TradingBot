@@ -31,6 +31,7 @@ namespace BinanceDataService.DataHandlers
         private readonly IRecurringJobScheduler _scheduler;
         private readonly IMapper _mapper;
         private TriggerKey _triggerKey;
+        private TriggerKey _dataDelitionTriggerKey;
         private readonly List<MiniTradeObjectStreamModel> _mainModelsStorage = new();
         private readonly List<MiniTradeObjectStreamModel> _assistantModelsStorage = new();
         private bool _isAssistantStorageSaving;
@@ -63,6 +64,7 @@ namespace BinanceDataService.DataHandlers
             Task.Run(async () => await StartWebSocket(_cancellationTokenSource.Token), cancellationToken);
 
             _triggerKey = await _scheduler.ScheduleAsync(Cron.EveryNthMinute(3), SaveDataAsync);
+            _dataDelitionTriggerKey = await _scheduler.ScheduleAsync(Cron.Daily(), DeleteDataAsync);
 
             _logger.Info("Marketdata handler launched successfully!");
         }
@@ -71,6 +73,7 @@ namespace BinanceDataService.DataHandlers
         public Task StopAsync()
         {
             _scheduler?.UnscheduleAsync(_triggerKey);
+            _scheduler?.UnscheduleAsync(_dataDelitionTriggerKey);
             _cancellationTokenSource?.Cancel();
             _cancellationTokenSource?.Dispose();
             _webSocket?.Dispose();
@@ -267,6 +270,26 @@ namespace BinanceDataService.DataHandlers
             _logger.Info("The websocket has been closed. Restarting stream...");
 
             Task.Run(async () => await _webSocket.ConnectAsync(_cancellationTokenSource.Token), _cancellationTokenSource.Token);
+        }
+
+        /// <summary>
+        ///     Удаляет накопившиеся данные
+        /// </summary>
+        private async Task DeleteDataAsync(IServiceProvider serviceProvider)
+        {
+            var now = DateTime.Now;
+            var databaseFactory = serviceProvider.GetRequiredService<IBinanceDbContextFactory>();
+            using var database = databaseFactory.CreateScopeDatabase();
+            try
+            {
+                database.HotUnitOfWork.HotMiniTickers.RemoveUntil(now.AddDays(-1));
+
+                await database.SaveChangesAsync(_cancellationTokenSource.Token);
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex, "Failed to remove hot data");
+            }
         }
 
         #endregion
