@@ -49,7 +49,7 @@ namespace BinanceDatabase.Repositories.HotRepositories.Impl
             ? throw new Exception($"{nameof(neededCount)} should be less than 2500")
             : await CreateQuery()
                 .Where(_ => _.Pair == pair)
-                .OrderBy(_ => _.ReceivedTime)
+                .OrderByDescending(_ => _.ReceivedTime)
                 .Take(neededCount)
                 .ToArrayAsync(cancellationToken);
 

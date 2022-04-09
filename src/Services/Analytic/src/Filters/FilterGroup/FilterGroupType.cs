@@ -8,7 +8,7 @@
         /// <summary>
         ///     Первостепенный (вызываются в первую очередь)
         /// </summary>
-        Paramount,
+        Primary,
 
         /// <summary>
         ///     Специальный (вызывается первее <see cref="Common"/>)

@@ -81,13 +81,13 @@ namespace SignalsSender
 
             await _dataService.StartAsync();
 
-            var paramountFilterGroup = new FilterGroup("ParamountFilterGroup", FilterGroupType.Paramount, null);
+            var paramountFilterGroup = new FilterGroup("ParamountFilterGroup", FilterGroupType.Primary, null);
             var nameFilter = new NameFilter("NameFilter", _baseTickers);
             paramountFilterGroup.AddFilter(nameFilter);
             _analyticService.AddFilterGroup(paramountFilterGroup);
 
             var specialFilterGroupUSDT = new FilterGroup("USDT_SpecialFilterGroup", FilterGroupType.Special, "USDT");
-            var priceDeviationFilter = new PriceDeviationFilter("AnyFilter", ComparisonType.GreaterThan, 2.55);
+            var priceDeviationFilter = new PriceDeviationFilter("AnyFilter", ComparisonType.GreaterThan, 2.51);
             var usdtPriceFilter = new PriceFilter("USDTFilter", ComparisonType.LessThan, 20);
             specialFilterGroupUSDT.AddFilter(priceDeviationFilter);
             specialFilterGroupUSDT.AddFilter(usdtPriceFilter);
@@ -108,7 +108,7 @@ namespace SignalsSender
             _analyticService.AddFilterGroup(commonFilterGroup);
 
             var commonLatestFilterGroup = new FilterGroup("CommonLatestFilterGroup", FilterGroupType.CommonLatest, null);
-            var volumeFilter = new VolumeFilter("VolumeFilter");
+            var volumeFilter = new VolumeFilter("VolumeFilter", percentDeviation: 0.05);
             commonLatestFilterGroup.AddFilter(volumeFilter);
             _analyticService.AddFilterGroup(commonLatestFilterGroup);
 
@@ -144,8 +144,8 @@ namespace SignalsSender
 
                     var pairSymbols = model.TradeObjectName.Insert(model.TradeObjectName.Length - symbol.Length, "/");
                     var pairName = pairSymbols.Replace("/", "_");
-                    var message = $"*{pairSymbols}*\nНовая разница: *{model.LastDeviation:0.00}%*" +
-                        $"\nРазница за последние 5 таймфреймов: *{model.SumDeviations:0.00}%*" +
+                    var message = $"*{pairSymbols}*\nНовая разница: *{model.LastDeviation:0.00000}%*" +
+                        $"\nРазница за последние 5 таймфреймов: *{model.SumDeviations:0.0000000}%*" +
                         $"\nПоследняя цена: *{model.LastPrice}*" +
                         $"\nОбъем спроса: *{model.BidVolume:0,0.0}*" +
                         $"\nОбъем предложения: *{model.AskVolume:0,0.0}*";
@@ -195,10 +195,10 @@ namespace SignalsSender
 
                     var pairSymbols = model.TradeObjectName.Insert(model.TradeObjectName.Length - symbol.Length, "/");
                     var pairName = pairSymbols.Replace("/", "_");
-                    var message = $"*{pairSymbols}*\n*Покупка по цене: {model.RecommendedPurchasePrice}*";
+                    var message = $"*{pairSymbols}*\n*Минимальная цена предсказания: {model.RecommendedPurchasePrice:0.0000}*";
                     if (model.RecommendedSellingPrice is not null)
                     {
-                        message += $"\n*Продажа по цене: {model.RecommendedSellingPrice.Value}*";
+                        message += $"\n*Максимальная цена предсказания: {model.RecommendedSellingPrice.Value:0.0000}*";
                     }
 
                     message = message.Replace(".", "\\.");

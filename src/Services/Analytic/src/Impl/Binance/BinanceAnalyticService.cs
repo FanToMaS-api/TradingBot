@@ -139,12 +139,12 @@ namespace Analytic.Binance
             {
                 var models = await _exchange.Marketdata.GetSymbolPriceTickerAsync(null, _cancellationTokenSource.Token);
                 var filteredModels = GetFilteredData(models);
-                var extendedFilteredModels = await GetExtendedFilteredModelsAsync(filteredModels, _cancellationTokenSource.Token);
+                var extendedFilteredModels = await GetExtendedFilteredModelsAsync(filteredModels.ToList(), _cancellationTokenSource.Token);
                 if (extendedFilteredModels.Any())
                 {
                     OnModelsFiltered?.Invoke(this, extendedFilteredModels.ToArray());
 
-                    var analyzedModels = await GetAnalyzedModelsAsync(extendedFilteredModels, _cancellationTokenSource.Token);
+                    var analyzedModels = await GetAnalyzedModelsAsync(extendedFilteredModels.ToList(), _cancellationTokenSource.Token);
                     if (analyzedModels.Any())
                     {
                         OnSuccessfulAnalize?.Invoke(this, analyzedModels.ToArray());
@@ -165,7 +165,7 @@ namespace Analytic.Binance
         {
             var result = new List<InfoModel>();
 
-            var paramountFilters = FilterGroups.Where(_ => _.Type == FilterGroupType.Paramount).ToArray();
+            var paramountFilters = FilterGroups.Where(_ => _.Type == FilterGroupType.Primary).ToArray();
             var commonFilters = FilterGroups.Where(_ => _.Type == FilterGroupType.Common).ToArray();
             foreach (var model in models)
             {
@@ -177,8 +177,6 @@ namespace Analytic.Binance
                 if (!_infoModels.ContainsKey(model.Name))
                 {
                     _infoModels[model.Name] = new(model.Name, model.Price);
-
-                    continue;
                 }
 
                 var infoModel = _infoModels[model.Name];
@@ -190,6 +188,7 @@ namespace Analytic.Binance
                 {
                     if (specialPriceFilters.All(_ => _.CheckConditions(infoModel)))
                     {
+                        _logger.Trace($"Ticker {model.Name} suitable for SPECIAL filters");
                         result.Add(infoModel);
                     }
 
@@ -198,6 +197,7 @@ namespace Analytic.Binance
 
                 if (commonFilters.All(_ => _.CheckConditions(infoModel)))
                 {
+                    _logger.Trace($"Ticker {model.Name} suitable for COMMON filters");
                     result.Add(infoModel);
                 }
             }
@@ -246,10 +246,10 @@ namespace Analytic.Binance
         private async Task<List<InfoModel>> GetExtendedFilteredModelsAsync(List<InfoModel> models, CancellationToken cancellationToken)
         {
             var commonLatestFilters = FilterGroups.Where(_ => _.Type == FilterGroupType.CommonLatest).ToArray();
-            for (var i = 0; i < models.Count; i++)
+            for (var i = 0; i < models.Count && commonLatestFilters.Any(); i++) // TODO продумать логику так как общих филттров может и не быть, а специальные быть могут
             {
                 var model = models[i];
-                var extendedModel = await _exchange.Marketdata.GetOrderBookAsync(model.TradeObjectName, 1000, cancellationToken);
+                var extendedModel = await _exchange.Marketdata.GetOrderBookAsync(model.TradeObjectName, 1000, cancellationToken); // TODO: вот этот код надо вынести в специальный фильтр
                 model.BidVolume = extendedModel.Bids.Sum(_ => _.Quantity);
                 model.AskVolume = extendedModel.Asks.Sum(_ => _.Quantity);
 
@@ -292,6 +292,9 @@ namespace Analytic.Binance
                         continue;
                     }
 
+                    _logger.Trace($"Successful analysis model {analyticModel.TradeObjectName}\n" +
+                        $"Has image: {analyticModel.HasPredictionImage}\n" +
+                        $"Path to image: {analyticModel.ImagePath}");
                     modelsToBuy.Add(analyticModel);
                 }
             }

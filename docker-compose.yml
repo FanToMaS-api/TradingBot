@@ -7,7 +7,7 @@ services:
       - "6379:6379"
     restart: always
     volumes: 
-      - trading_bot_volume:/var/lib/redis
+      - trading_bot_redis_volume:/var/lib/redis
     networks:
       - signal_service_network
 
@@ -20,7 +20,7 @@ services:
     env_file:
       - postgres.env
     volumes:
-      - trading_bot_volume:/var/lib/postgres
+      - trading_bot_postgres_volume:/var/lib/postgres
     networks:
       - signal_service_network
 
@@ -36,12 +36,15 @@ services:
       - redis.env
       - signal_service.env
     volumes:
-      - trading_bot_volume:/var/lib/signal_service
+      - signal_service_volume:/var/lib/signal_service
+      - D:/TB_DATA:/var/app/TB_DATA
     networks:
       - signal_service_network
 
 volumes:
-  trading_bot_volume:
+  signal_service_volume:
+  trading_bot_postgres_volume:
+  trading_bot_redis_volume:
 
 networks:
   signal_service_network:
