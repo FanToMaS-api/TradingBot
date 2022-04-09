@@ -38,7 +38,7 @@ namespace SignalsSender
         private readonly IAnalyticService _analyticService;
         private IDataService _dataService;
         private readonly string _baseUrl = "https://www.binance.com/en/trade/<pair>/?layout=pro";
-        private readonly string[] _baseTickers = new[] { "USDT", "BTC", "ETH", "BNB" };
+        private readonly string[] _baseTickers = new[] { "USDT", "BTC", "ETH" };
         private readonly CancellationTokenSource _cancellationTokenSource = new();
 
         #endregion
@@ -115,10 +115,8 @@ namespace SignalsSender
             _analyticService.OnModelsFiltered += OnModelsFilteredReceived;
             _analyticService.OnSuccessfulAnalize += OnModelsToBuyReceived;
 
-            var profile = new DefaultAnalyticProfile("DefaultProfile");
             var ssaProfile = new SsaAnalyticPofile("SsaProfile");
             var profileGroup = new ProfileGroup("DefaultGroupProfile");
-            profileGroup.AddAnalyticUnit(profile);
             profileGroup.AddAnalyticUnit(ssaProfile);
             _analyticService.AddProfileGroup(profileGroup);
             await _analyticService.RunAsync(cancellationToken);

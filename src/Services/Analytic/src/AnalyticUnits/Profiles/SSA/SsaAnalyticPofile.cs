@@ -32,10 +32,10 @@ namespace Analytic.AnalyticUnits.Profiles.SSA
         #region .ctor
 
         /// <inheritdoc cref="SsaAnalyticPofile"/>
-        public SsaAnalyticPofile(string name, int numberToPredict = 250)
+        public SsaAnalyticPofile(string name)
         {
             Name = name;
-            NumberToPredict = numberToPredict;
+            _logger.Trace($"Directory with saved grafics='{AppDomain.CurrentDomain.BaseDirectory}'");
         }
 
         #endregion
@@ -44,11 +44,6 @@ namespace Analytic.AnalyticUnits.Profiles.SSA
 
         /// <inheritdoc />
         public string Name { get; }
-
-        /// <summary>
-        ///     Кол-во значений необходимых для предсказания
-        /// </summary>
-        public int NumberToPredict { get; }
 
         #endregion
 
@@ -75,6 +70,7 @@ namespace Analytic.AnalyticUnits.Profiles.SSA
                 return (false, null);
             }
 
+            _logger.Trace($"Successful predicted {predictions.Length} prices for {model.TradeObjectName}");
             await SavePredictionAsync(database, model.TradeObjectName, enities.Last().ReceivedTime, predictions, cancellationToken);
             var (minPrice, maxPrice) = GetMinMaxPredictedPrice(predictions);
             if (maxPrice < minPrice * 1.15)
@@ -174,7 +170,8 @@ namespace Analytic.AnalyticUnits.Profiles.SSA
             // var N = array.Length;
             // var result = SignalRecovery(newX, N, tau);
 
-            var predictions = ForecastingSignal(subMatrixEigenvectors, array, tau, NumberToPredict);
+            // предсказываем только четвертую часть от исходных данных
+            var predictions = ForecastingSignal(subMatrixEigenvectors, array, tau, array.Length / 4);
 
             return predictions;
         }
@@ -295,7 +292,7 @@ namespace Analytic.AnalyticUnits.Profiles.SSA
             }
             catch (Exception ex)
             {
-                _logger.Error(ex, "Failed to create and save image");
+                _logger.Error(ex, $"Failed to create and save image for {pair}");
 
                 return false;
             }
@@ -334,7 +331,16 @@ namespace Analytic.AnalyticUnits.Profiles.SSA
                 PriceValues = predictions,
             };
 
-            await database.ColdUnitOfWork.Predictions.AddAsync(predictionEntity, cancellationToken);
+            try
+            {
+                await database.ColdUnitOfWork.Predictions.AddAsync(predictionEntity, cancellationToken);
+
+                await database.SaveChangesAsync(cancellationToken);
+            }
+            catch(Exception ex)
+            {
+                _logger.Error(ex, "Failed to save predicted data");
+            }            
         }
 
         #region Signal recovery

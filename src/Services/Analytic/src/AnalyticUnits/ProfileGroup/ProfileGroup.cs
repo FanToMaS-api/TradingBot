@@ -56,6 +56,7 @@ namespace Analytic.AnalyticUnits
                     {
                         analyticResultModel = resultModel;
                         isOneSuccessful = true;
+                        count++;
                         continue;
                     }
 
@@ -68,8 +69,8 @@ namespace Analytic.AnalyticUnits
             // TODO: Усреднять через список полученных моделей
             if (isOneSuccessful)
             {
-                analyticResultModel.RecommendedPurchasePrice /= count == 0 ? 0 : count;
-                analyticResultModel.RecommendedSellingPrice /= count == 0 ? 0 : count;
+                analyticResultModel.RecommendedPurchasePrice /= count == 0 ? 1 : count;
+                analyticResultModel.RecommendedSellingPrice /= count == 0 ? 1 : count;
             }
 
             return (isOneSuccessful, analyticResultModel);
