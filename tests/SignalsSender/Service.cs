@@ -107,10 +107,11 @@ namespace SignalsSender
             commonFilterGroup.AddFilter(priceDeviationFilter);
             _analyticService.AddFilterGroup(commonFilterGroup);
 
-            var commonLatestFilterGroup = new FilterGroup("CommonLatestFilterGroup", FilterGroupType.CommonLatest, null);
-            var volumeFilter = new VolumeFilter("VolumeFilter", percentDeviation: 0.05);
-            commonLatestFilterGroup.AddFilter(volumeFilter);
-            _analyticService.AddFilterGroup(commonLatestFilterGroup);
+            // отключил на время фильтр объемов
+            //var commonLatestFilterGroup = new FilterGroup("CommonLatestFilterGroup", FilterGroupType.CommonLatest, null);
+            //var volumeFilter = new VolumeFilter("VolumeFilter", percentDeviation: 0.05);
+            //commonLatestFilterGroup.AddFilter(volumeFilter);
+            //_analyticService.AddFilterGroup(commonLatestFilterGroup);
 
             _analyticService.OnModelsFiltered += OnModelsFilteredReceived;
             _analyticService.OnSuccessfulAnalize += OnModelsToBuyReceived;

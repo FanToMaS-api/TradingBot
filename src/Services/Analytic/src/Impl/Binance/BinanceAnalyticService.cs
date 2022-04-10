@@ -259,6 +259,7 @@ namespace Analytic.Binance
                 {
                     if (!specialFilters.All(_ => _.CheckConditions(model)))
                     {
+                        _logger.Trace($"Ticker {model.TradeObjectName} does not suitable for SPECIAL LATEST filters");
                         models.Remove(model);
                         i--;
                     }
@@ -268,6 +269,7 @@ namespace Analytic.Binance
 
                 if (!commonLatestFilters.All(_ => _.CheckConditions(model)))
                 {
+                    _logger.Trace($"Ticker {model.TradeObjectName} does not suitable for COMMON LATEST filters");
                     models.Remove(model);
                     i--;
                 }
