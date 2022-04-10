@@ -54,11 +54,13 @@ namespace BinanceDatabase.Repositories.HotRepositories.Impl
                 .ToArrayAsync(cancellationToken);
 
         /// <inheritdoc />
-        public void RemoveUntil(DateTime until)
+        public int RemoveUntil(DateTime until)
         {
             var result = CreateQuery().Where(_ => _.ReceivedTime < until);
 
             _appDbContext.HotMiniTickers.RemoveRange(result);
+
+            return result.Count();
         }
 
         #endregion

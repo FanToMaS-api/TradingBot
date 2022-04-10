@@ -282,9 +282,11 @@ namespace BinanceDataService.DataHandlers
             using var database = databaseFactory.CreateScopeDatabase();
             try
             {
-                database.HotUnitOfWork.HotMiniTickers.RemoveUntil(now.AddDays(-1));
+                var count = database.HotUnitOfWork.HotMiniTickers.RemoveUntil(now.AddDays(-1));
 
                 await database.SaveChangesAsync(_cancellationTokenSource.Token);
+
+                _logger.Trace($"Old data deleted successfully! Entities removed: {count}");
             }
             catch (Exception ex)
             {

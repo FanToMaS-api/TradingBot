@@ -24,6 +24,6 @@ namespace BinanceDatabase.Repositories.HotRepositories
         /// <summary>
         ///     Удаляет все записи до указанной даты
         /// </summary>
-        void RemoveUntil(DateTime until);
+        int RemoveUntil(DateTime until);
     }
 }
