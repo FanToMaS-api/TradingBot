@@ -299,7 +299,7 @@ namespace Analytic.AnalyticUnits.Profiles.SSA
                 plt.AddScatter(timeForPredictions, predictions, label: "Predicted");
                 plt.XAxis.TickLabelFormat("g", dateTimeFormat: true);
                 plt.AddText($"Min: {minPrice:0.0000}", timeForPredictions[minIndex], minPrice, 17);
-                plt.AddText($"Max: {minPrice:0.0000}", timeForPredictions[maxIndex], maxPrice, 17);
+                plt.AddText($"Max: {maxPrice:0.0000}", timeForPredictions[maxIndex], maxPrice, 17);
 
                 plt.YAxis.Label("Price");
                 plt.XAxis.Label("Time");

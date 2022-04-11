@@ -87,7 +87,7 @@ namespace SignalsSender
             _analyticService.AddFilterGroup(paramountFilterGroup);
 
             var specialFilterGroupUSDT = new FilterGroup("USDT_SpecialFilterGroup", FilterGroupType.Special, "USDT");
-            var priceDeviationFilter = new PriceDeviationFilter("AnyFilter", ComparisonType.GreaterThan, 2.51);
+            var priceDeviationFilter = new PriceDeviationFilter("AnyFilter", ComparisonType.GreaterThan, 2);
             var usdtPriceFilter = new PriceFilter("USDTFilter", ComparisonType.LessThan, 20);
             specialFilterGroupUSDT.AddFilter(priceDeviationFilter);
             specialFilterGroupUSDT.AddFilter(usdtPriceFilter);

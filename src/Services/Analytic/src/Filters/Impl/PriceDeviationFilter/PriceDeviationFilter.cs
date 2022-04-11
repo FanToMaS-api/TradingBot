@@ -57,7 +57,7 @@ namespace Analytic.Filters
         /// <inheritdoc />
         public bool CheckConditions(InfoModel model)
         {
-            var summDeviations = model.PricePercentDeviations.Take(TimeframeNumber).Sum();
+            var summDeviations = model.PricePercentDeviations.TakeLast(TimeframeNumber).Sum();
             model.SumDeviations = summDeviations;
 
             return ComparisonType switch
