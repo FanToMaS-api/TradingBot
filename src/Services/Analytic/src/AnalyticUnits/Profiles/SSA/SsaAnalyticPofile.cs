@@ -26,8 +26,9 @@ namespace Analytic.AnalyticUnits.Profiles.SSA
 
         private readonly ILogger _logger = LogManager.GetCurrentClassLogger();
         private readonly string _baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
-        private const int _numberPricesToTake = 2000; // кол-во данных участвующих в предсказании цены
+        private const int _numberPricesToTake = 2498; // кол-во данных участвующих в предсказании цены
         private const int _numberOfMinutesOfImageStorage = 2; // кол-во минут хранения изображения (не будут присылаться сообщения с изображением, дабы не спамить)
+        private const string _graficsFolder = "Grafics"; // папка для хранения графиков
 
         #endregion
 
@@ -76,14 +77,17 @@ namespace Analytic.AnalyticUnits.Profiles.SSA
             _logger.Trace($"Successful predicted {predictions.Length} prices for {model.TradeObjectName}");
             await SavePredictionAsync(database, model.TradeObjectName, enities.Last().ReceivedTime, predictions, cancellationToken);
 
+            var (minPrice, minIndex, maxPrice, maxIndex) = GetMinMaxPredictedPrice(predictions);
             var canCreateChart = CanCreateChart(
                 data,
                 predictions,
-                enities.First().ReceivedTime,
+                enities.Select(_ => _.ReceivedTime),
                 model.TradeObjectName,
-                out var imagePath,
-                out var minPrice,
-                out var maxPrice);
+                minPrice,
+                maxPrice,
+                minIndex,
+                maxIndex,
+                out var imagePath);
             if (minPrice <= 0)
             {
                 return (false, null);
@@ -157,7 +161,7 @@ namespace Analytic.AnalyticUnits.Profiles.SSA
                 return x.Magnitude < y.Magnitude ? 1 : x.Magnitude == y.Magnitude ? 0 : -1;
             });
 
-            var neededLambda = eigenvaluesArray.Take(12);
+            var neededLambda = eigenvaluesArray.Where(_ => _.Magnitude > 0.0002);
 
             var max = matrixEigenvalues.AbsoluteMaximum();
             var subMatrixEigenvectors = new List<Vector<double>>(); // понадобится для предсказаний
@@ -259,17 +263,28 @@ namespace Analytic.AnalyticUnits.Profiles.SSA
         /// <summary>
         ///     Пытается создать файл с графиком
         /// </summary>
-        private bool CanCreateChart(double[] original, double[] predictions, DateTime startTime, string pair, out string imagePath, out double minPrice, out double maxPrice)
+        /// <param name="original"> Оригинальные данные </param>
+        /// <param name="predictions"> Предсказанные данные </param>
+        /// <param name="dateTimes"> Время получения оригинальных данных </param>
+        /// <param name="pair"> Название пары </param>
+        /// <param name="minPrice"> Минимальная предсказанная цена </param>
+        /// <param name="maxPrice"> Максимальная предсказанная цена </param>
+        /// <param name="minIndex"> Индекс минимальной цены в массиве </param>
+        /// <param name="maxIndex"> Индекс максимальной цены в массиве </param>
+        /// <param name="imagePath"> Путь до изображения </param>
+        /// <returns> <see langword="true"/> если изображение было успешно создано </returns>
+        private bool CanCreateChart(
+            double[] original,
+            double[] predictions,
+            IEnumerable<DateTime> dateTimes,
+            string pair,
+            double minPrice,
+            double maxPrice,
+            int minIndex,
+            int maxIndex,
+            out string imagePath)
         {
-            int minIndex, maxIndex;
-            (minPrice, minIndex, maxPrice, maxIndex) = GetMinMaxPredictedPrice(predictions);
-            var directoryPath = Path.Combine(_baseDirectory, "Grafics");
-            if (!Directory.Exists(directoryPath))
-            {
-                Directory.CreateDirectory(directoryPath);
-                _logger.Trace($"Successful created directory {directoryPath}");
-            }
-
+            var directoryPath = GetPathToCurrentAppDirectoryFolder(_graficsFolder);
             imagePath = Path.Combine(directoryPath, $"{pair}.png");
             if (File.Exists(imagePath) && File.GetCreationTime(imagePath).AddMinutes(_numberOfMinutesOfImageStorage) > DateTime.Now)
             {
@@ -284,21 +299,13 @@ namespace Analytic.AnalyticUnits.Profiles.SSA
                     Palette = ScottPlot.Palette.OneHalfDark
                 };
 
-                var timeForReal = new double[original.Length];
-                var timeForPredictions = new double[predictions.Length];
-                for (var i = 0; i < timeForReal.Length; i++)
-                {
-                    startTime = startTime.AddSeconds(1);
-                    timeForReal[i] = startTime.ToOADate();
-                }
+                // массив времени для предсказанных данных
+                var startTimeForPredictionsData = dateTimes.Last();
+                var endTime = dateTimes.First();
+                var offset = (int)Math.Ceiling(Math.Abs((startTimeForPredictionsData - endTime).TotalSeconds / dateTimes.Count()));
+                var timeForPredictions = CreatePredictionsDates(startTimeForPredictionsData, predictions.Length, offset);
 
-                for (var i = 0; i < timeForPredictions.Length; i++)
-                {
-                    startTime = startTime.AddSeconds(1);
-                    timeForPredictions[i] = startTime.ToOADate();
-                }
-
-                plt.AddScatter(timeForReal, original, label: "Real");
+                plt.AddScatter(dateTimes.Select(_ => _.ToOADate()).ToArray(), original, label: "Real");
                 plt.AddScatter(timeForPredictions, predictions, label: "Predicted");
                 plt.XAxis.TickLabelFormat("g", dateTimeFormat: true);
                 plt.AddText($"Min: {minPrice:0.0000}", timeForPredictions[minIndex], minPrice, 17);
@@ -326,6 +333,36 @@ namespace Analytic.AnalyticUnits.Profiles.SSA
             }
 
             return true;
+        }
+
+        /// <summary>
+        ///     Возвращает путь до директории указанной директории, создает, если ее не существовало
+        /// </summary>
+        private string GetPathToCurrentAppDirectoryFolder(string directoryName)
+        {
+            var directoryPath = Path.Combine(_baseDirectory, directoryName);
+            if (!Directory.Exists(directoryPath))
+            {
+                Directory.CreateDirectory(directoryPath);
+                _logger.Trace($"Successful created directory {directoryPath}");
+            }
+
+            return directoryPath;
+        }
+
+        /// <summary>
+        ///     Возвращает массив дат в OA формате для подписей осей предсказанных данных
+        /// </summary>
+        private double[] CreatePredictionsDates(DateTime from, int predictionDataLength, int offset)
+        {
+            var timeForPredictions = new double[predictionDataLength];
+            for (var i = 0; i < predictionDataLength; i++)
+            {
+                from = from.AddSeconds(offset);
+                timeForPredictions[i] = from.ToOADate();
+            }
+
+            return timeForPredictions;
         }
 
         /// <summary>

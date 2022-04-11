@@ -63,7 +63,7 @@ namespace BinanceDataService.DataHandlers
 
             Task.Run(async () => await StartWebSocket(_cancellationTokenSource.Token), cancellationToken);
 
-            _triggerKey = await _scheduler.ScheduleAsync(Cron.EveryNthMinute(3), SaveDataAsync);
+            _triggerKey = await _scheduler.ScheduleAsync(Cron.Minutely(), SaveDataAsync);
             _dataDelitionTriggerKey = await _scheduler.ScheduleAsync(Cron.Daily(), DeleteDataAsync);
 
             _logger.Info("Marketdata handler launched successfully!");

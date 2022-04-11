@@ -78,7 +78,6 @@ namespace SignalsSender
             var dataServiceFactory = scope.ServiceProvider.GetRequiredService<IBinanceDataServiceFactory>();
             var dataHandler = dataServiceFactory.CreateDataHandler();
             _dataService = dataServiceFactory.CreateDataService(dataHandler);
-
             await _dataService.StartAsync();
 
             var paramountFilterGroup = new FilterGroup("ParamountFilterGroup", FilterGroupType.Primary, null);

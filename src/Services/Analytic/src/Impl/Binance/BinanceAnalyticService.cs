@@ -69,8 +69,8 @@ namespace Analytic.Binance
             _cancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
             cancellationToken.Register(() => StopAsync(CancellationToken.None).GetAwaiter().GetResult());
 
-            // каждую 1 минуту вызываем метода анализа
-            _triggerKey = await _scheduler.ScheduleAsync("0 * * ? * *", AnalyzeAsync);
+            // каждую минуту на 7ю секунду вызываем метода анализа
+            _triggerKey = await _scheduler.ScheduleAsync(Cron.MinutelyAt(7), AnalyzeAsync);
         }
 
         /// <inheritdoc />
