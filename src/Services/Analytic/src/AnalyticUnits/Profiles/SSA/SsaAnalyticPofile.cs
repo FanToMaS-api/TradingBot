@@ -77,28 +77,27 @@ namespace Analytic.AnalyticUnits.Profiles.SSA
             _logger.Trace($"Successful predicted {predictions.Length} prices for {model.TradeObjectName}");
             await SavePredictionAsync(database, model.TradeObjectName, enities.Last().ReceivedTime, predictions, cancellationToken);
 
-            var (minPrice, minIndex, maxPrice, maxIndex) = GetMinMaxPredictedPrice(predictions);
+            var minMaxPriceModel = MinMaxPriceModel.Create(predictions);
+            if (minMaxPriceModel.MinPrice <= 0)
+            {
+                return (false, null);
+            }
+
             var canCreateChart = CanCreateChart(
                 data,
                 predictions,
                 enities.Select(_ => _.ReceivedTime),
                 model.TradeObjectName,
-                minPrice,
-                maxPrice,
-                minIndex,
-                maxIndex,
+                minMaxPriceModel,
                 out var imagePath);
-            if (minPrice <= 0)
-            {
-                return (false, null);
-            }
+            
 
             var result = new AnalyticResultModel()
             {
                 TradeObjectName = model.TradeObjectName,
                 HasPredictionImage = canCreateChart,
-                RecommendedPurchasePrice = minPrice,
-                RecommendedSellingPrice = maxPrice,
+                RecommendedPurchasePrice = minMaxPriceModel.MinPrice,
+                RecommendedSellingPrice = minMaxPriceModel.MaxPrice,
                 ImagePath = imagePath
             };
 
@@ -161,20 +160,11 @@ namespace Analytic.AnalyticUnits.Profiles.SSA
                 return x.Magnitude < y.Magnitude ? 1 : x.Magnitude == y.Magnitude ? 0 : -1;
             });
 
-            var neededLambda = eigenvaluesArray.Where(_ => _.Magnitude > 0.0002);
-
-            var max = matrixEigenvalues.AbsoluteMaximum();
-            var subMatrixEigenvectors = new List<Vector<double>>(); // понадобится для предсказаний
-            for (var i = 0; i < matrixEigenvalues.Count; i++)
+            var neededLambdas = eigenvaluesArray.Where(_ => _.Magnitude > 0.0002);
+            var subMatrixEigenvectors = GetSubListEigenvectors(matrixEigenvalues, neededLambdas, matrixEigenvectors);
+            if (!subMatrixEigenvectors.Any())
             {
-                // зануляем столбцы собственных векторов, которые незначимы (сглаживаем)
-                if (neededLambda.Contains(matrixEigenvalues[i]))
-                {
-                    subMatrixEigenvectors.Add(matrixEigenvectors.Column(i));
-                    continue;
-                }
-
-                matrixEigenvectors.ClearColumn(i);
+                return Array.Empty<double>();
             }
 
             var newX = (matrixEigenvectors * mainComponents).ToArray();
@@ -184,46 +174,40 @@ namespace Analytic.AnalyticUnits.Profiles.SSA
             // var result = SignalRecovery(newX, N, tau);
 
             // предсказываем только четвертую часть от исходных данных
-            var predictions = ForecastingSignal(subMatrixEigenvectors, array, tau, array.Length / 4);
+            var (Vstar, tauMatrixEigenvector) = GetPreparedMatrixForForecasting(subMatrixEigenvectors, tau);
+            var predictions = ForecastingSignal(
+                Vstar,
+                tauMatrixEigenvector,
+                array,
+                tau,
+                array.Length / 4);
 
             return predictions;
         }
 
         /// <summary>
-        ///     Предсказывает сигнал
+        ///     Возвращает список значимых векторов, для предсказаний <br/>
+        ///     Зануляем столбцы собственных векторов, которые незначимы
         /// </summary>
-        /// <param name="subEigenvectors"> Отобранные собственные вектора </param>
-        /// <param name="array"> Исходыный массив </param>
-        /// <param name="tau"> Кол-во задержек </param>
-        /// <param name="neededForecastingCount"> Кол-во предсказаний </param>
-        private double[] ForecastingSignal(List<Vector<double>> subEigenvectors, double[] array, int tau, int neededForecastingCount)
+        private List<Vector<double>> GetSubListEigenvectors(
+            Vector<System.Numerics.Complex> matrixEigenvalues,
+            IEnumerable<System.Numerics.Complex> neededLambdas,
+            Matrix<double> matrixEigenvectors)
         {
-            var list = array.ToList();
-            var result = new List<double>();
-            if (!subEigenvectors.Any())
+            var subEigenvectors = new List<Vector<double>>(); // понадобится для предсказаний
+            for (var i = 0; i < matrixEigenvalues.Count; i++)
             {
-                return Array.Empty<double>();
-            }
-
-            for (var k = 0; k < neededForecastingCount; k++)
-            {
-                var Q = Matrix<double>.Build.Dense(tau - 1, 1);
-                var index = 0;
-                for (var i = list.Count - tau + 1; i < list.Count && index < tau - 1; i++, index++)
+                if (neededLambdas.Contains(matrixEigenvalues[i]))
                 {
-                    Q[index, 0] = list[i];
+                    subEigenvectors.Add(matrixEigenvectors.Column(i));
+                    continue;
                 }
 
-                var (tauMatrixEigenvector, Vstar) = PreparedMatrixForForecasting(subEigenvectors, tau);
-                var numerator = (tauMatrixEigenvector * Vstar.Transpose() * Q)[0, 0];
-                var denominator = (1 - tauMatrixEigenvector * tauMatrixEigenvector.Transpose())[0, 0];
-                var newX = numerator / denominator;
-
-                list.Add(newX);
-                result.Add(newX);
+                // зануляем столбцы собственных векторов, которые незначимы (сглаживаем)
+                matrixEigenvectors.ClearColumn(i);
             }
 
-            return result.ToArray();
+            return subEigenvectors;
         }
 
         /// <summary>
@@ -232,10 +216,10 @@ namespace Analytic.AnalyticUnits.Profiles.SSA
         /// <param name="subEigenvectors"> Отобранные собственные вектора </param>
         /// <param name="tau"> Кол-во задержек </param>
         /// <returns>
-        ///     <see langword="tauMatrixEigenvector"/> Тау-вектор (последняя строка <paramref name="subEigenvectors"/>) <br/>
         ///     <see langword="Vstar"/> Матрица значимых собственных векторов без последней строки
+        ///     <see langword="tauMatrixEigenvector"/> Тау-вектор (последняя строка <paramref name="subEigenvectors"/>) <br/>
         /// </returns>
-        private (Matrix<double> tauMatrixEigenvector, Matrix<double> Vstar) PreparedMatrixForForecasting(
+        private (Matrix<double> Vstar, Matrix<double> tauMatrixEigenvector) GetPreparedMatrixForForecasting(
             List<Vector<double>> subEigenvectors,
             int tau)
         {
@@ -257,7 +241,45 @@ namespace Analytic.AnalyticUnits.Profiles.SSA
 
             var tauMatrixEigenvector = Matrix<double>.Build.DenseOfRowArrays(tauEigenvector);
 
-            return (tauMatrixEigenvector, Vstar);
+            return (Vstar, tauMatrixEigenvector);
+        }
+
+        /// <summary>
+        ///     Предсказывает сигнал
+        /// </summary>
+        /// <param name="Vstar"> Матрица значимых собственных векторов без последней строки </param>
+        /// <param name="tauMatrixEigenvector"> Тау-вектор (изъятая строка из <paramref name="Vstar"/>) </param>
+        /// <param name="array"> Исходыный массив </param>
+        /// <param name="tau"> Кол-во задержек </param>
+        /// <param name="neededForecastingCount"> Кол-во предсказаний </param>
+        private double[] ForecastingSignal(
+            Matrix<double> Vstar,
+            Matrix<double> tauMatrixEigenvector,
+            double[] array, 
+            int tau, 
+            int neededForecastingCount)
+        {
+            var list = array.ToList();
+            var result = new List<double>();
+
+            for (var k = 0; k < neededForecastingCount; k++)
+            {
+                var Q = Matrix<double>.Build.Dense(tau - 1, 1);
+                var index = 0;
+                for (var i = list.Count - tau + 1; i < list.Count && index < tau - 1; i++, index++)
+                {
+                    Q[index, 0] = list[i];
+                }
+
+                var numerator = (tauMatrixEigenvector * Vstar.Transpose() * Q)[0, 0];
+                var denominator = (1 - tauMatrixEigenvector * tauMatrixEigenvector.Transpose())[0, 0];
+                var newX = numerator / denominator;
+
+                list.Add(newX);
+                result.Add(newX);
+            }
+
+            return result.ToArray();
         }
 
         /// <summary>
@@ -267,10 +289,7 @@ namespace Analytic.AnalyticUnits.Profiles.SSA
         /// <param name="predictions"> Предсказанные данные </param>
         /// <param name="dateTimes"> Время получения оригинальных данных </param>
         /// <param name="pair"> Название пары </param>
-        /// <param name="minPrice"> Минимальная предсказанная цена </param>
-        /// <param name="maxPrice"> Максимальная предсказанная цена </param>
-        /// <param name="minIndex"> Индекс минимальной цены в массиве </param>
-        /// <param name="maxIndex"> Индекс максимальной цены в массиве </param>
+        /// <param name="minMaxPriceModel"> <see cref="MinMaxPriceModel"/> </param>
         /// <param name="imagePath"> Путь до изображения </param>
         /// <returns> <see langword="true"/> если изображение было успешно создано </returns>
         private bool CanCreateChart(
@@ -278,10 +297,7 @@ namespace Analytic.AnalyticUnits.Profiles.SSA
             double[] predictions,
             IEnumerable<DateTime> dateTimes,
             string pair,
-            double minPrice,
-            double maxPrice,
-            int minIndex,
-            int maxIndex,
+            MinMaxPriceModel minMaxPriceModel,
             out string imagePath)
         {
             var directoryPath = GetPathToCurrentAppDirectoryFolder(_graficsFolder);
@@ -308,8 +324,14 @@ namespace Analytic.AnalyticUnits.Profiles.SSA
                 plt.AddScatter(dateTimes.Select(_ => _.ToOADate()).ToArray(), original, label: "Real");
                 plt.AddScatter(timeForPredictions, predictions, label: "Predicted");
                 plt.XAxis.TickLabelFormat("g", dateTimeFormat: true);
-                plt.AddText($"Min: {minPrice:0.0000}", timeForPredictions[minIndex], minPrice, 17);
-                plt.AddText($"Max: {maxPrice:0.0000}", timeForPredictions[maxIndex], maxPrice, 17);
+                plt.AddText(
+                    $"Min: {minMaxPriceModel.MinPrice:0.0000}",
+                    timeForPredictions[minMaxPriceModel.MinIndex],
+                    minMaxPriceModel.MinPrice, 17);
+                plt.AddText(
+                    $"Max: {minMaxPriceModel.MaxPrice:0.0000}",
+                    timeForPredictions[minMaxPriceModel.MaxIndex],
+                    minMaxPriceModel.MaxPrice, 17);
 
                 plt.YAxis.Label("Price");
                 plt.XAxis.Label("Time");
@@ -363,19 +385,6 @@ namespace Analytic.AnalyticUnits.Profiles.SSA
             }
 
             return timeForPredictions;
-        }
-
-        /// <summary>
-        ///     Возвращает значения минимальной цены и максимальной цены
-        /// </summary>
-        private (double minPrice, int minIndex, double maxPrice, int maxIndex) GetMinMaxPredictedPrice(double[] predictions)
-        {
-            var minPrice = predictions.Min();
-            var minIndex = Array.IndexOf(predictions, minPrice);
-            var maxPrice = predictions.Max();
-            var maxIndex = Array.IndexOf(predictions, maxPrice);
-
-            return (minPrice, minIndex, maxPrice, maxIndex);
         }
 
         /// <summary>
