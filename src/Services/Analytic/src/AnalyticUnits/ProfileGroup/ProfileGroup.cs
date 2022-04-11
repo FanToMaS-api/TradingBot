@@ -1,5 +1,7 @@
 ﻿using Analytic.Models;
 using Microsoft.Extensions.DependencyInjection;
+using NLog;
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -11,6 +13,12 @@ namespace Analytic.AnalyticUnits
     /// </summary>
     public class ProfileGroup : IProfileGroup
     {
+        #region Fields
+
+        private readonly ILogger _logger = LogManager.GetCurrentClassLogger();
+
+        #endregion
+
         #region .ctor
 
         /// <inheritdoc cref="ProfileGroup"/>
@@ -49,9 +57,14 @@ namespace Analytic.AnalyticUnits
             var isOneSuccessful = false;
             foreach (var unit in AnalyticUnits)
             {
-                var (isSuccessful, resultModel) = await unit.TryAnalyzeAsync(serviceScopeFactory, model, cancellationToken);
-                if (isSuccessful)
+                try
                 {
+                    var (isSuccessful, resultModel) = await unit.TryAnalyzeAsync(serviceScopeFactory, model, cancellationToken);
+                    if (!isSuccessful)
+                    {
+                        continue;
+                    }
+
                     if (!isOneSuccessful)
                     {
                         analyticResultModel = resultModel;
@@ -63,6 +76,10 @@ namespace Analytic.AnalyticUnits
                     analyticResultModel.RecommendedPurchasePrice += resultModel.RecommendedPurchasePrice;
                     analyticResultModel.RecommendedSellingPrice += resultModel.RecommendedSellingPrice;
                     count++;
+                }
+                catch (Exception ex)
+                {
+                    _logger.Error(ex, $"Failed to analyze model '{model.TradeObjectName}' with unit '{unit.Name}'");
                 }
             }
 

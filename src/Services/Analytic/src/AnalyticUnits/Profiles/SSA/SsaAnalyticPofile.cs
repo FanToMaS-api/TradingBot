@@ -27,7 +27,7 @@ namespace Analytic.AnalyticUnits.Profiles.SSA
         private readonly ILogger _logger = LogManager.GetCurrentClassLogger();
         private readonly string _baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
         private const int _numberPricesToTake = 2000; // кол-во данных участвующих в предсказании цены
-        private const int _numberOfMinutesOfImageStorage = 5; // кол-во минут хранения изображения (не будут присылаться сообщения с изображением, дабы не спамить)
+        private const int _numberOfMinutesOfImageStorage = 2; // кол-во минут хранения изображения (не будут присылаться сообщения с изображением, дабы не спамить)
 
         #endregion
 
@@ -60,8 +60,7 @@ namespace Analytic.AnalyticUnits.Profiles.SSA
             using var scope = serviceScopeFactory.CreateScope();
             var databaseFactory = scope.ServiceProvider.GetRequiredService<IBinanceDbContextFactory>();
             using var database = databaseFactory.CreateScopeDatabase();
-            var enities = await database.HotUnitOfWork.HotMiniTickers
-                .GetArrayAsync(model.TradeObjectName, _numberPricesToTake, cancellationToken: cancellationToken);
+            var enities = database.HotUnitOfWork.HotMiniTickers.GetArray(model.TradeObjectName, _numberPricesToTake);
             if (!enities.Any())
             {
                 return (false, null);
@@ -80,11 +79,15 @@ namespace Analytic.AnalyticUnits.Profiles.SSA
             var canCreateChart = CanCreateChart(
                 data,
                 predictions,
-                enities.Last().ReceivedTime,
+                enities.First().ReceivedTime,
                 model.TradeObjectName,
                 out var imagePath,
                 out var minPrice,
                 out var maxPrice);
+            if (minPrice <= 0)
+            {
+                return (false, null);
+            }
 
             var result = new AnalyticResultModel()
             {
@@ -154,7 +157,7 @@ namespace Analytic.AnalyticUnits.Profiles.SSA
                 return x.Magnitude < y.Magnitude ? 1 : x.Magnitude == y.Magnitude ? 0 : -1;
             });
 
-            var neededLambda = eigenvaluesArray.Take(7);
+            var neededLambda = eigenvaluesArray.Take(12);
 
             var max = matrixEigenvalues.AbsoluteMaximum();
             var subMatrixEigenvectors = new List<Vector<double>>(); // понадобится для предсказаний
