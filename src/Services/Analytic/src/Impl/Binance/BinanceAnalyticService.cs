@@ -177,6 +177,8 @@ namespace Analytic.Binance
                 if (!_infoModels.ContainsKey(model.Name))
                 {
                     _infoModels[model.Name] = new(model.Name, model.Price);
+
+                    continue;
                 }
 
                 var infoModel = _infoModels[model.Name];

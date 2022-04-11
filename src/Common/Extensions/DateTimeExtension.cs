@@ -12,7 +12,7 @@ namespace Common.Extensions
         /// </summary>
         public static DateTime FromUnixToDateTime(this long unixTimeStampMilliseconds)
         {
-            var dateTime = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
+            var dateTime = new DateTime(1970, 1, 1, 0, 0, 0, 0);
             dateTime = dateTime.AddMilliseconds(unixTimeStampMilliseconds).ToLocalTime();
 
             return dateTime;

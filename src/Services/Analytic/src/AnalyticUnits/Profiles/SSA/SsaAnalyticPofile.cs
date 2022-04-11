@@ -2,14 +2,11 @@
 using BinanceDatabase;
 using BinanceDatabase.Entities;
 using BinanceDatabase.Repositories;
-using ExchangeLibrary;
 using MathNet.Numerics.LinearAlgebra;
 using Microsoft.Extensions.DependencyInjection;
 using NLog;
-using ScottPlot.Plottable;
 using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -83,7 +80,7 @@ namespace Analytic.AnalyticUnits.Profiles.SSA
             var canCreateChart = CanCreateChart(
                 data,
                 predictions,
-                enities[0].ReceivedTime,
+                enities.Last().ReceivedTime,
                 model.TradeObjectName,
                 out var imagePath,
                 out var minPrice,
@@ -157,7 +154,7 @@ namespace Analytic.AnalyticUnits.Profiles.SSA
                 return x.Magnitude < y.Magnitude ? 1 : x.Magnitude == y.Magnitude ? 0 : -1;
             });
 
-            var neededLambda = eigenvaluesArray.Take(6);
+            var neededLambda = eigenvaluesArray.Take(7);
 
             var max = matrixEigenvalues.AbsoluteMaximum();
             var subMatrixEigenvectors = new List<Vector<double>>(); // понадобится для предсказаний
@@ -279,7 +276,7 @@ namespace Analytic.AnalyticUnits.Profiles.SSA
 
             try
             {
-                var plt = new ScottPlot.Plot()
+                var plt = new ScottPlot.Plot(1000, 800)
                 {
                     Palette = ScottPlot.Palette.OneHalfDark
                 };
@@ -300,16 +297,20 @@ namespace Analytic.AnalyticUnits.Profiles.SSA
 
                 plt.AddScatter(timeForReal, original, label: "Real");
                 plt.AddScatter(timeForPredictions, predictions, label: "Predicted");
-                plt.XAxis.TickLabelFormat("t", dateTimeFormat: true);
-                plt.AddText($"Min: {minPrice:0.00}", timeForPredictions[minIndex], minPrice, 17);
-                plt.AddText($"Max: {minPrice:0.00}", timeForPredictions[maxIndex], maxPrice, 17);
+                plt.XAxis.TickLabelFormat("g", dateTimeFormat: true);
+                plt.AddText($"Min: {minPrice:0.0000}", timeForPredictions[minIndex], minPrice, 17);
+                plt.AddText($"Max: {minPrice:0.0000}", timeForPredictions[maxIndex], maxPrice, 17);
 
                 plt.YAxis.Label("Price");
                 plt.XAxis.Label("Time");
+                plt.XAxis.TickLabelStyle(rotation: 45);
                 plt.XAxis2.Label(pair);
                 plt.Legend(true, ScottPlot.Alignment.LowerLeft);
 
-                plt.Resize(1000, 800);
+                plt.Style(ScottPlot.Style.Gray1);
+                var bnColor = System.Drawing.ColorTranslator.FromHtml("#2e3440");
+                plt.Style(figureBackground: bnColor, dataBackground: bnColor, tick: System.Drawing.Color.WhiteSmoke);
+
                 plt.SaveFig(imagePath);
 
                 _logger.Trace($"Successful create grafic for model {pair}. Path: {imagePath}");

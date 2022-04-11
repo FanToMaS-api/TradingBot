@@ -107,11 +107,10 @@ namespace SignalsSender
             commonFilterGroup.AddFilter(priceDeviationFilter);
             _analyticService.AddFilterGroup(commonFilterGroup);
 
-            // отключил на время фильтр объемов
-            //var commonLatestFilterGroup = new FilterGroup("CommonLatestFilterGroup", FilterGroupType.CommonLatest, null);
-            //var volumeFilter = new VolumeFilter("VolumeFilter", percentDeviation: 0.05);
-            //commonLatestFilterGroup.AddFilter(volumeFilter);
-            //_analyticService.AddFilterGroup(commonLatestFilterGroup);
+            var commonLatestFilterGroup = new FilterGroup("CommonLatestFilterGroup", FilterGroupType.CommonLatest, null);
+            var volumeFilter = new VolumeFilter("VolumeBidFilter", VolumeType.Bid, VolumeComparisonType.GreaterThan, limit: 1);
+            commonLatestFilterGroup.AddFilter(volumeFilter);
+            _analyticService.AddFilterGroup(commonLatestFilterGroup);
 
             _analyticService.OnModelsFiltered += OnModelsFilteredReceived;
             _analyticService.OnSuccessfulAnalize += OnModelsToBuyReceived;
@@ -196,10 +195,10 @@ namespace SignalsSender
 
                     var pairSymbols = model.TradeObjectName.Insert(model.TradeObjectName.Length - symbol.Length, "/");
                     var pairName = pairSymbols.Replace("/", "_");
-                    var message = $"*{pairSymbols}*\n*Минимальная цена предсказания: {model.RecommendedPurchasePrice:0.0000}*";
+                    var message = $"*{pairSymbols}*\n*Минимальная цена предсказания: {model.RecommendedPurchasePrice:0.00000}*";
                     if (model.RecommendedSellingPrice is not null)
                     {
-                        message += $"\n*Максимальная цена предсказания: {model.RecommendedSellingPrice.Value:0.0000}*";
+                        message += $"\n*Максимальная цена предсказания: {model.RecommendedSellingPrice.Value:0.00000}*";
                     }
 
                     message = message.Replace(".", "\\.");
