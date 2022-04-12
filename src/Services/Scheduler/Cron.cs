@@ -27,7 +27,7 @@ namespace Scheduler
         /// <summary>
         ///     Ежеминутно в определенную секунду
         /// </summary>
-        public static string MinutelyAt(int second) => $"{second} * * ? * *";
+        public static string MinutelyOnSecond(int second) => $"{second} * * ? * *";
 
         /// <summary>
         ///     Ежечасно

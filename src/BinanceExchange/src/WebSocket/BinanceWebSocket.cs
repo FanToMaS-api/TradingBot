@@ -161,21 +161,6 @@ namespace BinanceExchange.WebSocket
             }
         }
 
-        /// <summary>
-        ///     Проверяет на успешное завершение таски, бросает исключения если таска провалилась
-        /// </summary>
-        /// <param name="task"></param>
-        private static void CheckTaskException(Task task)
-        {
-            if (task.Status == TaskStatus.Faulted)
-            {
-                foreach (var e in task.Exception.InnerExceptions)
-                {
-                    throw e;
-                }
-            }
-        }
-
         #endregion
 
         #region Implementation IDisposable

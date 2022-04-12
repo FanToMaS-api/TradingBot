@@ -67,8 +67,8 @@ namespace Analytic.AnalyticUnits.Profiles.SSA
                 return (false, null);
             }
 
-            var data = enities.Select(_ => _.Price).ToArray();
-            var predictions = SSA(data);
+            var prices = enities.Select(_ => _.Price).ToArray();
+            var predictions = SSA(prices);
             if (!predictions.Any())
             {
                 return (false, null);
@@ -84,7 +84,7 @@ namespace Analytic.AnalyticUnits.Profiles.SSA
             }
 
             var canCreateChart = CanCreateChart(
-                data,
+                prices,
                 predictions,
                 enities.Select(_ => _.ReceivedTime),
                 model.TradeObjectName,
@@ -118,28 +118,26 @@ namespace Analytic.AnalyticUnits.Profiles.SSA
         ///     используется для определения основных составляющих временного ряда 
         ///     и подавления шума
         /// </remarks>
-        double[] SSA(double[] array)
+        double[] SSA(double[] prices)
         {
             #region Преобразование одномерного ряда в многомерный
 
-            var tau = (array.Length + 1) / 2;
-            var n = array.Length - tau + 1;
+            var tau_delayNumber = (prices.Length + 1) / 2;
+            var n = prices.Length - tau_delayNumber + 1;
 
-            var rectangleMatrix = Matrix<double>.Build.Dense(tau, n);
-            for (var i = 0; i < tau; i++)
+            var rectangleMatrix = Matrix<double>.Build.Dense(tau_delayNumber, n);
+            for (var i = 0; i < tau_delayNumber; i++)
             {
                 for (var j = 0; j < n; j++)
                 {
-                    rectangleMatrix[i, j] = array[i + j];
+                    rectangleMatrix[i, j] = prices[i + j];
                 }
             }
 
             #endregion
 
             // Построение ковариационной матрицы
-            var transposeMatr = rectangleMatrix.Transpose();
-            var multiplicationMatrix = rectangleMatrix * transposeMatr;
-
+            var multiplicationMatrix = rectangleMatrix.TransposeThisAndMultiply(rectangleMatrix);
             var covariationMatrix = 1 / (double)n * multiplicationMatrix;
 
             // Определение собственных значений и собственных векторов матрицы
@@ -170,17 +168,16 @@ namespace Analytic.AnalyticUnits.Profiles.SSA
             var newX = (matrixEigenvectors * mainComponents).ToArray();
 
             // Восстанавливаю сигнал
-            // var N = array.Length;
-            // var result = SignalRecovery(newX, N, tau);
+            // var result = SignalRecovery(newX, array.Length, tau);
 
             // предсказываем только четвертую часть от исходных данных
-            var (Vstar, tauMatrixEigenvector) = GetPreparedMatrixForForecasting(subMatrixEigenvectors, tau);
+            var (Vstar, tauMatrixEigenvector) = GetPreparedMatrixForForecasting(subMatrixEigenvectors, tau_delayNumber);
             var predictions = ForecastingSignal(
                 Vstar,
                 tauMatrixEigenvector,
-                array,
-                tau,
-                array.Length / 4);
+                prices,
+                tau_delayNumber,
+                prices.Length / 4);
 
             return predictions;
         }
@@ -250,23 +247,23 @@ namespace Analytic.AnalyticUnits.Profiles.SSA
         /// <param name="Vstar"> Матрица значимых собственных векторов без последней строки </param>
         /// <param name="tauMatrixEigenvector"> Тау-вектор (изъятая строка из <paramref name="Vstar"/>) </param>
         /// <param name="array"> Исходыный массив </param>
-        /// <param name="tau"> Кол-во задержек </param>
+        /// <param name="tau_delayNumber"> Кол-во задержек </param>
         /// <param name="neededForecastingCount"> Кол-во предсказаний </param>
         private double[] ForecastingSignal(
             Matrix<double> Vstar,
             Matrix<double> tauMatrixEigenvector,
             double[] array, 
-            int tau, 
+            int tau_delayNumber, 
             int neededForecastingCount)
         {
             var list = array.ToList();
-            var result = new List<double>();
+            var predictions = new List<double>();
 
             for (var k = 0; k < neededForecastingCount; k++)
             {
-                var Q = Matrix<double>.Build.Dense(tau - 1, 1);
+                var Q = Matrix<double>.Build.Dense(tau_delayNumber - 1, 1);
                 var index = 0;
-                for (var i = list.Count - tau + 1; i < list.Count && index < tau - 1; i++, index++)
+                for (var i = list.Count - tau_delayNumber + 1; i < list.Count && index < tau_delayNumber - 1; i++, index++)
                 {
                     Q[index, 0] = list[i];
                 }
@@ -276,10 +273,10 @@ namespace Analytic.AnalyticUnits.Profiles.SSA
                 var newX = numerator / denominator;
 
                 list.Add(newX);
-                result.Add(newX);
+                predictions.Add(newX);
             }
 
-            return result.ToArray();
+            return predictions.ToArray();
         }
 
         /// <summary>
@@ -300,7 +297,7 @@ namespace Analytic.AnalyticUnits.Profiles.SSA
             MinMaxPriceModel minMaxPriceModel,
             out string imagePath)
         {
-            var directoryPath = GetPathToCurrentAppDirectoryFolder(_graficsFolder);
+            var directoryPath = GetOrCreateFolderPath(_graficsFolder);
             imagePath = Path.Combine(directoryPath, $"{pair}.png");
             if (File.Exists(imagePath) && File.GetCreationTime(imagePath).AddMinutes(_numberOfMinutesOfImageStorage) > DateTime.Now)
             {
@@ -310,7 +307,7 @@ namespace Analytic.AnalyticUnits.Profiles.SSA
 
             try
             {
-                var plt = new ScottPlot.Plot(1000, 800)
+                var plot = new ScottPlot.Plot(1000, 800)
                 {
                     Palette = ScottPlot.Palette.OneHalfDark
                 };
@@ -321,29 +318,29 @@ namespace Analytic.AnalyticUnits.Profiles.SSA
                 var offset = (int)Math.Ceiling(Math.Abs((startTimeForPredictionsData - endTime).TotalSeconds / dateTimes.Count()));
                 var timeForPredictions = CreatePredictionsDates(startTimeForPredictionsData, predictions.Length, offset);
 
-                plt.AddScatter(dateTimes.Select(_ => _.ToOADate()).ToArray(), original, label: "Real");
-                plt.AddScatter(timeForPredictions, predictions, label: "Predicted");
-                plt.XAxis.TickLabelFormat("g", dateTimeFormat: true);
-                plt.AddText(
+                plot.AddScatter(dateTimes.Select(_ => _.ToOADate()).ToArray(), original, label: "Real");
+                plot.AddScatter(timeForPredictions, predictions, label: "Predicted");
+                plot.XAxis.TickLabelFormat("g", dateTimeFormat: true);
+                plot.AddText(
                     $"Min: {minMaxPriceModel.MinPrice:0.0000}",
                     timeForPredictions[minMaxPriceModel.MinIndex],
                     minMaxPriceModel.MinPrice, 17);
-                plt.AddText(
+                plot.AddText(
                     $"Max: {minMaxPriceModel.MaxPrice:0.0000}",
                     timeForPredictions[minMaxPriceModel.MaxIndex],
                     minMaxPriceModel.MaxPrice, 17);
 
-                plt.YAxis.Label("Price");
-                plt.XAxis.Label("Time");
-                plt.XAxis.TickLabelStyle(rotation: 45);
-                plt.XAxis2.Label(pair);
-                plt.Legend(true, ScottPlot.Alignment.LowerLeft);
+                plot.YAxis.Label("Price");
+                plot.XAxis.Label("Time");
+                plot.XAxis.TickLabelStyle(rotation: 45);
+                plot.XAxis2.Label(pair);
+                plot.Legend(true, ScottPlot.Alignment.LowerLeft);
 
-                plt.Style(ScottPlot.Style.Gray1);
+                plot.Style(ScottPlot.Style.Gray1);
                 var bnColor = System.Drawing.ColorTranslator.FromHtml("#2e3440");
-                plt.Style(figureBackground: bnColor, dataBackground: bnColor, tick: System.Drawing.Color.WhiteSmoke);
+                plot.Style(figureBackground: bnColor, dataBackground: bnColor, tick: System.Drawing.Color.WhiteSmoke);
 
-                plt.SaveFig(imagePath);
+                plot.SaveFig(imagePath);
 
                 _logger.Trace($"Successful create grafic for model {pair}. Path: {imagePath}");
             }
@@ -358,9 +355,9 @@ namespace Analytic.AnalyticUnits.Profiles.SSA
         }
 
         /// <summary>
-        ///     Возвращает путь до директории указанной директории, создает, если ее не существовало
+        ///     Возвращает путь до указанной папки, создает, если ее не существовало
         /// </summary>
-        private string GetPathToCurrentAppDirectoryFolder(string directoryName)
+        private string GetOrCreateFolderPath(string directoryName)
         {
             var directoryPath = Path.Combine(_baseDirectory, directoryName);
             if (!Directory.Exists(directoryPath))
@@ -377,14 +374,14 @@ namespace Analytic.AnalyticUnits.Profiles.SSA
         /// </summary>
         private double[] CreatePredictionsDates(DateTime from, int predictionDataLength, int offset)
         {
-            var timeForPredictions = new double[predictionDataLength];
+            var timesForPredictions = new double[predictionDataLength];
             for (var i = 0; i < predictionDataLength; i++)
             {
                 from = from.AddSeconds(offset);
-                timeForPredictions[i] = from.ToOADate();
+                timesForPredictions[i] = from.ToOADate();
             }
 
-            return timeForPredictions;
+            return timesForPredictions;
         }
 
         /// <summary>
@@ -422,15 +419,15 @@ namespace Analytic.AnalyticUnits.Profiles.SSA
         ///     Восстанавливает сигнал
         /// </summary>
         /// <param name="newX"> Восстановленная исходная матрица </param>
-        /// <param name="N"> Кол-во значений в первоначальном векторе-сигнале </param>
-        /// <param name="tau"> Число задержек </param>
-        private double[] SignalRecovery(double[,] newX, int N, int tau)
+        /// <param name="pricesLength"> Кол-во значений в первоначальном векторе-сигнале </param>
+        /// <param name="tau_delayNumber"> Число задержек </param>
+        private double[] SignalRecovery(double[,] newX, int pricesLength, int tau_delayNumber)
         {
             var result = new List<double>();
-            var n = N - tau + 1;
-            for (var s = 1; s <= N; s++)
+            var n = pricesLength - tau_delayNumber + 1;
+            for (var s = 1; s <= pricesLength; s++)
             {
-                if (s < tau)
+                if (s < tau_delayNumber)
                 {
                     var item = 0d;
                     for (var i = 0; i < s; i++)
@@ -445,22 +442,22 @@ namespace Analytic.AnalyticUnits.Profiles.SSA
                 if (s < n)
                 {
                     var item = 0d;
-                    for (var i = 0; i < tau; i++)
+                    for (var i = 0; i < tau_delayNumber; i++)
                     {
                         item += newX[i, s - i - 1];
                     }
 
-                    result.Add(item / tau);
+                    result.Add(item / tau_delayNumber);
                     continue;
                 }
 
                 var lastItem = 0d;
-                for (var i = 0; i < (N - s + 1); i++)
+                for (var i = 0; i < (pricesLength - s + 1); i++)
                 {
                     lastItem += newX[i + s - n, n - i - 1];
                 }
 
-                result.Add(lastItem / (N - s + 1));
+                result.Add(lastItem / (pricesLength - s + 1));
             }
 
             return result.ToArray();

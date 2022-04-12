@@ -19,9 +19,9 @@ namespace Analytic
         List<IProfileGroup> ProfileGroups { get; }
 
         /// <summary>
-        ///     Фильтры данных
+        ///     Менеджер фильтров
         /// </summary>
-        List<IFilterGroup> FilterGroups { get; }
+        FilterManagerBase FilterManager { get; }
 
         /// <summary>
         ///     Событие, возникающее после фильтрации полученных данных 
@@ -36,7 +36,7 @@ namespace Analytic
         /// <summary>
         ///     Запускает сервис аналитики
         /// </summary>
-        Task RunAsync(CancellationToken cancellationToken);
+        Task RunAsync(FilterManagerBase filterManager, CancellationToken cancellationToken);
 
         /// <summary>
         ///     Останавливает сервис аналитики
@@ -59,22 +59,5 @@ namespace Analytic
         /// </summary>
         /// <returns> True, если удаление прошло успешно </returns>
         bool RemoveProfile(string profileName);
-
-        /// <summary>
-        ///     Добавить группу фильтров
-        /// </summary>
-        void AddFilterGroup(IFilterGroup filterGroup);
-
-        /// <summary>
-        ///     Удалить группу фильтров
-        /// </summary>
-        /// <returns> True, если удаление прошло успешно </returns>
-        bool RemoveFilterGroup(IFilterGroup filterGroup);
-
-        /// <summary>
-        ///     Удалить фильтр
-        /// </summary>
-        /// <returns> True, если удаление прошло успешно </returns>
-        bool RemoveFilter(string filterName);
     }
 }

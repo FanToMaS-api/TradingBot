@@ -16,7 +16,7 @@ namespace Analytic.AnalyticUnits.Profiles.SSA
         /// <summary>
         ///     Создает модель
         /// </summary>
-        /// <param name="predictions"> Предсказанные занчения </param>
+        /// <param name="predictions"> Предсказанные значения </param>
         public static MinMaxPriceModel Create(double[] predictions)
         {
             var minPrice = predictions.Min();

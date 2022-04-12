@@ -15,7 +15,7 @@ namespace Analytic.AnalyticUnits
     {
         #region Fields
 
-        private readonly ILogger _logger = LogManager.GetCurrentClassLogger();
+        private static readonly ILogger Log = LogManager.GetCurrentClassLogger();
 
         #endregion
 
@@ -79,7 +79,7 @@ namespace Analytic.AnalyticUnits
                 }
                 catch (Exception ex)
                 {
-                    _logger.Error(ex, $"Failed to analyze model '{model.TradeObjectName}' with unit '{unit.Name}'");
+                    Log.Error(ex, $"Failed to analyze model '{model.TradeObjectName}' with unit '{unit.Name}'");
                 }
             }
 

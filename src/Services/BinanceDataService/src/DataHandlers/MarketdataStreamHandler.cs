@@ -59,7 +59,7 @@ namespace BinanceDataService.DataHandlers
         public async Task StartAsync(CancellationToken cancellationToken)
         {
             _cancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
-            _webSocket = _exchange.MarketdataStreams.SubscribeAllMarketMiniTickersStream(HandleAsync, cancellationToken, OnClosedHandler);
+            _webSocket = _exchange.MarketdataStreams.SubscribeAllMarketMiniTickersStream(HandleAsync, cancellationToken, WebSocketCloseHandler);
 
             Task.Run(async () => await StartWebSocket(_cancellationTokenSource.Token), cancellationToken);
 
@@ -169,14 +169,14 @@ namespace BinanceDataService.DataHandlers
         }
 
         /// <summary>
-        ///     Возвращает аггрегированные (через усреднение) данные о минитикерах
+        ///     Возвращает аггрегированные (через усреднение) данные о мини-тикерах
         /// </summary>
         private MiniTickerEntity[] GetGroupedMiniTickers(AggregateDataIntervalType intervalType, IEnumerable<MiniTradeObjectStreamModel> streamModels)
         {
-            var data = _mapper.Map<IEnumerable<MiniTickerEntity>>(streamModels).GroupBy(_ => _.ShortName);
+            var groupsByName = _mapper.Map<IEnumerable<MiniTickerEntity>>(streamModels).GroupBy(_ => _.ShortName);
             var interval = intervalType.ConvertToTimeSpan();
-            var result = new List<MiniTickerEntity>();
-            foreach (var group in data)
+            var aggregatedMiniTickers = new List<MiniTickerEntity>();
+            foreach (var group in groupsByName)
             {
                 var first = group.FirstOrDefault();
                 if (first is null)
@@ -186,7 +186,7 @@ namespace BinanceDataService.DataHandlers
 
                 var start = first.EventTime;
                 var counter = 0;
-                var isDataLeft = false;
+                var isNotDistributedItemsLeft = false;
                 var aggregateObject = new MiniTickerEntity()
                 {
                     ShortName = group.Key,
@@ -196,11 +196,11 @@ namespace BinanceDataService.DataHandlers
 
                 foreach (var item in group)
                 {
-                    isDataLeft = true;
+                    isNotDistributedItemsLeft = true;
                     if (start - item.EventTime >= interval)
                     {
                         AveragingFields(aggregateObject, counter);
-                        AddToResult(result, aggregateObject, ref counter, ref isDataLeft);
+                        AddToResult(aggregatedMiniTickers, aggregateObject, ref counter, ref isNotDistributedItemsLeft);
                         aggregateObject = item;
                         start = item.EventTime;
                         continue;
@@ -210,14 +210,14 @@ namespace BinanceDataService.DataHandlers
                     counter++;
                 }
 
-                if (isDataLeft)
+                if (isNotDistributedItemsLeft)
                 {
                     AveragingFields(aggregateObject, counter);
-                    AddToResult(result, aggregateObject, ref counter, ref isDataLeft);
+                    AddToResult(aggregatedMiniTickers, aggregateObject, ref counter, ref isNotDistributedItemsLeft);
                 }
             }
 
-            return result.ToArray();
+            return aggregatedMiniTickers.ToArray();
         }
 
         /// <summary>
@@ -226,12 +226,12 @@ namespace BinanceDataService.DataHandlers
         /// <param name="counter"> Счетчик усредненных моделей </param>
         /// <param name="isDataLeft"> Флаг, что усредненных данных больше нет </param>
         private void AddToResult(
-            List<MiniTickerEntity> result,
+            List<MiniTickerEntity> aggregatedMiniTickers,
             MiniTickerEntity aggregateObject,
             ref int counter,
             ref bool isDataLeft)
         {
-            result.Add(aggregateObject);
+            aggregatedMiniTickers.Add(aggregateObject);
             counter = 0;
             isDataLeft = false;
         }
@@ -265,7 +265,7 @@ namespace BinanceDataService.DataHandlers
         /// <summary>
         ///     Обработчик закрытия стрима
         /// </summary>
-        private void OnClosedHandler()
+        private void WebSocketCloseHandler()
         {
             _logger.Info("The websocket has been closed. Restarting stream...");
 

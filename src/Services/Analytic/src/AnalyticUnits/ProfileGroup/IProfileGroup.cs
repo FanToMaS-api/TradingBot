@@ -37,7 +37,7 @@ namespace Analytic.AnalyticUnits
         void ChangeProfileActivity(bool isAsctive);
 
         /// <summary>
-        ///     Удаляет анализатор или профиль анализаторов
+        ///     Удаляет профиль аналитики
         /// </summary>
         /// <returns> True, если удаление прошло успешно </returns>
         bool Remove(string name);
@@ -48,8 +48,8 @@ namespace Analytic.AnalyticUnits
         /// <param name="model"> Модель </param>
         /// <param name="cancellationToken"> Токен отмены </param>
         /// <returns> 
-        ///     <see langword="true, model"/> Если объект стоит купить <br/>
-        ///     <see langword="false"/> Если объект не стоит покупать
+        ///     <see langword="true, model"/> Если объект был успешно проанализирован<br/>
+        ///     <see langword="false, null"/> Если объект был успешно проанализирован
         /// </returns>
         Task<(bool isSuccessfulAnalyze, AnalyticResultModel resultModel)> TryAnalyzeAsync(
             IServiceScopeFactory serviceScopeFactory,
