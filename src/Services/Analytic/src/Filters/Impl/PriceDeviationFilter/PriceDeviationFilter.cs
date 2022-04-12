@@ -57,14 +57,14 @@ namespace Analytic.Filters
         /// <inheritdoc />
         public bool CheckConditions(InfoModel model)
         {
-            var summDeviations = model.PricePercentDeviations.Take(TimeframeNumber).Sum();
-            model.SumDeviations = summDeviations;
+            var deviationsSum = model.PricePercentDeviations.TakeLast(TimeframeNumber).Sum();
+            model.SumDeviations = deviationsSum;
 
             return ComparisonType switch
                 {
-                    ComparisonType.GreaterThan => summDeviations > Limit,
-                    ComparisonType.LessThan => summDeviations < Limit,
-                    ComparisonType.Equal => summDeviations == Limit,
+                    ComparisonType.GreaterThan => deviationsSum > Limit,
+                    ComparisonType.LessThan => deviationsSum < Limit,
+                    ComparisonType.Equal => deviationsSum == Limit,
                     _ => throw new NotImplementedException(),
                 };
         }

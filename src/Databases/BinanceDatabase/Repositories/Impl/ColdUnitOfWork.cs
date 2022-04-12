@@ -8,9 +8,10 @@ namespace BinanceDatabase.Repositories
         #region .ctor
 
         /// <inheritdoc cref="ColdUnitOfWork"/>
-        public ColdUnitOfWork(IMiniTickerRepository miniTickerRepository)
+        public ColdUnitOfWork(IMiniTickerRepository miniTickerRepository, IPredictionRepository predictionRepository)
         {
             MiniTickers = miniTickerRepository;
+            Predictions = predictionRepository;
         }
 
         #endregion
@@ -19,6 +20,9 @@ namespace BinanceDatabase.Repositories
 
         /// <inheritdoc />
         public IMiniTickerRepository MiniTickers { get; }
+
+        /// <inheritdoc />
+        public IPredictionRepository Predictions { get; }
 
         #endregion
     }

@@ -142,10 +142,9 @@ namespace BinanceExchange.WebSocket
                         }
 
                         var content = Encoding.UTF8.GetString(buffer.Slice(0, receiveResult.Count).ToArray());
-                        _onMessageReceivedFunctions.ForEach(func =>
+                        _onMessageReceivedFunctions.ForEach(async func =>
                         {
-                            var task = func(content);
-                            CheckTaskException(task);
+                            await func(content);
                         });
                     }
                     catch (Exception ex)
@@ -159,21 +158,6 @@ namespace BinanceExchange.WebSocket
             {
                 Log.Error(ex, $"The recieve loop was cancelled.");
                 await DisconnectAsync(CancellationToken.None);
-            }
-        }
-
-        /// <summary>
-        ///     Проверяет на успешное завершение таски, бросает исключения если таска провалилась
-        /// </summary>
-        /// <param name="task"></param>
-        private static void CheckTaskException(Task task)
-        {
-            if (task.Status == TaskStatus.Faulted)
-            {
-                foreach (var e in task.Exception.InnerExceptions)
-                {
-                    throw e;
-                }
             }
         }
 

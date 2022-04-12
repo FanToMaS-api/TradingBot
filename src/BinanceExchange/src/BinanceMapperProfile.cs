@@ -57,6 +57,7 @@ namespace BinanceExchange
                 .ForMember(_ => _.OpenPrice, _ => _.MapFrom(_ => _.Kline.OpenPrice))
                 .ForMember(_ => _.MinPrice, _ => _.MapFrom(_ => _.Kline.MinPrice))
                 .ForMember(_ => _.MaxPrice, _ => _.MapFrom(_ => _.Kline.MaxPrice))
+                .ForMember(_ => _.ShortName, _ => _.MapFrom(_ => _.Symbol))
                 .ForMember(_ => _.Volume, _ => _.MapFrom(_ => _.Kline.Volume))
                 .ForMember(_ => _.ClosePrice, _ => _.MapFrom(_ => _.Kline.ClosePrice))
                 .ForMember(_ => _.IsKlineClosed, _ => _.MapFrom(_ => _.Kline.IsKlineClosed))

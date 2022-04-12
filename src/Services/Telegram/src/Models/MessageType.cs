@@ -14,5 +14,10 @@
         ///     Сообщение с инлайн-кнопкой
         /// </summary>
         WithInlineButton,
+
+        /// <summary>
+        ///     С картинкой
+        /// </summary>
+        WithImage,
     }
 }

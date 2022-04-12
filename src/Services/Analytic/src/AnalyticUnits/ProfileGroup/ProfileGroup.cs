@@ -1,5 +1,7 @@
 ﻿using Analytic.Models;
-using ExchangeLibrary;
+using Microsoft.Extensions.DependencyInjection;
+using NLog;
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -11,6 +13,12 @@ namespace Analytic.AnalyticUnits
     /// </summary>
     public class ProfileGroup : IProfileGroup
     {
+        #region Fields
+
+        private static readonly ILogger Log = LogManager.GetCurrentClassLogger();
+
+        #endregion
+
         #region .ctor
 
         /// <inheritdoc cref="ProfileGroup"/>
@@ -25,7 +33,7 @@ namespace Analytic.AnalyticUnits
         #region Properties
 
         /// <inheritdoc />
-        public List<IAnalyticUnit> AnalyticUnits { get; } = new();
+        public List<IAnalyticProfile> AnalyticUnits { get; } = new();
 
         /// <inheritdoc />
         public string Name { get; }
@@ -39,35 +47,55 @@ namespace Analytic.AnalyticUnits
 
         /// <inheritdoc />
         public async Task<(bool isSuccessfulAnalyze, AnalyticResultModel resultModel)> TryAnalyzeAsync(
-            IExchange exchange,
+            IServiceScopeFactory serviceScopeFactory,
             InfoModel model,
             CancellationToken cancellationToken)
         {
-            var analyticResultModel = new AnalyticResultModel()
-            {
-                TradeObjectName = model.TradeObjectName,
-            };
+            AnalyticResultModel analyticResultModel = null;
 
             var count = 0;
             var isOneSuccessful = false;
             foreach (var unit in AnalyticUnits)
             {
-                var (isSuccessful, resultModel) = await unit.TryAnalyzeAsync(exchange, model, cancellationToken);
-                if (isSuccessful)
+                try
                 {
-                    isOneSuccessful = true;
+                    var (isSuccessful, resultModel) = await unit.TryAnalyzeAsync(serviceScopeFactory, model, cancellationToken);
+                    if (!isSuccessful)
+                    {
+                        continue;
+                    }
+
+                    if (!isOneSuccessful)
+                    {
+                        analyticResultModel = resultModel;
+                        isOneSuccessful = true;
+                        count++;
+                        continue;
+                    }
+
                     analyticResultModel.RecommendedPurchasePrice += resultModel.RecommendedPurchasePrice;
+                    analyticResultModel.RecommendedSellingPrice += resultModel.RecommendedSellingPrice;
                     count++;
+                }
+                catch (Exception ex)
+                {
+                    Log.Error(ex, $"Failed to analyze model '{model.TradeObjectName}' with unit '{unit.Name}'");
                 }
             }
 
-            analyticResultModel.RecommendedPurchasePrice /= count == 0 ? 0 : count;
+            // TODO: Усреднять через список полученных моделей
+            if (isOneSuccessful)
+            {
+                analyticResultModel.RecommendedPurchasePrice /= count == 0 ? 1 : count;
+                analyticResultModel.RecommendedSellingPrice /= count == 0 ? 1 : count;
+            }
+
             return (isOneSuccessful, analyticResultModel);
         }
 
         /// <inheritdoc />
 
-        public void AddAnalyticUnit(IAnalyticUnit unit) => AnalyticUnits.Add(unit);
+        public void AddAnalyticUnit(IAnalyticProfile unit) => AnalyticUnits.Add(unit);
 
         /// <inheritdoc />
         public bool Remove(string name)
@@ -77,11 +105,6 @@ namespace Analytic.AnalyticUnits
                 if (unit.Name == name)
                 {
                     return AnalyticUnits.Remove(unit);
-                }
-
-                if (unit.Remove(name))
-                {
-                    return true;
                 }
             }
 

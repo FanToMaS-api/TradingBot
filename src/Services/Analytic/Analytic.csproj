@@ -5,10 +5,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="MathNet.Numerics" Version="5.0.0" />
     <PackageReference Include="Quartz" Version="3.4.0" />
+    <PackageReference Include="ScottPlot" Version="4.1.40" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\Databases\BinanceDatabase\BinanceDatabase.csproj" />
     <ProjectReference Include="..\..\Libraries\ExchangeLibrary\ExchangeLibrary.csproj" />
     <ProjectReference Include="..\Scheduler\Scheduler.csproj" />
   </ItemGroup>
