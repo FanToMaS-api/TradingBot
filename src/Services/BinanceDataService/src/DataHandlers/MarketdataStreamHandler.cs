@@ -31,6 +31,7 @@ namespace BinanceDataService.DataHandlers
         private readonly IRecurringJobScheduler _scheduler;
         private readonly IMapper _mapper;
         private TriggerKey _triggerKey;
+        private TriggerKey _dataDelitionTriggerKey;
         private readonly List<MiniTradeObjectStreamModel> _mainModelsStorage = new();
         private readonly List<MiniTradeObjectStreamModel> _assistantModelsStorage = new();
         private bool _isAssistantStorageSaving;
@@ -58,11 +59,12 @@ namespace BinanceDataService.DataHandlers
         public async Task StartAsync(CancellationToken cancellationToken)
         {
             _cancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
-            _webSocket = _exchange.MarketdataStreams.SubscribeAllMarketMiniTickersStream(HandleAsync, cancellationToken, OnClosedHandler);
+            _webSocket = _exchange.MarketdataStreams.SubscribeAllMarketMiniTickersStream(HandleAsync, cancellationToken, WebSocketCloseHandler);
 
             Task.Run(async () => await StartWebSocket(_cancellationTokenSource.Token), cancellationToken);
 
-            _triggerKey = await _scheduler.ScheduleAsync(Cron.EveryNthMinute(3), SaveDataAsync);
+            _triggerKey = await _scheduler.ScheduleAsync(Cron.Minutely(), SaveDataAsync);
+            _dataDelitionTriggerKey = await _scheduler.ScheduleAsync(Cron.Daily(), DeleteDataAsync);
 
             _logger.Info("Marketdata handler launched successfully!");
         }
@@ -71,6 +73,7 @@ namespace BinanceDataService.DataHandlers
         public Task StopAsync()
         {
             _scheduler?.UnscheduleAsync(_triggerKey);
+            _scheduler?.UnscheduleAsync(_dataDelitionTriggerKey);
             _cancellationTokenSource?.Cancel();
             _cancellationTokenSource?.Dispose();
             _webSocket?.Dispose();
@@ -166,14 +169,14 @@ namespace BinanceDataService.DataHandlers
         }
 
         /// <summary>
-        ///     Возвращает аггрегированные (через усреднение) данные о минитикерах
+        ///     Возвращает аггрегированные (через усреднение) данные о мини-тикерах
         /// </summary>
         private MiniTickerEntity[] GetGroupedMiniTickers(AggregateDataIntervalType intervalType, IEnumerable<MiniTradeObjectStreamModel> streamModels)
         {
-            var data = _mapper.Map<IEnumerable<MiniTickerEntity>>(streamModels).GroupBy(_ => _.ShortName);
+            var groupsByName = _mapper.Map<IEnumerable<MiniTickerEntity>>(streamModels).GroupBy(_ => _.ShortName);
             var interval = intervalType.ConvertToTimeSpan();
-            var result = new List<MiniTickerEntity>();
-            foreach (var group in data)
+            var aggregatedMiniTickers = new List<MiniTickerEntity>();
+            foreach (var group in groupsByName)
             {
                 var first = group.FirstOrDefault();
                 if (first is null)
@@ -183,7 +186,7 @@ namespace BinanceDataService.DataHandlers
 
                 var start = first.EventTime;
                 var counter = 0;
-                var isDataLeft = false;
+                var isNotDistributedItemsLeft = false;
                 var aggregateObject = new MiniTickerEntity()
                 {
                     ShortName = group.Key,
@@ -193,11 +196,11 @@ namespace BinanceDataService.DataHandlers
 
                 foreach (var item in group)
                 {
-                    isDataLeft = true;
+                    isNotDistributedItemsLeft = true;
                     if (start - item.EventTime >= interval)
                     {
                         AveragingFields(aggregateObject, counter);
-                        AddToResult(result, aggregateObject, ref counter, ref isDataLeft);
+                        AddToResult(aggregatedMiniTickers, aggregateObject, ref counter, ref isNotDistributedItemsLeft);
                         aggregateObject = item;
                         start = item.EventTime;
                         continue;
@@ -207,14 +210,14 @@ namespace BinanceDataService.DataHandlers
                     counter++;
                 }
 
-                if (isDataLeft)
+                if (isNotDistributedItemsLeft)
                 {
                     AveragingFields(aggregateObject, counter);
-                    AddToResult(result, aggregateObject, ref counter, ref isDataLeft);
+                    AddToResult(aggregatedMiniTickers, aggregateObject, ref counter, ref isNotDistributedItemsLeft);
                 }
             }
 
-            return result.ToArray();
+            return aggregatedMiniTickers.ToArray();
         }
 
         /// <summary>
@@ -223,12 +226,12 @@ namespace BinanceDataService.DataHandlers
         /// <param name="counter"> Счетчик усредненных моделей </param>
         /// <param name="isDataLeft"> Флаг, что усредненных данных больше нет </param>
         private void AddToResult(
-            List<MiniTickerEntity> result,
+            List<MiniTickerEntity> aggregatedMiniTickers,
             MiniTickerEntity aggregateObject,
             ref int counter,
             ref bool isDataLeft)
         {
-            result.Add(aggregateObject);
+            aggregatedMiniTickers.Add(aggregateObject);
             counter = 0;
             isDataLeft = false;
         }
@@ -262,11 +265,33 @@ namespace BinanceDataService.DataHandlers
         /// <summary>
         ///     Обработчик закрытия стрима
         /// </summary>
-        private void OnClosedHandler()
+        private void WebSocketCloseHandler()
         {
             _logger.Info("The websocket has been closed. Restarting stream...");
 
             Task.Run(async () => await _webSocket.ConnectAsync(_cancellationTokenSource.Token), _cancellationTokenSource.Token);
+        }
+
+        /// <summary>
+        ///     Удаляет накопившиеся данные
+        /// </summary>
+        private async Task DeleteDataAsync(IServiceProvider serviceProvider)
+        {
+            var now = DateTime.Now;
+            var databaseFactory = serviceProvider.GetRequiredService<IBinanceDbContextFactory>();
+            using var database = databaseFactory.CreateScopeDatabase();
+            try
+            {
+                var count = database.HotUnitOfWork.HotMiniTickers.RemoveUntil(now.AddDays(-1));
+
+                await database.SaveChangesAsync(_cancellationTokenSource.Token);
+
+                _logger.Trace($"Old data deleted successfully! Entities removed: {count}");
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex, "Failed to remove hot data");
+            }
         }
 
         #endregion

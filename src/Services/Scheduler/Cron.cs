@@ -25,9 +25,9 @@ namespace Scheduler
         public static string Minutely() => $"0 * * ? * *";
 
         /// <summary>
-        ///     Каждые сколько-то минут
+        ///     Ежеминутно в определенную секунду
         /// </summary>
-        public static string EveryNthMinute(int every) => $"0 */{every} * ? * *";
+        public static string MinutelyOnSecond(int second) => $"{second} * * ? * *";
 
         /// <summary>
         ///     Ежечасно

@@ -1,4 +1,4 @@
-﻿using ExchangeLibrary;
+using ExchangeLibrary;
 
 namespace BinanceExchange
 {

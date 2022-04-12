@@ -1,6 +1,7 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
 using Telegram.Bot;
+using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.ReplyMarkups;
 using Telegram.Configuration;
@@ -32,6 +33,19 @@ namespace Telegram.Client.Impl
         /// <inheritdoc />
         public async Task SendMessageAsync(TelegramMessageModel messageModel, CancellationToken cancellationToken)
         {
+            if (messageModel.Type == Models.MessageType.WithImage)
+            {
+                messageModel.Image.Caption = messageModel.MessageText;
+                messageModel.Image.ParseMode = ParseMode.MarkdownV2;
+
+                await _client.SendMediaGroupAsync(
+                    messageModel.ChatId,
+                    new IAlbumInputMedia[] { messageModel.Image },
+                    cancellationToken: cancellationToken);
+
+                return;
+            }
+
             await _client.SendTextMessageAsync(
                 messageModel.ChatId,
                 messageModel.MessageText,

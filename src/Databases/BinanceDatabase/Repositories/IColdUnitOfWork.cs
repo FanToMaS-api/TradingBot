@@ -11,5 +11,10 @@ namespace BinanceDatabase.Repositories
         ///     Репозиторий таблицы усеченных данных о торговом объекте
         /// </summary>
         IMiniTickerRepository MiniTickers { get; }
+
+        /// <summary>
+        ///     Репозиторий предсказанных ботом цен
+        /// </summary>
+        IPredictionRepository Predictions { get; }
     }
 }

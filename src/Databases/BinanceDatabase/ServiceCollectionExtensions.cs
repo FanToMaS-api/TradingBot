@@ -34,6 +34,7 @@ namespace BinanceDatabase
                 options.UseNpgsql(connectionString));
             services.AddScoped<IMiniTickerRepository, MiniTickerRepository>();
             services.AddScoped<IHotMiniTickerRepository, HotMiniTickerRepository>();
+            services.AddScoped<IPredictionRepository, PredictionRepository>();
             services.AddScoped<IColdUnitOfWork, ColdUnitOfWork>();
             services.AddScoped<IHotUnitOfWork, HotUnitOfWork>();
             services.AddScoped<IUnitOfWork, UnitOfWork>();

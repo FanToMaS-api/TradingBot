@@ -17,8 +17,13 @@ namespace BinanceDatabase.Repositories.HotRepositories
         Task AddRangeAsync(IEnumerable<HotMiniTickerEntity> miniTickerEntities, CancellationToken cancellationToken = default);
 
         /// <summary>
+        ///     Получить необходимое кол-во самых актуальных объектов, отсортированные в порядке получения
+        /// </summary>
+        HotMiniTickerEntity[] GetArray(string pair, int neededCount = 2000);
+
+        /// <summary>
         ///     Удаляет все записи до указанной даты
         /// </summary>
-        void RemoveUntil(DateTime until);
+        int RemoveUntil(DateTime until);
     }
 }
