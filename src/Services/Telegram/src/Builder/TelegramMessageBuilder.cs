@@ -37,7 +37,7 @@ namespace Telegram.Builder
         /// </summary>
         public void SetMessageText(string message)
         {
-            // экранирую спец символы
+            // экранирую специальные символы
             message = message.Replace(".", "\\.");
             message = message.Replace("-", "\\-");
             _messageModel.MessageText = message;

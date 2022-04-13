@@ -90,7 +90,7 @@ namespace Analytic.AnalyticUnits.Profiles.SSA
                 model.TradeObjectName,
                 minMaxPriceModel,
                 out var imagePath);
-            
+
 
             var result = new AnalyticResultModel()
             {
@@ -137,7 +137,7 @@ namespace Analytic.AnalyticUnits.Profiles.SSA
             #endregion
 
             // Построение ковариационной матрицы
-            var multiplicationMatrix = rectangleMatrix.TransposeThisAndMultiply(rectangleMatrix);
+            var multiplicationMatrix = rectangleMatrix * rectangleMatrix.Transpose();
             var covariationMatrix = 1 / (double)n * multiplicationMatrix;
 
             // Определение собственных значений и собственных векторов матрицы
@@ -252,8 +252,8 @@ namespace Analytic.AnalyticUnits.Profiles.SSA
         private double[] ForecastingSignal(
             Matrix<double> Vstar,
             Matrix<double> tauMatrixEigenvector,
-            double[] array, 
-            int tau_delayNumber, 
+            double[] array,
+            int tau_delayNumber,
             int neededForecastingCount)
         {
             var list = array.ToList();
