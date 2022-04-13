@@ -1,0 +1,19 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AutoMapper" Version="11.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\BinanceExchange\BinanceExchange.csproj" />
+    <ProjectReference Include="..\..\Databases\BinanceDatabase\BinanceDatabase.csproj" />
+    <ProjectReference Include="..\..\Redis\Redis.csproj" />
+    <ProjectReference Include="..\BinanceDataService\BinanceDataService.csproj" />
+    <ProjectReference Include="..\Scheduler\Scheduler.csproj" />
+  </ItemGroup>
+
+</Project>

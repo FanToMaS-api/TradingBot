@@ -74,8 +74,6 @@ namespace BinanceDataService.DataHandlers
         {
             _scheduler?.UnscheduleAsync(_triggerKey);
             _scheduler?.UnscheduleAsync(_dataDelitionTriggerKey);
-            _cancellationTokenSource?.Cancel();
-            _cancellationTokenSource?.Dispose();
             _webSocket?.Dispose();
 
             _logger.Info("Marketdata handler sropped");

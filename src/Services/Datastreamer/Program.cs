@@ -3,7 +3,7 @@ using Microsoft.Extensions.Hosting;
 using NLog;
 using System;
 
-namespace SignalsSender
+namespace Datastreamer
 {
     public class Program
     {
@@ -15,7 +15,7 @@ namespace SignalsSender
             {
                 CreateHostBuilder(args).Build().Run();
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 Log.Error(ex);
             }

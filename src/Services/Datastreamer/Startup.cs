@@ -1,21 +1,18 @@
 using AutoMapper;
 using BinanceDatabase;
-using BinanceExchange;
 using BinanceDataService;
+using BinanceExchange;
+using Common.Initialization;
+using DataServiceLibrary;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Redis;
 using Scheduler;
-using SignalsSender.Configuration;
 using System;
 using System.Threading.Tasks;
-using Common.Initialization;
-using Common.Extensions;
-using Analytic;
-using Telegram;
 
-namespace SignalsSender
+namespace Datastreamer
 {
     public class Startup
     {
@@ -30,26 +27,24 @@ namespace SignalsSender
         public void ConfigureServices(IServiceCollection services)
         {
             var mapperConfig = new MapperConfiguration(
-            mc =>
-            {
-                mc.AddProfile(new BinanceMapperProfile());
-            }
-        );
+                mc =>
+                {
+                    mc.AddProfile(new BinanceDatabaseMappingProfile());
+                    mc.AddProfile(new BinanceMapperProfile());
+                });
 
             services.AddSingleton(mapperConfig.CreateMapper());
             services.AddBinanceDatabase(Configuration);
-            services.AddRedis(Configuration);
             services.AddRecurringJobScheduler();
-
+            services.AddRedis(Configuration);
             services.AddBinanceExchange(Configuration);
-            services.LoadOptions<SignalSenderConfig>(Configuration);
-            services.AddBinanceAnalyticService();
-            services.AddTelegramClient(Configuration);
-
-            services.AddSingleton<IService, Service>();
+            services.AddDataServiceFactory();
 
             services.AddRazorPages();
-            services.ConfigureForInitialization<IService>(async _ => await _.RunAsync());
+            services.ConfigureForInitialization<IDataService>(async dataService =>
+            {
+                await dataService.StartAsync();
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
