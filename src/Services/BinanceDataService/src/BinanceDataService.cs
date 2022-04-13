@@ -1,5 +1,4 @@
 ﻿using DataServiceLibrary;
-using System.Collections.Immutable;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -22,10 +21,10 @@ namespace BinanceDataService
         /// <summary>
         ///     Сервис по получению и обработке данных с бинанса
         /// </summary>
-        /// <param name="dataHandlers"> Обработчики данных </param>
-        public BinanceDataService(params IDataHandler[] dataHandlers)
+        /// <param name="dataHandler"> Обработчик данных </param>
+        public BinanceDataService(IDataHandler dataHandler)
         {
-            DataHandlers = dataHandlers.ToImmutableArray();
+            DataHandler = dataHandler;
         }
 
         #endregion
@@ -33,7 +32,7 @@ namespace BinanceDataService
         #region Properties
 
         /// <inheritdoc />
-        public ImmutableArray<IDataHandler> DataHandlers { get; }
+        public IDataHandler DataHandler { get; }
 
         #endregion
 
@@ -43,20 +42,13 @@ namespace BinanceDataService
         public async Task StartAsync()
         {
             _cancellationTokenSource = new();
-            foreach (var handler in DataHandlers)
-            {
-                await handler.StartAsync(_cancellationTokenSource.Token);
-            }
+            await DataHandler.StartAsync(_cancellationTokenSource.Token);
         }
 
         /// <inheritdoc />
         public async Task StopAsync()
         {
-            foreach (var handler in DataHandlers)
-            {
-                await handler.StopAsync();
-            }
-
+            await DataHandler.StopAsync();
             _cancellationTokenSource?.Cancel();
             _cancellationTokenSource?.Dispose();
         }

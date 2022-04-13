@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Immutable;
 using System.Threading.Tasks;
 
 namespace DataServiceLibrary
@@ -10,9 +9,9 @@ namespace DataServiceLibrary
     public interface IDataService : IDisposable
     {
         /// <summary>
-        ///     Обработчики данных
+        ///     Обработчик данных
         /// </summary>
-        public ImmutableArray<IDataHandler> DataHandlers { get; }
+        public IDataHandler DataHandler { get; }
 
         /// <summary>
         ///     Запускает сервис по приему и обработке данных

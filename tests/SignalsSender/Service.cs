@@ -37,7 +37,6 @@ namespace SignalsSender
         private readonly IMapper _mapper;
         private readonly IRecurringJobScheduler _scheduler;
         private readonly IAnalyticService _analyticService;
-        private IDataService _dataService;
         private readonly string _baseUrl = "https://www.binance.com/en/trade/<pair>/?layout=pro";
         private readonly string[] _baseTickers = new[] { "USDT", "BTC", "ETH" };
         private readonly CancellationTokenSource _cancellationTokenSource = new();
@@ -76,10 +75,6 @@ namespace SignalsSender
             var cancellationToken = _cancellationTokenSource.Token;
 
             using var scope = _scopeFactory.CreateScope();
-            var dataServiceFactory = scope.ServiceProvider.GetRequiredService<IBinanceDataServiceFactory>();
-            var dataHandler = dataServiceFactory.CreateDataHandler();
-            _dataService = dataServiceFactory.CreateDataService(dataHandler);
-            await _dataService.StartAsync();
 
             var filterManager = new DefaultFilterManager();
             var paramountFilterGroup = new FilterGroup("ParamountFilterGroup", FilterGroupType.Primary, null);
@@ -150,8 +145,6 @@ namespace SignalsSender
                         $"\nПоследняя цена: *{model.LastPrice}*" +
                         $"\nОбъем спроса: *{model.BidVolume:0,0.0}*" +
                         $"\nОбъем предложения: *{model.AskVolume:0,0.0}*";
-                    message = message.Replace(".", "\\.");
-                    message = message.Replace("-", "\\-");
                     builder.SetMessageText(message);
                     var url = _baseUrl.Replace("<pair>", pairName);
                     builder.SetInlineButton("Перейти", $"{url}");
@@ -241,7 +234,7 @@ namespace SignalsSender
         /// <inheritdoc />
         public void Dispose()
         {
-            _dataService.Dispose();
+            _cancellationTokenSource?.Cancel();
             _cancellationTokenSource?.Dispose();
         }
 
