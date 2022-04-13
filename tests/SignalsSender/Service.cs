@@ -195,8 +195,6 @@ namespace SignalsSender
                         message += $"\n*Максимальная цена предсказания: {model.RecommendedSellingPrice.Value:0.00000}*";
                     }
 
-                    message = message.Replace(".", "\\.");
-                    message = message.Replace("-", "\\-");
                     builder.SetMessageText(message);
                     if (model.HasPredictionImage)
                     {
