@@ -40,8 +40,8 @@ services:
     volumes:
       - signal_service_volume:/var/lib/signal_service
       - type: bind
-        source: ./tunnelFolder
-        target: /tunnelFolder
+        source: ./signal_service_tunnelFolder
+        target: /signal_service_tunnelFolder
     networks:
       - signal_service_network
 
@@ -60,6 +60,9 @@ services:
       - datastreamer.env
     volumes:
       - datastreamer_volume:/var/lib/datastreamer
+      - type: bind
+        source: ./datastreamer_service_tunnelFolder
+        target: /datastreamer_service_tunnelFolder
     networks:
       - signal_service_network
 
