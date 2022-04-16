@@ -1,6 +1,7 @@
 ﻿using BinanceExchange.Enums;
 using BinanceExchange.Enums.Helper;
 using Common.Enums;
+using Logger;
 using NLog;
 using System;
 using System.Collections.Generic;
@@ -15,8 +16,7 @@ namespace BinanceExchange.Models
     {
         #region Fields
 
-        private static readonly Logger Log = LogManager.GetCurrentClassLogger();
-
+        private static readonly ILoggerDecorator Log = LoggerManager.CreateDefaultLogger();
         private OrderQueryModel _newQueryModel;
 
         #endregion
@@ -170,7 +170,7 @@ namespace BinanceExchange.Models
         {
             if (icebergQty <= 0 || !_newQueryModel.IcebergQty.CanSet)
             {
-                Log.Warn($"Failed to set icebergQty with value={icebergQty}");
+                Log.WarnAsync($"Failed to set icebergQty with value={icebergQty}");
 
                 return;
             }
@@ -189,7 +189,7 @@ namespace BinanceExchange.Models
         {
             if (!_newQueryModel.OrderResponseType.CanSet)
             {
-                Log.Warn($"Failed to set OrderResponseType with value={orderResponseType}, because it is not allowed");
+                Log.WarnAsync($"Failed to set OrderResponseType with value={orderResponseType}, because it is not allowed");
 
                 return;
             }
@@ -205,7 +205,7 @@ namespace BinanceExchange.Models
         {
             if (!_newQueryModel.SideType.CanSet)
             {
-                Log.Warn($"Failed to set OrderSideType with value={sideType}, because it is not allowed");
+                Log.WarnAsync($"Failed to set OrderSideType with value={sideType}, because it is not allowed");
 
                 return;
             }
@@ -222,7 +222,7 @@ namespace BinanceExchange.Models
             var sideType = side.ConvertToOrderSideType();
             if (!_newQueryModel.SideType.CanSet)
             {
-                Log.Warn($"Failed to set OrderSideType with value={sideType}, because it is not allowed");
+                Log.WarnAsync($"Failed to set OrderSideType with value={sideType}, because it is not allowed");
 
                 return;
             }
@@ -277,7 +277,7 @@ namespace BinanceExchange.Models
         {
             if (stopPrice <= 0 || !_newQueryModel.StopPrice.CanSet)
             {
-                Log.Warn($"Failed to set stop price with value={stopPrice}");
+                Log.WarnAsync($"Failed to set stop price with value={stopPrice}");
 
                 return;
             }
@@ -308,7 +308,7 @@ namespace BinanceExchange.Models
             var timeInForceType = timeInForce.ConvertToTimeInForceType();
             if (!_newQueryModel.TimeInForce.CanSet)
             {
-                Log.Warn($"Failed to set time in force, because it is not allowed");
+                Log.WarnAsync($"Failed to set time in force, because it is not allowed");
 
                 return;
             }
@@ -324,7 +324,7 @@ namespace BinanceExchange.Models
         {
             if (!_newQueryModel.TimeInForce.CanSet)
             {
-                Log.Warn($"Failed to set time in force, because it is not allowed");
+                Log.WarnAsync($"Failed to set time in force, because it is not allowed");
 
                 return;
             }

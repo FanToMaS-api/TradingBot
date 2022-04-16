@@ -1,7 +1,10 @@
+using Analytic;
 using AutoMapper;
 using BinanceDatabase;
 using BinanceExchange;
-using BinanceDataService;
+using Common.Extensions;
+using Common.Initialization;
+using Logger;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -10,9 +13,6 @@ using Scheduler;
 using SignalsSender.Configuration;
 using System;
 using System.Threading.Tasks;
-using Common.Initialization;
-using Common.Extensions;
-using Analytic;
 using Telegram;
 
 namespace SignalsSender
@@ -37,6 +37,7 @@ namespace SignalsSender
         );
 
             services.AddSingleton(mapperConfig.CreateMapper());
+            services.AddTelegramLogger(Configuration);
             services.AddBinanceDatabase(Configuration);
             services.AddRedis(Configuration);
             services.AddRecurringJobScheduler();

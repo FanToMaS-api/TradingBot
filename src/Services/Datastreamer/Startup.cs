@@ -4,6 +4,7 @@ using BinanceDataService;
 using BinanceExchange;
 using Common.Initialization;
 using DataServiceLibrary;
+using Logger;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -33,6 +34,7 @@ namespace Datastreamer
                     mc.AddProfile(new BinanceMapperProfile());
                 });
 
+            services.AddTelegramLogger(Configuration);
             services.AddSingleton(mapperConfig.CreateMapper());
             services.AddBinanceDatabase(Configuration);
             services.AddRecurringJobScheduler();

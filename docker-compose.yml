@@ -1,10 +1,10 @@
-version: "3.9"
+version: "3.3"
 services:
   redis:
     image: redis:6.2.6-alpine
     container_name: redis
     ports:
-      - "6379:6379"
+      - "16379:6379"
     restart: always
     volumes: 
       - trading_bot_redis_volume:/var/lib/redis
@@ -15,7 +15,7 @@ services:
     image: postgres:13-alpine
     container_name: trading_bot_postgres
     ports:
-      - "5432:5432"
+      - "15432:5432"
     restart: always
     env_file:
       - postgres.env
@@ -39,6 +39,9 @@ services:
       - signal_service.env
     volumes:
       - signal_service_volume:/var/lib/signal_service
+      - type: bind
+        source: ./signal_service_tunnelFolder
+        target: /signal_service_tunnelFolder
     networks:
       - signal_service_network
 
@@ -57,6 +60,9 @@ services:
       - datastreamer.env
     volumes:
       - datastreamer_volume:/var/lib/datastreamer
+      - type: bind
+        source: ./datastreamer_service_tunnelFolder
+        target: /datastreamer_service_tunnelFolder
     networks:
       - signal_service_network
 

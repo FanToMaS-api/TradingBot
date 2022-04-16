@@ -2,11 +2,11 @@
 using BinanceDatabase;
 using BinanceDatabase.Entities;
 using BinanceDatabase.Enums;
-using BinanceDatabase.Repositories;
 using Common.Models;
 using Common.WebSocket;
 using DataServiceLibrary;
 using ExchangeLibrary;
+using Logger;
 using Microsoft.Extensions.DependencyInjection;
 using NLog;
 using Quartz;
@@ -26,7 +26,7 @@ namespace BinanceDataService.DataHandlers
     {
         #region Fields
 
-        private readonly ILogger _logger = LogManager.GetCurrentClassLogger();
+        private readonly ILoggerDecorator _logger;
         private readonly IExchange _exchange;
         private readonly IRecurringJobScheduler _scheduler;
         private readonly IMapper _mapper;
@@ -44,11 +44,16 @@ namespace BinanceDataService.DataHandlers
         #region .ctor
 
         /// <inheritdoc cref="MarketdataStreamHandler"/>
-        public MarketdataStreamHandler(IExchange exchange, IRecurringJobScheduler scheduler, IMapper mapper)
+        public MarketdataStreamHandler(
+            IExchange exchange,
+            IRecurringJobScheduler scheduler,
+            IMapper mapper,
+            ILoggerDecorator logger)
         {
             _exchange = exchange;
             _scheduler = scheduler;
             _mapper = mapper;
+            _logger = logger;
         }
 
         #endregion
@@ -66,19 +71,17 @@ namespace BinanceDataService.DataHandlers
             _triggerKey = await _scheduler.ScheduleAsync(Cron.Minutely(), SaveDataAsync);
             _dataDelitionTriggerKey = await _scheduler.ScheduleAsync(Cron.Daily(), DeleteDataAsync);
 
-            _logger.Info("Marketdata handler launched successfully!");
+            await _logger.InfoAsync("Marketdata handler launched successfully!", cancellationToken: cancellationToken);
         }
 
         /// <inheritdoc />
-        public Task StopAsync()
+        public async Task StopAsync()
         {
             _scheduler?.UnscheduleAsync(_triggerKey);
             _scheduler?.UnscheduleAsync(_dataDelitionTriggerKey);
             _webSocket?.Dispose();
 
-            _logger.Info("Marketdata handler sropped");
-
-            return Task.CompletedTask;
+            await _logger.InfoAsync("Marketdata handler sropped", cancellationToken: _cancellationTokenSource.Token);
         }
 
         #endregion
@@ -96,31 +99,28 @@ namespace BinanceDataService.DataHandlers
             }
             catch (Exception ex)
             {
-                _logger.Error(ex, "Failed to start web socket stream");
+                await _logger.ErrorAsync(ex, "Failed to start web socket stream", cancellationToken: cancellationToken);
             }
         }
 
         /// <summary>
         ///     Обрабатывает полученные данные
         /// </summary>
-        private Task HandleAsync(IEnumerable<MiniTradeObjectStreamModel> models, CancellationToken cancellationToken)
+        private async Task HandleAsync(IEnumerable<MiniTradeObjectStreamModel> models, CancellationToken cancellationToken)
         {
             try
             {
                 if (_isAssistantStorageSaving)
                 {
                     _mainModelsStorage.AddRange(models);
-                    return Task.CompletedTask;
                 }
 
                 _assistantModelsStorage.AddRange(models);
             }
             catch (Exception ex)
             {
-                _logger.Error(ex, "Failed to handle received models");
+                await _logger.ErrorAsync(ex, "Failed to handle received models", cancellationToken: cancellationToken);
             }
-
-            return Task.CompletedTask;
         }
 
         /// <summary>
@@ -144,7 +144,10 @@ namespace BinanceDataService.DataHandlers
             }
             catch (Exception ex)
             {
-                _logger.Error(ex, $"Failed to save data _isAssistantStorageSaving='{_isAssistantStorageSaving}'");
+                await _logger.ErrorAsync(
+                    ex,
+                    $"Failed to save data _isAssistantStorageSaving='{_isAssistantStorageSaving}'",
+                    cancellationToken: _cancellationTokenSource.Token);
             }
         }
 
@@ -163,7 +166,9 @@ namespace BinanceDataService.DataHandlers
             await database.ColdUnitOfWork.MiniTickers.AddRangeAsync(groupedData, _cancellationTokenSource.Token);
 
             await database.SaveChangesAsync(_cancellationTokenSource.Token);
-            _logger.Trace($"{streamModels.Count()} entities successfully saved");
+            await _logger.TraceAsync(
+                $"{streamModels.Count()} entities successfully saved",
+                cancellationToken: _cancellationTokenSource.Token);
         }
 
         /// <summary>
@@ -223,7 +228,7 @@ namespace BinanceDataService.DataHandlers
         /// </summary>
         /// <param name="counter"> Счетчик усредненных моделей </param>
         /// <param name="isDataLeft"> Флаг, что усредненных данных больше нет </param>
-        private void AddToResult(
+        private static void AddToResult(
             List<MiniTickerEntity> aggregatedMiniTickers,
             MiniTickerEntity aggregateObject,
             ref int counter,
@@ -237,7 +242,7 @@ namespace BinanceDataService.DataHandlers
         /// <summary>
         ///     Аггрегирует поля объектов в один объект
         /// </summary>
-        private void AggregateFields(MiniTickerEntity addedObject, MiniTickerEntity aggregateObject)
+        private static void AggregateFields(MiniTickerEntity addedObject, MiniTickerEntity aggregateObject)
         {
             aggregateObject.OpenPrice += addedObject.OpenPrice;
             aggregateObject.MaxPrice += addedObject.MaxPrice;
@@ -250,7 +255,7 @@ namespace BinanceDataService.DataHandlers
         /// <summary>
         ///     Усредняет значения полей
         /// </summary>
-        private void AveragingFields(MiniTickerEntity aggregateObject, int conter)
+        private static void AveragingFields(MiniTickerEntity aggregateObject, int conter)
         {
             aggregateObject.OpenPrice /= conter;
             aggregateObject.MaxPrice /= conter;
@@ -265,7 +270,7 @@ namespace BinanceDataService.DataHandlers
         /// </summary>
         private void WebSocketCloseHandler()
         {
-            _logger.Info("The websocket has been closed. Restarting stream...");
+            _logger.InfoAsync("The websocket has been closed. Restarting stream...").Wait(5 * 1000);
 
             Task.Run(async () => await _webSocket.ConnectAsync(_cancellationTokenSource.Token), _cancellationTokenSource.Token);
         }
@@ -284,11 +289,13 @@ namespace BinanceDataService.DataHandlers
 
                 await database.SaveChangesAsync(_cancellationTokenSource.Token);
 
-                _logger.Trace($"Old data deleted successfully! Entities removed: {count}");
+                await _logger.TraceAsync(
+                    $"Old data deleted successfully! Entities removed: {count}",
+                    cancellationToken: _cancellationTokenSource.Token);
             }
             catch (Exception ex)
             {
-                _logger.Error(ex, "Failed to remove hot data");
+                await _logger.ErrorAsync(ex, "Failed to remove hot data", cancellationToken: _cancellationTokenSource.Token);
             }
         }
 

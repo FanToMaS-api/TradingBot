@@ -1,7 +1,6 @@
 ﻿using BinanceDataService.DataHandlers;
 using DataServiceLibrary;
 using Microsoft.Extensions.DependencyInjection;
-using NLog;
 
 namespace BinanceDataService
 {
@@ -10,8 +9,6 @@ namespace BinanceDataService
     /// </summary>
     public static class ServiceCollectionExtensions
     {
-        private static readonly ILogger Log = LogManager.GetCurrentClassLogger();
-
         /// <summary>
         ///     Добавить фабрику, предоставляющую методы для создания сервиса обработки данных
         /// </summary>

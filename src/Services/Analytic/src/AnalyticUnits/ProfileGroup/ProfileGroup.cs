@@ -1,4 +1,5 @@
 ﻿using Analytic.Models;
+using Logger;
 using Microsoft.Extensions.DependencyInjection;
 using NLog;
 using System;
@@ -15,15 +16,16 @@ namespace Analytic.AnalyticUnits
     {
         #region Fields
 
-        private static readonly ILogger Log = LogManager.GetCurrentClassLogger();
+        private readonly ILoggerDecorator _logger;
 
         #endregion
 
         #region .ctor
 
         /// <inheritdoc cref="ProfileGroup"/>
-        public ProfileGroup(string name, bool isActive = true)
+        public ProfileGroup(ILoggerDecorator logger, string name, bool isActive = true)
         {
+            _logger= logger;
             Name = name;
             IsActive = isActive;
         }
@@ -79,7 +81,10 @@ namespace Analytic.AnalyticUnits
                 }
                 catch (Exception ex)
                 {
-                    Log.Error(ex, $"Failed to analyze model '{model.TradeObjectName}' with unit '{unit.Name}'");
+                    await _logger.ErrorAsync(
+                        ex,
+                        $"Failed to analyze model '{model.TradeObjectName}' with unit '{unit.Name}'",
+                        cancellationToken: cancellationToken);
                 }
             }
 
