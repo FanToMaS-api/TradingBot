@@ -1,10 +1,7 @@
 ﻿using Logger.Configuration;
 using NLog;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Telegram.Builder;
@@ -13,7 +10,7 @@ using Telegram.Client;
 namespace Logger.Impl
 {
     /// <summary>
-    ///     Декоратор над логгером для отправки сообщений в телеграм
+    ///     Логгер с возможностью отправки сообщений в телеграмм
     /// </summary>
     internal class TelegramLoggerDecorator : ILoggerDecorator
     {

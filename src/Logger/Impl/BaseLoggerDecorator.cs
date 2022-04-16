@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace Logger.Impl
 {
     /// <summary>
-    ///     Базовый класс декоратора
+    ///     Базовый логгер
     /// </summary>
     internal class BaseLoggerDecorator : ILoggerDecorator
     {

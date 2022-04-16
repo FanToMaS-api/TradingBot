@@ -14,7 +14,7 @@ namespace Logger
     public static class ServiceCollectionExtensions
     {
         /// <summary>
-        ///     Добавить логгер с расширением - отпрвкой сообщений в телеграм
+        ///     Добавить логгер с возможностью отправки сообщений в телеграм
         /// </summary>
         public static void AddTelegramLogger(this IServiceCollection services, IConfiguration configuration)
         {
