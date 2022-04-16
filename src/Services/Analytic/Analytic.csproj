@@ -13,6 +13,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\Databases\BinanceDatabase\BinanceDatabase.csproj" />
     <ProjectReference Include="..\..\Libraries\ExchangeLibrary\ExchangeLibrary.csproj" />
+    <ProjectReference Include="..\..\Logger\Logger.csproj" />
     <ProjectReference Include="..\Scheduler\Scheduler.csproj" />
   </ItemGroup>
 

@@ -1,4 +1,5 @@
 ﻿using Common.WebSocket;
+using Logger;
 using NLog;
 using System;
 using System.Collections.Generic;
@@ -16,7 +17,7 @@ namespace BinanceExchange.WebSocket
     {
         #region Fields
 
-        private static readonly Logger Log = LogManager.GetCurrentClassLogger();
+        private static readonly ILoggerDecorator Log = LoggerManager.CreateDefaultLogger();
         private readonly IBinanceWebSocketHumble _webSocketHumble;
         private readonly List<Func<string, Task>> _onMessageReceivedFunctions = new();
         private readonly List<CancellationTokenRegistration> _onMessageReceivedCancellationTokenRegistrations = new();
@@ -134,7 +135,7 @@ namespace BinanceExchange.WebSocket
 
                         if (receiveResult.MessageType == WebSocketMessageType.Close)
                         {
-                            Log.Error($"The web socket has been closed");
+                            await Log.ErrorAsync($"The web socket has been closed", cancellationToken: cancellationToken);
                             OnStreamClosed?.Invoke();
                             await OnClosed?.Invoke(this, cancellationToken);
 
@@ -149,14 +150,14 @@ namespace BinanceExchange.WebSocket
                     }
                     catch (Exception ex)
                     {
-                        Log.Error(ex, "Failed to get data from stream");
+                        await Log.ErrorAsync(ex, "Failed to get data from stream", cancellationToken: cancellationToken);
                         throw;
                     }
                 }
             }
             catch (TaskCanceledException ex)
             {
-                Log.Error(ex, $"The recieve loop was cancelled.");
+                await Log.ErrorAsync(ex, $"The recieve loop was cancelled.", cancellationToken: cancellationToken);
                 await DisconnectAsync(CancellationToken.None);
             }
         }

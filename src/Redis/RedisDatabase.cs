@@ -1,4 +1,4 @@
-﻿using NLog;
+﻿using Logger;
 using StackExchange.Redis;
 using System;
 
@@ -9,7 +9,7 @@ namespace Redis
     {
         #region Fields
 
-        private readonly ILogger _logger = LogManager.GetCurrentClassLogger();
+        private static readonly ILoggerDecorator Log = LoggerManager.CreateDefaultLogger();
         private const int ReconnectionCount = 2;
         private readonly IConnectionMultiplexer _connectionMultiplexer;
         private readonly IDatabase _database;
@@ -59,7 +59,7 @@ namespace Redis
                 {
                     if (!ExecuteRequest(() => _database.KeyExpire(key, expiration)))
                     {
-                        _logger.Warn($"Failed to set KeyExpire: key='{key}', expiration={expiration:G}");
+                        Log.WarnAsync($"Failed to set KeyExpire: key='{key}', expiration={expiration:G}");
 
                         return false;
                     }
@@ -69,7 +69,7 @@ namespace Redis
             {
                 if (!ExecuteRequest(() => _database.StringSet(key, value, expiration)))
                 {
-                    _logger.Warn($"Failed to set redis KeyValue: key='{key}', value={value}, expiration={expiration:G}");
+                    Log.WarnAsync($"Failed to set redis KeyValue: key='{key}', value={value}, expiration={expiration:G}");
 
                     return false;
                 };
@@ -83,7 +83,7 @@ namespace Redis
         /// <summary>
         ///     Выполнение запроса
         /// </summary>
-        private T ExecuteRequest<T>(Func<T> func)
+        private static T ExecuteRequest<T>(Func<T> func)
         {
             var exception = new Exception("Limit reconnection");
 
@@ -95,7 +95,7 @@ namespace Redis
                 }
                 catch (RedisTimeoutException ex)
                 {
-                    _logger.Warn(ex, "Timeout execute request");
+                    Log.WarnAsync(ex, "Timeout execute request");
 
                     exception = new Exception(ex.Message, ex);
                 }

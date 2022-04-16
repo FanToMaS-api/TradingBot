@@ -3,6 +3,7 @@ using Analytic.Filters;
 using Analytic.Models;
 using Common.Models;
 using ExchangeLibrary;
+using Logger;
 using Microsoft.Extensions.DependencyInjection;
 using NLog;
 using Quartz;
@@ -20,7 +21,7 @@ namespace Analytic.Binance
     {
         #region Fields
 
-        private static readonly Logger Log = LogManager.GetCurrentClassLogger();
+        private readonly ILoggerDecorator _logger;
         private readonly IExchange _exchange;
         private readonly IServiceScopeFactory _serviceScopeFactory;
         private readonly IRecurringJobScheduler _scheduler;
@@ -35,11 +36,13 @@ namespace Analytic.Binance
         public BinanceAnalyticService(
             IExchange exchange,
             IServiceScopeFactory serviceScopeFactory,
-            IRecurringJobScheduler recurringJobScheduler)
+            IRecurringJobScheduler recurringJobScheduler,
+            ILoggerDecorator logger)
         {
             _exchange = exchange;
             _serviceScopeFactory = serviceScopeFactory;
             _scheduler = recurringJobScheduler;
+            _logger = logger;
         }
 
         #endregion
@@ -135,7 +138,7 @@ namespace Analytic.Binance
             }
             catch (Exception ex)
             {
-                Log.Error(ex, "Failed to analyze");
+                await _logger.ErrorAsync(ex, "Failed to analyze", cancellationToken: _cancellationTokenSource.Token);
             }
         }
 
@@ -155,9 +158,10 @@ namespace Analytic.Binance
                         continue;
                     }
 
-                    Log.Trace($"Successful analysis model {analyticModel.TradeObjectName}\n" +
+                    await _logger.TraceAsync($"Successful analysis model {analyticModel.TradeObjectName}\n" +
                         $"Has image: {analyticModel.HasPredictionImage}\n" +
-                        $"Path to image: {analyticModel.ImagePath}");
+                        $"Path to image: {analyticModel.ImagePath}",
+                        cancellationToken: cancellationToken);
                     modelsToBuy.Add(analyticModel);
                 }
             }

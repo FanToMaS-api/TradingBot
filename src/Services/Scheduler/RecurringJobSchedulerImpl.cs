@@ -1,11 +1,12 @@
-using System;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
+using Logger;
 using Microsoft.Extensions.Options;
 using NLog;
 using Quartz;
 using Quartz.Impl;
+using System;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Scheduler
 {
@@ -14,6 +15,7 @@ namespace Scheduler
     {
         #region Fields
 
+        private static readonly ILoggerDecorator Log = LoggerManager.CreateDefaultLogger();
         private readonly RecurringJobSchedulerOptions _options;
         private readonly IServiceProvider _serviceProvider;
         private IScheduler _scheduler;
@@ -21,7 +23,6 @@ namespace Scheduler
         private readonly object _runningJobCounterLock = new();
         private int _runningJobCounter;
         private bool _isDisposed;
-        private static readonly Logger Log = LogManager.GetCurrentClassLogger(typeof(RecurringJobSchedulerImpl));
 
         #endregion
 
@@ -69,7 +70,7 @@ namespace Scheduler
                     {
                         if (_busyScheduled[id])
                         {
-                            Log.Warn($"The task {action.Method.Name} is in progress");
+                            await Log.WarnAsync($"The task {action.Method.Name} is in progress");
                             return;
                         }
 
@@ -81,7 +82,7 @@ namespace Scheduler
                         }
                         catch (Exception ex)
                         {
-                            Log.Error(ex, $"Failed to complete the task of {action.Method.Name}");
+                            await Log.ErrorAsync(ex, $"Failed to complete the task of {action.Method.Name}");
                         }
                         finally
                         {
@@ -145,7 +146,7 @@ namespace Scheduler
             foreach (var scheduleKey in triggerKeys)
             {
                 await UnscheduleAsync(scheduleKey);
-                Log.Trace($"Schedule task stopped '{scheduleKey.Name}'");
+                await Log.TraceAsync($"Schedule task stopped '{scheduleKey.Name}'");
             }
 
             triggerKeys.Clear();
