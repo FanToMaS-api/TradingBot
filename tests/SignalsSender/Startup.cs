@@ -37,6 +37,7 @@ namespace SignalsSender
         );
 
             services.AddSingleton(mapperConfig.CreateMapper());
+            services.AddTelegramClient(Configuration);
             services.AddTelegramLogger(Configuration);
             services.AddBinanceDatabase(Configuration);
             services.AddRedis(Configuration);
@@ -45,7 +46,6 @@ namespace SignalsSender
             services.AddBinanceExchange(Configuration);
             services.LoadOptions<SignalSenderConfig>(Configuration);
             services.AddBinanceAnalyticService();
-            services.AddTelegramClient(Configuration);
 
             services.AddSingleton<IService, Service>();
 
