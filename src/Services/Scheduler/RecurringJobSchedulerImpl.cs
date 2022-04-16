@@ -1,6 +1,5 @@
 using Logger;
 using Microsoft.Extensions.Options;
-using NLog;
 using Quartz;
 using Quartz.Impl;
 using System;
