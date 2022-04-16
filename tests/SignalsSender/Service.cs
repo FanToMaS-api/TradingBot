@@ -8,6 +8,7 @@ using AutoMapper;
 using BinanceDataService;
 using DataServiceLibrary;
 using ExchangeLibrary;
+using Logger;
 using Microsoft.Extensions.DependencyInjection;
 using NLog;
 using Scheduler;
@@ -29,13 +30,10 @@ namespace SignalsSender
     {
         #region Fields
 
-        private static readonly ILogger _logger = LogManager.GetCurrentClassLogger();
+        private readonly ILoggerDecorator _logger;
         private readonly SignalSenderConfig _settings;
-        private readonly IExchange _exchange;
         private readonly ITelegramClient _telegramClient;
         private readonly IServiceScopeFactory _scopeFactory;
-        private readonly IMapper _mapper;
-        private readonly IRecurringJobScheduler _scheduler;
         private readonly IAnalyticService _analyticService;
         private readonly string _baseUrl = "https://www.binance.com/en/trade/<pair>/?layout=pro";
         private readonly string[] _baseTickers = new[] { "USDT", "BTC", "ETH" };
@@ -48,18 +46,14 @@ namespace SignalsSender
         public Service(
             SignalSenderConfig settings,
             IServiceScopeFactory scopeFactory,
-            IRecurringJobScheduler scheduler,
-            IExchange exchange,
             IAnalyticService analyticService,
             ITelegramClient telegramClient,
-            IMapper mapper)
+            ILoggerDecorator logger)
         {
             _settings = settings;
-            _scheduler = scheduler;
-            _mapper = mapper;
             _scopeFactory = scopeFactory;
-            _exchange = exchange;
             _analyticService = analyticService;
+            _logger = logger;
             _telegramClient = telegramClient;
         }
 
@@ -76,7 +70,7 @@ namespace SignalsSender
 
             using var scope = _scopeFactory.CreateScope();
 
-            var filterManager = new DefaultFilterManager();
+            var filterManager = new DefaultFilterManager(_logger);
             var paramountFilterGroup = new FilterGroup("ParamountFilterGroup", FilterGroupType.Primary, null);
             var nameFilter = new NameFilter("NameFilter", _baseTickers);
             paramountFilterGroup.AddFilter(nameFilter);
@@ -111,8 +105,8 @@ namespace SignalsSender
             _analyticService.OnModelsFiltered += OnModelsFilteredReceived;
             _analyticService.OnSuccessfulAnalize += OnModelsToBuyReceived;
 
-            var ssaProfile = new SsaAnalyticPofile("SsaProfile");
-            var profileGroup = new ProfileGroup("DefaultGroupProfile");
+            var ssaProfile = new SsaAnalyticPofile(_logger, "SsaProfile");
+            var profileGroup = new ProfileGroup(_logger, "DefaultGroupProfile");
             profileGroup.AddAnalyticUnit(ssaProfile);
             _analyticService.AddProfileGroup(profileGroup);
             await _analyticService.RunAsync(filterManager, cancellationToken);
@@ -134,7 +128,7 @@ namespace SignalsSender
                         model.TradeObjectName.Contains(_, StringComparison.InvariantCultureIgnoreCase));
                     if (string.IsNullOrEmpty(symbol))
                     {
-                        _logger?.Error("Failed to parse symbol");
+                        _logger?.ErrorAsync("Failed to parse symbol").Wait(7 * 1000);
                         return;
                     }
 
@@ -153,7 +147,7 @@ namespace SignalsSender
                 }
                 catch (Exception ex)
                 {
-                    _logger.Error(ex, "Failed to send message wtih filtered models to telegram");
+                    tasks.Add(_logger.ErrorAsync(ex, "Failed to send message wtih filtered models to telegram"));
                 }
             }
 
@@ -163,7 +157,7 @@ namespace SignalsSender
             }
             catch (Exception ex)
             {
-                _logger.Error(ex, "Failed to send message with filtered models to telegram");
+                _logger.ErrorAsync(ex, "Failed to send message with filtered models to telegram").Wait(7 * 1000);
             }
         }
 
@@ -183,7 +177,7 @@ namespace SignalsSender
                         model.TradeObjectName.Contains(_, StringComparison.InvariantCultureIgnoreCase));
                     if (string.IsNullOrEmpty(symbol))
                     {
-                        _logger?.Error("Failed to parse symbol");
+                        _logger?.ErrorAsync("Failed to parse symbol").Wait(7 * 1000);
                         return;
                     }
 
@@ -211,7 +205,7 @@ namespace SignalsSender
                 }
                 catch (Exception ex)
                 {
-                    _logger.Error(ex, "Failed to send message with models to buy to telegram");
+                    tasks.Add(_logger.ErrorAsync(ex, "Failed to send message with models to buy to telegram"));
                 }
             }
 
@@ -221,7 +215,7 @@ namespace SignalsSender
             }
             catch (Exception ex)
             {
-                _logger.Error(ex, "Failed to send message with filtered models to telegram");
+                _logger.ErrorAsync(ex, "Failed to send message with filtered models to telegram").Wait(7 * 1000);
             }
         }
 

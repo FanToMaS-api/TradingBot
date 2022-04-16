@@ -2,6 +2,7 @@
 using BinanceDatabase;
 using BinanceDatabase.Entities;
 using BinanceDatabase.Repositories;
+using Logger;
 using MathNet.Numerics.LinearAlgebra;
 using Microsoft.Extensions.DependencyInjection;
 using NLog;
@@ -24,7 +25,7 @@ namespace Analytic.AnalyticUnits.Profiles.SSA
     {
         #region Fields
 
-        private readonly ILogger _logger = LogManager.GetCurrentClassLogger();
+        private readonly ILoggerDecorator _logger;
         private readonly string _baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
         private const int _numberPricesToTake = 2498; // кол-во данных участвующих в предсказании цены
         private const int _numberOfMinutesOfImageStorage = 2; // кол-во минут хранения изображения (не будут присылаться сообщения с изображением, дабы не спамить)
@@ -35,10 +36,11 @@ namespace Analytic.AnalyticUnits.Profiles.SSA
         #region .ctor
 
         /// <inheritdoc cref="SsaAnalyticPofile"/>
-        public SsaAnalyticPofile(string name)
+        public SsaAnalyticPofile(ILoggerDecorator logger, string name)
         {
             Name = name;
-            _logger.Trace($"Directory with saved grafics='{AppDomain.CurrentDomain.BaseDirectory}'");
+            _logger = logger;
+            _logger.TraceAsync($"Directory with saved grafics='{AppDomain.CurrentDomain.BaseDirectory}'").Wait(5 * 1000);
         }
 
         #endregion
@@ -74,7 +76,9 @@ namespace Analytic.AnalyticUnits.Profiles.SSA
                 return (false, null);
             }
 
-            _logger.Trace($"Successful predicted {predictions.Length} prices for {model.TradeObjectName}");
+            await _logger.TraceAsync(
+                $"Successful predicted {predictions.Length} prices for {model.TradeObjectName}",
+                cancellationToken: cancellationToken);
             await SavePredictionAsync(database, model.TradeObjectName, enities.Last().ReceivedTime, predictions, cancellationToken);
 
             var minMaxPriceModel = MinMaxPriceModel.Create(predictions);
@@ -118,7 +122,7 @@ namespace Analytic.AnalyticUnits.Profiles.SSA
         ///     используется для определения основных составляющих временного ряда 
         ///     и подавления шума
         /// </remarks>
-        double[] SSA(double[] prices)
+        private static double[] SSA(double[] prices)
         {
             #region Преобразование одномерного ряда в многомерный
 
@@ -137,7 +141,7 @@ namespace Analytic.AnalyticUnits.Profiles.SSA
             #endregion
 
             // Построение ковариационной матрицы
-            var multiplicationMatrix = rectangleMatrix * rectangleMatrix.Transpose();
+            var multiplicationMatrix = rectangleMatrix.TransposeAndMultiply(rectangleMatrix);
             var covariationMatrix = 1 / (double)n * multiplicationMatrix;
 
             // Определение собственных значений и собственных векторов матрицы
@@ -186,7 +190,7 @@ namespace Analytic.AnalyticUnits.Profiles.SSA
         ///     Возвращает список значимых векторов, для предсказаний <br/>
         ///     Зануляем столбцы собственных векторов, которые незначимы
         /// </summary>
-        private List<Vector<double>> GetSubListEigenvectors(
+        private static List<Vector<double>> GetSubListEigenvectors(
             Vector<System.Numerics.Complex> matrixEigenvalues,
             IEnumerable<System.Numerics.Complex> neededLambdas,
             Matrix<double> matrixEigenvectors)
@@ -216,7 +220,7 @@ namespace Analytic.AnalyticUnits.Profiles.SSA
         ///     <see langword="Vstar"/> Матрица значимых собственных векторов без последней строки
         ///     <see langword="tauMatrixEigenvector"/> Тау-вектор (последняя строка <paramref name="subEigenvectors"/>) <br/>
         /// </returns>
-        private (Matrix<double> Vstar, Matrix<double> tauMatrixEigenvector) GetPreparedMatrixForForecasting(
+        private static (Matrix<double> Vstar, Matrix<double> tauMatrixEigenvector) GetPreparedMatrixForForecasting(
             List<Vector<double>> subEigenvectors,
             int tau)
         {
@@ -249,7 +253,7 @@ namespace Analytic.AnalyticUnits.Profiles.SSA
         /// <param name="array"> Исходыный массив </param>
         /// <param name="tau_delayNumber"> Кол-во задержек </param>
         /// <param name="neededForecastingCount"> Кол-во предсказаний </param>
-        private double[] ForecastingSignal(
+        private static double[] ForecastingSignal(
             Matrix<double> Vstar,
             Matrix<double> tauMatrixEigenvector,
             double[] array,
@@ -301,7 +305,7 @@ namespace Analytic.AnalyticUnits.Profiles.SSA
             imagePath = Path.Combine(directoryPath, $"{pair}.png");
             if (File.Exists(imagePath) && File.GetCreationTime(imagePath).AddMinutes(_numberOfMinutesOfImageStorage) > DateTime.Now)
             {
-                _logger.Trace($"The graph for '{pair}' was created recently, saving and processing is canceled. Path: {directoryPath}");
+                _logger.TraceAsync($"The graph for '{pair}' was created recently, saving and processing is canceled. Path: {directoryPath}");
                 return false;
             }
 
@@ -342,11 +346,11 @@ namespace Analytic.AnalyticUnits.Profiles.SSA
 
                 plot.SaveFig(imagePath);
 
-                _logger.Trace($"Successful create grafic for model {pair}. Path: {imagePath}");
+                _logger.TraceAsync($"Successful create grafic for model {pair}. Path: {imagePath}");
             }
             catch (Exception ex)
             {
-                _logger.Error(ex, $"Failed to create and save image for {pair}");
+                _logger.ErrorAsync(ex, $"Failed to create and save image for {pair}").Wait(5 * 1000);
 
                 return false;
             }
@@ -363,7 +367,7 @@ namespace Analytic.AnalyticUnits.Profiles.SSA
             if (!Directory.Exists(directoryPath))
             {
                 Directory.CreateDirectory(directoryPath);
-                _logger.Trace($"Successful created directory {directoryPath}");
+                _logger.TraceAsync($"Successful created directory {directoryPath}");
             }
 
             return directoryPath;
@@ -372,7 +376,7 @@ namespace Analytic.AnalyticUnits.Profiles.SSA
         /// <summary>
         ///     Возвращает массив дат в OA формате для подписей осей предсказанных данных
         /// </summary>
-        private double[] CreatePredictionsDates(DateTime from, int predictionDataLength, int offset)
+        private static double[] CreatePredictionsDates(DateTime from, int predictionDataLength, int offset)
         {
             var timesForPredictions = new double[predictionDataLength];
             for (var i = 0; i < predictionDataLength; i++)
@@ -409,7 +413,7 @@ namespace Analytic.AnalyticUnits.Profiles.SSA
             }
             catch (Exception ex)
             {
-                _logger.Error(ex, "Failed to save predicted data");
+                await _logger.ErrorAsync(ex, "Failed to save predicted data", cancellationToken: cancellationToken);
             }
         }
 
@@ -421,7 +425,7 @@ namespace Analytic.AnalyticUnits.Profiles.SSA
         /// <param name="newX"> Восстановленная исходная матрица </param>
         /// <param name="pricesLength"> Кол-во значений в первоначальном векторе-сигнале </param>
         /// <param name="tau_delayNumber"> Число задержек </param>
-        private double[] SignalRecovery(double[,] newX, int pricesLength, int tau_delayNumber)
+        private static double[] SignalRecovery(double[,] newX, int pricesLength, int tau_delayNumber)
         {
             var result = new List<double>();
             var n = pricesLength - tau_delayNumber + 1;

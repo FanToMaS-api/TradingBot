@@ -1,6 +1,7 @@
 ﻿using Analytic.Models;
 using Common.Models;
 using ExchangeLibrary;
+using Logger;
 using NLog;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,8 +15,18 @@ namespace Analytic.Filters.Impl.FilterManagers
     {
         #region Fields
 
-        private static readonly Logger Log = LogManager.GetCurrentClassLogger();
+        private readonly ILoggerDecorator _logger;
         private readonly Dictionary<string, InfoModel> _infoModels = new();
+
+        #endregion
+
+        #region .ctor
+
+        /// <inheritdoc cref="DefaultFilterManager"/>
+        public DefaultFilterManager(ILoggerDecorator logger)
+        {
+            _logger = logger;
+        }
 
         #endregion
 
@@ -66,7 +77,7 @@ namespace Analytic.Filters.Impl.FilterManagers
                 {
                     if (specialPriceFilters.All(_ => _.CheckConditions(infoModel)))
                     {
-                        Log.Trace($"Ticker {model.Name} suitable for SPECIAL filters");
+                        _logger.TraceAsync($"Ticker {model.Name} suitable for SPECIAL filters").Wait(5 * 1000);
                         result.Add(infoModel);
                     }
 
@@ -75,7 +86,7 @@ namespace Analytic.Filters.Impl.FilterManagers
 
                 if (commonFilters.All(_ => _.CheckConditions(infoModel)))
                 {
-                    Log.Trace($"Ticker {model.Name} suitable for COMMON filters");
+                    _logger.TraceAsync($"Ticker {model.Name} suitable for COMMON filters").Wait(5 * 1000);
                     result.Add(infoModel);
                 }
             }
@@ -138,7 +149,11 @@ namespace Analytic.Filters.Impl.FilterManagers
                 {
                     if (!specialFilters.All(_ => _.CheckConditions(model)))
                     {
-                        Log.Trace($"Ticker {model.TradeObjectName} does not suitable for SPECIAL LATEST filters");
+                        _logger
+                            .TraceAsync(
+                                $"Ticker {model.TradeObjectName} does not suitable for SPECIAL LATEST filters",
+                                cancellationToken: cancellationToken)
+                            .Wait(5 * 1000, cancellationToken);
                         models.Remove(model);
                         i--;
                     }
@@ -148,7 +163,11 @@ namespace Analytic.Filters.Impl.FilterManagers
 
                 if (!commonLatestFilters.All(_ => _.CheckConditions(model)))
                 {
-                    Log.Trace($"Ticker {model.TradeObjectName} does not suitable for COMMON LATEST filters");
+                    _logger
+                        .TraceAsync(
+                            $"Ticker {model.TradeObjectName} does not suitable for COMMON LATEST filters",
+                            cancellationToken: cancellationToken)
+                        .Wait(5 * 1000, cancellationToken);
                     models.Remove(model);
                     i--;
                 }

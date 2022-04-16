@@ -3,10 +3,10 @@ using BinanceDatabase.Repositories.ColdRepositories;
 using BinanceDatabase.Repositories.ColdRepositories.Impl;
 using BinanceDatabase.Repositories.HotRepositories;
 using BinanceDatabase.Repositories.HotRepositories.Impl;
+using Logger;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using NLog;
 using System;
 
 namespace BinanceDatabase
@@ -20,7 +20,7 @@ namespace BinanceDatabase
         ///     Строка подключения к бд
         /// </summary>
         private const string POSTGRES_CONNECTION_STRING = nameof(POSTGRES_CONNECTION_STRING);
-        private static readonly ILogger Log = LogManager.GetCurrentClassLogger();
+        private static readonly ILoggerDecorator Log = LoggerManager.CreateDefaultLogger();
 
         /// <summary>
         ///     Добавить поддержку БД
@@ -28,7 +28,7 @@ namespace BinanceDatabase
         public static void AddBinanceDatabase(this IServiceCollection services, IConfiguration configuration)
         {
             var connectionString = configuration.GetValue<string>(POSTGRES_CONNECTION_STRING);
-            Log.Trace($"{POSTGRES_CONNECTION_STRING}='{connectionString}'");
+            Log.TraceAsync($"{POSTGRES_CONNECTION_STRING}='{connectionString}'");
 
             services.AddDbContext<AppDbContext>(options =>
                 options.UseNpgsql(connectionString));
@@ -48,14 +48,14 @@ namespace BinanceDatabase
         {
             try
             {
-                Log.Info("Applying database migrations...");
+                Log.InfoAsync("Applying database migrations...");
 
                 using var scope = serviceProvider.CreateScope();
                 var db = scope.ServiceProvider.GetService<AppDbContext>();
 
                 db.Database.Migrate();
 
-                Log.Info("Database migrations successfully applied");
+                Log.InfoAsync("Database migrations successfully applied");
             }
             catch (Exception ex)
             {

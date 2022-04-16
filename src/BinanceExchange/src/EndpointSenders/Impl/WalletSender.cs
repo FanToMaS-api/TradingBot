@@ -1,7 +1,6 @@
 ﻿using BinanceExchange.Client;
 using BinanceExchange.Models;
 using Common.JsonConvertWrapper;
-using NLog;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading;
@@ -17,7 +16,6 @@ namespace BinanceExchange.EndpointSenders.Impl
         #region Fields
 
         private readonly IBinanceClient _client;
-        private readonly ILogger _logger = LogManager.GetCurrentClassLogger();
 
         #endregion
 

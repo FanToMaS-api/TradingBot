@@ -15,7 +15,6 @@ namespace BinanceExchange.EndpointSenders.Impl
 
         private readonly IBinanceClient _client;
         private readonly JsonDeserializerWrapper _converter;
-        private readonly ILogger _logger = LogManager.GetCurrentClassLogger();
 
         #endregion
 

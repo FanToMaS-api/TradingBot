@@ -1,7 +1,7 @@
 ﻿namespace Common.Models
 {
     /// <summary>
-    ///     Базовый класс настроек бирж
+    ///     Базовый класс настроек
     /// </summary>
     public abstract class OptionsBase
     {
