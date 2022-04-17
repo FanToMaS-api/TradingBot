@@ -8,7 +8,6 @@ using DataServiceLibrary;
 using ExchangeLibrary;
 using Logger;
 using Microsoft.Extensions.DependencyInjection;
-using NLog;
 using Quartz;
 using Scheduler;
 using System;
@@ -106,7 +105,7 @@ namespace BinanceDataService.DataHandlers
         /// <summary>
         ///     Обрабатывает полученные данные
         /// </summary>
-        private async Task HandleAsync(IEnumerable<MiniTradeObjectStreamModel> models, CancellationToken cancellationToken)
+        internal async Task HandleAsync(IEnumerable<MiniTradeObjectStreamModel> models, CancellationToken cancellationToken)
         {
             try
             {
@@ -126,7 +125,7 @@ namespace BinanceDataService.DataHandlers
         /// <summary>
         ///     Сохраняет полученные данные
         /// </summary>
-        private async Task SaveDataAsync(IServiceProvider serviceProvider)
+        internal async Task SaveDataAsync(IServiceProvider serviceProvider)
         {
             _isAssistantStorageSaving = !_isAssistantStorageSaving;
 
@@ -154,7 +153,7 @@ namespace BinanceDataService.DataHandlers
         /// <summary>
         ///     Маппит и сохраняет данные в бд
         /// </summary>
-        private async Task SaveDataAsync(IServiceProvider serviceProvider, IEnumerable<MiniTradeObjectStreamModel> streamModels)
+        internal async Task SaveDataAsync(IServiceProvider serviceProvider, IEnumerable<MiniTradeObjectStreamModel> streamModels)
         {
             var databaseFactory = serviceProvider.GetRequiredService<IBinanceDbContextFactory>();
             using var database = databaseFactory.CreateScopeDatabase();
@@ -174,7 +173,7 @@ namespace BinanceDataService.DataHandlers
         /// <summary>
         ///     Возвращает аггрегированные (через усреднение) данные о мини-тикерах
         /// </summary>
-        private MiniTickerEntity[] GetGroupedMiniTickers(AggregateDataIntervalType intervalType, IEnumerable<MiniTradeObjectStreamModel> streamModels)
+        internal MiniTickerEntity[] GetGroupedMiniTickers(AggregateDataIntervalType intervalType, IEnumerable<MiniTradeObjectStreamModel> streamModels)
         {
             var groupsByName = _mapper.Map<IEnumerable<MiniTickerEntity>>(streamModels).GroupBy(_ => _.ShortName);
             var interval = intervalType.ConvertToTimeSpan();
@@ -228,7 +227,7 @@ namespace BinanceDataService.DataHandlers
         /// </summary>
         /// <param name="counter"> Счетчик усредненных моделей </param>
         /// <param name="isDataLeft"> Флаг, что усредненных данных больше нет </param>
-        private static void AddToResult(
+        internal static void AddToResult(
             List<MiniTickerEntity> aggregatedMiniTickers,
             MiniTickerEntity aggregateObject,
             ref int counter,
@@ -242,7 +241,7 @@ namespace BinanceDataService.DataHandlers
         /// <summary>
         ///     Аггрегирует поля объектов в один объект
         /// </summary>
-        private static void AggregateFields(MiniTickerEntity addedObject, MiniTickerEntity aggregateObject)
+        internal static void AggregateFields(MiniTickerEntity addedObject, MiniTickerEntity aggregateObject)
         {
             aggregateObject.OpenPrice += addedObject.OpenPrice;
             aggregateObject.MaxPrice += addedObject.MaxPrice;
@@ -255,7 +254,7 @@ namespace BinanceDataService.DataHandlers
         /// <summary>
         ///     Усредняет значения полей
         /// </summary>
-        private static void AveragingFields(MiniTickerEntity aggregateObject, int conter)
+        internal static void AveragingFields(MiniTickerEntity aggregateObject, int conter)
         {
             aggregateObject.OpenPrice /= conter;
             aggregateObject.MaxPrice /= conter;
@@ -278,7 +277,7 @@ namespace BinanceDataService.DataHandlers
         /// <summary>
         ///     Удаляет накопившиеся данные
         /// </summary>
-        private async Task DeleteDataAsync(IServiceProvider serviceProvider)
+        internal async Task DeleteDataAsync(IServiceProvider serviceProvider)
         {
             var now = DateTime.Now;
             var databaseFactory = serviceProvider.GetRequiredService<IBinanceDbContextFactory>();

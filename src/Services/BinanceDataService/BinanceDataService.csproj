@@ -1,15 +1,21 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFramework>net5.0</TargetFramework>
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFramework>net5.0</TargetFramework>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\..\Databases\BinanceDatabase\BinanceDatabase.csproj" />
-    <ProjectReference Include="..\..\Libraries\DataServiceLibrary\DataServiceLibrary.csproj" />
-    <ProjectReference Include="..\..\Libraries\ExchangeLibrary\ExchangeLibrary.csproj" />
-    <ProjectReference Include="..\..\Logger\Logger.csproj" />
-    <ProjectReference Include="..\Scheduler\Scheduler.csproj" />
-  </ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\..\Databases\BinanceDatabase\BinanceDatabase.csproj" />
+		<ProjectReference Include="..\..\Libraries\DataServiceLibrary\DataServiceLibrary.csproj" />
+		<ProjectReference Include="..\..\Libraries\ExchangeLibrary\ExchangeLibrary.csproj" />
+		<ProjectReference Include="..\..\Logger\Logger.csproj" />
+		<ProjectReference Include="..\Scheduler\Scheduler.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
+			<_Parameter1>BinanceDataServiceTests</_Parameter1>
+		</AssemblyAttribute>
+	</ItemGroup>
 
 </Project>
