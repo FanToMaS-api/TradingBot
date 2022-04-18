@@ -183,10 +183,10 @@ namespace SignalsSender
 
                     var pairSymbols = model.TradeObjectName.Insert(model.TradeObjectName.Length - symbol.Length, "/");
                     var pairName = pairSymbols.Replace("/", "_");
-                    var message = $"*{pairSymbols}*\n*Минимальная цена предсказания: {model.RecommendedPurchasePrice:0.00000}*";
+                    var message = $"*{pairSymbols}*\n*Минимальная цена прогноза: {model.RecommendedPurchasePrice:0.00000}*";
                     if (model.RecommendedSellingPrice is not null)
                     {
-                        message += $"\n*Максимальная цена предсказания: {model.RecommendedSellingPrice.Value:0.00000}*";
+                        message += $"\n*Максимальная цена прогноза: {model.RecommendedSellingPrice.Value:0.00000}*";
                     }
 
                     builder.SetMessageText(message);

@@ -33,8 +33,8 @@ namespace BinanceDatabase.Entities
         public DateTime EventTime { get; set; }
 
         /// <inheritdoc />
-        [Column("interval")]
-        public AggregateDataIntervalType IntervalType { get; set; }
+        [Column("aggregate_data_interval")]
+        public AggregateDataIntervalType AggregateDataInterval { get; set; }
 
         /// <summary>
         ///     Цена закрытия
@@ -82,7 +82,7 @@ namespace BinanceDatabase.Entities
             // Индексы
             builder.HasIndex(_ => _.ShortName).HasDatabaseName("IX_mini_tickers_short_name");
             builder.HasIndex(_ => _.EventTime).HasDatabaseName("IX_mini_tickers_event_time");
-            builder.HasIndex(_ => _.IntervalType).HasDatabaseName("IX_mini_tickers_interval");
+            builder.HasIndex(_ => _.AggregateDataInterval).HasDatabaseName("IX_mini_tickers_aggregate_data_interval");
             builder.HasIndex(_ => _.ClosePrice).HasDatabaseName("IX_mini_tickers_close_price");
             builder.HasIndex(_ => _.OpenPrice).HasDatabaseName("IX_mini_tickers_open_price");
             builder.HasIndex(_ => _.MinPrice).HasDatabaseName("IX_mini_tickers_min_price");

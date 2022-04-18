@@ -22,6 +22,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\src\Services\BinanceDataService\BinanceDataService.csproj" />
+    <ProjectReference Include="..\..\SharedForTest\SharedForTest.csproj" />
   </ItemGroup>
 
 </Project>

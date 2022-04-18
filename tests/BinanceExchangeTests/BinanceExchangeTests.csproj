@@ -23,6 +23,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\BinanceExchange\BinanceExchange.csproj" />
+    <ProjectReference Include="..\SharedForTest\SharedForTest.csproj" />
   </ItemGroup>
 
 </Project>

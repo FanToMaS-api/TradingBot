@@ -133,12 +133,12 @@ namespace BinanceDataService.DataHandlers
             {
                 if (_isAssistantStorageSaving)
                 {
-                    await SaveDataAsync(serviceProvider, _assistantModelsStorage.OrderByDescending(_ => _.EventTimeUnix));
+                    await SaveDataAsync(serviceProvider, _assistantModelsStorage);
                     _assistantModelsStorage.Clear();
                     return;
                 }
 
-                await SaveDataAsync(serviceProvider, _mainModelsStorage.OrderByDescending(_ => _.EventTimeUnix));
+                await SaveDataAsync(serviceProvider, _mainModelsStorage);
                 _mainModelsStorage.Clear();
             }
             catch (Exception ex)
@@ -181,30 +181,27 @@ namespace BinanceDataService.DataHandlers
             foreach (var group in groupsByName)
             {
                 var first = group.FirstOrDefault();
-                if (first is null)
-                {
-                    continue;
-                }
-
                 var start = first.EventTime;
                 var counter = 0;
                 var isNotDistributedItemsLeft = false;
                 var aggregateObject = new MiniTickerEntity()
                 {
                     ShortName = group.Key,
-                    IntervalType = intervalType,
+                    AggregateDataInterval = intervalType,
                     EventTime = start,
                 };
 
                 foreach (var item in group)
                 {
                     isNotDistributedItemsLeft = true;
-                    if (start - item.EventTime >= interval)
+                    if (item.EventTime - start > interval)
                     {
                         AveragingFields(aggregateObject, counter);
                         AddToResult(aggregatedMiniTickers, aggregateObject, ref counter, ref isNotDistributedItemsLeft);
                         aggregateObject = item;
+                        aggregateObject.AggregateDataInterval = intervalType;
                         start = item.EventTime;
+                        isNotDistributedItemsLeft = true;
                         continue;
                     }
 
@@ -234,7 +231,7 @@ namespace BinanceDataService.DataHandlers
             ref bool isDataLeft)
         {
             aggregatedMiniTickers.Add(aggregateObject);
-            counter = 0;
+            counter = 1;
             isDataLeft = false;
         }
 

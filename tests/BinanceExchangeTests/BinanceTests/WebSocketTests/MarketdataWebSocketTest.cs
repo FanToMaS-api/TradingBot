@@ -15,6 +15,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
+using SharedForTest;
 
 namespace BinanceExchangeTests.BinanceTests.WebSocketTests
 {
@@ -109,7 +110,7 @@ namespace BinanceExchangeTests.BinanceTests.WebSocketTests
                 async (content) =>
                 {
                     var actual = _deserializer.Deserialize<AggregateSymbolTradeStreamModel>(content);
-                    TestHelper.CheckingAssertions(expected, actual);
+                    TestExtensions.CheckingAssertions(expected, actual);
 
                     await webSocket.DisconnectAsync(CancellationToken.None);
                 },
@@ -139,7 +140,7 @@ namespace BinanceExchangeTests.BinanceTests.WebSocketTests
                 async (content) =>
                 {
                     var actual = _deserializer.Deserialize<BookTickerStreamModel>(content);
-                    TestHelper.CheckingAssertions(_expectedBookTickerStreamModel, actual);
+                    TestExtensions.CheckingAssertions(_expectedBookTickerStreamModel, actual);
 
                     await webSocket.DisconnectAsync(CancellationToken.None);
                 },
@@ -167,7 +168,7 @@ namespace BinanceExchangeTests.BinanceTests.WebSocketTests
                     var actualList = actual.ToList();
                     for (var j = 0; j < actualList.Count; j++)
                     {
-                        TestHelper.CheckingAssertions(_expectedBookTickerStreamModel, actualList[j]);
+                        TestExtensions.CheckingAssertions(_expectedBookTickerStreamModel, actualList[j]);
                     }
 
                     await webSocket.DisconnectAsync(CancellationToken.None);
@@ -227,7 +228,7 @@ namespace BinanceExchangeTests.BinanceTests.WebSocketTests
                     Assert.Equal(expected.EventTimeUnix, actual.EventTimeUnix);
                     Assert.Equal(expected.Symbol, actual.Symbol);
 
-                    TestHelper.CheckingAssertions(expected.Kline, actual.Kline);
+                    TestExtensions.CheckingAssertions(expected.Kline, actual.Kline);
 
                     await webSocket.DisconnectAsync(CancellationToken.None);
                 },
@@ -259,7 +260,7 @@ namespace BinanceExchangeTests.BinanceTests.WebSocketTests
                 async (content) =>
                 {
                     var actual = _deserializer.Deserialize<MiniTickerStreamModel>(content);
-                    TestHelper.CheckingAssertions(_expectedMiniTickerStreamModel, actual);
+                    TestExtensions.CheckingAssertions(_expectedMiniTickerStreamModel, actual);
 
                     await webSocket.DisconnectAsync(CancellationToken.None);
                 },
@@ -288,7 +289,7 @@ namespace BinanceExchangeTests.BinanceTests.WebSocketTests
                     var actualList = actual.ToList();
                     for (var j = 0; j < actualList.Count; j++)
                     {
-                        TestHelper.CheckingAssertions(_expectedMiniTickerStreamModel, actualList[j]);
+                        TestExtensions.CheckingAssertions(_expectedMiniTickerStreamModel, actualList[j]);
                     }
 
                     await webSocket.DisconnectAsync(CancellationToken.None);
@@ -398,7 +399,7 @@ namespace BinanceExchangeTests.BinanceTests.WebSocketTests
                 async (content) =>
                 {
                     var actual = _deserializer.Deserialize<SymbolTradeStreamModel>(content);
-                    TestHelper.CheckingAssertions(expected, actual);
+                    TestExtensions.CheckingAssertions(expected, actual);
 
                     await webSocket.DisconnectAsync(CancellationToken.None);
                 },
@@ -428,7 +429,7 @@ namespace BinanceExchangeTests.BinanceTests.WebSocketTests
                 async (content) =>
                 {
                     var actual = _deserializer.Deserialize<TickerStreamModel>(content);
-                    TestHelper.CheckingAssertions(_expectedTickerStreamModel, actual);
+                    TestExtensions.CheckingAssertions(_expectedTickerStreamModel, actual);
 
                     await webSocket.DisconnectAsync(CancellationToken.None);
                 },
@@ -457,7 +458,7 @@ namespace BinanceExchangeTests.BinanceTests.WebSocketTests
                     var actualList = actual.ToList();
                     for (var j = 0; j < actualList.Count; j++)
                     {
-                        TestHelper.CheckingAssertions(_expectedTickerStreamModel, actualList[j]);
+                        TestExtensions.CheckingAssertions(_expectedTickerStreamModel, actualList[j]);
                     }
 
                     await webSocket.DisconnectAsync(CancellationToken.None);

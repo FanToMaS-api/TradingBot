@@ -7,6 +7,7 @@ using BinanceExchange.EndpointSenders.Impl;
 using BinanceExchange.Enums;
 using BinanceExchange.Models;
 using Common.Enums;
+using SharedForTest;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -81,7 +82,7 @@ namespace BinanceExchangeTests.BinanceTests.EndpointSendersTests
 
             for (var i = 0; i < _expectedResponse.Fills.Count; i++)
             {
-                TestHelper.CheckingAssertions(_expectedResponse.Fills[i], result.Fills[i]);
+                TestExtensions.CheckingAssertions(_expectedResponse.Fills[i], result.Fills[i]);
             }
 
             return result;
@@ -108,7 +109,7 @@ namespace BinanceExchangeTests.BinanceTests.EndpointSendersTests
 
             // Act
             var result = await tradeSender.SendNewOrderAsync(query, cancellationToken: CancellationToken.None);
-            TestHelper.CheckingAssertions(_expectedResponse, result);
+            TestExtensions.CheckingAssertions(_expectedResponse, result);
 
             return result;
         }
@@ -224,7 +225,7 @@ namespace BinanceExchangeTests.BinanceTests.EndpointSendersTests
             // Act
             var result = await tradeSender.CheckOrderAsync(query, cancellationToken: CancellationToken.None);
 
-            TestHelper.CheckingAssertions(_expectedCheckOrderResponse, result);
+            TestExtensions.CheckingAssertions(_expectedCheckOrderResponse, result);
         }
 
         /// <summary>
@@ -251,7 +252,7 @@ namespace BinanceExchangeTests.BinanceTests.EndpointSendersTests
             Assert.Equal(2, result.Count);
             for (var j = 0; j < 2; j++)
             {
-                TestHelper.CheckingAssertions(_expectedCheckOrderResponse, result[j]);
+                TestExtensions.CheckingAssertions(_expectedCheckOrderResponse, result[j]);
 
                 // изменение данных тут, чтобы не плодить объекты
                 _expectedCheckOrderResponse.ClientOrderId = "1";
@@ -286,7 +287,7 @@ namespace BinanceExchangeTests.BinanceTests.EndpointSendersTests
             Assert.Equal(2, result.Count);
             for (var j = 0; j < 2; j++)
             {
-                TestHelper.CheckingAssertions(_expectedCheckOrderResponse, result[j]);
+                TestExtensions.CheckingAssertions(_expectedCheckOrderResponse, result[j]);
 
                 // изменение данных тут, чтобы не плодить объекты
                 _expectedCheckOrderResponse.ClientOrderId = "1";
@@ -316,7 +317,7 @@ namespace BinanceExchangeTests.BinanceTests.EndpointSendersTests
             // Act
             var result = await tradeSender.GetAccountInformationAsync(query, cancellationToken: CancellationToken.None);
 
-            TestHelper.CheckingAssertions(_expectedAccountInformationResponse, result);
+            TestExtensions.CheckingAssertions(_expectedAccountInformationResponse, result);
 
             return result;
         }
