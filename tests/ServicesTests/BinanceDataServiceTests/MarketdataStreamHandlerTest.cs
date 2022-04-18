@@ -2,11 +2,13 @@ using AutoMapper;
 using BinanceDatabase;
 using BinanceDatabase.Entities;
 using BinanceDatabase.Enums;
+using BinanceDatabase.Repositories;
 using BinanceDataService.DataHandlers;
 using Common.Models;
 using Common.WebSocket;
 using ExchangeLibrary;
 using Logger;
+using Microsoft.Extensions.DependencyInjection;
 using NSubstitute;
 using Quartz;
 using Scheduler;
@@ -14,6 +16,7 @@ using SharedForTest;
 using System;
 using System.Collections.Generic;
 using System.Threading;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace BinanceDataServiceTests
@@ -21,21 +24,19 @@ namespace BinanceDataServiceTests
     /// <summary>
     ///     Тестирует <see cref="MarketdataStreamHandler"/>
     /// </summary>
-    public class MarketdataStreamHandlerTest : IClassFixture<DatabaseFixture>, IDisposable
+    public class MarketdataStreamHandlerTest
     {
         #region Fields
 
         private readonly MarketdataStreamHandler _dataHandler;
-        private readonly DatabaseFixture _databaseFixture;
 
         #endregion
 
         #region .ctor
 
         /// <inheritdoc cref="MarketdataStreamHandlerTest"/>
-        public MarketdataStreamHandlerTest(DatabaseFixture databaseFixture)
+        public MarketdataStreamHandlerTest()
         {
-            _databaseFixture = databaseFixture;
             var mapperConfig = new MapperConfiguration(
                 mc =>
                 {
@@ -68,24 +69,8 @@ namespace BinanceDataServiceTests
         [Fact(DisplayName = "Aggregate fields Test")]
         public void AggregateFields_Test()
         {
-            var addedObject = new MiniTickerEntity
-            {
-                OpenPrice = 1,
-                MaxPrice = 1,
-                ClosePrice = 1,
-                MinPrice = 1,
-                QuotePurchaseVolume = 1,
-                BasePurchaseVolume = 1,
-            };
-            var aggregateObject = new MiniTickerEntity
-            {
-                OpenPrice = 1,
-                MaxPrice = 1,
-                ClosePrice = 1,
-                MinPrice = 1,
-                QuotePurchaseVolume = 1,
-                BasePurchaseVolume = 1,
-            };
+            var addedObject = CreateMiniTickerEntity(1, 1, 1, 1, 1, 1, DateTime.Now, AggregateDataIntervalType.Default);
+            var aggregateObject = CreateMiniTickerEntity(1, 1, 1, 1, 1, 1, DateTime.Now, AggregateDataIntervalType.Default);
 
             MarketdataStreamHandler.AggregateFields(addedObject, aggregateObject);
 
@@ -106,15 +91,7 @@ namespace BinanceDataServiceTests
         [Fact(DisplayName = "Averaging fields Test")]
         public void AveragingFields_Test()
         {
-            var aggregateObject = new MiniTickerEntity
-            {
-                OpenPrice = 2.5,
-                MaxPrice = 2.5,
-                ClosePrice = 2.5,
-                MinPrice = 2.5,
-                QuotePurchaseVolume = 2.5,
-                BasePurchaseVolume = 2.5,
-            };
+            var aggregateObject = CreateMiniTickerEntity(2.5, 2.5, 2.5, 2.5, 2.5, 2.5, DateTime.Now, AggregateDataIntervalType.Default);
 
             MarketdataStreamHandler.AveragingFields(aggregateObject, 2);
 
@@ -126,33 +103,7 @@ namespace BinanceDataServiceTests
             Assert.Equal(1.25, aggregateObject.BasePurchaseVolume);
         }
 
-        /// <summary>
-        ///     Тест функции добавления усредненной модели в результирующий список и сброса параметров
-        /// </summary>
-        [Fact(DisplayName = "Add to result Test")]
-        public void AddToResult_Test()
-        {
-            var aggregateObject = new MiniTickerEntity
-            {
-                OpenPrice = 2.5,
-                MaxPrice = 2.5,
-                ClosePrice = 2.5,
-                MinPrice = 2.5,
-                QuotePurchaseVolume = 2.5,
-                BasePurchaseVolume = 2.5,
-            };
-
-            var list = new List<MiniTickerEntity>();
-            var counter = 100;
-            var isDataLeft = true;
-            MarketdataStreamHandler.AddToResult(list, aggregateObject, ref counter, ref isDataLeft);
-
-            Assert.False(isDataLeft);
-            Assert.Equal(1, counter);
-            Assert.Single(list);
-        }
-
-        #region Memeber data for GetGroupedMiniTickers_Test
+        #region Member data for GetAveragingMiniTickers_Test
 
         private static readonly DateTime StartDate = new(2022, 12, 12, 12, 12, 12);
 
@@ -209,16 +160,16 @@ namespace BinanceDataServiceTests
         #endregion
 
         /// <summary>
-        ///     Тест группировки данных через усреднение
+        ///     Тест агрегирования данных через усреднение
         /// </summary>
-        [Theory]
+        [Theory(DisplayName = "Get averaging mini tickers Test")]
         [MemberData(nameof(IntervalsStreamModels))]
-        public void GetGroupedMiniTickers_Test(
+        public void GetAveragingMiniTickers_Test(
             AggregateDataIntervalType intervalType,
             IEnumerable<MiniTradeObjectStreamModel> streamModels,
             MiniTickerEntity[] expectedResult)
         {
-            var actual = _dataHandler.GetGroupedMiniTickers(intervalType, streamModels);
+            var actual = _dataHandler.GetAveragingMiniTickers(intervalType, streamModels);
             Assert.Equal(expectedResult.Length, actual.Length);
             for (var i = 0; i < expectedResult.Length; i++)
             {
@@ -226,7 +177,33 @@ namespace BinanceDataServiceTests
             }
         }
 
+        /// <summary>
+        ///     Тест обработки данных
+        /// </summary>
+        [Fact(DisplayName = "Handle data async Test")]
+        public async Task HandleDataAsync_Test()
+        {
+            var serviceProvider = Substitute.For<IServiceProvider>();
+            var databaseFactory = Substitute.For<IBinanceDbContextFactory>();
+            var unitOfWork = Substitute.For<IUnitOfWork>();
+            databaseFactory.CreateScopeDatabase().Returns(unitOfWork);
+            serviceProvider.GetService<IBinanceDbContextFactory>().ReturnsForAnyArgs(databaseFactory);
 
+            // Act #1
+            await _dataHandler.HandleDataAsync(_streamModels, CancellationToken.None);
+
+            var isAssistantStorageSaving = _dataHandler.IsAssistantStorageSaving;
+            await _dataHandler.SaveDataAsync(serviceProvider);
+            Assert.Equal(!isAssistantStorageSaving, _dataHandler.IsAssistantStorageSaving);
+
+            // Act #1
+            _streamModels.AddRange(_streamModels);
+            await _dataHandler.HandleDataAsync(_streamModels, CancellationToken.None);
+
+            isAssistantStorageSaving = _dataHandler.IsAssistantStorageSaving;
+            await _dataHandler.SaveDataAsync(serviceProvider);
+            Assert.Equal(!isAssistantStorageSaving, _dataHandler.IsAssistantStorageSaving);
+        }
 
         #endregion
 
@@ -279,16 +256,6 @@ namespace BinanceDataServiceTests
                 EventTime = eventTime,
                 AggregateDataInterval = aggregateDataInterval
             };
-
-        #endregion
-
-        #region Implementation IDisposable
-
-        /// <inheritdoc />
-        public void Dispose()
-        {
-            throw new NotImplementedException();
-        }
 
         #endregion
     }

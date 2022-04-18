@@ -1,11 +1,10 @@
-﻿using Analytic.Models;
+﻿using Analytic.AnalyticUnits.Profiles.SSA.Models;
+using Analytic.Models;
 using BinanceDatabase;
 using BinanceDatabase.Entities;
-using BinanceDatabase.Repositories;
 using Logger;
 using MathNet.Numerics.LinearAlgebra;
 using Microsoft.Extensions.DependencyInjection;
-using NLog;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -60,10 +59,8 @@ namespace Analytic.AnalyticUnits.Profiles.SSA
             InfoModel model,
             CancellationToken cancellationToken)
         {
-            using var scope = serviceScopeFactory.CreateScope();
-            var databaseFactory = scope.ServiceProvider.GetRequiredService<IBinanceDbContextFactory>();
-            using var database = databaseFactory.CreateScopeDatabase();
-            var enities = database.HotUnitOfWork.HotMiniTickers.GetArray(model.TradeObjectName, _numberPricesToTake);
+            var pairName = model.TradeObjectName;
+            var enities = GetHotMiniTickers(serviceScopeFactory, pairName);
             if (!enities.Any())
             {
                 return (false, null);
@@ -77,9 +74,9 @@ namespace Analytic.AnalyticUnits.Profiles.SSA
             }
 
             await _logger.TraceAsync(
-                $"Successful predicted {predictions.Length} prices for {model.TradeObjectName}",
+                $"Successful predicted {predictions.Length} prices for {pairName}",
                 cancellationToken: cancellationToken);
-            await SavePredictionAsync(database, model.TradeObjectName, enities.Last().ReceivedTime, predictions, cancellationToken);
+            await SavePredictionAsync(serviceScopeFactory, pairName, enities.Last().ReceivedTime, predictions, cancellationToken);
 
             var minMaxPriceModel = MinMaxPriceModel.Create(predictions);
             if (minMaxPriceModel.MinPrice <= 0)
@@ -91,14 +88,14 @@ namespace Analytic.AnalyticUnits.Profiles.SSA
                 prices,
                 predictions,
                 enities.Select(_ => _.ReceivedTime),
-                model.TradeObjectName,
+                pairName,
                 minMaxPriceModel,
                 out var imagePath);
 
 
             var result = new AnalyticResultModel()
             {
-                TradeObjectName = model.TradeObjectName,
+                TradeObjectName = pairName,
                 HasPredictionImage = canCreateChart,
                 RecommendedPurchasePrice = minMaxPriceModel.MinPrice,
                 RecommendedSellingPrice = minMaxPriceModel.MaxPrice,
@@ -113,6 +110,18 @@ namespace Analytic.AnalyticUnits.Profiles.SSA
         #region Private methods
 
         /// <summary>
+        ///     Возвращает самые актуальные сущности из базы для конкретной пары
+        /// </summary>
+        private HotMiniTickerEntity[] GetHotMiniTickers(IServiceScopeFactory serviceScopeFactory, string pairName)
+        {
+            using var scope = serviceScopeFactory.CreateScope();
+            var databaseFactory = scope.ServiceProvider.GetRequiredService<IBinanceDbContextFactory>();
+            using var database = databaseFactory.CreateScopeDatabase();
+
+             return database.HotUnitOfWork.HotMiniTickers.GetArray(pairName, _numberPricesToTake);
+        }
+
+        /// <summary>
         ///     Сингулярный спектральный анализ
         /// </summary>
         /// <returns>
@@ -124,36 +133,8 @@ namespace Analytic.AnalyticUnits.Profiles.SSA
         /// </remarks>
         private static double[] SSA(double[] prices)
         {
-            #region Преобразование одномерного ряда в многомерный
-
-            var tau_delayNumber = (prices.Length + 1) / 2;
-            var n = prices.Length - tau_delayNumber + 1;
-
-            var rectangleMatrix = Matrix<double>.Build.Dense(tau_delayNumber, n);
-            for (var i = 0; i < tau_delayNumber; i++)
-            {
-                for (var j = 0; j < n; j++)
-                {
-                    rectangleMatrix[i, j] = prices[i + j];
-                }
-            }
-
-            #endregion
-
-            // Построение ковариационной матрицы
-            var multiplicationMatrix = rectangleMatrix.TransposeAndMultiply(rectangleMatrix);
-            var covariationMatrix = 1 / (double)n * multiplicationMatrix;
-
-            // Определение собственных значений и собственных векторов матрицы
-            var evd = covariationMatrix.Evd();
-            var matrixEigenvectors = evd.EigenVectors;
-            var matrixEigenvalues = evd.EigenValues;
-
-            var matrixEigenvectorsTranspose = matrixEigenvectors.Transpose();
-
-            // Переход к главным компонентам
-            // Представление матрицы собственных векторов как матрицу перехода к главным компонентам
-            var mainComponents = matrixEigenvectorsTranspose * rectangleMatrix;
+            var ssaModel = SsaModel.Create(prices);
+            var (matrixEigenvectors, matrixEigenvalues) = ssaModel.GetEigenVectorsAndValues();
 
             // SSA-сглаживание
             var eigenvaluesArray = matrixEigenvalues.ToList();
@@ -163,24 +144,28 @@ namespace Analytic.AnalyticUnits.Profiles.SSA
             });
 
             var neededLambdas = eigenvaluesArray.Where(_ => _.Magnitude > 0.0002);
-            var subMatrixEigenvectors = GetSubListEigenvectors(matrixEigenvalues, neededLambdas, matrixEigenvectors);
+            var subMatrixEigenvectors = GetSubListEigenvectors(ssaModel, neededLambdas);
             if (!subMatrixEigenvectors.Any())
             {
                 return Array.Empty<double>();
             }
 
+            var mainComponents = ssaModel.MainComponentsMatrix;
             var newX = (matrixEigenvectors * mainComponents).ToArray();
 
             // Восстанавливаю сигнал
             // var result = SignalRecovery(newX, array.Length, tau);
 
+            var (Vstar, tauMatrixEigenvector) = GetPreparedMatrixForForecasting(
+                subMatrixEigenvectors,
+                ssaModel.TauDelayNumber);
+
             // предсказываем только четвертую часть от исходных данных
-            var (Vstar, tauMatrixEigenvector) = GetPreparedMatrixForForecasting(subMatrixEigenvectors, tau_delayNumber);
             var predictions = ForecastingSignal(
                 Vstar,
                 tauMatrixEigenvector,
                 prices,
-                tau_delayNumber,
+                ssaModel.TauDelayNumber,
                 prices.Length / 4);
 
             return predictions;
@@ -191,11 +176,11 @@ namespace Analytic.AnalyticUnits.Profiles.SSA
         ///     Зануляем столбцы собственных векторов, которые незначимы
         /// </summary>
         private static List<Vector<double>> GetSubListEigenvectors(
-            Vector<System.Numerics.Complex> matrixEigenvalues,
-            IEnumerable<System.Numerics.Complex> neededLambdas,
-            Matrix<double> matrixEigenvectors)
+            SsaModel model,
+            IEnumerable<System.Numerics.Complex> neededLambdas)
         {
             var subEigenvectors = new List<Vector<double>>(); // понадобится для предсказаний
+            var (matrixEigenvectors, matrixEigenvalues) = model.GetEigenVectorsAndValues();
             for (var i = 0; i < matrixEigenvalues.Count; i++)
             {
                 if (neededLambdas.Contains(matrixEigenvalues[i]))
@@ -321,28 +306,7 @@ namespace Analytic.AnalyticUnits.Profiles.SSA
                 var endTime = dateTimes.First();
                 var offset = (int)Math.Ceiling(Math.Abs((startTimeForPredictionsData - endTime).TotalSeconds / dateTimes.Count()));
                 var timeForPredictions = CreatePredictionsDates(startTimeForPredictionsData, predictions.Length, offset);
-
-                plot.AddScatter(dateTimes.Select(_ => _.ToOADate()).ToArray(), original, label: "Real");
-                plot.AddScatter(timeForPredictions, predictions, label: "Predicted");
-                plot.XAxis.TickLabelFormat("g", dateTimeFormat: true);
-                plot.AddText(
-                    $"Min: {minMaxPriceModel.MinPrice:0.0000}",
-                    timeForPredictions[minMaxPriceModel.MinIndex],
-                    minMaxPriceModel.MinPrice, 17);
-                plot.AddText(
-                    $"Max: {minMaxPriceModel.MaxPrice:0.0000}",
-                    timeForPredictions[minMaxPriceModel.MaxIndex],
-                    minMaxPriceModel.MaxPrice, 17);
-
-                plot.YAxis.Label("Price");
-                plot.XAxis.Label("Time");
-                plot.XAxis.TickLabelStyle(rotation: 45);
-                plot.XAxis2.Label(pair);
-                plot.Legend(true, ScottPlot.Alignment.LowerLeft);
-
-                plot.Style(ScottPlot.Style.Gray1);
-                var bnColor = System.Drawing.ColorTranslator.FromHtml("#2e3440");
-                plot.Style(figureBackground: bnColor, dataBackground: bnColor, tick: System.Drawing.Color.WhiteSmoke);
+                AddCaptionsToChart(plot, pair, minMaxPriceModel, original, predictions, timeForPredictions, dateTimes);
 
                 plot.SaveFig(imagePath);
 
@@ -356,6 +320,42 @@ namespace Analytic.AnalyticUnits.Profiles.SSA
             }
 
             return true;
+        }
+
+        /// <summary>
+        ///     Добавляет подписи к графику
+        /// </summary>
+        private void AddCaptionsToChart(
+            ScottPlot.Plot plot,
+            string pair,
+            MinMaxPriceModel minMaxPriceModel,
+            double[] original,
+            double[] predictions,
+            double[] timeForPredictions,
+            IEnumerable<DateTime> dateTimes)
+        {
+            plot.AddScatter(dateTimes.Select(_ => _.ToOADate()).ToArray(), original, label: "Real");
+            plot.AddScatter(timeForPredictions, predictions, label: "Predicted");
+            plot.XAxis.TickLabelFormat("g", dateTimeFormat: true);
+
+            plot.AddText(
+                $"Min: {minMaxPriceModel.MinPrice:0.0000}",
+                timeForPredictions[minMaxPriceModel.MinIndex],
+                minMaxPriceModel.MinPrice, 17);
+            plot.AddText(
+                $"Max: {minMaxPriceModel.MaxPrice:0.0000}",
+                timeForPredictions[minMaxPriceModel.MaxIndex],
+                minMaxPriceModel.MaxPrice, 17);
+
+            plot.YAxis.Label("Price");
+            plot.XAxis.Label("Time");
+            plot.XAxis.TickLabelStyle(rotation: 45);
+            plot.XAxis2.Label(pair);
+            plot.Legend(true, ScottPlot.Alignment.LowerLeft);
+
+            plot.Style(ScottPlot.Style.Gray1);
+            var bnColor = System.Drawing.ColorTranslator.FromHtml("#2e3440");
+            plot.Style(figureBackground: bnColor, dataBackground: bnColor, tick: System.Drawing.Color.WhiteSmoke);
         }
 
         /// <summary>
@@ -392,12 +392,15 @@ namespace Analytic.AnalyticUnits.Profiles.SSA
         ///     Сохраняет предсказанные значения в бд
         /// </summary>
         private async Task SavePredictionAsync(
-            IUnitOfWork database,
+            IServiceScopeFactory serviceScopeFactory,
             string tradeObjectName,
             DateTime predictionTime,
             double[] predictions,
             CancellationToken cancellationToken)
         {
+            using var scope = serviceScopeFactory.CreateScope();
+            var databaseFactory = scope.ServiceProvider.GetRequiredService<IBinanceDbContextFactory>();
+            using var database = databaseFactory.CreateScopeDatabase();
             var predictionEntity = new PredictionEntity
             {
                 ShortName = tradeObjectName,
