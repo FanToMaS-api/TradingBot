@@ -4,6 +4,7 @@ using BinanceDatabase.Entities;
 using BinanceDatabase.Enums;
 using BinanceDatabase.Repositories;
 using BinanceDataService.DataHandlers;
+using Common.Extensions;
 using Common.Models;
 using Common.WebSocket;
 using ExchangeLibrary;
@@ -29,6 +30,7 @@ namespace BinanceDataServiceTests
         #region Fields
 
         private readonly MarketdataStreamHandler _dataHandler;
+        private static readonly DateTime StartDate = new(2022, 12, 12, 12, 12, 12, DateTimeKind.Unspecified);
 
         #endregion
 
@@ -69,8 +71,8 @@ namespace BinanceDataServiceTests
         [Fact(DisplayName = "Aggregate fields Test")]
         public void AggregateFields_Test()
         {
-            var addedObject = CreateMiniTickerEntity(1, 1, 1, 1, 1, 1, DateTime.Now, AggregateDataIntervalType.Default);
-            var aggregateObject = CreateMiniTickerEntity(1, 1, 1, 1, 1, 1, DateTime.Now, AggregateDataIntervalType.Default);
+            var addedObject = CreateMiniTickerEntity(1, 1, 1, 1, 1, 1, StartDate, AggregateDataIntervalType.Default);
+            var aggregateObject = CreateMiniTickerEntity(1, 1, 1, 1, 1, 1, StartDate, AggregateDataIntervalType.Default);
 
             MarketdataStreamHandler.AggregateFields(addedObject, aggregateObject);
 
@@ -91,7 +93,7 @@ namespace BinanceDataServiceTests
         [Fact(DisplayName = "Averaging fields Test")]
         public void AveragingFields_Test()
         {
-            var aggregateObject = CreateMiniTickerEntity(2.5, 2.5, 2.5, 2.5, 2.5, 2.5, DateTime.Now, AggregateDataIntervalType.Default);
+            var aggregateObject = CreateMiniTickerEntity(2.5, 2.5, 2.5, 2.5, 2.5, 2.5, StartDate, AggregateDataIntervalType.Default);
 
             MarketdataStreamHandler.AveragingFields(aggregateObject, 2);
 
@@ -105,20 +107,18 @@ namespace BinanceDataServiceTests
 
         #region Member data for GetAveragingMiniTickers_Test
 
-        private static readonly DateTime StartDate = new(2022, 12, 12, 12, 12, 12);
-
         private static readonly List<MiniTradeObjectStreamModel> _streamModels = new()
         {
-            CreateMiniTradeStreamModel(2.5, 2.5, 2.5, 2.5, 2.5, 2.5, new DateTimeOffset(StartDate).ToUnixTimeMilliseconds()),
-            CreateMiniTradeStreamModel(5, 5, 5, 5, 5, 5, new DateTimeOffset(StartDate.AddSeconds(10)).ToUnixTimeMilliseconds()),
-            CreateMiniTradeStreamModel(7, 7, 7, 7, 7, 7, new DateTimeOffset(StartDate.AddSeconds(20)).ToUnixTimeMilliseconds()),
-            CreateMiniTradeStreamModel(9, 9, 9, 9, 9, 9, new DateTimeOffset(StartDate.AddSeconds(30)).ToUnixTimeMilliseconds()),
-            CreateMiniTradeStreamModel(10, 10, 10, 10, 10, 10, new DateTimeOffset(StartDate.AddSeconds(60)).ToUnixTimeMilliseconds()),
-            CreateMiniTradeStreamModel(11, 11, 11, 11, 11, 11, new DateTimeOffset(StartDate.AddSeconds(70)).ToUnixTimeMilliseconds()),
-            CreateMiniTradeStreamModel(12, 12, 12, 12, 12, 12, new DateTimeOffset(StartDate.AddMinutes(2)).ToUnixTimeMilliseconds()),
-            CreateMiniTradeStreamModel(13, 13, 13, 13, 13, 13, new DateTimeOffset(StartDate.AddMinutes(3)).ToUnixTimeMilliseconds()),
-            CreateMiniTradeStreamModel(14, 14, 14, 14, 14, 14, new DateTimeOffset(StartDate.AddHours(1)).ToUnixTimeMilliseconds()),
-            CreateMiniTradeStreamModel(15, 15, 15, 15, 15, 15, new DateTimeOffset(StartDate.AddHours(2)).ToUnixTimeMilliseconds()),
+            CreateMiniTradeStreamModel(2.5, 2.5, 2.5, 2.5, 2.5, 2.5, StartDate.FromDateTimeToUnix()),
+            CreateMiniTradeStreamModel(5, 5, 5, 5, 5, 5, StartDate.AddSeconds(10).FromDateTimeToUnix()),
+            CreateMiniTradeStreamModel(7, 7, 7, 7, 7, 7, StartDate.AddSeconds(20).FromDateTimeToUnix()),
+            CreateMiniTradeStreamModel(9, 9, 9, 9, 9, 9, StartDate.AddSeconds(30).FromDateTimeToUnix()),
+            CreateMiniTradeStreamModel(10, 10, 10, 10, 10, 10, StartDate.AddSeconds(60).FromDateTimeToUnix()),
+            CreateMiniTradeStreamModel(11, 11, 11, 11, 11, 11, StartDate.AddSeconds(70).FromDateTimeToUnix()),
+            CreateMiniTradeStreamModel(12, 12, 12, 12, 12, 12, StartDate.AddMinutes(2).FromDateTimeToUnix()),
+            CreateMiniTradeStreamModel(13, 13, 13, 13, 13, 13, StartDate.AddMinutes(3).FromDateTimeToUnix()),
+            CreateMiniTradeStreamModel(14, 14, 14, 14, 14, 14, StartDate.AddHours(1).FromDateTimeToUnix()),
+            CreateMiniTradeStreamModel(15, 15, 15, 15, 15, 15, StartDate.AddHours(2).FromDateTimeToUnix()),
         };
 
         private static readonly List<MiniTickerEntity> _expectedModelsForDefault = new()

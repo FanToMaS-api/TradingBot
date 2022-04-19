@@ -154,7 +154,7 @@ namespace Analytic.AnalyticUnits.Profiles.SSA
             var newX = (matrixEigenvectors * mainComponents).ToArray();
 
             // Восстанавливаю сигнал
-            // var result = SignalRecovery(newX, array.Length, tau);
+            // var result = SignalRecovery(newX, array.Length, ssaModel.TauDelayNumber);
 
             var (Vstar, tauMatrixEigenvector) = GetPreparedMatrixForForecasting(
                 subMatrixEigenvectors,
@@ -215,7 +215,6 @@ namespace Analytic.AnalyticUnits.Profiles.SSA
             };
 
             var Vstar = Matrix<double>.Build.Dense(tau - 1, subEigenvectors.Count);
-
             for (var j = 0; j < subEigenvectors.Count; j++)
             {
                 tauEigenvector[0][j] = subEigenvectors[j].Last();
