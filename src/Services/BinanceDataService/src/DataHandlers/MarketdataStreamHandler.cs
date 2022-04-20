@@ -8,7 +8,6 @@ using DataServiceLibrary;
 using ExchangeLibrary;
 using Logger;
 using Microsoft.Extensions.DependencyInjection;
-using NLog;
 using Quartz;
 using Scheduler;
 using System;
@@ -34,7 +33,6 @@ namespace BinanceDataService.DataHandlers
         private TriggerKey _dataDelitionTriggerKey;
         private readonly List<MiniTradeObjectStreamModel> _mainModelsStorage = new();
         private readonly List<MiniTradeObjectStreamModel> _assistantModelsStorage = new();
-        private bool _isAssistantStorageSaving;
         private CancellationTokenSource _cancellationTokenSource;
         private bool _isDisposed;
         private IWebSocket _webSocket;
@@ -58,13 +56,22 @@ namespace BinanceDataService.DataHandlers
 
         #endregion
 
+        #region Properties
+
+        /// <summary>
+        ///     Флаг определящий текущее место сохранения данных
+        /// </summary>
+        internal bool IsAssistantStorageSaving { get; private set; }
+
+        #endregion
+
         #region Public methods
 
         /// <inheritdoc />
         public async Task StartAsync(CancellationToken cancellationToken)
         {
             _cancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
-            _webSocket = _exchange.MarketdataStreams.SubscribeAllMarketMiniTickersStream(HandleAsync, cancellationToken, WebSocketCloseHandler);
+            _webSocket = _exchange.MarketdataStreams.SubscribeAllMarketMiniTickersStream(HandleDataAsync, cancellationToken, WebSocketCloseHandler);
 
             Task.Run(async () => await StartWebSocket(_cancellationTokenSource.Token), cancellationToken);
 
@@ -106,13 +113,14 @@ namespace BinanceDataService.DataHandlers
         /// <summary>
         ///     Обрабатывает полученные данные
         /// </summary>
-        private async Task HandleAsync(IEnumerable<MiniTradeObjectStreamModel> models, CancellationToken cancellationToken)
+        internal async Task HandleDataAsync(IEnumerable<MiniTradeObjectStreamModel> models, CancellationToken cancellationToken)
         {
             try
             {
-                if (_isAssistantStorageSaving)
+                if (IsAssistantStorageSaving)
                 {
                     _mainModelsStorage.AddRange(models);
+                    return;
                 }
 
                 _assistantModelsStorage.AddRange(models);
@@ -126,27 +134,27 @@ namespace BinanceDataService.DataHandlers
         /// <summary>
         ///     Сохраняет полученные данные
         /// </summary>
-        private async Task SaveDataAsync(IServiceProvider serviceProvider)
+        internal async Task SaveDataAsync(IServiceProvider serviceProvider)
         {
-            _isAssistantStorageSaving = !_isAssistantStorageSaving;
+            IsAssistantStorageSaving = !IsAssistantStorageSaving;
 
             try
             {
-                if (_isAssistantStorageSaving)
+                if (IsAssistantStorageSaving)
                 {
-                    await SaveDataAsync(serviceProvider, _assistantModelsStorage.OrderByDescending(_ => _.EventTimeUnix));
+                    await SaveDataAsync(serviceProvider, _assistantModelsStorage);
                     _assistantModelsStorage.Clear();
                     return;
                 }
 
-                await SaveDataAsync(serviceProvider, _mainModelsStorage.OrderByDescending(_ => _.EventTimeUnix));
+                await SaveDataAsync(serviceProvider, _mainModelsStorage);
                 _mainModelsStorage.Clear();
             }
             catch (Exception ex)
             {
                 await _logger.ErrorAsync(
                     ex,
-                    $"Failed to save data _isAssistantStorageSaving='{_isAssistantStorageSaving}'",
+                    $"Failed to save data _isAssistantStorageSaving='{IsAssistantStorageSaving}'",
                     cancellationToken: _cancellationTokenSource.Token);
             }
         }
@@ -156,14 +164,15 @@ namespace BinanceDataService.DataHandlers
         /// </summary>
         private async Task SaveDataAsync(IServiceProvider serviceProvider, IEnumerable<MiniTradeObjectStreamModel> streamModels)
         {
-            var databaseFactory = serviceProvider.GetRequiredService<IBinanceDbContextFactory>();
+            var databaseFactory = serviceProvider.GetService<IBinanceDbContextFactory>();
             using var database = databaseFactory.CreateScopeDatabase();
             var hotData = _mapper.Map<IEnumerable<HotMiniTickerEntity>>(streamModels);
 
             await database.HotUnitOfWork.HotMiniTickers.AddRangeAsync(hotData, _cancellationTokenSource.Token);
 
-            var groupedData = GetGroupedMiniTickers(AggregateDataIntervalType.OneMinute, streamModels);
-            await database.ColdUnitOfWork.MiniTickers.AddRangeAsync(groupedData, _cancellationTokenSource.Token);
+            // TODO: Задать расписание агрегирования по дням и дописать на этот метод тесты
+            // var groupedData = GetAveragingMiniTickers(AggregateDataIntervalType.OneMinute, streamModels);
+            // await database.ColdUnitOfWork.MiniTickers.AddRangeAsync(groupedData, _cancellationTokenSource.Token);
 
             await database.SaveChangesAsync(_cancellationTokenSource.Token);
             await _logger.TraceAsync(
@@ -172,77 +181,69 @@ namespace BinanceDataService.DataHandlers
         }
 
         /// <summary>
-        ///     Возвращает аггрегированные (через усреднение) данные о мини-тикерах
+        ///     Возвращает агрегированные (через усреднение) данные о мини-тикерах
         /// </summary>
-        private MiniTickerEntity[] GetGroupedMiniTickers(AggregateDataIntervalType intervalType, IEnumerable<MiniTradeObjectStreamModel> streamModels)
+        internal MiniTickerEntity[] GetAveragingMiniTickers(
+            AggregateDataIntervalType intervalType,
+            IEnumerable<MiniTradeObjectStreamModel> streamModels)
         {
             var groupsByName = _mapper.Map<IEnumerable<MiniTickerEntity>>(streamModels).GroupBy(_ => _.ShortName);
             var interval = intervalType.ConvertToTimeSpan();
             var aggregatedMiniTickers = new List<MiniTickerEntity>();
             foreach (var group in groupsByName)
             {
-                var first = group.FirstOrDefault();
-                if (first is null)
-                {
-                    continue;
-                }
-
-                var start = first.EventTime;
-                var counter = 0;
-                var isNotDistributedItemsLeft = false;
-                var aggregateObject = new MiniTickerEntity()
-                {
-                    ShortName = group.Key,
-                    IntervalType = intervalType,
-                    EventTime = start,
-                };
-
-                foreach (var item in group)
-                {
-                    isNotDistributedItemsLeft = true;
-                    if (start - item.EventTime >= interval)
-                    {
-                        AveragingFields(aggregateObject, counter);
-                        AddToResult(aggregatedMiniTickers, aggregateObject, ref counter, ref isNotDistributedItemsLeft);
-                        aggregateObject = item;
-                        start = item.EventTime;
-                        continue;
-                    }
-
-                    AggregateFields(item, aggregateObject);
-                    counter++;
-                }
-
-                if (isNotDistributedItemsLeft)
-                {
-                    AveragingFields(aggregateObject, counter);
-                    AddToResult(aggregatedMiniTickers, aggregateObject, ref counter, ref isNotDistributedItemsLeft);
-                }
+                aggregatedMiniTickers.AddRange(GetAveragingTickerForGroup(group, intervalType, interval));
             }
 
             return aggregatedMiniTickers.ToArray();
         }
 
         /// <summary>
-        ///     Функция добавления усредненной модели в результирующий список и сброса параметров
+        ///     Возвращает усредненные объекты для конкретной группы
         /// </summary>
-        /// <param name="counter"> Счетчик усредненных моделей </param>
-        /// <param name="isDataLeft"> Флаг, что усредненных данных больше нет </param>
-        private static void AddToResult(
-            List<MiniTickerEntity> aggregatedMiniTickers,
-            MiniTickerEntity aggregateObject,
-            ref int counter,
-            ref bool isDataLeft)
+        private List<MiniTickerEntity> GetAveragingTickerForGroup(
+            IGrouping<string, MiniTickerEntity> group,
+            AggregateDataIntervalType intervalType,
+            TimeSpan interval)
         {
+            var aggregatedMiniTickers = new List<MiniTickerEntity>();
+            var first = group.FirstOrDefault();
+            var start = first.EventTime;
+            var counter = 0;
+            var aggregateObject = new MiniTickerEntity()
+            {
+                ShortName = group.Key,
+                AggregateDataInterval = intervalType,
+                EventTime = start,
+            };
+
+            foreach (var item in group)
+            {
+                if (item.EventTime - start > interval)
+                {
+                    AveragingFields(aggregateObject, counter);
+                    aggregatedMiniTickers.Add(aggregateObject);
+                    counter = 1;
+                    aggregateObject = item;
+                    aggregateObject.AggregateDataInterval = intervalType;
+                    start = item.EventTime;
+                    continue;
+                }
+
+                AggregateFields(item, aggregateObject);
+                counter++;
+            }
+
+            AveragingFields(aggregateObject, counter);
             aggregatedMiniTickers.Add(aggregateObject);
-            counter = 0;
-            isDataLeft = false;
+
+            return aggregatedMiniTickers;
         }
 
         /// <summary>
         ///     Аггрегирует поля объектов в один объект
         /// </summary>
-        private static void AggregateFields(MiniTickerEntity addedObject, MiniTickerEntity aggregateObject)
+        internal static void AggregateFields(MiniTickerEntity addedObject, MiniTickerEntity aggregateObject)
         {
             aggregateObject.OpenPrice += addedObject.OpenPrice;
             aggregateObject.MaxPrice += addedObject.MaxPrice;
@@ -255,7 +256,7 @@ namespace BinanceDataService.DataHandlers
         /// <summary>
         ///     Усредняет значения полей
         /// </summary>
-        private static void AveragingFields(MiniTickerEntity aggregateObject, int conter)
+        internal static void AveragingFields(MiniTickerEntity aggregateObject, int conter)
         {
             aggregateObject.OpenPrice /= conter;
             aggregateObject.MaxPrice /= conter;
@@ -278,7 +279,7 @@ namespace BinanceDataService.DataHandlers
         /// <summary>
         ///     Удаляет накопившиеся данные
         /// </summary>
-        private async Task DeleteDataAsync(IServiceProvider serviceProvider)
+        internal async Task DeleteDataAsync(IServiceProvider serviceProvider)
         {
             var now = DateTime.Now;
             var databaseFactory = serviceProvider.GetRequiredService<IBinanceDbContextFactory>();

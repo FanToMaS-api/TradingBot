@@ -56,18 +56,6 @@ namespace BinanceExchangeTests.BinanceTests
             return (expectedKey, expectedInterval, expectedWeight);
         }
 
-        /// <summary>
-        ///     Проверка утверждений
-        /// </summary>
-        public static void CheckingAssertions<T1, T2>(T1 expected, T2 actual)
-        {
-            var properties = expected.GetType().GetProperties();
-            foreach (var property in properties)
-            {
-                Assert.Equal(property.GetValue(expected), property.GetValue(actual));
-            }
-        }
-
         #region Candlestick
 
         /// <summary>
