@@ -98,7 +98,7 @@ namespace SignalsSender
             filterManager.AddFilterGroup(commonFilterGroup);
 
             var commonLatestFilterGroup = new FilterGroup("CommonLatestFilterGroup", FilterGroupType.CommonLatest, null);
-            var volumeFilter = new VolumeFilter("VolumeBidFilter", VolumeType.Bid, VolumeComparisonType.GreaterThan, limit: 1);
+            var volumeFilter = new VolumeFilter("VolumeBidFilter", percentDeviation: 0.05);
             commonLatestFilterGroup.AddFilter(volumeFilter);
             filterManager.AddFilterGroup(commonLatestFilterGroup);
 

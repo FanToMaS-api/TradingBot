@@ -3,7 +3,7 @@
 namespace SharedForTest
 {
     /// <summary>
-    ///     Содержит расширения для более удобного тестирования
+    ///     Содержит расширения для тестирования
     /// </summary>
     public static class TestExtensions
     {

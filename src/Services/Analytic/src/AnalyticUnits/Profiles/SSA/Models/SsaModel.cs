@@ -4,7 +4,7 @@ using System.Numerics;
 namespace Analytic.AnalyticUnits.Profiles.SSA.Models
 {
     /// <summary>
-    ///     Модель для удобной работы алгоритма SSA
+    ///     Модель SSA
     /// </summary>
     internal class SsaModel
     {
@@ -105,7 +105,7 @@ namespace Analytic.AnalyticUnits.Profiles.SSA.Models
         {
             // Переход к главным компонентам
             // Представление матрицы собственных векторов как матрицу перехода к главным компонентам
-            var (matrixEigenvectors, matrixEigenvalues) = GetEigenVectorsAndValues();
+            var (matrixEigenvectors, _) = GetEigenVectorsAndValues();
             var matrixEigenvectorsTranspose = matrixEigenvectors.Transpose();
             var mainComponents = matrixEigenvectorsTranspose * DelayMatrix;
 

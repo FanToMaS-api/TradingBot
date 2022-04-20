@@ -27,8 +27,12 @@ namespace Analytic.AnalyticUnits.Profiles.SSA
         private readonly ILoggerDecorator _logger;
         private readonly string _baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
         private const int _numberPricesToTake = 2498; // кол-во данных участвующих в предсказании цены
-        private const int _numberOfMinutesOfImageStorage = 2; // кол-во минут хранения изображения (не будут присылаться сообщения с изображением, дабы не спамить)
-        private const string _graficsFolder = "Grafics"; // папка для хранения графиков
+        private const int _numberOfMinutesOfImageStorage = 2; // кол-во минут хранения изображения
+                                                              // (не будут присылаться сообщения с изображением, дабы не спамить)
+        internal static string GraficsFolder = "Grafics"; // папка для хранения графиков
+        private const int _neededLambdaNumber = 7; // Кол-во значимых собственных значений, которое будет отбираться
+        private const double _minMagnitudeForSsaSmoothing = 0.0002; // Минимальная магнитуда
+                                                                    // для собственного значения при сглаживании
 
         #endregion
 
@@ -131,30 +135,20 @@ namespace Analytic.AnalyticUnits.Profiles.SSA
         ///     используется для определения основных составляющих временного ряда 
         ///     и подавления шума
         /// </remarks>
-        private static double[] SSA(double[] prices)
+        internal static double[] SSA(double[] prices)
         {
             var ssaModel = SsaModel.Create(prices);
-            var (matrixEigenvectors, matrixEigenvalues) = ssaModel.GetEigenVectorsAndValues();
-
-            // SSA-сглаживание
-            var eigenvaluesArray = matrixEigenvalues.ToList();
-            eigenvaluesArray.Sort((x, y) =>
-            {
-                return x.Magnitude < y.Magnitude ? 1 : x.Magnitude == y.Magnitude ? 0 : -1;
-            });
-
-            var neededLambdas = eigenvaluesArray.Where(_ => _.Magnitude > 0.0002);
-            var subMatrixEigenvectors = GetSubListEigenvectors(ssaModel, neededLambdas);
+            var subMatrixEigenvectors = MakeSmoothing(ssaModel);
             if (!subMatrixEigenvectors.Any())
             {
                 return Array.Empty<double>();
             }
 
-            var mainComponents = ssaModel.MainComponentsMatrix;
-            var newX = (matrixEigenvectors * mainComponents).ToArray();
-
             // Восстанавливаю сигнал
-            // var result = SignalRecovery(newX, array.Length, ssaModel.TauDelayNumber);
+            // var (matrixEigenvectors, _) = ssaModel.GetEigenVectorsAndValues();
+            // var mainComponents = ssaModel.MainComponentsMatrix;
+            // var restoredOriginalMatrix = (matrixEigenvectors * mainComponents).ToArray();
+            // var restoredSignal = SignalRecovery(restoredOriginalMatrix, prices.Length, ssaModel.TauDelayNumber);
 
             var (Vstar, tauMatrixEigenvector) = GetPreparedMatrixForForecasting(
                 subMatrixEigenvectors,
@@ -172,10 +166,29 @@ namespace Analytic.AnalyticUnits.Profiles.SSA
         }
 
         /// <summary>
+        ///     Производит SSA-сглаживание
+        /// </summary>
+        internal static List<Vector<double>> MakeSmoothing(SsaModel ssaModel)
+        {
+            var (matrixEigenvectors, matrixEigenvalues) = ssaModel.GetEigenVectorsAndValues();
+            var eigenvaluesArray = matrixEigenvalues.ToList();
+            eigenvaluesArray.Sort((x, y) =>
+            {
+                return x.Magnitude < y.Magnitude ? 1 : x.Magnitude == y.Magnitude ? 0 : -1;
+            });
+
+            var neededLambdas = eigenvaluesArray.Where(_ => _.Magnitude > _minMagnitudeForSsaSmoothing);
+            neededLambdas = neededLambdas.Count() < _neededLambdaNumber ? eigenvaluesArray.Take(_neededLambdaNumber) : neededLambdas;
+            var subMatrixEigenvectors = GetSubListEigenvectors(ssaModel, neededLambdas);
+
+            return subMatrixEigenvectors;
+        }
+
+        /// <summary>
         ///     Возвращает список значимых векторов, для предсказаний <br/>
         ///     Зануляем столбцы собственных векторов, которые незначимы
         /// </summary>
-        private static List<Vector<double>> GetSubListEigenvectors(
+        internal static List<Vector<double>> GetSubListEigenvectors(
             SsaModel model,
             IEnumerable<System.Numerics.Complex> neededLambdas)
         {
@@ -277,7 +290,7 @@ namespace Analytic.AnalyticUnits.Profiles.SSA
         /// <param name="minMaxPriceModel"> <see cref="MinMaxPriceModel"/> </param>
         /// <param name="imagePath"> Путь до изображения </param>
         /// <returns> <see langword="true"/> если изображение было успешно создано </returns>
-        private bool CanCreateChart(
+        internal bool CanCreateChart(
             double[] original,
             double[] predictions,
             IEnumerable<DateTime> dateTimes,
@@ -285,7 +298,7 @@ namespace Analytic.AnalyticUnits.Profiles.SSA
             MinMaxPriceModel minMaxPriceModel,
             out string imagePath)
         {
-            var directoryPath = GetOrCreateFolderPath(_graficsFolder);
+            var directoryPath = GetOrCreateFolderPath(GraficsFolder);
             imagePath = Path.Combine(directoryPath, $"{pair}.png");
             if (File.Exists(imagePath) && File.GetCreationTime(imagePath).AddMinutes(_numberOfMinutesOfImageStorage) > DateTime.Now)
             {
@@ -360,7 +373,7 @@ namespace Analytic.AnalyticUnits.Profiles.SSA
         /// <summary>
         ///     Возвращает путь до указанной папки, создает, если ее не существовало
         /// </summary>
-        private string GetOrCreateFolderPath(string directoryName)
+        internal string GetOrCreateFolderPath(string directoryName)
         {
             var directoryPath = Path.Combine(_baseDirectory, directoryName);
             if (!Directory.Exists(directoryPath))
@@ -427,7 +440,7 @@ namespace Analytic.AnalyticUnits.Profiles.SSA
         /// <param name="newX"> Восстановленная исходная матрица </param>
         /// <param name="pricesLength"> Кол-во значений в первоначальном векторе-сигнале </param>
         /// <param name="tau_delayNumber"> Число задержек </param>
-        private static double[] SignalRecovery(double[,] newX, int pricesLength, int tau_delayNumber)
+        internal static double[] SignalRecovery(double[,] newX, int pricesLength, int tau_delayNumber)
         {
             var result = new List<double>();
             var n = pricesLength - tau_delayNumber + 1;
