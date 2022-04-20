@@ -22,7 +22,7 @@ namespace Scheduler
         /// <summary>
         ///     Ежеминутно
         /// </summary>
-        public static string Minutely() => $"0 * * ? * *";
+        public static string Minutely() => "0 * * ? * *";
 
         /// <summary>
         ///     Ежеминутно в определенную секунду
@@ -32,12 +32,17 @@ namespace Scheduler
         /// <summary>
         ///     Ежечасно
         /// </summary>
-        public static string Hourly() => $"0 0 * ? * *";
+        public static string Hourly() => "0 0 * ? * *";
 
         /// <summary>
         ///     Ежедневно в 12 ночи
         /// </summary>
-        public static string Daily() => $"0 0 0 * * ?";
+        public static string Daily() => "0 0 0 * * ?";
+
+        /// <summary>
+        ///     Ежедневно в определенный час ночи
+        /// </summary>
+        public static string DailyOnHour(int hour) => $"0 0 {hour} * * ?";
 
         #endregion
 

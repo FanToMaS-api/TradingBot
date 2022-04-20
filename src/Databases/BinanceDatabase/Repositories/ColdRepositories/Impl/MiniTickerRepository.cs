@@ -40,6 +40,9 @@ namespace BinanceDatabase.Repositories.ColdRepositories.Impl
         public async Task AddRangeAsync(IEnumerable<MiniTickerEntity> miniTickerEntities, CancellationToken cancellationToken = default)
             => await _appDbContext.MiniTickers.AddRangeAsync(miniTickerEntities, cancellationToken);
 
+        /// <inheritdoc />
+        public void RemoveRange(IEnumerable<MiniTickerEntity> entities) => _appDbContext.RemoveRange(entities);
+
         #endregion
     }
 }
