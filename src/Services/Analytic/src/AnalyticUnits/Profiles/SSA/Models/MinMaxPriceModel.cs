@@ -1,10 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace Analytic.AnalyticUnits.Profiles.SSA
+namespace Analytic.AnalyticUnits.Profiles.SSA.Models
 {
     /// <summary>
     ///     Содержит в себе информацию о максимальной и минимальной цене предсказания

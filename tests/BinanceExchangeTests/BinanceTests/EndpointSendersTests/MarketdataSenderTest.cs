@@ -5,6 +5,7 @@ using BinanceExchange.EndpointSenders;
 using BinanceExchange.EndpointSenders.Impl;
 using BinanceExchange.Enums;
 using BinanceExchange.Models;
+using SharedForTest;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -311,7 +312,7 @@ namespace BinanceExchangeTests.BinanceTests.EndpointSendersTests
             var properties = typeof(CandlestickModel).GetProperties();
             for (var i = 0; i < expected.Length; i++)
             {
-                TestHelper.CheckingAssertions(expected[i], result[i]);
+                TestExtensions.CheckingAssertions(expected[i], result[i]);
             }
 
             return result;
@@ -357,7 +358,7 @@ namespace BinanceExchangeTests.BinanceTests.EndpointSendersTests
             {
                 var expected = expectedDtos[i];
                 var actual = result[i];
-                TestHelper.CheckingAssertions(expected, actual);
+                TestExtensions.CheckingAssertions(expected, actual);
             }
 
             return result;
@@ -382,7 +383,7 @@ namespace BinanceExchangeTests.BinanceTests.EndpointSendersTests
             {
                 var expected = expectedDtos[i];
                 var actual = result[i];
-                TestHelper.CheckingAssertions(expected, actual);
+                TestExtensions.CheckingAssertions(expected, actual);
             }
 
             return result;
@@ -410,7 +411,7 @@ namespace BinanceExchangeTests.BinanceTests.EndpointSendersTests
             {
                 var expected = expectedDtos[i];
                 var actual = result[i];
-                TestHelper.CheckingAssertions(expected, actual);
+                TestExtensions.CheckingAssertions(expected, actual);
             }
 
             return result;

@@ -9,6 +9,7 @@ using Common.Models;
 using ExchangeLibrary;
 using NSubstitute;
 using Redis;
+using SharedForTest;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -346,7 +347,7 @@ namespace BinanceExchangeTests.BinanceTests.ImplTests
             var expected = TestHelper.GetExpectedCandlestickModels();
             for (var i = 0; i < 2; i++)
             {
-                TestHelper.CheckingAssertions(expected[i], result[i]);
+                TestExtensions.CheckingAssertions(expected[i], result[i]);
             }
 
             Assert.Equal(expectedKey, _actualKey);
@@ -414,7 +415,7 @@ namespace BinanceExchangeTests.BinanceTests.ImplTests
 
                 for (var i = 0; i < expectedResult.Count; i++)
                 {
-                    TestHelper.CheckingAssertions(expectedResult[i], result[i]);
+                    TestExtensions.CheckingAssertions(expectedResult[i], result[i]);
                 }
 
                 Assert.Equal(expectedKey, _actualKey);
@@ -469,7 +470,7 @@ namespace BinanceExchangeTests.BinanceTests.ImplTests
 
                 for (var i = 0; i < expectedResult.Count; i++)
                 {
-                    TestHelper.CheckingAssertions(expectedResult[i], result[i]);
+                    TestExtensions.CheckingAssertions(expectedResult[i], result[i]);
                 }
 
                 Assert.Equal(expectedKey, _actualKey);
@@ -524,7 +525,7 @@ namespace BinanceExchangeTests.BinanceTests.ImplTests
 
                 for (var i = 0; i < expectedResult.Count; i++)
                 {
-                    TestHelper.CheckingAssertions(expectedResult[i], result[i]);
+                    TestExtensions.CheckingAssertions(expectedResult[i], result[i]);
                 }
 
                 Assert.Equal(expectedKey, _actualKey);

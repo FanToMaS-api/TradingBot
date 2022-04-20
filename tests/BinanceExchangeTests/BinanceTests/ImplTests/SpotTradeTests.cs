@@ -16,6 +16,7 @@ using Common.Enums;
 using ExchangeLibrary;
 using NSubstitute;
 using Redis;
+using SharedForTest;
 using Xunit;
 
 namespace BinanceExchangeTests.BinanceTests.ImplTests
@@ -115,7 +116,7 @@ namespace BinanceExchangeTests.BinanceTests.ImplTests
 
             // Act #1
             var result = await _spotTrade.CreateNewLimitOrderAsync(symbol, orderSide, forceType, priceAndQuantity, priceAndQuantity, isTest: false);
-            TestHelper.CheckingAssertions(expectedResult, result);
+            TestExtensions.CheckingAssertions(expectedResult, result);
 
             priceAndQuantity = 255;
             binanceResponse.Price = priceAndQuantity;
@@ -128,7 +129,7 @@ namespace BinanceExchangeTests.BinanceTests.ImplTests
             var testOrderResult = await _spotTrade.CreateNewLimitOrderAsync(symbol, orderSide, forceType, priceAndQuantity, priceAndQuantity);
             expectedResult.Price = priceAndQuantity;
             expectedResult.OrigQty = priceAndQuantity;
-            TestHelper.CheckingAssertions(expectedResult, testOrderResult);
+            TestExtensions.CheckingAssertions(expectedResult, testOrderResult);
 
             Assert.Equal(expectedKey, _actualKey);
             Assert.Equal(expectedInterval, _actualInterval);
@@ -164,7 +165,7 @@ namespace BinanceExchangeTests.BinanceTests.ImplTests
 
             // Act #1
             var result = await _spotTrade.CreateNewMarketOrderAsync(symbol, orderSide, priceAndQuantity, isTest: false);
-            TestHelper.CheckingAssertions(expectedResult, result);
+            TestExtensions.CheckingAssertions(expectedResult, result);
 
             priceAndQuantity = 255;
             builder.SetQuantity(priceAndQuantity); // обновляю значение кол-ва
@@ -177,7 +178,7 @@ namespace BinanceExchangeTests.BinanceTests.ImplTests
             var testOrderResult = await _spotTrade.CreateNewMarketOrderAsync(symbol, orderSide, priceAndQuantity);
             expectedResult.Price = priceAndQuantity;
             expectedResult.OrigQty = priceAndQuantity;
-            TestHelper.CheckingAssertions(expectedResult, testOrderResult);
+            TestExtensions.CheckingAssertions(expectedResult, testOrderResult);
 
             Assert.Equal(expectedKey, _actualKey);
             Assert.Equal(expectedInterval, _actualInterval);
@@ -214,7 +215,7 @@ namespace BinanceExchangeTests.BinanceTests.ImplTests
 
             // Act #1
             var result = await _spotTrade.CreateNewStopLossOrderAsync(symbol, sideType, priceAndQuantity, priceAndQuantity, recvWindow, isTest: false);
-            TestHelper.CheckingAssertions(expectedResult, result);
+            TestExtensions.CheckingAssertions(expectedResult, result);
 
             priceAndQuantity = 255;
             builder.SetQuantity(priceAndQuantity); // обновляю значение кол-ва
@@ -227,7 +228,7 @@ namespace BinanceExchangeTests.BinanceTests.ImplTests
             var testOrderResult = await _spotTrade.CreateNewStopLossOrderAsync(symbol, sideType, priceAndQuantity, priceAndQuantity, recvWindow);
             expectedResult.Price = priceAndQuantity;
             expectedResult.OrigQty = priceAndQuantity;
-            TestHelper.CheckingAssertions(expectedResult, testOrderResult);
+            TestExtensions.CheckingAssertions(expectedResult, testOrderResult);
 
             Assert.Equal(expectedKey, _actualKey);
             Assert.Equal(expectedInterval, _actualInterval);
@@ -267,7 +268,7 @@ namespace BinanceExchangeTests.BinanceTests.ImplTests
 
             // Act #1
             var result = await _spotTrade.CreateNewStopLossLimitOrderAsync(symbol, sideType, forceType, priceAndQuantity, priceAndQuantity, recvWindow, isTest: false);
-            TestHelper.CheckingAssertions(expectedResult, result);
+            TestExtensions.CheckingAssertions(expectedResult, result);
 
             priceAndQuantity = 255;
             builder.SetQuantity(priceAndQuantity); // обновляю значение кол-ва
@@ -280,7 +281,7 @@ namespace BinanceExchangeTests.BinanceTests.ImplTests
             var testOrderResult = await _spotTrade.CreateNewStopLossLimitOrderAsync(symbol, sideType, forceType, priceAndQuantity, priceAndQuantity, recvWindow);
             expectedResult.Price = priceAndQuantity;
             expectedResult.OrigQty = priceAndQuantity;
-            TestHelper.CheckingAssertions(expectedResult, testOrderResult);
+            TestExtensions.CheckingAssertions(expectedResult, testOrderResult);
 
             Assert.Equal(expectedKey, _actualKey);
             Assert.Equal(expectedInterval, _actualInterval);
@@ -317,7 +318,7 @@ namespace BinanceExchangeTests.BinanceTests.ImplTests
 
             // Act #1
             var result = await _spotTrade.CreateNewTakeProfitOrderAsync(symbol, sideType, priceAndQuantity, priceAndQuantity, recvWindow, isTest: false);
-            TestHelper.CheckingAssertions(expectedResult, result);
+            TestExtensions.CheckingAssertions(expectedResult, result);
 
             priceAndQuantity = 255;
             builder.SetQuantity(priceAndQuantity); // обновляю значение кол-ва
@@ -330,7 +331,7 @@ namespace BinanceExchangeTests.BinanceTests.ImplTests
             var testOrderResult = await _spotTrade.CreateNewTakeProfitOrderAsync(symbol, sideType, priceAndQuantity, priceAndQuantity, recvWindow);
             expectedResult.Price = priceAndQuantity;
             expectedResult.OrigQty = priceAndQuantity;
-            TestHelper.CheckingAssertions(expectedResult, testOrderResult);
+            TestExtensions.CheckingAssertions(expectedResult, testOrderResult);
 
             Assert.Equal(expectedKey, _actualKey);
             Assert.Equal(expectedInterval, _actualInterval);
@@ -379,7 +380,7 @@ namespace BinanceExchangeTests.BinanceTests.ImplTests
                 "IOC",
                 "Limit",
                 OrderSideType.Buy);
-            TestHelper.CheckingAssertions(expectedResult, result);
+            TestExtensions.CheckingAssertions(expectedResult, result);
 
             Assert.Equal(expectedKey, _actualKey);
             Assert.Equal(expectedInterval, _actualInterval);
@@ -427,7 +428,7 @@ namespace BinanceExchangeTests.BinanceTests.ImplTests
             Assert.Equal(expectedResult.Count, result.Count);
             for (var i = 0; i < expectedResult.Count; i++)
             {
-                TestHelper.CheckingAssertions(expectedResult[i], result[i]);
+                TestExtensions.CheckingAssertions(expectedResult[i], result[i]);
             }
 
             Assert.Equal(expectedKey, _actualKey);
@@ -472,7 +473,7 @@ namespace BinanceExchangeTests.BinanceTests.ImplTests
                 "Limit",
                 OrderSideType.Buy);
 
-            TestHelper.CheckingAssertions(expectedResult, result);
+            TestExtensions.CheckingAssertions(expectedResult, result);
 
 
             Assert.Equal(expectedKey, _actualKey);
@@ -521,7 +522,7 @@ namespace BinanceExchangeTests.BinanceTests.ImplTests
             Assert.Equal(expectedResult.Count, result.Count);
             for (var i = 0; i < expectedResult.Count; i++)
             {
-                TestHelper.CheckingAssertions(expectedResult[i], result[i]);
+                TestExtensions.CheckingAssertions(expectedResult[i], result[i]);
             }
 
             Assert.Equal(expectedKey, _actualKey);
@@ -570,7 +571,7 @@ namespace BinanceExchangeTests.BinanceTests.ImplTests
             Assert.Equal(expectedResult.Count, result.Count);
             for (var i = 0; i < expectedResult.Count; i++)
             {
-                TestHelper.CheckingAssertions(expectedResult[i], result[i]);
+                TestExtensions.CheckingAssertions(expectedResult[i], result[i]);
             }
 
             Assert.Equal(expectedKey, _actualKey);
@@ -595,7 +596,7 @@ namespace BinanceExchangeTests.BinanceTests.ImplTests
             var result = await _spotTrade.GetAccountInformationAsync(CancellationToken.None);
             var expectedResult = TestHelper.GetExpectedAccountInformationModel();
 
-            TestHelper.CheckingAssertions(expectedResult, result);
+            TestExtensions.CheckingAssertions(expectedResult, result);
 
             Assert.Equal(expectedKey, _actualKey);
             Assert.Equal(expectedInterval, _actualInterval);

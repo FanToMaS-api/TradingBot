@@ -34,8 +34,8 @@ namespace Datastreamer
                     mc.AddProfile(new BinanceMapperProfile());
                 });
 
-            services.AddTelegramLogger(Configuration);
             services.AddSingleton(mapperConfig.CreateMapper());
+            services.AddTelegramLogger(Configuration);
             services.AddBinanceDatabase(Configuration);
             services.AddRecurringJobScheduler();
             services.AddRedis(Configuration);

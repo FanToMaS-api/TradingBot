@@ -1,20 +1,26 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFramework>net5.0</TargetFramework>
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFramework>net5.0</TargetFramework>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="MathNet.Numerics" Version="5.0.0" />
-    <PackageReference Include="Quartz" Version="3.4.0" />
-    <PackageReference Include="ScottPlot" Version="4.1.40" />
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="MathNet.Numerics" Version="5.0.0" />
+		<PackageReference Include="Quartz" Version="3.4.0" />
+		<PackageReference Include="ScottPlot" Version="4.1.40" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\..\Databases\BinanceDatabase\BinanceDatabase.csproj" />
-    <ProjectReference Include="..\..\Libraries\ExchangeLibrary\ExchangeLibrary.csproj" />
-    <ProjectReference Include="..\..\Logger\Logger.csproj" />
-    <ProjectReference Include="..\Scheduler\Scheduler.csproj" />
-  </ItemGroup>
+	<ItemGroup>
+		<AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
+			<_Parameter1>AnalyticTests</_Parameter1>
+		</AssemblyAttribute>
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\..\Databases\BinanceDatabase\BinanceDatabase.csproj" />
+		<ProjectReference Include="..\..\Libraries\ExchangeLibrary\ExchangeLibrary.csproj" />
+		<ProjectReference Include="..\..\Logger\Logger.csproj" />
+		<ProjectReference Include="..\Scheduler\Scheduler.csproj" />
+	</ItemGroup>
 
 </Project>

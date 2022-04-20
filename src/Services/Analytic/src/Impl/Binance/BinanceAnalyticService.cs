@@ -122,18 +122,22 @@ namespace Analytic.Binance
             {
                 var models = await _exchange.Marketdata.GetSymbolPriceTickerAsync(null, _cancellationTokenSource.Token);
                 var extendedFilteredModels = await FilterManager?.GetFilteredDataAsync(
-                    _exchange, 
+                    _exchange,
                     models,
                     _cancellationTokenSource.Token);
-                if (extendedFilteredModels.Any())
+                if (!extendedFilteredModels.Any())
                 {
-                    OnModelsFiltered?.Invoke(this, extendedFilteredModels.ToArray());
+                    return;
+                }
 
-                    var analyzedModels = await GetAnalyzedModelsAsync(extendedFilteredModels.ToList(), _cancellationTokenSource.Token);
-                    if (analyzedModels.Any())
-                    {
-                        OnSuccessfulAnalize?.Invoke(this, analyzedModels.ToArray());
-                    }
+                OnModelsFiltered?.Invoke(this, extendedFilteredModels.ToArray());
+
+                var analyzedModels = await GetAnalyzedModelsAsync(
+                    extendedFilteredModels.ToList(),
+                    _cancellationTokenSource.Token);
+                if (analyzedModels.Any())
+                {
+                    OnSuccessfulAnalize?.Invoke(this, analyzedModels.ToArray());
                 }
             }
             catch (Exception ex)
@@ -152,17 +156,20 @@ namespace Analytic.Binance
             {
                 foreach (var profileGroup in ProfileGroups.Where(_ => _.IsActive))
                 {
-                    var (isSuccessful, analyticModel) = await profileGroup.TryAnalyzeAsync(_serviceScopeFactory, model, cancellationToken);
+                    var (isSuccessful, analyticModel) = await profileGroup.TryAnalyzeAsync(
+                        _serviceScopeFactory,
+                        model,
+                        cancellationToken);
                     if (!isSuccessful)
                     {
                         continue;
                     }
 
+                    modelsToBuy.Add(analyticModel);
                     await _logger.TraceAsync($"Successful analysis model {analyticModel.TradeObjectName}\n" +
                         $"Has image: {analyticModel.HasPredictionImage}\n" +
                         $"Path to image: {analyticModel.ImagePath}",
                         cancellationToken: cancellationToken);
-                    modelsToBuy.Add(analyticModel);
                 }
             }
 

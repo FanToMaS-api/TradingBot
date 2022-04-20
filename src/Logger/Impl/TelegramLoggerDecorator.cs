@@ -188,7 +188,7 @@ namespace Logger.Impl
         private async Task WriteLogAsync(string message, string memberName, int? lineNumber, CancellationToken cancellationToken)
         {
             var builder = new TelegramMessageBuilder();
-            builder.SetChatId(long.Parse(_loggerConfiguration.ChatId));
+            builder.SetChatId(_loggerConfiguration.ChatId);
             builder.SetMessageText($"Caller: {memberName}\nLine: {lineNumber}\n{message}");
             var messageModel = builder.GetResult();
             try
