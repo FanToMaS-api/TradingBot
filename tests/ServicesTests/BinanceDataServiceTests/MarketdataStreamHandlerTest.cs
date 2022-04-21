@@ -121,6 +121,21 @@ namespace BinanceDataServiceTests
             CreateMiniTradeStreamModel(15, 15, 15, 15, 15, 15, StartDate.AddHours(2).FromDateTimeToUnix()),
         };
 
+        private static readonly List<MiniTickerEntity> _entities = new()
+        {
+            CreateMiniTickerEntity(2.5, 2.5, 2.5, 2.5, 2.5, 2.5, StartDate, AggregateDataIntervalType.Default),
+            CreateMiniTickerEntity(5, 5, 5, 5, 5, 5, StartDate.AddSeconds(10), AggregateDataIntervalType.Default),
+            CreateMiniTickerEntity(7, 7, 7, 7, 7, 7, StartDate.AddSeconds(20), AggregateDataIntervalType.Default),
+            CreateMiniTickerEntity(9, 9, 9, 9, 9, 9, StartDate.AddSeconds(30), AggregateDataIntervalType.Default),
+            CreateMiniTickerEntity(10, 10, 10, 10, 10, 10, StartDate.AddSeconds(60), AggregateDataIntervalType.Default),
+            CreateMiniTickerEntity(11, 11, 11, 11, 11, 11, StartDate.AddSeconds(70), AggregateDataIntervalType.Default),
+
+            CreateMiniTickerEntity(12, 12, 12, 12, 12, 12, StartDate.AddMinutes(2), AggregateDataIntervalType.Default),
+            CreateMiniTickerEntity(13, 13, 13, 13, 13, 13, StartDate.AddMinutes(3), AggregateDataIntervalType.Default),
+            CreateMiniTickerEntity(14, 14, 14, 14, 14, 14, StartDate.AddHours(1), AggregateDataIntervalType.Default),
+            CreateMiniTickerEntity(15, 15, 15, 15, 15, 15, StartDate.AddHours(2), AggregateDataIntervalType.Default),
+        };
+
         private static readonly List<MiniTickerEntity> _expectedModelsForDefault = new()
         {
             CreateMiniTickerEntity(2.5, 2.5, 2.5, 2.5, 2.5, 2.5, StartDate, AggregateDataIntervalType.Default),
@@ -152,9 +167,9 @@ namespace BinanceDataServiceTests
 
         public static readonly IEnumerable<object[]> IntervalsStreamModels = new List<object[]>
         {
-            new object[] { AggregateDataIntervalType.Default, _streamModels, _expectedModelsForDefault},
-            new object[] { AggregateDataIntervalType.OneMinute, _streamModels, _expectedModelsForOneMinute },
-            new object[] { AggregateDataIntervalType.OneHour, _streamModels, _expectedModelsForOneHour }
+            new object[] { AggregateDataIntervalType.Default, _entities, _expectedModelsForDefault},
+            new object[] { AggregateDataIntervalType.OneMinute, _entities, _expectedModelsForOneMinute },
+            new object[] { AggregateDataIntervalType.OneHour, _entities, _expectedModelsForOneHour }
         };
 
         #endregion
@@ -166,10 +181,10 @@ namespace BinanceDataServiceTests
         [MemberData(nameof(IntervalsStreamModels))]
         public void GetAveragingMiniTickers_Test(
             AggregateDataIntervalType intervalType,
-            IEnumerable<MiniTradeObjectStreamModel> streamModels,
+            IEnumerable<MiniTickerEntity> entities,
             MiniTickerEntity[] expectedResult)
         {
-            var actual = _dataHandler.GetAveragingMiniTickers(intervalType, streamModels);
+            var actual = _dataHandler.GetAveragingMiniTickers(intervalType, entities);
             Assert.Equal(expectedResult.Length, actual.Length);
             for (var i = 0; i < expectedResult.Length; i++)
             {
