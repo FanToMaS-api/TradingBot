@@ -2,6 +2,7 @@
 using BinanceDatabase;
 using BinanceDatabase.Entities;
 using BinanceDatabase.Enums;
+using BinanceDatabase.Repositories;
 using Common.Models;
 using Common.WebSocket;
 using DataServiceLibrary;
@@ -12,6 +13,7 @@ using Quartz;
 using Scheduler;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -31,6 +33,7 @@ namespace BinanceDataService.DataHandlers
         private readonly IMapper _mapper;
         private TriggerKey _triggerKey;
         private TriggerKey _dataDelitionTriggerKey;
+        private TriggerKey _dataAggregationTriggerKey;
         private readonly List<MiniTradeObjectStreamModel> _mainModelsStorage = new();
         private readonly List<MiniTradeObjectStreamModel> _assistantModelsStorage = new();
         private CancellationTokenSource _cancellationTokenSource;
@@ -77,6 +80,7 @@ namespace BinanceDataService.DataHandlers
 
             _triggerKey = await _scheduler.ScheduleAsync(Cron.Minutely(), SaveDataAsync);
             _dataDelitionTriggerKey = await _scheduler.ScheduleAsync(Cron.Daily(), DeleteDataAsync);
+            _dataAggregationTriggerKey = await _scheduler.ScheduleAsync(Cron.DailyOnHour(23), AggregateAndSaveDataAsync);
 
             await _logger.InfoAsync("Marketdata handler launched successfully!", cancellationToken: cancellationToken);
         }
@@ -86,6 +90,7 @@ namespace BinanceDataService.DataHandlers
         {
             _scheduler?.UnscheduleAsync(_triggerKey);
             _scheduler?.UnscheduleAsync(_dataDelitionTriggerKey);
+            _scheduler?.UnscheduleAsync(_dataAggregationTriggerKey);
             _webSocket?.Dispose();
 
             await _logger.InfoAsync("Marketdata handler sropped", cancellationToken: _cancellationTokenSource.Token);
@@ -137,7 +142,7 @@ namespace BinanceDataService.DataHandlers
         internal async Task SaveDataAsync(IServiceProvider serviceProvider)
         {
             IsAssistantStorageSaving = !IsAssistantStorageSaving;
-
+            await AggregateAndSaveDataAsync(serviceProvider);
             try
             {
                 if (IsAssistantStorageSaving)
@@ -167,17 +172,66 @@ namespace BinanceDataService.DataHandlers
             var databaseFactory = serviceProvider.GetService<IBinanceDbContextFactory>();
             using var database = databaseFactory.CreateScopeDatabase();
             var hotData = _mapper.Map<IEnumerable<HotMiniTickerEntity>>(streamModels);
+            var coldData = _mapper.Map<IEnumerable<MiniTickerEntity>>(streamModels);
 
             await database.HotUnitOfWork.HotMiniTickers.AddRangeAsync(hotData, _cancellationTokenSource.Token);
-
-            // TODO: Задать расписание агрегирования по дням и дописать на этот метод тесты
-            // var groupedData = GetAveragingMiniTickers(AggregateDataIntervalType.OneMinute, streamModels);
-            // await database.ColdUnitOfWork.MiniTickers.AddRangeAsync(groupedData, _cancellationTokenSource.Token);
-
+            await database.ColdUnitOfWork.MiniTickers.AddRangeAsync(coldData, _cancellationTokenSource.Token);
             await database.SaveChangesAsync(_cancellationTokenSource.Token);
+
             await _logger.TraceAsync(
                 $"{streamModels.Count()} entities successfully saved",
                 cancellationToken: _cancellationTokenSource.Token);
+        }
+
+        /// <summary>
+        ///     Агрегирует полученные за день данные
+        /// </summary>
+        private async Task AggregateAndSaveDataAsync(IServiceProvider serviceProvider)
+        {
+            await _logger.TraceAsync(
+               "Data aggregating started!",
+               cancellationToken: _cancellationTokenSource.Token);
+
+            var watch = new Stopwatch();
+            watch.Start();
+            try
+            {
+                var databaseFactory = serviceProvider.GetService<IBinanceDbContextFactory>();
+                using var database = databaseFactory.CreateScopeDatabase();
+                var models = GetNonAggregatingMiniTickersEntities(database);
+                var groupedData = GetAveragingMiniTickers(AggregateDataIntervalType.FiveMinutes, models);
+
+                var modelsCount = models.Count();
+                database.ColdUnitOfWork.MiniTickers.RemoveRange(models);
+                await database.SaveChangesAsync(_cancellationTokenSource.Token);
+
+                await database.ColdUnitOfWork.MiniTickers.AddRangeAsync(groupedData, _cancellationTokenSource.Token);
+                await database.SaveChangesAsync(_cancellationTokenSource.Token);
+
+                watch.Stop();
+                await _logger.TraceAsync(
+                    $"{modelsCount} entities successfully removed.\n" +
+                    $"{groupedData.Length} entities successfully aggregate and saved\n" +
+                    $"Time elapsed: {watch.Elapsed.TotalSeconds} s",
+                    cancellationToken: _cancellationTokenSource.Token);
+            }
+            catch (Exception ex)
+            {
+                await _logger.ErrorAsync(ex, "Failed to aggregate and save miniTickers", cancellationToken: _cancellationTokenSource.Token);
+            }
+        }
+        
+        /// <summary>
+        ///     Возвращает еще не агрегированные модели за этот день
+        /// </summary>
+        private IEnumerable<MiniTickerEntity> GetNonAggregatingMiniTickersEntities(IUnitOfWork database)
+        {
+            var now = DateTime.Now;
+            var models = database.ColdUnitOfWork.MiniTickers
+                .CreateQuery()
+                .Where(_ => _.EventTime > now.AddDays(-1) && _.AggregateDataInterval == AggregateDataIntervalType.Default);
+
+            return models;
         }
 
         /// <summary>
@@ -185,9 +239,9 @@ namespace BinanceDataService.DataHandlers
         /// </summary>
         internal MiniTickerEntity[] GetAveragingMiniTickers(
             AggregateDataIntervalType intervalType,
-            IEnumerable<MiniTradeObjectStreamModel> streamModels)
+            IEnumerable<MiniTickerEntity> miniTickers)
         {
-            var groupsByName = _mapper.Map<IEnumerable<MiniTickerEntity>>(streamModels).GroupBy(_ => _.ShortName);
+            var groupsByName = miniTickers.GroupBy(_ => _.ShortName);
             var interval = intervalType.ConvertToTimeSpan();
             var aggregatedMiniTickers = new List<MiniTickerEntity>();
             foreach (var group in groupsByName)
@@ -224,7 +278,7 @@ namespace BinanceDataService.DataHandlers
                     AveragingFields(aggregateObject, counter);
                     aggregatedMiniTickers.Add(aggregateObject);
                     counter = 1;
-                    aggregateObject = item;
+                    aggregateObject = (MiniTickerEntity)item.Clone();
                     aggregateObject.AggregateDataInterval = intervalType;
                     start = item.EventTime;
                     continue;
@@ -312,7 +366,7 @@ namespace BinanceDataService.DataHandlers
                 return;
             }
 
-            StopAsync().GetAwaiter().GetResult();
+            StopAsync().Wait();
             _isDisposed = true;
         }
 
