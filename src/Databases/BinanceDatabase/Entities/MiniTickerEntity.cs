@@ -11,7 +11,7 @@ namespace BinanceDatabase.Entities
     ///     Усеченная модель 24-часового скользящего окна по символу
     /// </summary>
     [Table("mini_tickers")]
-    public class MiniTickerEntity
+    public class MiniTickerEntity : ICloneable
     {
         /// <summary>
         ///     Уникальный идентификатор записи
@@ -88,6 +88,21 @@ namespace BinanceDatabase.Entities
             builder.HasIndex(_ => _.MinPrice).HasDatabaseName("IX_mini_tickers_min_price");
             builder.HasIndex(_ => _.MaxPrice).HasDatabaseName("IX_mini_tickers_max_price");
         }
+
+        /// <inheritdoc />
+        public object Clone() =>
+            new MiniTickerEntity
+            {
+                ShortName = ShortName,
+                EventTime = EventTime,
+                AggregateDataInterval = AggregateDataInterval,
+                ClosePrice = ClosePrice,
+                OpenPrice = OpenPrice,
+                MaxPrice = MaxPrice,
+                MinPrice = MinPrice,
+                BasePurchaseVolume = BasePurchaseVolume,
+                QuotePurchaseVolume = QuotePurchaseVolume
+            };
 
         #endregion
     }
