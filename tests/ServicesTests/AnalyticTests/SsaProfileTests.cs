@@ -72,11 +72,11 @@ namespace AnalyticTests
                 start = start.AddSeconds(1);
             }
 
-            var minMaxModel = MinMaxPriceModel.Create(predictedPrices);
-            Assert.True(ssaProfile.CanCreateChart(prices, predictedPrices, dates, "TEST_PAIR", minMaxModel, out var path));
+            var minMaxModel = MinMaxPriceModel.Create("TEST_PAIR", predictedPrices);
+            Assert.True(ssaProfile.CanCreateChart(prices, dates, minMaxModel, out var path));
 
             // проверка выдачи ошибки того, что график был недавно создан
-            Assert.False(ssaProfile.CanCreateChart(prices, predictedPrices, dates, "TEST_PAIR", minMaxModel, out var _));
+            Assert.False(ssaProfile.CanCreateChart(prices, dates, minMaxModel, out var _));
             Assert.True(File.Exists(path));
             File.Delete(path);
 

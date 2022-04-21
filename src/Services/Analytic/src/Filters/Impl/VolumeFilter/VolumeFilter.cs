@@ -22,7 +22,7 @@ namespace Analytic.Filters
             string filterName,
             VolumeType volumeType = VolumeType.Default,
             VolumeComparisonType volumeComparisonType = VolumeComparisonType.Default,
-            double percentDeviation = 0.3,
+            double percentDeviation = 0.05,
             double? limit = null)
         {
             FilterName = filterName;

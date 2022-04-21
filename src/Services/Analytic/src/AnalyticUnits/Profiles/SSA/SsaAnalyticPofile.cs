@@ -82,7 +82,7 @@ namespace Analytic.AnalyticUnits.Profiles.SSA
                 cancellationToken: cancellationToken);
             await SavePredictionAsync(serviceScopeFactory, pairName, enities.Last().ReceivedTime, predictions, cancellationToken);
 
-            var minMaxPriceModel = MinMaxPriceModel.Create(predictions);
+            var minMaxPriceModel = MinMaxPriceModel.Create(pairName, predictions);
             if (minMaxPriceModel.MinPrice <= 0)
             {
                 return (false, null);
@@ -90,9 +90,7 @@ namespace Analytic.AnalyticUnits.Profiles.SSA
 
             var canCreateChart = CanCreateChart(
                 prices,
-                predictions,
                 enities.Select(_ => _.ReceivedTime),
-                pairName,
                 minMaxPriceModel,
                 out var imagePath);
 
@@ -292,17 +290,17 @@ namespace Analytic.AnalyticUnits.Profiles.SSA
         /// <returns> <see langword="true"/> если изображение было успешно создано </returns>
         internal bool CanCreateChart(
             double[] original,
-            double[] predictions,
             IEnumerable<DateTime> dateTimes,
-            string pair,
             MinMaxPriceModel minMaxPriceModel,
             out string imagePath)
         {
             var directoryPath = GetOrCreateFolderPath(GraficsFolder);
-            imagePath = Path.Combine(directoryPath, $"{pair}.png");
-            if (File.Exists(imagePath) && File.GetCreationTime(imagePath).AddMinutes(_numberOfMinutesOfImageStorage) > DateTime.Now)
+            imagePath = Path.Combine(directoryPath, $"{minMaxPriceModel.PairName}.png");
+            if (File.Exists(imagePath) 
+                && File.GetCreationTime(imagePath).AddMinutes(_numberOfMinutesOfImageStorage) > DateTime.Now)
             {
-                _logger.TraceAsync($"The graph for '{pair}' was created recently, saving and processing is canceled. Path: {directoryPath}");
+                _logger.TraceAsync($"The graph for '{minMaxPriceModel.PairName}' was created recently, " +
+                    "saving and processing is canceled. Path: {directoryPath}");
                 return false;
             }
 
@@ -317,16 +315,16 @@ namespace Analytic.AnalyticUnits.Profiles.SSA
                 var startTimeForPredictionsData = dateTimes.Last();
                 var endTime = dateTimes.First();
                 var offset = (int)Math.Ceiling(Math.Abs((startTimeForPredictionsData - endTime).TotalSeconds / dateTimes.Count()));
-                var timeForPredictions = CreatePredictionsDates(startTimeForPredictionsData, predictions.Length, offset);
-                AddCaptionsToChart(plot, pair, minMaxPriceModel, original, predictions, timeForPredictions, dateTimes);
+                var timeForPredictions = CreatePredictionsDates(startTimeForPredictionsData, minMaxPriceModel.PredictedPrices.Length, offset);
+                AddCaptionsToChart(plot, minMaxPriceModel, original, timeForPredictions, dateTimes);
 
                 plot.SaveFig(imagePath);
 
-                _logger.TraceAsync($"Successful create grafic for model {pair}. Path: {imagePath}");
+                _logger.TraceAsync($"Successful create grafic for model {minMaxPriceModel.PairName}. Path: {imagePath}");
             }
             catch (Exception ex)
             {
-                _logger.ErrorAsync(ex, $"Failed to create and save image for {pair}").Wait(5 * 1000);
+                _logger.ErrorAsync(ex, $"Failed to create and save image for {minMaxPriceModel.PairName}").Wait(5 * 1000);
 
                 return false;
             }
@@ -339,15 +337,13 @@ namespace Analytic.AnalyticUnits.Profiles.SSA
         /// </summary>
         private void AddCaptionsToChart(
             ScottPlot.Plot plot,
-            string pair,
             MinMaxPriceModel minMaxPriceModel,
             double[] original,
-            double[] predictions,
             double[] timeForPredictions,
             IEnumerable<DateTime> dateTimes)
         {
             plot.AddScatter(dateTimes.Select(_ => _.ToOADate()).ToArray(), original, label: "Real");
-            plot.AddScatter(timeForPredictions, predictions, label: "Predicted");
+            plot.AddScatter(timeForPredictions, minMaxPriceModel.PredictedPrices, label: "Predicted");
             plot.XAxis.TickLabelFormat("g", dateTimeFormat: true);
 
             plot.AddText(
@@ -362,7 +358,7 @@ namespace Analytic.AnalyticUnits.Profiles.SSA
             plot.YAxis.Label("Price");
             plot.XAxis.Label("Time");
             plot.XAxis.TickLabelStyle(rotation: 45);
-            plot.XAxis2.Label(pair);
+            plot.XAxis2.Label(minMaxPriceModel.PairName);
             plot.Legend(true, ScottPlot.Alignment.LowerLeft);
 
             plot.Style(ScottPlot.Style.Gray1);
