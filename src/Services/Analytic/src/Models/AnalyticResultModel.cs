@@ -15,12 +15,12 @@ namespace Analytic.Models
         /// <summary>
         ///     Рекомендуемая цена покупки
         /// </summary>
-        public double RecommendedPurchasePrice { get; internal set; }
+        public List<double> RecommendedPurchasePrice { get; internal set; }
 
         /// <summary>
         ///     Рекомендуемая цена продажи
         /// </summary>
-        public double? RecommendedSellingPrice { get; internal set; }
+        public List<double?> RecommendedSellingPrice { get; internal set; }
 
         /// <summary>
         ///     Объем спроса
@@ -50,11 +50,11 @@ namespace Analytic.Models
         /// <summary>
         ///     Если график с предсказанной ценой
         /// </summary>
-        public bool HasPredictionImage { get; internal set; }
+        public List<bool> HasPredictionImage { get; internal set; }
 
         /// <summary>
         ///     Путь к изображению
         /// </summary>
-        public string ImagePath { get; internal set; }
+        public List<string> ImagePath { get; internal set; }
     }
 }

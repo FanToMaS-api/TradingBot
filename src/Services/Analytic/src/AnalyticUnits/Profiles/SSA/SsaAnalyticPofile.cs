@@ -26,7 +26,7 @@ namespace Analytic.AnalyticUnits.Profiles.SSA
 
         private readonly ILoggerDecorator _logger;
         private readonly string _baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
-        private const int _numberPricesToTake = 2498; // кол-во данных участвующих в предсказании цены
+        private readonly int[] _numbersPricesToTake = { 250, 500, 1000, 2000 }; // кол-во данных участвующих в предсказании цены
         private const int _numberOfMinutesOfImageStorage = 0; // кол-во минут хранения изображения (опция отключена  = 0)
                                                               // (не будут присылаться сообщения с изображением, дабы не спамить)
 
@@ -65,45 +65,48 @@ namespace Analytic.AnalyticUnits.Profiles.SSA
             CancellationToken cancellationToken)
         {
             var pairName = model.TradeObjectName;
-            var enities = GetHotMiniTickers(serviceScopeFactory, pairName);
+            var enities = GetHotMiniTickers(serviceScopeFactory, pairName, _numbersPricesToTake.Last());
             if (!enities.Any())
             {
                 return (false, null);
             }
 
-            var prices = enities.Select(_ => _.Price).ToArray();
-            var predictions = SSA(prices);
-            if (!predictions.Any())
-            {
-                return (false, null);
-            }
-
-            await _logger.TraceAsync(
-                $"Successful predicted {predictions.Length} prices for {pairName}",
-                cancellationToken: cancellationToken);
-            await SavePredictionAsync(serviceScopeFactory, pairName, enities.Last().ReceivedTime, predictions, cancellationToken);
-
-            var minMaxPriceModel = MinMaxPriceModel.Create(pairName, predictions);
-            if (minMaxPriceModel.MinPrice <= 0)
-            {
-                return (false, null);
-            }
-
-            var canCreateChart = CanCreateChart(
-                prices,
-                enities.Select(_ => _.ReceivedTime),
-                minMaxPriceModel,
-                out var imagePath);
-
-
             var result = new AnalyticResultModel()
             {
-                TradeObjectName = pairName,
-                HasPredictionImage = canCreateChart,
-                RecommendedPurchasePrice = minMaxPriceModel.MinPrice,
-                RecommendedSellingPrice = minMaxPriceModel.MaxPrice,
-                ImagePath = imagePath
+                TradeObjectName = pairName
             };
+
+            foreach (var numberPricesToTake in _numbersPricesToTake.TakeWhile(_ => _ < enities.Length))
+            {
+                var prices = enities.Select(_ => _.Price).Take(numberPricesToTake).ToArray();
+                var predictions = SSA(prices);
+                if (!predictions.Any())
+                {
+                    return (false, null);
+                }
+
+                await _logger.TraceAsync(
+                    $"Successful predicted {predictions.Length} prices for {pairName}",
+                    cancellationToken: cancellationToken);
+                await SavePredictionAsync(serviceScopeFactory, pairName, enities.Last().ReceivedTime, predictions, cancellationToken);
+
+                var minMaxPriceModel = MinMaxPriceModel.Create(pairName, predictions);
+                if (minMaxPriceModel.MinPrice <= 0)
+                {
+                    return (false, null);
+                }
+
+                var canCreateChart = CanCreateChart(
+                    prices,
+                    enities.Select(_ => _.ReceivedTime),
+                    minMaxPriceModel,
+                    out var imagePath);
+
+                result.HasPredictionImage.Add(canCreateChart);
+                result.RecommendedPurchasePrice.Add(minMaxPriceModel.MinPrice);
+                result.RecommendedSellingPrice.Add(minMaxPriceModel.MaxPrice);
+                result.ImagePath.Add(imagePath);
+            }
 
             return (true, result);
         }
@@ -115,13 +118,13 @@ namespace Analytic.AnalyticUnits.Profiles.SSA
         /// <summary>
         ///     Возвращает самые актуальные сущности из базы для конкретной пары
         /// </summary>
-        private HotMiniTickerEntity[] GetHotMiniTickers(IServiceScopeFactory serviceScopeFactory, string pairName)
+        private HotMiniTickerEntity[] GetHotMiniTickers(IServiceScopeFactory serviceScopeFactory, string pairName, int numberPricesToTake)
         {
             using var scope = serviceScopeFactory.CreateScope();
             var databaseFactory = scope.ServiceProvider.GetRequiredService<IBinanceDbContextFactory>();
             using var database = databaseFactory.CreateScopeDatabase();
 
-            return database.HotUnitOfWork.HotMiniTickers.GetArray(pairName, _numberPricesToTake);
+            return database.HotUnitOfWork.HotMiniTickers.GetArray(pairName, numberPricesToTake);
         }
 
         /// <summary>
