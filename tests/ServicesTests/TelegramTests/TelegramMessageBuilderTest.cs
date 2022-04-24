@@ -9,6 +9,9 @@ namespace TelegramTests
     /// </summary>
     public class TelegramMessageBuilderTest
     {
+        // оставлены для Markdown разметки только '*' и '`'
+        private static readonly string[] SymbolsToReplace = { ".", "-", "(", ")", "!", "#", "_", "|", "{", "}", "[", "]", "~", "=", "+", ">" };
+
         /// <summary>
         ///     Тест создания модели сообщения
         /// </summary>
@@ -28,9 +31,12 @@ namespace TelegramTests
             builder.SetMessageText(text);
 
             // экранирую специальные символы
-            var expectedText = text
-                .Replace(".", "\\.")
-                .Replace("-", "\\-");
+            var expectedText = text;
+            foreach (var symbol in SymbolsToReplace)
+            {
+                expectedText = expectedText.Replace(symbol, $"\\{symbol}");
+            }
+
             Assert.Equal(expectedText, builder.GetResult().MessageText);
 
             var inlineButtonText = "Inline Button Text";

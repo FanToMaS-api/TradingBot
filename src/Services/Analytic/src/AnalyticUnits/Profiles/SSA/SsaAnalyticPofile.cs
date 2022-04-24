@@ -27,8 +27,9 @@ namespace Analytic.AnalyticUnits.Profiles.SSA
         private readonly ILoggerDecorator _logger;
         private readonly string _baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
         private const int _numberPricesToTake = 2498; // кол-во данных участвующих в предсказании цены
-        private const int _numberOfMinutesOfImageStorage = 2; // кол-во минут хранения изображения
+        private const int _numberOfMinutesOfImageStorage = 0; // кол-во минут хранения изображения (опция отключена  = 0)
                                                               // (не будут присылаться сообщения с изображением, дабы не спамить)
+
         internal static string GraficsFolder = "Grafics"; // папка для хранения графиков
         private const int _neededLambdaNumber = 7; // Кол-во значимых собственных значений, которое будет отбираться
         private const double _minMagnitudeForSsaSmoothing = 0.0002; // Минимальная магнитуда
@@ -120,7 +121,7 @@ namespace Analytic.AnalyticUnits.Profiles.SSA
             var databaseFactory = scope.ServiceProvider.GetRequiredService<IBinanceDbContextFactory>();
             using var database = databaseFactory.CreateScopeDatabase();
 
-             return database.HotUnitOfWork.HotMiniTickers.GetArray(pairName, _numberPricesToTake);
+            return database.HotUnitOfWork.HotMiniTickers.GetArray(pairName, _numberPricesToTake);
         }
 
         /// <summary>
@@ -135,6 +136,11 @@ namespace Analytic.AnalyticUnits.Profiles.SSA
         /// </remarks>
         internal static double[] SSA(double[] prices)
         {
+            if (prices.Length == 0)
+            {
+                return Array.Empty<double>();
+            }
+
             var ssaModel = SsaModel.Create(prices);
             var subMatrixEigenvectors = MakeSmoothing(ssaModel);
             if (!subMatrixEigenvectors.Any())
@@ -296,7 +302,7 @@ namespace Analytic.AnalyticUnits.Profiles.SSA
         {
             var directoryPath = GetOrCreateFolderPath(GraficsFolder);
             imagePath = Path.Combine(directoryPath, $"{minMaxPriceModel.PairName}.png");
-            if (File.Exists(imagePath) 
+            if (File.Exists(imagePath)
                 && File.GetCreationTime(imagePath).AddMinutes(_numberOfMinutesOfImageStorage) > DateTime.Now)
             {
                 _logger.TraceAsync($"The graph for '{minMaxPriceModel.PairName}' was created recently, " +
@@ -438,6 +444,11 @@ namespace Analytic.AnalyticUnits.Profiles.SSA
         /// <param name="tau_delayNumber"> Число задержек </param>
         internal static double[] SignalRecovery(double[,] newX, int pricesLength, int tau_delayNumber)
         {
+            if (newX is null || newX.Length == 0)
+            {
+                return Array.Empty<double>();
+            }
+
             var result = new List<double>();
             var n = pricesLength - tau_delayNumber + 1;
             for (var s = 1; s <= pricesLength; s++)

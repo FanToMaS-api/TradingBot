@@ -31,6 +31,17 @@ namespace AnalyticTests
         }
 
         /// <summary>
+        ///     Тест SSA с пустым массивом цен
+        /// </summary>
+        [Fact(DisplayName = "SSA with empty prices array Test")]
+        public void SsaEmptyPricesArray_Test()
+        {
+            var prices = Array.Empty<double>();
+            var predictedPrices = SsaAnalyticPofile.SSA(prices);
+            Assert.Empty(predictedPrices);
+        }
+
+        /// <summary>
         ///     Тест восстановления сигнала
         /// </summary>
         [Fact(DisplayName = "Signal recovery Test")]
@@ -44,6 +55,8 @@ namespace AnalyticTests
             // Восстанавливаю сигнал
             var mainComponents = ssaModel.MainComponentsMatrix;
             var restoredOriginalMatrix = (matrixEigenvectors * mainComponents).ToArray();
+
+            // Act
             var restoredSignal = SsaAnalyticPofile.SignalRecovery(restoredOriginalMatrix, prices.Length, ssaModel.TauDelayNumber);
 
             var expectedRestoredSignal = File.ReadAllLines("Files/ExpectedRestoredSignal.txt").Select(_ => double.Parse(_)).ToArray();
@@ -52,6 +65,23 @@ namespace AnalyticTests
             {
                 Assert.Equal(expectedRestoredSignal[i], restoredSignal[i]);
             }
+        }
+
+        /// <summary>
+        ///     Тест восстановления сигнала при пустой исходной восстановленной матрице
+        /// </summary>
+        [Fact(DisplayName = "Signal recovery with empty restored original matrix Test")]
+        public void SignalRecoveryWithEmptyRestoredOriginalMatrix_Test()
+        {
+            var prices = File.ReadAllLines("Files/Prices.txt").Select(_ => double.Parse(_)).ToArray();
+            var ssaModel = SsaModel.Create(prices);
+
+            // Восстанавливаю сигнал
+            var restoredOriginalMatrix = new double[0, 0];
+
+            // Act
+            var restoredSignal = SsaAnalyticPofile.SignalRecovery(restoredOriginalMatrix, prices.Length, ssaModel.TauDelayNumber);
+            Assert.Empty(restoredOriginalMatrix);
         }
 
         /// <summary>
@@ -73,10 +103,12 @@ namespace AnalyticTests
             }
 
             var minMaxModel = MinMaxPriceModel.Create("TEST_PAIR", predictedPrices);
+            
+            // Act 
             Assert.True(ssaProfile.CanCreateChart(prices, dates, minMaxModel, out var path));
 
-            // проверка выдачи ошибки того, что график был недавно создан
-            Assert.False(ssaProfile.CanCreateChart(prices, dates, minMaxModel, out var _));
+            // проверка отмены создания графика из-за того, что он недавно был создан
+            // Assert.False(ssaProfile.CanCreateChart(prices, dates, minMaxModel, out var _));
             Assert.True(File.Exists(path));
             File.Delete(path);
 

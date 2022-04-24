@@ -11,6 +11,8 @@ namespace Telegram.Builder
     {
         #region Fields
 
+        // оставлены для Markdown разметки только '*' и '`'
+        private static readonly string[] SymbolsToReplace = { ".", "-", "(", ")", "!", "#", "_", "|", "{", "}", "[", "]", "~", "=", "+", ">" };
         private TelegramMessageModel _messageModel = new();
 
         #endregion
@@ -38,8 +40,11 @@ namespace Telegram.Builder
         public void SetMessageText(string message)
         {
             // экранирую специальные символы
-            message = message.Replace(".", "\\.");
-            message = message.Replace("-", "\\-");
+            foreach (var symbol in SymbolsToReplace)
+            {
+                message = message.Replace(symbol, $"\\{symbol}");
+            }
+
             _messageModel.MessageText = message;
         }
 
