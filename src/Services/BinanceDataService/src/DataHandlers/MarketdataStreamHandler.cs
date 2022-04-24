@@ -79,8 +79,8 @@ namespace BinanceDataService.DataHandlers
             Task.Run(async () => await StartWebSocket(_cancellationTokenSource.Token), cancellationToken);
 
             _triggerKey = await _scheduler.ScheduleAsync(Cron.Minutely(), SaveDataAsync);
-            _dataDelitionTriggerKey = await _scheduler.ScheduleAsync(Cron.Daily(), DeleteDataAsync);
-            _dataAggregationTriggerKey = await _scheduler.ScheduleAsync(Cron.DailyOnHour(23), AggregateAndSaveDataAsync);
+            _dataDelitionTriggerKey = await _scheduler.ScheduleAsync(Cron.DailyOnHour(23), DeleteDataAsync);
+            _dataAggregationTriggerKey = await _scheduler.ScheduleAsync(Cron.DailyOnHour(22), AggregateAndSaveDataAsync);
 
             await _logger.InfoAsync("Marketdata handler launched successfully!", cancellationToken: cancellationToken);
         }
@@ -142,7 +142,6 @@ namespace BinanceDataService.DataHandlers
         internal async Task SaveDataAsync(IServiceProvider serviceProvider)
         {
             IsAssistantStorageSaving = !IsAssistantStorageSaving;
-            await AggregateAndSaveDataAsync(serviceProvider);
             try
             {
                 if (IsAssistantStorageSaving)
@@ -192,10 +191,10 @@ namespace BinanceDataService.DataHandlers
                "Data aggregating started!",
                cancellationToken: _cancellationTokenSource.Token);
 
-            var watch = new Stopwatch();
-            watch.Start();
             try
             {
+                var watch = new Stopwatch();
+                watch.Start();
                 var databaseFactory = serviceProvider.GetService<IBinanceDbContextFactory>();
                 using var database = databaseFactory.CreateScopeDatabase();
                 var models = GetNonAggregatingMiniTickersEntities(database);

@@ -14,18 +14,20 @@ namespace Analytic.AnalyticUnits.Profiles.SSA.Models
         ///     Создает модель
         /// </summary>
         /// <param name="predictions"> Предсказанные значения </param>
-        public static MinMaxPriceModel Create(double[] predictions)
+        public static MinMaxPriceModel Create(string pairName, double[] predictions)
         {
             var minPrice = predictions.Min();
             var minIndex = Array.IndexOf(predictions, minPrice);
             var maxPrice = predictions.Max();
             var maxIndex = Array.IndexOf(predictions, maxPrice);
 
-            return new MinMaxPriceModel(minPrice, minIndex, maxPrice, maxIndex);
+            return new MinMaxPriceModel(pairName, predictions, minPrice, minIndex, maxPrice, maxIndex);
         }
 
-        private MinMaxPriceModel(double minPrice, int minIndex, double maxPrice, int maxIndex)
+        private MinMaxPriceModel(string pairName, double[] predictions, double minPrice, int minIndex, double maxPrice, int maxIndex)
         {
+            PairName = pairName;
+            PredictedPrices = predictions;
             MinPrice = minPrice;
             MinIndex = minIndex;
             MaxPrice = maxPrice;
@@ -35,6 +37,16 @@ namespace Analytic.AnalyticUnits.Profiles.SSA.Models
         #endregion
 
         #region Properties
+
+        /// <summary>
+        ///     Название пары
+        /// </summary>
+        public string PairName { get; set; }
+
+        /// <summary>
+        ///     Предсказанные значения цены
+        /// </summary>
+        public double[] PredictedPrices { get; }
 
         /// <summary>
         ///     Минимальная цена предсказания
