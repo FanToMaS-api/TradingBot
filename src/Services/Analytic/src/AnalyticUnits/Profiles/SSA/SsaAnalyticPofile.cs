@@ -26,7 +26,7 @@ namespace Analytic.AnalyticUnits.Profiles.SSA
 
         private readonly ILoggerDecorator _logger;
         private readonly string _baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
-        private const int _numberPricesToTake = 2498; // кол-во данных участвующих в предсказании цены
+        private const int _numberPricesToTake = 300; // кол-во данных участвующих в предсказании цены
         private const int _numberOfMinutesOfImageStorage = 0; // кол-во минут хранения изображения (опция отключена  = 0)
                                                               // (не будут присылаться сообщения с изображением, дабы не спамить)
 
@@ -141,32 +141,40 @@ namespace Analytic.AnalyticUnits.Profiles.SSA
                 return Array.Empty<double>();
             }
 
-            var ssaModel = SsaModel.Create(prices);
-            var subMatrixEigenvectors = MakeSmoothing(ssaModel);
-            if (!subMatrixEigenvectors.Any())
+            SsaModel ssaModel;
+            var listPrices = prices.ToList();
+            var predictions = new List<double>();
+            for (var i = 0; i < prices.Length / 5; i++)
             {
-                return Array.Empty<double>();
+                ssaModel = SsaModel.Create(listPrices.ToArray());
+                var subMatrixEigenvectors = MakeSmoothing(ssaModel);
+                if (!subMatrixEigenvectors.Any())
+                {
+                    return Array.Empty<double>();
+                }
+
+                // Восстанавливаю сигнал
+                // var (matrixEigenvectors, _) = ssaModel.GetEigenVectorsAndValues();
+                // var mainComponents = ssaModel.MainComponentsMatrix;
+                // var restoredOriginalMatrix = (matrixEigenvectors * mainComponents).ToArray();
+                // var restoredSignal = SignalRecovery(restoredOriginalMatrix, prices.Length, ssaModel.TauDelayNumber);
+
+                var (Vstar, tauMatrixEigenvector) = GetPreparedMatrixForForecasting(
+                    subMatrixEigenvectors,
+                    ssaModel.TauDelayNumber);
+
+                // предсказываем только четвертую часть от исходных данных
+                var prediction = ForecastingSignal(
+                    Vstar,
+                    tauMatrixEigenvector,
+                    listPrices.ToArray(),
+                    ssaModel.TauDelayNumber);
+
+                listPrices.Add(prediction);
+                predictions.Add(prediction);
             }
 
-            // Восстанавливаю сигнал
-            // var (matrixEigenvectors, _) = ssaModel.GetEigenVectorsAndValues();
-            // var mainComponents = ssaModel.MainComponentsMatrix;
-            // var restoredOriginalMatrix = (matrixEigenvectors * mainComponents).ToArray();
-            // var restoredSignal = SignalRecovery(restoredOriginalMatrix, prices.Length, ssaModel.TauDelayNumber);
-
-            var (Vstar, tauMatrixEigenvector) = GetPreparedMatrixForForecasting(
-                subMatrixEigenvectors,
-                ssaModel.TauDelayNumber);
-
-            // предсказываем только четвертую часть от исходных данных
-            var predictions = ForecastingSignal(
-                Vstar,
-                tauMatrixEigenvector,
-                prices,
-                ssaModel.TauDelayNumber,
-                prices.Length / 4);
-
-            return predictions;
+            return predictions.ToArray();
         }
 
         /// <summary>
@@ -253,35 +261,26 @@ namespace Analytic.AnalyticUnits.Profiles.SSA
         /// <param name="tauMatrixEigenvector"> Тау-вектор (изъятая строка из <paramref name="Vstar"/>) </param>
         /// <param name="array"> Исходыный массив </param>
         /// <param name="tau_delayNumber"> Кол-во задержек </param>
-        /// <param name="neededForecastingCount"> Кол-во предсказаний </param>
-        private static double[] ForecastingSignal(
+        private static double ForecastingSignal(
             Matrix<double> Vstar,
             Matrix<double> tauMatrixEigenvector,
             double[] array,
-            int tau_delayNumber,
-            int neededForecastingCount)
+            int tau_delayNumber)
         {
             var list = array.ToList();
-            var predictions = new List<double>();
 
-            for (var k = 0; k < neededForecastingCount; k++)
+            var Q = Matrix<double>.Build.Dense(tau_delayNumber - 1, 1);
+            var index = 0;
+            for (var i = list.Count - tau_delayNumber + 1; i < list.Count && index < tau_delayNumber - 1; i++, index++)
             {
-                var Q = Matrix<double>.Build.Dense(tau_delayNumber - 1, 1);
-                var index = 0;
-                for (var i = list.Count - tau_delayNumber + 1; i < list.Count && index < tau_delayNumber - 1; i++, index++)
-                {
-                    Q[index, 0] = list[i];
-                }
-
-                var numerator = (tauMatrixEigenvector * Vstar.Transpose() * Q)[0, 0];
-                var denominator = (1 - tauMatrixEigenvector * tauMatrixEigenvector.Transpose())[0, 0];
-                var newX = numerator / denominator;
-
-                list.Add(newX);
-                predictions.Add(newX);
+                Q[index, 0] = list[i];
             }
 
-            return predictions.ToArray();
+            var numerator = (tauMatrixEigenvector * Vstar.Transpose() * Q)[0, 0];
+            var denominator = (1 - tauMatrixEigenvector * tauMatrixEigenvector.Transpose())[0, 0];
+            var newX = numerator / denominator;
+
+            return newX;
         }
 
         /// <summary>

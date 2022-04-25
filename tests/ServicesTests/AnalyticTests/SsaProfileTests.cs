@@ -20,7 +20,7 @@ namespace AnalyticTests
         [Fact(DisplayName = "SSA Test")]
         public void Ssa_Test()
         {
-            var prices = File.ReadAllLines("Files/Prices.txt").Select(_ => double.Parse(_)).ToArray();
+            var prices = File.ReadAllLines("Files/Prices.txt").Take(300).Select(_ => double.Parse(_)).ToArray();
             var predictedPrices = SsaAnalyticPofile.SSA(prices);
             var expectedPredictions = File.ReadAllLines("Files/ExpectedPrices.txt").Select(_ => double.Parse(_)).ToArray();
             Assert.Equal(expectedPredictions.Length, predictedPrices.Length);
