@@ -55,13 +55,26 @@ namespace BinanceDatabase.Repositories.HotRepositories.Impl
                 .ToArray();
 
         /// <inheritdoc />
-        public int RemoveUntil(DateTime until)
+        public async Task<int> RemoveUntilAsync(DateTime until, CancellationToken cancellationToken)
         {
-            var result = CreateQuery().Where(_ => _.ReceivedTime < until);
+            var allCount = _appDbContext.HotMiniTickers.AsNoTracking().Count(_ => _.ReceivedTime < until);
+            var entitiesNumberInOneDeletion = 250; // обусловлено экономией RAM 
+            var pagesCount = (int)Math.Ceiling(allCount / (double)entitiesNumberInOneDeletion);
+            var removedCount = 0;
+            for (var page = 0; page < pagesCount; page++)
+            {
+                var entitiesToRemove = _appDbContext.HotMiniTickers.AsNoTracking()
+                    .Where(_ => _.ReceivedTime < until)
+                    .OrderBy(_ => _.ReceivedTime)
+                    .Skip(page * entitiesNumberInOneDeletion)
+                    .Take(entitiesNumberInOneDeletion);
 
-            _appDbContext.HotMiniTickers.RemoveRange(result);
+                _appDbContext.HotMiniTickers.RemoveRange(entitiesToRemove);
+                await _appDbContext.SaveChangesAsync(cancellationToken);
+                removedCount += entitiesToRemove.Count();
+            }
 
-            return result.Count();
+            return removedCount;
         }
 
         #endregion
