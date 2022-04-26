@@ -1,5 +1,6 @@
 using Analytic.AnalyticUnits.Profiles.SSA;
 using Analytic.AnalyticUnits.Profiles.SSA.Models;
+using Common.Plotter;
 using Logger;
 using System;
 using System.Collections.Generic;
@@ -93,7 +94,7 @@ namespace AnalyticTests
             var prices = File.ReadAllLines("Files/Prices.txt").Select(_ => double.Parse(_)).ToArray();
             var predictedPrices = File.ReadAllLines("Files/ExpectedPrices.txt").Select(_ => double.Parse(_)).ToArray();
             var logger = LoggerManager.CreateDefaultLogger();
-            var ssaProfile = new SsaAnalyticPofile(logger, "Test Analytic Profile");
+            var plotter = new Plotter(logger);
             var dates = new List<DateTime>();
             var start = new DateTime(2022, 12, 12, 12, 12, 12);
             foreach (var price in prices)
@@ -102,10 +103,16 @@ namespace AnalyticTests
                 start = start.AddSeconds(1);
             }
 
-            var minMaxModel = MinMaxPriceModel.Create("TEST_PAIR", predictedPrices);
-            
+            var minMaxModel = MinMaxPriceModel.Create(predictedPrices);
+            plotter.PredictedPrices = predictedPrices;
+            plotter.MaxPrice = minMaxModel.MaxPrice;
+            plotter.MinPrice = minMaxModel.MinPrice;
+            plotter.MaxIndex = minMaxModel.MaxIndex;
+            plotter.MinIndex = minMaxModel.MinIndex;
+            plotter.PairName = "TEST_GRAPH";
+
             // Act 
-            Assert.True(ssaProfile.CanCreateChart(prices, dates, minMaxModel, out var path));
+            Assert.True(plotter.CanCreateChart(prices, dates, out var path));
 
             // проверка отмены создания графика из-за того, что он недавно был создан
             // Assert.False(ssaProfile.CanCreateChart(prices, dates, minMaxModel, out var _));
@@ -113,7 +120,7 @@ namespace AnalyticTests
             File.Delete(path);
 
             // deleting a Directory
-            var direcroryPath = ssaProfile.GetOrCreateFolderPath(SsaAnalyticPofile.GraficsFolder);
+            var direcroryPath = plotter.GetOrCreateFolderPath(Plotter.GraficsFolder);
             Directory.Delete(direcroryPath);
         }
     }
