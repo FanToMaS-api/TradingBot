@@ -184,8 +184,9 @@ namespace BinanceDataServiceTests
             IEnumerable<MiniTickerEntity> entities,
             MiniTickerEntity[] expectedResult)
         {
-            var actual = _dataHandler.GetAveragingMiniTickers(intervalType, entities);
-            Assert.Equal(expectedResult.Length, actual.Length);
+            var interval = intervalType.ConvertToTimeSpan();
+            var actual = MarketdataStreamHandler.GetAveragingTicker(entities, intervalType, interval);
+            Assert.Equal(expectedResult.Length, actual.Count);
             for (var i = 0; i < expectedResult.Length; i++)
             {
                 TestExtensions.CheckingAssertions(expectedResult[i], actual[i]);

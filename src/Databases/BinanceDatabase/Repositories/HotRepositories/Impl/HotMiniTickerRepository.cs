@@ -57,7 +57,7 @@ namespace BinanceDatabase.Repositories.HotRepositories.Impl
         /// <inheritdoc />
         public async Task<int> RemoveUntilAsync(DateTime until, CancellationToken cancellationToken)
         {
-            var allCount = _appDbContext.HotMiniTickers.AsNoTracking().Count(_ => _.ReceivedTime < until);
+            var allCount = await _appDbContext.HotMiniTickers.AsNoTracking().CountAsync(_ => _.ReceivedTime < until, cancellationToken);
             var entitiesNumberInOneDeletion = 250; // обусловлено экономией RAM 
             var pagesCount = (int)Math.Ceiling(allCount / (double)entitiesNumberInOneDeletion);
             var removedCount = 0;
