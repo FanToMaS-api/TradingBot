@@ -1,14 +1,12 @@
-﻿using Common.Models;
-
-namespace Telegram.Configuration
+﻿namespace Telegram.Configuration
 {
     /// <summary>
     ///     Конфигурация для телеграмма
     /// </summary>
-    internal class TelegramOptions : OptionsBase
+    internal class TelegramOptions
     {
         /// <inheritdoc />
-        public override string Name => "Telegram";
+        public static string Name => "Telegram";
 
         /// <summary>
         ///     Токен бота

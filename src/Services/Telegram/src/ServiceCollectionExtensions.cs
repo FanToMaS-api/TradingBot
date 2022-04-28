@@ -1,4 +1,4 @@
-﻿using Common.Extensions;
+﻿using ExtensionsLibrary;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Telegram.Client;

@@ -4,10 +4,10 @@ using BinanceDatabase.Entities;
 using BinanceDatabase.Enums;
 using BinanceDatabase.Repositories;
 using BinanceDataService.DataHandlers;
-using Common.Extensions;
 using Common.Models;
 using Common.WebSocket;
 using ExchangeLibrary;
+using ExtensionsLibrary;
 using Logger;
 using Microsoft.Extensions.DependencyInjection;
 using NSubstitute;
@@ -184,8 +184,9 @@ namespace BinanceDataServiceTests
             IEnumerable<MiniTickerEntity> entities,
             MiniTickerEntity[] expectedResult)
         {
-            var actual = _dataHandler.GetAveragingMiniTickers(intervalType, entities);
-            Assert.Equal(expectedResult.Length, actual.Length);
+            var interval = intervalType.ConvertToTimeSpan();
+            var actual = MarketdataStreamHandler.GetAveragingTicker(entities, intervalType, interval);
+            Assert.Equal(expectedResult.Length, actual.Count);
             for (var i = 0; i < expectedResult.Length; i++)
             {
                 TestExtensions.CheckingAssertions(expectedResult[i], actual[i]);

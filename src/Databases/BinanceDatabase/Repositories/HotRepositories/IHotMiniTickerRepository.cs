@@ -24,6 +24,9 @@ namespace BinanceDatabase.Repositories.HotRepositories
         /// <summary>
         ///     Удаляет все записи до указанной даты
         /// </summary>
-        int RemoveUntil(DateTime until);
+        /// <remarks>
+        ///     Контекст сохраняется автоматически внутри функции
+        /// </remarks>
+        Task<int> RemoveUntilAsync(DateTime until, CancellationToken cancellationToken);
     }
 }

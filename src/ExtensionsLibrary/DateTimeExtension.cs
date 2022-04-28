@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Common.Extensions
+namespace ExtensionsLibrary
 {
     /// <summary>
     ///     Класс расширяющий методы работы с DateTime

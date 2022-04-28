@@ -1,4 +1,4 @@
-﻿using Common.Extensions;
+﻿using ExtensionsLibrary;
 using Logger.Configuration;
 using Logger.Impl;
 using Microsoft.Extensions.Configuration;

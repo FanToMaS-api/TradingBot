@@ -53,7 +53,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BinanceDataServiceTests", "
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SharedForTest", "tests\SharedForTest\SharedForTest.csproj", "{32B0CD9B-A842-479B-8D7E-1F130BFBC39C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AnalyticTests", "tests\ServicesTests\AnalyticTests\AnalyticTests.csproj", "{AD48A89C-5D50-4BF9-BF90-DA50C9215EE7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AnalyticTests", "tests\ServicesTests\AnalyticTests\AnalyticTests.csproj", "{AD48A89C-5D50-4BF9-BF90-DA50C9215EE7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExtensionsLibrary", "src\ExtensionsLibrary\ExtensionsLibrary.csproj", "{D2844B35-C792-4E37-B00F-973873DFB2C3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -141,6 +143,10 @@ Global
 		{AD48A89C-5D50-4BF9-BF90-DA50C9215EE7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AD48A89C-5D50-4BF9-BF90-DA50C9215EE7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AD48A89C-5D50-4BF9-BF90-DA50C9215EE7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D2844B35-C792-4E37-B00F-973873DFB2C3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D2844B35-C792-4E37-B00F-973873DFB2C3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D2844B35-C792-4E37-B00F-973873DFB2C3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D2844B35-C792-4E37-B00F-973873DFB2C3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -170,6 +176,7 @@ Global
 		{8A87B410-8F7B-4410-985C-5AE5E41DD97D} = {793B6E81-C294-4B61-9BA1-055566C39BEB}
 		{32B0CD9B-A842-479B-8D7E-1F130BFBC39C} = {12F24765-46E3-4F00-98C4-0B86F8EB2464}
 		{AD48A89C-5D50-4BF9-BF90-DA50C9215EE7} = {793B6E81-C294-4B61-9BA1-055566C39BEB}
+		{D2844B35-C792-4E37-B00F-973873DFB2C3} = {518C7A56-4FA5-4D28-9972-D5E3712DB386}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {0CE21AF9-B1BE-48B3-8D32-314E4E50D733}
