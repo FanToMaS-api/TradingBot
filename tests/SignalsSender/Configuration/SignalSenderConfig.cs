@@ -5,10 +5,10 @@ namespace SignalsSender.Configuration
     /// <summary>
     ///     Настройки сервиса уведомлений
     /// </summary>
-    public class SignalSenderConfig : OptionsBase
+    public class SignalSenderConfig
     {
         /// <inheritdoc />
-        public override string Name => "Settings";
+        public static string Name => "Settings";
 
         /// <summary>
         ///     Id канала в телеграмме

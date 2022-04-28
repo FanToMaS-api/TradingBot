@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using BinanceDatabase.Entities;
-using Common.Extensions;
 using Common.Models;
+using ExtensionsLibrary;
 
 namespace BinanceDatabase
 {

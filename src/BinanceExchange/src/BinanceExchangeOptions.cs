@@ -5,10 +5,10 @@ namespace BinanceExchange
     /// <summary>
     ///     Содержит настройки Binance Exchange
     /// </summary>
-    internal class BinanceExchangeOptions : OptionsBase
+    internal class BinanceExchangeOptions
     {
         /// <inheritdoc />
-        public override string Name => "Binance";
+        public static string Name => "Binance";
 
         /// <summary>
         ///     Ключ подключения к Binance

@@ -2,6 +2,7 @@
 using Analytic.Models;
 using BinanceDatabase;
 using BinanceDatabase.Entities;
+using Common.Plotter;
 using Logger;
 using MathNet.Numerics.LinearAlgebra;
 using Microsoft.Extensions.DependencyInjection;
@@ -25,12 +26,11 @@ namespace Analytic.AnalyticUnits.Profiles.SSA
         #region Fields
 
         private readonly ILoggerDecorator _logger;
-        private readonly string _baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
-        private const int _numberPricesToTake = 2498; // кол-во данных участвующих в предсказании цены
-        private const int _numberOfMinutesOfImageStorage = 0; // кол-во минут хранения изображения (опция отключена  = 0)
-                                                              // (не будут присылаться сообщения с изображением, дабы не спамить)
+        private readonly Plotter _plotter;
+        private const int _numberPricesToTake = 900; // кол-во данных участвующих в предсказании цены
+        private const int _denominator = 5; // делитель кол-ва данных, участвующих в предсказании цены (выше)
+                                            // для прогноза только некоторого кол-ва цен
 
-        internal static string GraficsFolder = "Grafics"; // папка для хранения графиков
         private const int _neededLambdaNumber = 7; // Кол-во значимых собственных значений, которое будет отбираться
         private const double _minMagnitudeForSsaSmoothing = 0.0002; // Минимальная магнитуда
                                                                     // для собственного значения при сглаживании
@@ -44,6 +44,7 @@ namespace Analytic.AnalyticUnits.Profiles.SSA
         {
             Name = name;
             _logger = logger;
+            _plotter = new(_logger);
             _logger.TraceAsync($"Directory with saved grafics='{AppDomain.CurrentDomain.BaseDirectory}'").Wait(5 * 1000);
         }
 
@@ -83,18 +84,22 @@ namespace Analytic.AnalyticUnits.Profiles.SSA
                 cancellationToken: cancellationToken);
             await SavePredictionAsync(serviceScopeFactory, pairName, enities.Last().ReceivedTime, predictions, cancellationToken);
 
-            var minMaxPriceModel = MinMaxPriceModel.Create(pairName, predictions);
+            var minMaxPriceModel = MinMaxPriceModel.Create(predictions);
             if (minMaxPriceModel.MinPrice <= 0)
             {
                 return (false, null);
             }
 
-            var canCreateChart = CanCreateChart(
+            _plotter.PairName = pairName;
+            _plotter.PredictedPrices = predictions;
+            _plotter.MaxPrice = minMaxPriceModel.MaxPrice;
+            _plotter.MinPrice = minMaxPriceModel.MinPrice;
+            _plotter.MaxIndex = minMaxPriceModel.MaxIndex;
+            _plotter.MinIndex = minMaxPriceModel.MinIndex;
+            var canCreateChart = _plotter.CanCreateChart(
                 prices,
                 enities.Select(_ => _.ReceivedTime),
-                minMaxPriceModel,
                 out var imagePath);
-
 
             var result = new AnalyticResultModel()
             {
@@ -115,7 +120,7 @@ namespace Analytic.AnalyticUnits.Profiles.SSA
         /// <summary>
         ///     Возвращает самые актуальные сущности из базы для конкретной пары
         /// </summary>
-        private HotMiniTickerEntity[] GetHotMiniTickers(IServiceScopeFactory serviceScopeFactory, string pairName)
+        private static HotMiniTickerEntity[] GetHotMiniTickers(IServiceScopeFactory serviceScopeFactory, string pairName)
         {
             using var scope = serviceScopeFactory.CreateScope();
             var databaseFactory = scope.ServiceProvider.GetRequiredService<IBinanceDbContextFactory>();
@@ -164,7 +169,7 @@ namespace Analytic.AnalyticUnits.Profiles.SSA
                 tauMatrixEigenvector,
                 prices,
                 ssaModel.TauDelayNumber,
-                prices.Length / 4);
+                prices.Length / _denominator);
 
             return predictions;
         }
@@ -282,124 +287,6 @@ namespace Analytic.AnalyticUnits.Profiles.SSA
             }
 
             return predictions.ToArray();
-        }
-
-        /// <summary>
-        ///     Пытается создать файл с графиком
-        /// </summary>
-        /// <param name="original"> Оригинальные данные </param>
-        /// <param name="predictions"> Предсказанные данные </param>
-        /// <param name="dateTimes"> Время получения оригинальных данных </param>
-        /// <param name="pair"> Название пары </param>
-        /// <param name="minMaxPriceModel"> <see cref="MinMaxPriceModel"/> </param>
-        /// <param name="imagePath"> Путь до изображения </param>
-        /// <returns> <see langword="true"/> если изображение было успешно создано </returns>
-        internal bool CanCreateChart(
-            double[] original,
-            IEnumerable<DateTime> dateTimes,
-            MinMaxPriceModel minMaxPriceModel,
-            out string imagePath)
-        {
-            var directoryPath = GetOrCreateFolderPath(GraficsFolder);
-            imagePath = Path.Combine(directoryPath, $"{minMaxPriceModel.PairName}.png");
-            if (File.Exists(imagePath)
-                && File.GetCreationTime(imagePath).AddMinutes(_numberOfMinutesOfImageStorage) > DateTime.Now)
-            {
-                _logger.TraceAsync($"The graph for '{minMaxPriceModel.PairName}' was created recently, " +
-                    "saving and processing is canceled. Path: {directoryPath}");
-                return false;
-            }
-
-            try
-            {
-                var plot = new ScottPlot.Plot(1000, 800)
-                {
-                    Palette = ScottPlot.Palette.OneHalfDark
-                };
-
-                // массив времени для предсказанных данных
-                var startTimeForPredictionsData = dateTimes.Last();
-                var endTime = dateTimes.First();
-                var offset = (int)Math.Ceiling(Math.Abs((startTimeForPredictionsData - endTime).TotalSeconds / dateTimes.Count()));
-                var timeForPredictions = CreatePredictionsDates(startTimeForPredictionsData, minMaxPriceModel.PredictedPrices.Length, offset);
-                AddCaptionsToChart(plot, minMaxPriceModel, original, timeForPredictions, dateTimes);
-
-                plot.SaveFig(imagePath);
-
-                _logger.TraceAsync($"Successful create grafic for model {minMaxPriceModel.PairName}. Path: {imagePath}");
-            }
-            catch (Exception ex)
-            {
-                _logger.ErrorAsync(ex, $"Failed to create and save image for {minMaxPriceModel.PairName}").Wait(5 * 1000);
-
-                return false;
-            }
-
-            return true;
-        }
-
-        /// <summary>
-        ///     Добавляет подписи к графику
-        /// </summary>
-        private void AddCaptionsToChart(
-            ScottPlot.Plot plot,
-            MinMaxPriceModel minMaxPriceModel,
-            double[] original,
-            double[] timeForPredictions,
-            IEnumerable<DateTime> dateTimes)
-        {
-            plot.AddScatter(dateTimes.Select(_ => _.ToOADate()).ToArray(), original, label: "Real");
-            plot.AddScatter(timeForPredictions, minMaxPriceModel.PredictedPrices, label: "Predicted");
-            plot.XAxis.TickLabelFormat("g", dateTimeFormat: true);
-
-            plot.AddText(
-                $"Min: {minMaxPriceModel.MinPrice:0.0000}",
-                timeForPredictions[minMaxPriceModel.MinIndex],
-                minMaxPriceModel.MinPrice, 17);
-            plot.AddText(
-                $"Max: {minMaxPriceModel.MaxPrice:0.0000}",
-                timeForPredictions[minMaxPriceModel.MaxIndex],
-                minMaxPriceModel.MaxPrice, 17);
-
-            plot.YAxis.Label("Price");
-            plot.XAxis.Label("Time");
-            plot.XAxis.TickLabelStyle(rotation: 45);
-            plot.XAxis2.Label(minMaxPriceModel.PairName);
-            plot.Legend(true, ScottPlot.Alignment.LowerLeft);
-
-            plot.Style(ScottPlot.Style.Gray1);
-            var bnColor = System.Drawing.ColorTranslator.FromHtml("#2e3440");
-            plot.Style(figureBackground: bnColor, dataBackground: bnColor, tick: System.Drawing.Color.WhiteSmoke);
-        }
-
-        /// <summary>
-        ///     Возвращает путь до указанной папки, создает, если ее не существовало
-        /// </summary>
-        internal string GetOrCreateFolderPath(string directoryName)
-        {
-            var directoryPath = Path.Combine(_baseDirectory, directoryName);
-            if (!Directory.Exists(directoryPath))
-            {
-                Directory.CreateDirectory(directoryPath);
-                _logger.TraceAsync($"Successful created directory {directoryPath}");
-            }
-
-            return directoryPath;
-        }
-
-        /// <summary>
-        ///     Возвращает массив дат в OA формате для подписей осей предсказанных данных
-        /// </summary>
-        private static double[] CreatePredictionsDates(DateTime from, int predictionDataLength, int offset)
-        {
-            var timesForPredictions = new double[predictionDataLength];
-            for (var i = 0; i < predictionDataLength; i++)
-            {
-                from = from.AddSeconds(offset);
-                timesForPredictions[i] = from.ToOADate();
-            }
-
-            return timesForPredictions;
         }
 
         /// <summary>
