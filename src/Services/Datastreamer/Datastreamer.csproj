@@ -11,10 +11,10 @@
   <ItemGroup>
     <ProjectReference Include="..\..\BinanceExchange\BinanceExchange.csproj" />
     <ProjectReference Include="..\..\Databases\BinanceDatabase\BinanceDatabase.csproj" />
+    <ProjectReference Include="..\..\Libraries\Scheduler\Scheduler.csproj" />
     <ProjectReference Include="..\..\Logger\Logger.csproj" />
     <ProjectReference Include="..\..\Redis\Redis.csproj" />
     <ProjectReference Include="..\BinanceDataService\BinanceDataService.csproj" />
-    <ProjectReference Include="..\Scheduler\Scheduler.csproj" />
   </ItemGroup>
 
 </Project>

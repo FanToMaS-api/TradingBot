@@ -9,7 +9,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Services\Telegram\Telegram.csproj" />
+    <ProjectReference Include="..\Libraries\Telegram\Telegram.csproj" />
   </ItemGroup>
 
   <ItemGroup>
