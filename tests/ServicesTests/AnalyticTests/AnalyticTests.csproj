@@ -21,7 +21,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\src\Services\Analytic\Analytic.csproj" />
+    <ProjectReference Include="..\..\..\src\Libraries\Analytic\Analytic.csproj" />
   </ItemGroup>
 
   <ItemGroup>

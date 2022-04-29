@@ -18,8 +18,8 @@
 
 	<ItemGroup>
 	  <ProjectReference Include="..\BinanceExchange\BinanceExchange.csproj" />
-	  <ProjectReference Include="..\Services\Analytic\Analytic.csproj" />
-	  <ProjectReference Include="..\Services\Telegram\Telegram.csproj" />
+	  <ProjectReference Include="..\Libraries\Analytic\Analytic.csproj" />
+	  <ProjectReference Include="..\Libraries\Telegram\Telegram.csproj" />
 	</ItemGroup>
 
 	<ItemGroup>

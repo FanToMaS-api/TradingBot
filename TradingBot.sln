@@ -23,13 +23,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Redis", "src\Redis\Redis.cs
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Services", "Services", "{E375AE6C-06A9-4987-B35C-116B5EB27793}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Telegram", "src\Services\Telegram\Telegram.csproj", "{8B103418-4073-48FE-84A0-CEF26FF4AE9D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Telegram", "src\Libraries\Telegram\Telegram.csproj", "{8B103418-4073-48FE-84A0-CEF26FF4AE9D}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SignalsSender", "tests\SignalsSender\SignalsSender.csproj", "{935D6D52-698B-4005-8FD8-17E0C37CA06C}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Analytic", "src\Services\Analytic\Analytic.csproj", "{E624F70E-C7D5-4672-BC78-7C43F6D045E1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Analytic", "src\Libraries\Analytic\Analytic.csproj", "{E624F70E-C7D5-4672-BC78-7C43F6D045E1}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Scheduler", "src\Services\Scheduler\Scheduler.csproj", "{4B8FCC46-B81B-4B7B-BCF8-DE4581484B4A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Scheduler", "src\Libraries\Scheduler\Scheduler.csproj", "{4B8FCC46-B81B-4B7B-BCF8-DE4581484B4A}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DataServiceLibrary", "src\Libraries\DataServiceLibrary\DataServiceLibrary.csproj", "{CCED0966-478F-4FBB-9EB2-7B6F875358D2}"
 EndProject
@@ -55,7 +55,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SharedForTest", "tests\Shar
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AnalyticTests", "tests\ServicesTests\AnalyticTests\AnalyticTests.csproj", "{AD48A89C-5D50-4BF9-BF90-DA50C9215EE7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExtensionsLibrary", "src\ExtensionsLibrary\ExtensionsLibrary.csproj", "{D2844B35-C792-4E37-B00F-973873DFB2C3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ExtensionsLibrary", "src\Libraries\ExtensionsLibrary\ExtensionsLibrary.csproj", "{D2844B35-C792-4E37-B00F-973873DFB2C3}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TelegramService", "src\Services\TelegramService\TelegramService.csproj", "{CB5EB234-A967-42C3-A5ED-CA8DFC65B48C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -147,6 +149,10 @@ Global
 		{D2844B35-C792-4E37-B00F-973873DFB2C3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D2844B35-C792-4E37-B00F-973873DFB2C3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D2844B35-C792-4E37-B00F-973873DFB2C3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CB5EB234-A967-42C3-A5ED-CA8DFC65B48C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CB5EB234-A967-42C3-A5ED-CA8DFC65B48C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CB5EB234-A967-42C3-A5ED-CA8DFC65B48C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CB5EB234-A967-42C3-A5ED-CA8DFC65B48C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -176,7 +182,8 @@ Global
 		{8A87B410-8F7B-4410-985C-5AE5E41DD97D} = {793B6E81-C294-4B61-9BA1-055566C39BEB}
 		{32B0CD9B-A842-479B-8D7E-1F130BFBC39C} = {12F24765-46E3-4F00-98C4-0B86F8EB2464}
 		{AD48A89C-5D50-4BF9-BF90-DA50C9215EE7} = {793B6E81-C294-4B61-9BA1-055566C39BEB}
-		{D2844B35-C792-4E37-B00F-973873DFB2C3} = {518C7A56-4FA5-4D28-9972-D5E3712DB386}
+		{D2844B35-C792-4E37-B00F-973873DFB2C3} = {06DCA653-D123-4AE8-BBF9-8F3079B00BB1}
+		{CB5EB234-A967-42C3-A5ED-CA8DFC65B48C} = {E375AE6C-06A9-4987-B35C-116B5EB27793}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {0CE21AF9-B1BE-48B3-8D32-314E4E50D733}

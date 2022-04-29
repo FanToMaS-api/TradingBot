@@ -12,12 +12,12 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\BinanceExchange\BinanceExchange.csproj" />
     <ProjectReference Include="..\..\src\Databases\BinanceDatabase\BinanceDatabase.csproj" />
+    <ProjectReference Include="..\..\src\Libraries\Analytic\Analytic.csproj" />
+    <ProjectReference Include="..\..\src\Libraries\Scheduler\Scheduler.csproj" />
+    <ProjectReference Include="..\..\src\Libraries\Telegram\Telegram.csproj" />
     <ProjectReference Include="..\..\src\Logger\Logger.csproj" />
     <ProjectReference Include="..\..\src\Redis\Redis.csproj" />
-    <ProjectReference Include="..\..\src\Services\Analytic\Analytic.csproj" />
     <ProjectReference Include="..\..\src\Services\BinanceDataService\BinanceDataService.csproj" />
-    <ProjectReference Include="..\..\src\Services\Scheduler\Scheduler.csproj" />
-    <ProjectReference Include="..\..\src\Services\Telegram\Telegram.csproj" />
   </ItemGroup>
 
 </Project>
