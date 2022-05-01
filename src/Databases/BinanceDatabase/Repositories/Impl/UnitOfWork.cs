@@ -60,9 +60,9 @@ namespace BinanceDatabase.Repositories
                 return;
             }
 
-            _isDisposed = true;
             _appDbContext.Database.CurrentTransaction?.Commit();
             _appDbContext.Dispose();
+            _isDisposed = true;
         }
 
         #endregion

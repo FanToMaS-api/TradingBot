@@ -112,7 +112,7 @@ namespace BinanceDataService.DataHandlers
             }
             catch (Exception ex)
             {
-                await _logger.ErrorAsync(ex, "Failed to start web socket stream", cancellationToken: cancellationToken);
+                await _logger.ErrorAsync(ex, "Failed to start websocket stream", cancellationToken: cancellationToken);
             }
         }
 

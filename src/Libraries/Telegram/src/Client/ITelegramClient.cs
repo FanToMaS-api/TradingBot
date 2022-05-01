@@ -1,5 +1,7 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
+using Telegram.Bot.Extensions.Polling;
+using Telegram.Bot.Types.Enums;
 using Telegram.Models;
 
 namespace Telegram.Client
@@ -9,6 +11,14 @@ namespace Telegram.Client
     /// </summary>
     public interface ITelegramClient
     {
+        /// <summary>
+        ///     Получить получатель обновлений в очереди
+        /// </summary>
+        /// <remarks>
+        ///     Если получатель обновлений был уже создан, возвращает существующий экземпляр
+        /// </remarks>
+        QueuedUpdateReceiver GetUpdateReceiver(UpdateType[] allowedUpdates);
+
         /// <summary>
         ///     Отправляет сообщение в указанный чат
         /// </summary>
