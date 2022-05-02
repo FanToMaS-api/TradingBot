@@ -36,6 +36,10 @@ namespace TelegramServiceDatabase.Repositories.Impl
         public IQueryable<UserEntity> CreateQuery() => _dbContext.Users.AsQueryable();
 
         /// <inheritdoc />
+        public async Task<bool> IsExist(long telegramId, CancellationToken cancellationToken)
+            => await CreateQuery().AnyAsync(_ => _.TelegramId == telegramId, cancellationToken);
+
+        /// <inheritdoc />
         public void Remove(UserEntity entity) => _dbContext.Users.Remove(entity);
 
         /// <inheritdoc />
@@ -61,7 +65,8 @@ namespace TelegramServiceDatabase.Repositories.Impl
 
             if (conflictingUser != null)
             {
-                Log.ErrorAsync("User with this id is already exist").Wait();
+                await Log.ErrorAsync("User with this id is already exist", cancellationToken: cancellationToken);
+
                 return user;
             }
 
@@ -91,7 +96,8 @@ namespace TelegramServiceDatabase.Repositories.Impl
                 .FirstOrDefaultAsync(cancellationToken);
             if (conflictingUser != null)
             {
-                Log.ErrorAsync("User with this id is already exist").Wait();
+                await Log.ErrorAsync("User with this id is already exist", cancellationToken: cancellationToken);
+
                 return user;
             }
 

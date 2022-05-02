@@ -44,7 +44,7 @@ namespace TelegramServiceDatabase.Repositories.Impl
                 .FirstOrDefaultAsync(cancellationToken);
             if (userState is null)
             {
-                Log.ErrorAsync($"Cannot find state of user with id: {userId}").Wait();
+                await Log.ErrorAsync($"Cannot find state of user with id: {userId}", cancellationToken: cancellationToken);
             }
 
             return userState;
@@ -61,7 +61,7 @@ namespace TelegramServiceDatabase.Repositories.Impl
                 .FirstOrDefaultAsync(cancellationToken);
             if (conflictState is not null)
             {
-                Log.ErrorAsync("Cannot add user state, because it already exists");
+                await Log.ErrorAsync("Cannot add user state, because it already exists", cancellationToken: cancellationToken);
                 return userState;
             }
 
@@ -83,7 +83,8 @@ namespace TelegramServiceDatabase.Repositories.Impl
                 .FirstOrDefaultAsync(cancellationToken);
             if (userState == null)
             {
-                Log.ErrorAsync($"Cannot find userState with id: {id}").Wait();
+                await Log.ErrorAsync($"Cannot find userState with id: {id}", cancellationToken: cancellationToken);
+
                 return null;
             }
 
@@ -94,7 +95,8 @@ namespace TelegramServiceDatabase.Repositories.Impl
                 .FirstOrDefaultAsync(cancellationToken);
             if (conflictingState != null)
             {
-                Log.ErrorAsync("Cannot add user state, because it already exists").Wait();
+                await Log.ErrorAsync("Cannot add user state, because it already exists", cancellationToken: cancellationToken);
+
                 return userState;
             }
 

@@ -15,6 +15,12 @@ namespace TelegramServiceDatabase.Repositories
         ///     Создать запрос к таблице пользователей
         /// </summary>
         IQueryable<UserEntity> CreateQuery();
+        
+        /// <summary>
+        ///     Проверяет наличие пользователя в базе
+        /// </summary>
+        /// <param name="telegramId"> Id пользователя </param>
+        Task<bool> IsExist(long telegramId, CancellationToken cancellationToken);
 
         /// <summary>
         ///     Удалить пользователя

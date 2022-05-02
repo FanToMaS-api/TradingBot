@@ -33,12 +33,6 @@ namespace TelegramServiceDatabase.Entities
         public UserEntity User { get; set; }
 
         /// <summary>
-        ///     Баланс пользователя
-        /// </summary>
-        [Column("balance")]
-        public double Balance { get; set; }
-
-        /// <summary>
         ///     Текущее состояние пользователя
         /// </summary>
         [Column("state_type")]
@@ -79,7 +73,6 @@ namespace TelegramServiceDatabase.Entities
             builder.HasIndex(_ => _.UserId).IsUnique().HasDatabaseName("IX_users_state_user_id");
             builder.HasIndex(_ => _.Id).IsUnique().HasDatabaseName("IX_users_state_id");
             builder.HasIndex(_ => _.UserStateType).HasDatabaseName("IX_users_state_state_type");
-            builder.HasIndex(_ => _.Balance).HasDatabaseName("IX_users_state_balance");
             builder.HasIndex(_ => _.BanReason).HasDatabaseName("IX_users_state_ban_reason");
             builder.HasIndex(_ => _.WarningNumber).HasDatabaseName("IX_users_state_warning_number");
 

@@ -31,10 +31,10 @@ namespace BinanceDatabase.Repositories
         #endregion
 
         /// <inheritdoc />
-        public IHotUnitOfWork HotUnitOfWork { get; }
+        public IHotUnitOfWork HotUnitOfWork { get; init; }
 
         /// <inheritdoc />
-        public IColdUnitOfWork ColdUnitOfWork { get; }
+        public IColdUnitOfWork ColdUnitOfWork { get; init; }
 
 
         #region Public methods

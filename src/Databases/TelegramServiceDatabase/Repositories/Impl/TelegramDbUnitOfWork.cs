@@ -48,7 +48,6 @@ namespace TelegramServiceDatabase.Repositories.Impl
         #region Public methods
 
         /// <inheritdoc />
-        /// <inheritdoc />
         public async Task SaveChangesAsync(CancellationToken cancellationToken = default)
         {
             await _dbContext.SaveChangesAsync(cancellationToken);
