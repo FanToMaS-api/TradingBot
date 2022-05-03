@@ -207,7 +207,8 @@ namespace TelegramService
             var pairName = message.Text
                 .Replace(" ", "")
                 .Replace("/", "")
-                .Replace("\\", "");
+                .Replace("\\", "")
+                .ToUpper();
             var infoModel = new InfoModel(pairName);
             var (isSuccessfulAnalyze, resultModel) =
                 await _ssaAnalyticPofile.TryAnalyzeAsync(_serviceScopeFactory, infoModel, cancellationToken);
