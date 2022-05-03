@@ -8,6 +8,12 @@ namespace Analytic.Models
     public class InfoModel
     {
         /// <inheritdoc cref="InfoModel"/>
+        public InfoModel(string name)
+        {
+            TradeObjectName = name;
+        }
+
+        /// <inheritdoc cref="InfoModel"/>
         public InfoModel(string name, double lastPrice)
         {
             TradeObjectName = name;

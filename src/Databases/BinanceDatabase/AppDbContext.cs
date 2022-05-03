@@ -2,7 +2,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Npgsql.NameTranslation;
-using System;
 
 namespace BinanceDatabase
 {
@@ -14,7 +13,7 @@ namespace BinanceDatabase
         #region .ctor
 
         /// <inheritdoc cref="AppDbContext" />
-        public AppDbContext(DbContextOptions options) : base(options) { }
+        public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
         #endregion
 

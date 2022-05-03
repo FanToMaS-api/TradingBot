@@ -35,6 +35,11 @@ namespace Scheduler
         public static string Hourly() => "0 0 * ? * *";
 
         /// <summary>
+        ///     Каждые <paramref name="hour"/> часов
+        /// </summary>
+        public static string Hourly(int hour) => $"0 0 */{hour} ? * *";
+
+        /// <summary>
         ///     Ежедневно в 12 ночи
         /// </summary>
         public static string Daily() => "0 0 0 * * ?";

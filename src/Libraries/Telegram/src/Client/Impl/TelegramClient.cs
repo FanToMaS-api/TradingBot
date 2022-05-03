@@ -1,6 +1,7 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
 using Telegram.Bot;
+using Telegram.Bot.Extensions.Polling;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.ReplyMarkups;
@@ -15,6 +16,7 @@ namespace Telegram.Client.Impl
         #region Fields
 
         private readonly ITelegramBotClient _client;
+        private QueuedUpdateReceiver _updateReceiver;
 
         #endregion
 
@@ -29,6 +31,24 @@ namespace Telegram.Client.Impl
         #endregion
 
         #region Public methods
+
+        /// <inheritdoc />
+        public QueuedUpdateReceiver GetUpdateReceiver(UpdateType[] allowedUpdates)
+        {
+            if (_updateReceiver is not null)
+            {
+                return _updateReceiver;
+            }
+
+            var receiverOptions = new ReceiverOptions
+            {
+                AllowedUpdates = allowedUpdates
+            };
+
+            _updateReceiver = new QueuedUpdateReceiver(_client, receiverOptions);
+
+            return _updateReceiver;
+        }
 
         /// <inheritdoc />
         public async Task SendMessageAsync(TelegramMessageModel messageModel, CancellationToken cancellationToken)
@@ -57,6 +77,14 @@ namespace Telegram.Client.Impl
                             messageModel.InlineKeyboardButton.Url))
                     : null,
                 cancellationToken: cancellationToken);
+        }
+
+        /// <inheritdoc />
+        public async Task<bool> IsInChannelAsync(long channelId, long userId, CancellationToken cancellationToken)
+        {
+            var user = (await _client.GetChatMemberAsync(channelId, userId, cancellationToken)).User;
+
+            return user is not null;
         }
 
         #endregion

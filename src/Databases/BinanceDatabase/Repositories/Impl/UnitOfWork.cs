@@ -31,10 +31,10 @@ namespace BinanceDatabase.Repositories
         #endregion
 
         /// <inheritdoc />
-        public IHotUnitOfWork HotUnitOfWork { get; }
+        public IHotUnitOfWork HotUnitOfWork { get; init; }
 
         /// <inheritdoc />
-        public IColdUnitOfWork ColdUnitOfWork { get; }
+        public IColdUnitOfWork ColdUnitOfWork { get; init; }
 
 
         #region Public methods
@@ -60,9 +60,9 @@ namespace BinanceDatabase.Repositories
                 return;
             }
 
-            _isDisposed = true;
             _appDbContext.Database.CurrentTransaction?.Commit();
             _appDbContext.Dispose();
+            _isDisposed = true;
         }
 
         #endregion
