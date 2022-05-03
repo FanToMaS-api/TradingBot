@@ -3,6 +3,7 @@ using BinanceDatabase;
 using BinanceDatabase.Entities;
 using BinanceDatabase.Enums;
 using BinanceDatabase.Repositories;
+using BinanceDataService.Configuration;
 using Common.Models;
 using Common.WebSocket;
 using DataServiceLibrary;
@@ -32,11 +33,12 @@ namespace BinanceDataService.DataHandlers
         private readonly IExchange _exchange;
         private readonly IRecurringJobScheduler _scheduler;
         private readonly IMapper _mapper;
+        private readonly MarketdataStreamHandlerConfig _configuration;
+        private readonly List<MiniTradeObjectStreamModel> _mainModelsStorage = new();
+        private readonly List<MiniTradeObjectStreamModel> _assistantModelsStorage = new();
         private TriggerKey _triggerKey;
         private TriggerKey _dataDelitionTriggerKey;
         private TriggerKey _dataAggregationTriggerKey;
-        private readonly List<MiniTradeObjectStreamModel> _mainModelsStorage = new();
-        private readonly List<MiniTradeObjectStreamModel> _assistantModelsStorage = new();
         private CancellationTokenSource _cancellationTokenSource;
         private bool _isDisposed;
         private IWebSocket _webSocket;
@@ -46,12 +48,15 @@ namespace BinanceDataService.DataHandlers
         #region .ctor
 
         /// <inheritdoc cref="MarketdataStreamHandler"/>
+        /// <param name="isNeedToSaveColdData">  </param>
         public MarketdataStreamHandler(
+            MarketdataStreamHandlerConfig config,
             IExchange exchange,
             IRecurringJobScheduler scheduler,
             IMapper mapper,
             ILoggerDecorator logger)
         {
+            _configuration = config;
             _exchange = exchange;
             _scheduler = scheduler;
             _mapper = mapper;
@@ -79,9 +84,12 @@ namespace BinanceDataService.DataHandlers
 
             Task.Run(async () => await StartWebSocket(_cancellationTokenSource.Token), cancellationToken);
 
-            _triggerKey = await _scheduler.ScheduleAsync(Cron.Minutely(), SaveDataAsync);
-            _dataDelitionTriggerKey = await _scheduler.ScheduleAsync(Cron.DailyOnHour(23), DeleteDataAsync);
-            _dataAggregationTriggerKey = await _scheduler.ScheduleAsync(Cron.DailyOnHour(21), AggregateAndSaveDataAsync);
+            _triggerKey = await _scheduler.ScheduleAsync(_configuration.SaveDataCron, SaveDataAsync);
+            _dataDelitionTriggerKey = await _scheduler.ScheduleAsync(_configuration.DeleteDataCron, DeleteDataAsync);
+            if (_configuration.IsNeedToSaveColdData)
+            {
+                _dataAggregationTriggerKey = await _scheduler.ScheduleAsync(_configuration.AggregateDataCron, AggregateAndSaveDataAsync);
+            }
 
             await _logger.InfoAsync("Marketdata handler launched successfully!", cancellationToken: cancellationToken);
         }
@@ -91,7 +99,11 @@ namespace BinanceDataService.DataHandlers
         {
             _scheduler?.UnscheduleAsync(_triggerKey);
             _scheduler?.UnscheduleAsync(_dataDelitionTriggerKey);
-            _scheduler?.UnscheduleAsync(_dataAggregationTriggerKey);
+            if (_configuration.IsNeedToSaveColdData)
+            {
+                _scheduler?.UnscheduleAsync(_dataAggregationTriggerKey);
+            }
+
             _webSocket?.Dispose();
 
             await _logger.InfoAsync("Marketdata handler sropped", cancellationToken: _cancellationTokenSource.Token);
@@ -172,10 +184,13 @@ namespace BinanceDataService.DataHandlers
             var databaseFactory = serviceProvider.GetService<IBinanceDbContextFactory>();
             using var database = databaseFactory.CreateScopeDatabase();
             var hotData = _mapper.Map<IEnumerable<HotMiniTickerEntity>>(streamModels);
-            var coldData = _mapper.Map<IEnumerable<MiniTickerEntity>>(streamModels);
-
             await database.HotUnitOfWork.HotMiniTickers.AddRangeAsync(hotData, _cancellationTokenSource.Token);
-            await database.ColdUnitOfWork.MiniTickers.AddRangeAsync(coldData, _cancellationTokenSource.Token);
+            if (_configuration.IsNeedToSaveColdData)
+            {
+                var coldData = _mapper.Map<IEnumerable<MiniTickerEntity>>(streamModels);
+                await database.ColdUnitOfWork.MiniTickers.AddRangeAsync(coldData, _cancellationTokenSource.Token);
+            }
+
             await database.SaveChangesAsync(_cancellationTokenSource.Token);
 
             await _logger.TraceAsync(

@@ -40,7 +40,7 @@ namespace Datastreamer
             services.AddRecurringJobScheduler();
             services.AddRedis(Configuration);
             services.AddBinanceExchange(Configuration);
-            services.AddDataServiceFactory();
+            services.AddDataServiceFactory(Configuration);
 
             services.AddRazorPages();
             services.ConfigureForInitialization<IDataService>(async dataService =>
