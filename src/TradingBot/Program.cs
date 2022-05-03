@@ -18,9 +18,7 @@ namespace TradingBot
 {
     internal class Program
     {
-        private static readonly ILogger _logger = LogManager.LoadConfiguration("nlog.config").GetLogger("Program");
-
-        static async Task Main()
+        static void Main()
         {
             //var apiKey = ConfigurationManager.AppSettings.Get(ConfigKeys.API_KEY);
             //var secretKey = ConfigurationManager.AppSettings.Get(ConfigKeys.SECRET_KEY);

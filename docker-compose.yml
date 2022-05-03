@@ -9,7 +9,7 @@ services:
     volumes: 
       - trading_bot_redis_volume:/var/lib/redis
     networks:
-      - signal_service_network
+      - trading_bot_network
 
   trading_bot_postgres:
     image: postgres:13-alpine
@@ -22,7 +22,7 @@ services:
     volumes:
       - trading_bot_postgres_volume:/var/lib/postgres
     networks:
-      - signal_service_network
+      - trading_bot_network
 
   signal_service:
     build: 
@@ -38,13 +38,8 @@ services:
     env_file:
       - redis.env
       - signal_service.env
-    volumes:
-      - signal_service_volume:/var/lib/signal_service
-      - type: bind
-        source: ./signal_service_tunnelFolder
-        target: /signal_service_tunnelFolder
     networks:
-      - signal_service_network
+      - trading_bot_network
 
   datastreamer_service:
     build: 
@@ -60,19 +55,27 @@ services:
     env_file:
       - redis.env
       - datastreamer.env
-    volumes:
-      - datastreamer_volume:/var/lib/datastreamer
-      - type: bind
-        source: ./datastreamer_service_tunnelFolder
-        target: /datastreamer_service_tunnelFolder
     networks:
-      - signal_service_network
+      - trading_bot_network
+
+  telegram_service:
+    build: 
+      context: .
+      dockerfile: docker/telegramService.Dockerfile
+    container_name: telegram_service
+    depends_on:
+      - trading_bot_postgres
+    ports:
+      - "5557:5557"
+    restart: always
+    env_file:
+      - telegram_service.env
+    networks:
+      - trading_bot_network
 
 volumes:
-  signal_service_volume:
-  datastreamer_volume:
   trading_bot_postgres_volume:
   trading_bot_redis_volume:
 
 networks:
-  signal_service_network:
+  trading_bot_network:

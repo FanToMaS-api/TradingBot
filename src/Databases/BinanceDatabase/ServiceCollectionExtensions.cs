@@ -44,18 +44,18 @@ namespace BinanceDatabase
         /// <summary>
         ///     Применение миграций базы данных
         /// </summary>
-        public static void ApplyDatabaseMigration(this IServiceProvider serviceProvider)
+        public static void ApplyBinanceDatabaseMigration(this IServiceProvider serviceProvider)
         {
             try
             {
-                Log.InfoAsync("Applying database migrations...");
+                Log.InfoAsync("Applying binance database migrations...");
 
                 using var scope = serviceProvider.CreateScope();
                 var db = scope.ServiceProvider.GetService<AppDbContext>();
 
                 db.Database.Migrate();
 
-                Log.InfoAsync("Database migrations successfully applied");
+                Log.InfoAsync("Binance database migrations successfully applied");
             }
             catch (Exception ex)
             {

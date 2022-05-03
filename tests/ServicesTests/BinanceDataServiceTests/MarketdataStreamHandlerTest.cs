@@ -54,6 +54,7 @@ namespace BinanceDataServiceTests
             scheduler.ScheduleAsync(null, null).ReturnsForAnyArgs(new TriggerKey("Test"));
 
             _dataHandler = new MarketdataStreamHandler(
+                new(),
                 exchange,
                 scheduler,
                 mapperConfig.CreateMapper(),

@@ -40,7 +40,7 @@ namespace Datastreamer
             services.AddRecurringJobScheduler();
             services.AddRedis(Configuration);
             services.AddBinanceExchange(Configuration);
-            services.AddDataServiceFactory();
+            services.AddDataServiceFactory(Configuration);
 
             services.AddRazorPages();
             services.ConfigureForInitialization<IDataService>(async dataService =>
@@ -54,7 +54,7 @@ namespace Datastreamer
         {
             app.UseRouting();
 
-            serviceProvider.ApplyDatabaseMigration();
+            serviceProvider.ApplyBinanceDatabaseMigration();
             var task = Task.Run(async () => await AppInitializer.InitializeAsync(serviceProvider));
             Task.WaitAll(task);
         }
