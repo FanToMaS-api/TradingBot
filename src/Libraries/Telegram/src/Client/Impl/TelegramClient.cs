@@ -81,7 +81,11 @@ namespace Telegram.Client.Impl
 
         /// <inheritdoc />
         public async Task<bool> IsInChannelAsync(long channelId, long userId, CancellationToken cancellationToken)
-            => await _client.GetChatMemberAsync(channelId, userId, cancellationToken) is not null;
+        {
+            var user = (await _client.GetChatMemberAsync(channelId, userId, cancellationToken)).User;
+
+            return user is not null;
+        }
 
         #endregion
     }

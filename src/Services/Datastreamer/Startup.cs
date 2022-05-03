@@ -54,7 +54,7 @@ namespace Datastreamer
         {
             app.UseRouting();
 
-            serviceProvider.ApplyDatabaseMigration();
+            serviceProvider.ApplyBinanceDatabaseMigration();
             var task = Task.Run(async () => await AppInitializer.InitializeAsync(serviceProvider));
             Task.WaitAll(task);
         }

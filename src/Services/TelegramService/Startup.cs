@@ -1,15 +1,14 @@
+using BinanceDatabase;
+using Common.Initialization;
+using ExtensionsLibrary;
 using Logger;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
-using Telegram;
+using TelegramService.Configuration;
+using TelegramServiceDatabase;
 
 namespace TelegramService
 {
@@ -22,17 +21,29 @@ namespace TelegramService
 
         public IConfiguration Configuration { get; }
 
-        // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddTelegramLogger(Configuration);
+            services.AddBinanceDatabase(Configuration);
+            services.AddTelegramDatabase(Configuration);
             services.AddRazorPages();
+            services.LoadOptions<TelegramServiceConfig>(Configuration);
+            services.AddSingleton<ITelegramService, TelegramService>();
+            services.ConfigureForInitialization<ITelegramService>(async telegramService =>
+            {
+                await telegramService.StartAsync();
+            });
         }
 
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app)
+        public void Configure(IApplicationBuilder app, IServiceProvider serviceProvider)
         {
             app.UseRouting();
+
+            serviceProvider.ApplyTelegramDatabaseMigration();
+            serviceProvider.ApplyBinanceDatabaseMigration();
+
+            var task = Task.Run(async () => await AppInitializer.InitializeAsync(serviceProvider));
+            Task.WaitAll(task);
         }
     }
 }

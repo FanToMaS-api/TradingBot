@@ -3,11 +3,10 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System;
-using TelegramServiceDatabase;
 using TelegramServiceDatabase.Repositories;
 using TelegramServiceDatabase.Repositories.Impl;
 
-namespace BinanceDatabase
+namespace TelegramServiceDatabase
 {
     /// <summary>
     ///     Расширение для сервисов
@@ -23,7 +22,7 @@ namespace BinanceDatabase
         /// <summary>
         ///     Добавить поддержку БД
         /// </summary>
-        public static void AddBinanceDatabase(this IServiceCollection services, IConfiguration configuration)
+        public static void AddTelegramDatabase(this IServiceCollection services, IConfiguration configuration)
         {
             var connectionString = configuration.GetValue<string>(TELEGRAM_POSTGRES_CONNECTION_STRING);
             Log.TraceAsync($"{TELEGRAM_POSTGRES_CONNECTION_STRING}='{connectionString}'");
@@ -39,18 +38,18 @@ namespace BinanceDatabase
         /// <summary>
         ///     Применение миграций базы данных
         /// </summary>
-        public static void ApplyDatabaseMigration(this IServiceProvider serviceProvider)
+        public static void ApplyTelegramDatabaseMigration(this IServiceProvider serviceProvider)
         {
             try
             {
-                Log.InfoAsync("Applying database migrations...");
+                Log.InfoAsync("Applying telegram database migrations...");
 
                 using var scope = serviceProvider.CreateScope();
                 var db = scope.ServiceProvider.GetService<TelegramDbContext>();
 
                 db.Database.Migrate();
 
-                Log.InfoAsync("Database migrations successfully applied");
+                Log.InfoAsync("Telegram database migrations successfully applied");
             }
             catch (Exception ex)
             {

@@ -11,6 +11,7 @@ using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using Telegram.Builder;
 using Telegram.Client;
+using TelegramService.Configuration;
 using TelegramServiceDatabase;
 using TelegramServiceDatabase.Entities;
 using TelegramServiceDatabase.Repositories;
@@ -18,10 +19,8 @@ using TelegramServiceDatabase.Types;
 
 namespace TelegramService
 {
-    /// <summary>
-    ///     Сервис по получению и обработке сообщений от пользователей
-    /// </summary>
-    public class Service : IDisposable
+    /// <inheritdoc cref="ITelegramService"/>
+    internal class TelegramService : ITelegramService
     {
         #region Fields
 
@@ -30,6 +29,7 @@ namespace TelegramService
         private readonly IServiceScopeFactory _serviceScopeFactory;
         private readonly TelegramMessageBuilder _messageBuilder = new();
         private readonly SsaAnalyticPofile _ssaAnalyticPofile;
+        private readonly TelegramServiceConfig _configuration;
         private bool _isDisposed;
         private CancellationTokenSource _cancellationTokenSource;
 
@@ -37,9 +37,14 @@ namespace TelegramService
 
         #region .ctor
 
-        /// <inheritdoc cref="Service"/>
-        public Service(IServiceScopeFactory serviceScopeFactory, ITelegramClient client, ILoggerDecorator logger)
+        /// <inheritdoc cref="TelegramService"/>
+        public TelegramService(
+            TelegramServiceConfig config,
+            IServiceScopeFactory serviceScopeFactory,
+            ITelegramClient client,
+            ILoggerDecorator logger)
         {
+            _configuration = config;
             _serviceScopeFactory = serviceScopeFactory;
             _client = client;
             _log = logger;
@@ -50,6 +55,7 @@ namespace TelegramService
 
         #region Public methods
 
+        /// <inheritdoc />
         public async Task StartAsync()
         {
             _cancellationTokenSource = new CancellationTokenSource();
@@ -97,8 +103,9 @@ namespace TelegramService
                 _messageBuilder.SetChatId(chatId);
                 if (!await database.Users.IsExist(userId, cancellationToken))
                 {
+                    await SendMessageAsync(DefaultText.WelcomeText, cancellationToken);
                     var newUser = await database.Users.CreateAsync(CreateUserEntity, cancellationToken);
-                    await SenMessageAsync(DefaultText.WelcomeText, cancellationToken);
+                    await database.SaveChangesAsync(cancellationToken);
 
                     return;
                 }
@@ -107,23 +114,25 @@ namespace TelegramService
             }
             catch (ApiRequestException apiEx)
             {
-                if (IsUserBlockedBot(apiEx))
+                if (!IsUserBlockedBot(apiEx))
                 {
-                    var user = await database.Users.GetAsync(message.From.Id, cancellationToken);
-                    if (user is null)
-                    {
-                        return;
-                    }
-
-                    await database.UserStates.UpdateAsync(
-                        user.UserState.Id,
-                        _ => { _.UserStateType = UserStateType.BlockedBot; },
-                        cancellationToken);
-
+                    await _log.ErrorAsync(apiEx, cancellationToken: cancellationToken);
                     return;
                 }
 
-                await _log.ErrorAsync(apiEx, cancellationToken: cancellationToken);
+                var user = await database.Users.GetAsync(message.From.Id, cancellationToken);
+                if (user is null)
+                {
+                    return;
+                }
+
+                await database.UserStates.UpdateAsync(
+                    user.UserState.Id,
+                    _ => { _.UserStateType = UserStateType.BlockedBot; },
+                    cancellationToken);
+                await database.SaveChangesAsync(cancellationToken);
+
+                return;
             }
             catch (Exception ex)
             {
@@ -183,7 +192,14 @@ namespace TelegramService
             var user = await database.Users.GetAsync(userId, cancellationToken);
             if (user.UserState.UserStateType == UserStateType.Banned)
             {
-                await SenMessageAsync(DefaultText.BannedAccountText, cancellationToken);
+                await SendMessageAsync(DefaultText.BannedAccountText, cancellationToken);
+
+                return;
+            }
+
+            if (!await _client.IsInChannelAsync(_configuration.ChannelId, userId, cancellationToken))
+            {
+                await SendMessageAsync(DefaultText.RequiredSubscriptionText, cancellationToken);
 
                 return;
             }
@@ -193,15 +209,40 @@ namespace TelegramService
                 .Replace("/", "")
                 .Replace("\\", "");
             var infoModel = new InfoModel(pairName);
-            var(isSuccessfulAnalyze, resultModel) =
+            var (isSuccessfulAnalyze, resultModel) =
                 await _ssaAnalyticPofile.TryAnalyzeAsync(_serviceScopeFactory, infoModel, cancellationToken);
             if (!isSuccessfulAnalyze)
             {
-                await SenMessageAsync(DefaultText.UnsuccessfulAnalyze, cancellationToken);
+                await SendMessageAsync(DefaultText.UnsuccessfulAnalyzeText, cancellationToken);
 
                 return;
             }
 
+            await SendForecastAsync(pairName, resultModel, cancellationToken);
+        }
+
+        /// <summary>
+        ///     Отправляет сообщение пользователю
+        /// </summary>
+        private async Task SendMessageAsync(string text, CancellationToken cancellationToken)
+        {
+            _messageBuilder.SetMessageText(text);
+            await _client.SendMessageAsync(_messageBuilder.GetResult(), cancellationToken);
+        }
+
+        /// <summary>
+        ///     Проверяет заблокировал ли пользователь бота
+        /// </summary>
+        private static bool IsUserBlockedBot(ApiRequestException ex) => ex.Message == "Forbidden: bot was blocked by the user";
+
+        /// <summary>
+        ///     Отправляет прогноз пользователю
+        /// </summary>
+        /// <param name="pairName"> Название пары </param>
+        /// <param name="resultModel"> Модель прогноза </param>
+        /// <param name="cancellationToken"> Токен отмены </param>
+        private async Task SendForecastAsync(string pairName, AnalyticResultModel resultModel, CancellationToken cancellationToken)
+        {
             var forecastingMessage = $"*{pairName}*\n*Минимальная цена прогноза: {resultModel.RecommendedPurchasePrice:0.00000}*";
             if (resultModel.RecommendedSellingPrice is not null)
             {
@@ -216,20 +257,6 @@ namespace TelegramService
 
             await _client.SendMessageAsync(_messageBuilder.GetResult(), cancellationToken);
         }
-
-        /// <summary>
-        ///     Отправляет сообщение пользователю
-        /// </summary>
-        private async Task SenMessageAsync(string text, CancellationToken cancellationToken)
-        {
-            _messageBuilder.SetMessageText(text);
-            await _client.SendMessageAsync(_messageBuilder.GetResult(), cancellationToken);
-        }
-
-        /// <summary>
-        ///     Проверяет заблокировал ли пользователь бота
-        /// </summary>
-        private static bool IsUserBlockedBot(ApiRequestException ex) => ex.Message == "Forbidden: bot was blocked by the user";
 
         /// <inheritdoc />
         public void Dispose()
