@@ -1,7 +1,7 @@
 ﻿namespace TelegramService.Configuration
 {
     /// <summary>
-    ///     Конфигурация Сервис для работы с пользователями в телеграмме
+    ///     Конфигурация сервиса для работы с пользователями в телеграмме
     /// </summary>
     internal class TelegramServiceConfig
     {

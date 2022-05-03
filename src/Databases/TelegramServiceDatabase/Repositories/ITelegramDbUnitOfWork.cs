@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 namespace TelegramServiceDatabase.Repositories
 {
     /// <summary>
-    ///     Удиница работы с базой данных пользователей телеграмма
+    ///     Единица работы с базой данных пользователей телеграмма
     /// </summary>
     public interface ITelegramDbUnitOfWork : IDisposable
     {

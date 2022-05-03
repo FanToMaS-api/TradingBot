@@ -1,12 +1,9 @@
-﻿using Microsoft.EntityFrameworkCore.Storage;
-using System.Threading;
+﻿using System.Threading;
 using System.Threading.Tasks;
 
 namespace TelegramServiceDatabase.Repositories.Impl
 {
-    /// <summary>
-    ///     Контекст базы данных
-    /// </summary>
+    /// <inheritdoc cref="ITelegramDbUnitOfWork"/>
     public sealed class TelegramDbUnitOfWork : ITelegramDbUnitOfWork
     {
         #region Fields
@@ -18,9 +15,7 @@ namespace TelegramServiceDatabase.Repositories.Impl
 
         #region .ctor
 
-        /// <summary>
-        /// .ctor
-        /// </summary>
+        /// <inheritdoc cref="TelegramDbUnitOfWork"/>
         public TelegramDbUnitOfWork(
             TelegramDbContext dbContext,
             IUserRepository userRepository,

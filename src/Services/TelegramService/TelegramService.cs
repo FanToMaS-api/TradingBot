@@ -180,7 +180,7 @@ namespace TelegramService
         /// <summary>
         ///     Обрабатывает пользовательское сообщение
         /// </summary>
-        /// <param name="database"> база данных </param>
+        /// <param name="database"> База данных </param>
         /// <param name="message"> Модель сообщения телеграмма </param>
         /// <param name="cancellationToken"> Токен отмены </param>
         private async Task HandleUserMessageAsync(

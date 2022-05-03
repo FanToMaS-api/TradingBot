@@ -18,12 +18,12 @@ namespace Telegram.Models
         public long ChatId { get; set; }
 
         /// <summary>
-        ///     Тект сообщения
+        ///     Текст сообщения
         /// </summary>
         public string MessageText { get; set; }
 
         /// <summary>
-        ///     Картинки
+        ///     Изображение
         /// </summary>
         public InputMediaPhoto Image { get; set; }
 
