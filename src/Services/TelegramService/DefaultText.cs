@@ -18,7 +18,13 @@
         /// <summary>
         ///     Сообщение о забаненном аккаунте пользователя
         /// </summary>
-        public static string BannedAccountText = $"Ваш аккаунт был забанен. По всем вопросам пишите {HelpAccount}";
+        public static string BannedAccountText = $"*Ваш аккаунт был забанен.* По всем вопросам пишите {HelpAccount}";
+
+        /// <summary>
+        ///     Предупреждение о спаме
+        /// </summary>
+        public static string WarnAboutSpamText = "Вы слишком часто отправляете сообщения.\n" +
+            "После нескольких таких предпреждений последует *блокировка аккаунта ботом*.";
 
         /// <summary>
         ///     Приветственный текст

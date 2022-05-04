@@ -24,6 +24,16 @@ namespace TelegramService
     {
         #region Fields
 
+        /// <summary>
+        ///     Считать спамом все от времени последнего сообщения пользователя, что пришло быстрее чем
+        /// </summary>
+        private static readonly TimeSpan TimeToDefineSpam = TimeSpan.FromMinutes(1);
+
+        /// <summary>
+        ///     Кол-во предупреждений пользователю, после которых он получит бан
+        /// </summary>
+        public const int LimitWarningNumber = 10;
+
         private readonly ILoggerDecorator _log;
         private readonly ITelegramClient _client;
         private readonly IServiceScopeFactory _serviceScopeFactory;
@@ -86,7 +96,7 @@ namespace TelegramService
         /// <inheritdoc />
         public async Task HandleUpdateAsync(Message message, string text, CancellationToken cancellationToken)
         {
-            if (!await IsValidAsync(message, text, cancellationToken))
+            if (!await IsArgumentsValidAsync(message, text, cancellationToken))
             {
                 return;
             }
@@ -94,7 +104,6 @@ namespace TelegramService
             using var scope = _serviceScopeFactory.CreateAsyncScope();
             var databaseFactory = scope.ServiceProvider.GetRequiredService<ITelegramDatabaseFactory>();
             using var database = databaseFactory.CreateScopeDatabase();
-
             try
             {
                 var userId = message.From.Id;
@@ -158,19 +167,17 @@ namespace TelegramService
         /// <summary>
         ///     Проверяет валидность входящих агрументов
         /// </summary>
-        private async Task<bool> IsValidAsync(Message message, string text, CancellationToken cancellationToken)
+        private async Task<bool> IsArgumentsValidAsync(Message message, string text, CancellationToken cancellationToken)
         {
             if (message is null)
             {
                 await _log.ErrorAsync(new NullReferenceException(nameof(message)), cancellationToken: cancellationToken);
-
                 return false;
             }
 
             if (string.IsNullOrEmpty(text))
             {
                 await _log.WarnAsync(new NullReferenceException(nameof(text)), cancellationToken: cancellationToken);
-
                 return false;
             }
 
@@ -188,19 +195,8 @@ namespace TelegramService
             Message message,
             CancellationToken cancellationToken)
         {
-            var userId = message.From.Id;
-            var user = await database.Users.GetAsync(userId, cancellationToken);
-            if (user.UserState.UserStateType == UserStateType.Banned)
+            if (!await IsUserValidAsync(database, message, cancellationToken))
             {
-                await SendMessageAsync(DefaultText.BannedAccountText, cancellationToken);
-
-                return;
-            }
-
-            if (!await _client.IsInChannelAsync(_configuration.ChannelId, userId, cancellationToken))
-            {
-                await SendMessageAsync(DefaultText.RequiredSubscriptionText, cancellationToken);
-
                 return;
             }
 
@@ -215,11 +211,115 @@ namespace TelegramService
             if (!isSuccessfulAnalyze)
             {
                 await SendMessageAsync(DefaultText.UnsuccessfulAnalyzeText, cancellationToken);
-
                 return;
             }
 
             await SendForecastAsync(pairName, resultModel, cancellationToken);
+        }
+
+        /// <summary>
+        ///     Проверят может ли пользователь получать прогнозы
+        /// </summary>
+        /// <param name="database"> База данных </param>
+        /// <param name="message"> Модель сообщения телеграмма </param>
+        /// <param name="cancellationToken"> Токен отмены </param>
+        private async Task<bool> IsUserValidAsync(ITelegramDbUnitOfWork database, Message message, CancellationToken cancellationToken)
+        {
+            var userId = message.From.Id;
+            var user = await database.Users.GetAsync(userId, cancellationToken);
+            if (user.UserState.UserStateType == UserStateType.Banned)
+            {
+                await SendMessageAsync(DefaultText.BannedAccountText, cancellationToken);
+                return false;
+            }
+
+            if (IsSpammer(user))
+            {
+                await WarnAboutSpamAsync(user, cancellationToken);
+                if (LimitWarningNumber - user.UserState.WarningNumber <= 0)
+                {
+                    await BanUserAsync(user, cancellationToken);
+                }
+
+                UpdateUserLastAction(user);
+                await database.SaveChangesAsync(cancellationToken);
+                return false;
+            }
+            else
+            {
+                UnbanUser(user);
+                UpdateUserLastAction(user);
+                await database.SaveChangesAsync(cancellationToken);
+            }
+
+            if (!await _client.IsInChannelAsync(_configuration.ChannelId, userId, cancellationToken))
+            {
+                await SendMessageAsync(DefaultText.RequiredSubscriptionText, cancellationToken);
+                return false;
+            }
+
+            return true;
+        }
+
+        /// <summary>
+        ///     Проверка является ли пользователь спаммером
+        /// </summary>
+        private static bool IsSpammer(UserEntity user)
+            => DateTime.Now - user.LastAction < TimeToDefineSpam;
+
+        /// <summary>
+        ///     Обновляет дату последнего действия пользователя
+        /// </summary>
+        /// <param name="user"> Пользователь </param>
+        private static void UpdateUserLastAction(UserEntity user)
+            => user.LastAction = DateTime.Now;
+
+        /// <summary>
+        ///     Предупреждает пользователя о спаме
+        /// </summary>
+        private async Task WarnAboutSpamAsync(UserEntity userEntity, CancellationToken cancellationToken)
+        {
+            userEntity.UserState.WarningNumber++;
+            var remainingWarnings = LimitWarningNumber - userEntity.UserState.WarningNumber;
+            try
+            {
+                await SendMessageAsync(
+                    $"{DefaultText.WarnAboutSpamText}\nОсталось предупреждений до бана: *{remainingWarnings}*",
+                    cancellationToken);
+            }
+            catch (Exception ex)
+            {
+                await _log.ErrorAsync(ex, "Failed to send warning about spam", cancellationToken: cancellationToken);
+            }
+        }
+
+        /// <summary>
+        ///     Банит пользователя
+        /// </summary>
+        /// <param name="user"> Пользователь, который будет забанен </param>
+        private async Task BanUserAsync(UserEntity user, CancellationToken cancellationToken)
+        {
+            user.UserState.UserStateType = UserStateType.Banned;
+            user.UserState.BanReason = BanReasonType.Spam;
+            try
+            {
+                await SendMessageAsync($"{DefaultText.BannedAccountText}. Причина бана: спам", cancellationToken);
+            }
+            catch (Exception ex)
+            {
+                await _log.ErrorAsync(ex, "Failed to send message about ban", cancellationToken: cancellationToken);
+            }
+        }
+
+        /// <summary>
+        ///     Убирает все предупреждения с пользователя
+        /// </summary>
+        /// <param name="user"> Пользователь </param>
+        private void UnbanUser(UserEntity user)
+        {
+            user.UserState.UserStateType = UserStateType.Active;
+            user.UserState.BanReason = BanReasonType.NotBanned;
+            user.UserState.WarningNumber = 0;
         }
 
         /// <summary>
