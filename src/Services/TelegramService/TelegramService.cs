@@ -81,7 +81,7 @@ namespace TelegramService
             }
             catch (OperationCanceledException exception)
             {
-                await _log.WarnAsync(exception, "The service was stopped by token cancellation. Reason: ");
+                await _log.ErrorAsync(exception, "The service was stopped by token cancellation. Reason: ");
             }
             catch (Exception ex)
             {
