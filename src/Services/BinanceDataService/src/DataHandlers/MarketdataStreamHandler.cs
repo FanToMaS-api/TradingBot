@@ -42,6 +42,7 @@ namespace BinanceDataService.DataHandlers
         private CancellationTokenSource _cancellationTokenSource;
         private bool _isDisposed;
         private IWebSocket _webSocket;
+        private const int ReconnectionLimit = 3;
 
         #endregion
 
@@ -106,7 +107,7 @@ namespace BinanceDataService.DataHandlers
 
             _webSocket?.Dispose();
 
-            await _logger.InfoAsync("Marketdata handler sropped", cancellationToken: _cancellationTokenSource.Token);
+            await _logger.InfoAsync("Marketdata handler stopped", cancellationToken: _cancellationTokenSource.Token);
         }
 
         #endregion
@@ -376,9 +377,20 @@ namespace BinanceDataService.DataHandlers
         /// </summary>
         private void WebSocketCloseHandler()
         {
-            _logger.InfoAsync("The websocket has been closed. Restarting stream...").Wait(5 * 1000);
+            for (var i = 0; i < ReconnectionLimit; i++)
 
-            Task.Run(async () => await _webSocket.ConnectAsync(_cancellationTokenSource.Token), _cancellationTokenSource.Token);
+            {
+                _logger.InfoAsync($"The websocket has been closed. Restarting stream, attempt number = {i + 1}").Wait(5 * 1000);
+                Task.Run(async () => await StartWebSocket(_cancellationTokenSource.Token), _cancellationTokenSource.Token);
+                if (_webSocket.SocketState == System.Net.WebSockets.WebSocketState.Open)
+                {
+                    _logger.InfoAsync("Marketdata handler launched successfully!", cancellationToken: _cancellationTokenSource.Token).Wait(5 * 1000);
+                    return;
+                }
+
+                Task.Delay(2 * 1000).Wait(); // Принудительная задержка переподключения
+            }
+
         }
 
         /// <summary>
