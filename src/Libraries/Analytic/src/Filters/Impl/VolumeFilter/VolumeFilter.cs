@@ -63,7 +63,7 @@ namespace Analytic.Filters
             VolumeComparisonType switch
             {
                 VolumeComparisonType.GreaterThan => IsSatisfiesCondition(model, (x, y) => x > y * (1 + PercentDeviation)),
-                VolumeComparisonType.LessThan => IsSatisfiesCondition(model, (x, y) => x < y * (1 + PercentDeviation)),
+                VolumeComparisonType.LessThan => IsSatisfiesCondition(model, (x, y) => x <= y * (1 + PercentDeviation)),
                 _ => throw new NotImplementedException(),
             };
 
