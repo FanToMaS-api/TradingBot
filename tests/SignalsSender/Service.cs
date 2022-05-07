@@ -70,37 +70,69 @@ namespace SignalsSender
 
             using var scope = _scopeFactory.CreateScope();
 
-            var filterManager = new DefaultFilterManager(_logger);
+            var growingPairFilterManager = new DefaultFilterManager(_logger);
+            var fallingTickersFilterManager = new DefaultFilterManager(_logger);
+
             var paramountFilterGroup = new FilterGroup("ParamountFilterGroup", FilterGroupType.Primary, null);
             var nameFilter = new NameFilter("NameFilter", _baseTickers);
             paramountFilterGroup.AddFilter(nameFilter);
-            filterManager.AddFilterGroup(paramountFilterGroup);
+            growingPairFilterManager.AddFilterGroup(paramountFilterGroup);
+            fallingTickersFilterManager.AddFilterGroup(paramountFilterGroup);
 
             var specialFilterGroupUSDT = new FilterGroup("USDT_SpecialFilterGroup", FilterGroupType.Special, "USDT");
+            var specialFilterGroupUSDTWithoutPriceDeviation = new FilterGroup(
+                "USDT_SpecialFilterGroupWithoutPriceDeviation", 
+                FilterGroupType.Special,
+                "USDT");
+
             var priceDeviationFilter = new PriceDeviationFilter("AnyFilter", ComparisonType.GreaterThan, 2.55);
             var usdtPriceFilter = new PriceFilter("USDTFilter", ComparisonType.LessThan, 20);
             specialFilterGroupUSDT.AddFilter(priceDeviationFilter);
             specialFilterGroupUSDT.AddFilter(usdtPriceFilter);
-            filterManager.AddFilterGroup(specialFilterGroupUSDT);
+            growingPairFilterManager.AddFilterGroup(specialFilterGroupUSDT);
+
+            specialFilterGroupUSDTWithoutPriceDeviation.AddFilter(usdtPriceFilter);
+            fallingTickersFilterManager.AddFilterGroup(specialFilterGroupUSDTWithoutPriceDeviation);
 
             var specialFilterGroupBTC = new FilterGroup("BTC_SpecialFilterGroup", FilterGroupType.Special, "BTC");
             var btcDeviationFilter = new PriceDeviationFilter("BTCFilter", ComparisonType.GreaterThan, 5.7);
             specialFilterGroupBTC.AddFilter(btcDeviationFilter);
-            filterManager.AddFilterGroup(specialFilterGroupBTC);
+            growingPairFilterManager.AddFilterGroup(specialFilterGroupBTC);
 
             var specialFilterGroupETH = new FilterGroup("ETH_SpecialFilterGroup", FilterGroupType.Special, "ETH");
             var ethDeviationFilter = new PriceDeviationFilter("ETHFilter", ComparisonType.GreaterThan, 4.5);
             specialFilterGroupETH.AddFilter(ethDeviationFilter);
-            filterManager.AddFilterGroup(specialFilterGroupETH);
+            growingPairFilterManager.AddFilterGroup(specialFilterGroupETH);
 
             var commonFilterGroup = new FilterGroup("CommonFilterGroup", FilterGroupType.Common, null);
             commonFilterGroup.AddFilter(priceDeviationFilter);
-            filterManager.AddFilterGroup(commonFilterGroup);
+            growingPairFilterManager.AddFilterGroup(commonFilterGroup);
+
+            var commonFilterGroupForFallingPairs = new FilterGroup("CommonFilterGroupForFallingPairs", FilterGroupType.Common, null);
+            var fallingPriceDeviationFilter = new PriceDeviationFilter("FallingPriceDeviationFilter", ComparisonType.LessThan, 5, 60);
+            commonFilterGroupForFallingPairs.AddFilter(fallingPriceDeviationFilter);
+            fallingTickersFilterManager.AddFilterGroup(commonFilterGroupForFallingPairs);
 
             var commonLatestFilterGroup = new FilterGroup("CommonLatestFilterGroup", FilterGroupType.CommonLatest, null);
-            var volumeFilter = new VolumeFilter("VolumeBidFilter", percentDeviation: 0.05);
+            var volumeFilter = new VolumeFilter(
+                "VolumeBidFilter",
+                VolumeType.Bid,
+                VolumeComparisonType.GreaterThan,
+                percentDeviation: 0.05);
             commonLatestFilterGroup.AddFilter(volumeFilter);
-            filterManager.AddFilterGroup(commonLatestFilterGroup);
+            growingPairFilterManager.AddFilterGroup(commonLatestFilterGroup);
+
+            var commonLatestFilterGroupForFallingPairs = new FilterGroup(
+                "CommonLatestFilterGroupForFallingPairs", 
+                FilterGroupType.CommonLatest,
+                null);
+            var volumeFilterForFallingPairs = new VolumeFilter(
+                "VolumeBidFilterForFallingPairs", 
+                VolumeType.Ask,
+                VolumeComparisonType.GreaterThan,
+                percentDeviation: 0.35);
+            commonLatestFilterGroupForFallingPairs.AddFilter(volumeFilterForFallingPairs);
+            fallingTickersFilterManager.AddFilterGroup(commonLatestFilterGroupForFallingPairs);
 
             _analyticService.OnModelsFiltered += OnModelsFilteredReceived;
             _analyticService.OnSuccessfulAnalize += OnModelsToBuyReceived;
@@ -109,7 +141,9 @@ namespace SignalsSender
             var profileGroup = new ProfileGroup(_logger, "DefaultGroupProfile");
             profileGroup.AddAnalyticUnit(ssaProfile);
             _analyticService.AddProfileGroup(profileGroup);
-            await _analyticService.RunAsync(filterManager, cancellationToken);
+            _analyticService.AddFilterManager(growingPairFilterManager);
+            _analyticService.AddFilterManager(fallingTickersFilterManager);
+            await _analyticService.RunAsync(cancellationToken);
         }
 
         /// <summary>

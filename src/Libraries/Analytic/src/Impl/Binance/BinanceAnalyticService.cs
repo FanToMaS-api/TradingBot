@@ -1,11 +1,9 @@
 ﻿using Analytic.AnalyticUnits;
 using Analytic.Filters;
 using Analytic.Models;
-using Common.Models;
 using ExchangeLibrary;
 using Logger;
 using Microsoft.Extensions.DependencyInjection;
-using NLog;
 using Quartz;
 using Scheduler;
 using System;
@@ -53,7 +51,7 @@ namespace Analytic.Binance
         public List<IProfileGroup> ProfileGroups { get; } = new();
 
         /// <inheritdoc />
-        public FilterManagerBase FilterManager { get; internal set; }
+        public List<FilterManagerBase> FilterManagers { get; internal set; }
 
         /// <inheritdoc />
         public EventHandler<InfoModel[]> OnModelsFiltered { get; set; }
@@ -66,9 +64,8 @@ namespace Analytic.Binance
         #region Public methods
 
         /// <inheritdoc />
-        public async Task RunAsync(FilterManagerBase filterManager, CancellationToken cancellationToken)
+        public async Task RunAsync(CancellationToken cancellationToken)
         {
-            FilterManager = filterManager ?? throw new ArgumentNullException(nameof(filterManager));
             _cancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
             cancellationToken.Register(() => StopAsync(CancellationToken.None).GetAwaiter().GetResult());
 
@@ -81,6 +78,13 @@ namespace Analytic.Binance
             await _scheduler.UnscheduleAsync(_triggerKey);
 
         #region Add/Remove methods
+
+        /// <inheritdoc />
+        public void AddFilterManager(FilterManagerBase filterManager) =>
+            FilterManagers.Add(filterManager);
+
+        /// <inheritdoc />
+        public void ClearFilterManagers() => FilterManagers.Clear();
 
         /// <inheritdoc />
         public void AddProfileGroup(IProfileGroup profileGroup) => ProfileGroups.Add(profileGroup);
@@ -121,10 +125,15 @@ namespace Analytic.Binance
             try
             {
                 var models = await _exchange.Marketdata.GetSymbolPriceTickerAsync(null, _cancellationTokenSource.Token);
-                var extendedFilteredModels = await FilterManager?.GetFilteredDataAsync(
-                    _exchange,
-                    models,
-                    _cancellationTokenSource.Token);
+                var extendedFilteredModels = new List<InfoModel>();
+                foreach (var filterManager in FilterManagers)
+                {
+                    extendedFilteredModels.AddRange(await filterManager.GetFilteredDataAsync(
+                        _exchange,
+                        models,
+                        _cancellationTokenSource.Token));
+                }
+                
                 if (!extendedFilteredModels.Any())
                 {
                     return;

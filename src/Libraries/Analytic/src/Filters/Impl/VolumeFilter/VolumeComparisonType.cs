@@ -6,11 +6,6 @@
     public enum VolumeComparisonType
     {
         /// <summary>
-        ///     Объем покупки должен быть больше объема продажи
-        /// </summary>
-        Default,
-
-        /// <summary>
         ///     Больше чем
         /// </summary>
         GreaterThan,
