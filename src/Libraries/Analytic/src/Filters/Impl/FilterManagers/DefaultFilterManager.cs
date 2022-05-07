@@ -2,7 +2,6 @@
 using Common.Models;
 using ExchangeLibrary;
 using Logger;
-using NLog;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;

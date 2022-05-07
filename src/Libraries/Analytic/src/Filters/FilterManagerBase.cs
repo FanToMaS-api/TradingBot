@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace Analytic.Filters
 {
     /// <summary>
-    ///     Базовый класс менеджера фильтров
+    ///     Класс, управляющий фильтрацией
     /// </summary>
     public abstract class FilterManagerBase
     {
