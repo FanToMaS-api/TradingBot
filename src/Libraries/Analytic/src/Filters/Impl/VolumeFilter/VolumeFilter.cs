@@ -17,7 +17,6 @@ namespace Analytic.Filters
         /// <param name="volumeType"> Тип объемов для фильтрации </param>
         /// <param name="volumeComparisonType"> Тип фильтра </param>
         /// <param name="percentDeviation"> Отклонение для объемов при дефолтной фильтрации </param>
-        /// <param name="limit"> Порог при недефолтной фильтрации </param>
         public VolumeFilter(
             string filterName,
             VolumeType volumeType = VolumeType.Bid,

@@ -30,10 +30,6 @@ namespace Analytic.AnalyticUnits.Profiles.SSA
         private const int _denominator = 5; // делитель кол-ва данных, участвующих в предсказании цены (выше)
                                             // для прогноза только некоторого кол-ва цен
 
-        private const int _neededLambdaNumber = 7; // Кол-во значимых собственных значений, которое будет отбираться
-        private const double _minMagnitudeForSsaSmoothing = 0.0002; // Минимальная магнитуда
-                                                                    // для собственного значения при сглаживании
-
         #endregion
 
         #region .ctor
@@ -146,17 +142,19 @@ namespace Analytic.AnalyticUnits.Profiles.SSA
             }
 
             var ssaModel = SsaModel.Create(prices);
-            var subMatrixEigenvectors = MakeSmoothing(ssaModel);
+            ssaModel.ComputeCovariationMatrix();
+            ssaModel.ComputeEigenVectorsAndValues();
+            ssaModel.ComputeNeededLambdas();
+            var subMatrixEigenvectors = ssaModel.GetSubListEigenvectors();
             if (!subMatrixEigenvectors.Any())
             {
                 return Array.Empty<double>();
             }
 
             // Восстанавливаю сигнал
-            // var (matrixEigenvectors, _) = ssaModel.GetEigenVectorsAndValues();
-            // var mainComponents = ssaModel.MainComponentsMatrix;
-            // var restoredOriginalMatrix = (matrixEigenvectors * mainComponents).ToArray();
-            // var restoredSignal = SignalRecovery(restoredOriginalMatrix, prices.Length, ssaModel.TauDelayNumber);
+            // ssaModel.ComputeMainComponentsMatrix();
+            // ssaModel.ComputeRestoredOriginalMatrix();
+            // var restoredSignal = ssaModel.GetRestoredSignal();
 
             var (Vstar, tauMatrixEigenvector) = GetPreparedMatrixForForecasting(
                 subMatrixEigenvectors,
@@ -171,50 +169,6 @@ namespace Analytic.AnalyticUnits.Profiles.SSA
                 prices.Length / _denominator);
 
             return predictions;
-        }
-
-        /// <summary>
-        ///     Производит SSA-сглаживание
-        /// </summary>
-        internal static List<Vector<double>> MakeSmoothing(SsaModel ssaModel)
-        {
-            var (matrixEigenvectors, matrixEigenvalues) = ssaModel.GetEigenVectorsAndValues();
-            var eigenvaluesArray = matrixEigenvalues.ToList();
-            eigenvaluesArray.Sort((x, y) =>
-            {
-                return x.Magnitude < y.Magnitude ? 1 : x.Magnitude == y.Magnitude ? 0 : -1;
-            });
-
-            var neededLambdas = eigenvaluesArray.Where(_ => _.Magnitude > _minMagnitudeForSsaSmoothing);
-            neededLambdas = neededLambdas.Count() < _neededLambdaNumber ? eigenvaluesArray.Take(_neededLambdaNumber) : neededLambdas;
-            var subMatrixEigenvectors = GetSubListEigenvectors(ssaModel, neededLambdas);
-
-            return subMatrixEigenvectors;
-        }
-
-        /// <summary>
-        ///     Возвращает список значимых векторов, для предсказаний <br/>
-        ///     Зануляем столбцы собственных векторов, которые незначимы
-        /// </summary>
-        internal static List<Vector<double>> GetSubListEigenvectors(
-            SsaModel model,
-            IEnumerable<System.Numerics.Complex> neededLambdas)
-        {
-            var subEigenvectors = new List<Vector<double>>(); // понадобится для предсказаний
-            var (matrixEigenvectors, matrixEigenvalues) = model.GetEigenVectorsAndValues();
-            for (var i = 0; i < matrixEigenvalues.Count; i++)
-            {
-                if (neededLambdas.Contains(matrixEigenvalues[i]))
-                {
-                    subEigenvectors.Add(matrixEigenvectors.Column(i));
-                    continue;
-                }
-
-                // зануляем столбцы собственных векторов, которые незначимы (сглаживаем)
-                matrixEigenvectors.ClearColumn(i);
-            }
-
-            return subEigenvectors;
         }
 
         /// <summary>
@@ -319,63 +273,6 @@ namespace Analytic.AnalyticUnits.Profiles.SSA
                 await _logger.ErrorAsync(ex, "Failed to save predicted data", cancellationToken: cancellationToken);
             }
         }
-
-        #region Signal recovery
-
-        /// <summary>
-        ///     Восстанавливает сигнал
-        /// </summary>
-        /// <param name="newX"> Восстановленная исходная матрица </param>
-        /// <param name="pricesLength"> Кол-во значений в первоначальном векторе-сигнале </param>
-        /// <param name="tau_delayNumber"> Число задержек </param>
-        internal static double[] SignalRecovery(double[,] newX, int pricesLength, int tau_delayNumber)
-        {
-            if (newX is null || newX.Length == 0)
-            {
-                return Array.Empty<double>();
-            }
-
-            var result = new List<double>();
-            var n = pricesLength - tau_delayNumber + 1;
-            for (var s = 1; s <= pricesLength; s++)
-            {
-                if (s < tau_delayNumber)
-                {
-                    var item = 0d;
-                    for (var i = 0; i < s; i++)
-                    {
-                        item += newX[i, s - i - 1];
-                    }
-
-                    result.Add(item / s);
-                    continue;
-                }
-
-                if (s < n)
-                {
-                    var item = 0d;
-                    for (var i = 0; i < tau_delayNumber; i++)
-                    {
-                        item += newX[i, s - i - 1];
-                    }
-
-                    result.Add(item / tau_delayNumber);
-                    continue;
-                }
-
-                var lastItem = 0d;
-                for (var i = 0; i < (pricesLength - s + 1); i++)
-                {
-                    lastItem += newX[i + s - n, n - i - 1];
-                }
-
-                result.Add(lastItem / (pricesLength - s + 1));
-            }
-
-            return result.ToArray();
-        }
-
-        #endregion
 
         #endregion
     }

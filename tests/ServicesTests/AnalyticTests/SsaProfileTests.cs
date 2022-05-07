@@ -50,15 +50,16 @@ namespace AnalyticTests
         {
             var prices = File.ReadAllLines("Files/Prices.txt").Select(_ => double.Parse(_)).ToArray();
             var ssaModel = SsaModel.Create(prices);
-            var subMatrixEigenvectors = SsaAnalyticPofile.MakeSmoothing(ssaModel);
-            var (matrixEigenvectors, matrixEigenvalues) = ssaModel.GetEigenVectorsAndValues();
+            ssaModel.ComputeCovariationMatrix();
+            ssaModel.ComputeEigenVectorsAndValues();
+            ssaModel.ComputeNeededLambdas();
 
-            // Восстанавливаю сигнал
-            var mainComponents = ssaModel.MainComponentsMatrix;
-            var restoredOriginalMatrix = (matrixEigenvectors * mainComponents).ToArray();
-
+            var subMatrixEigenvectors = ssaModel.GetSubListEigenvectors();
+            ssaModel.ComputeMainComponentsMatrix();
+            ssaModel.ComputeRestoredOriginalMatrix();
+            
             // Act
-            var restoredSignal = SsaAnalyticPofile.SignalRecovery(restoredOriginalMatrix, prices.Length, ssaModel.TauDelayNumber);
+            var restoredSignal = ssaModel.GetRestoredSignal();
 
             var expectedRestoredSignal = File.ReadAllLines("Files/ExpectedRestoredSignal.txt").Select(_ => double.Parse(_)).ToArray();
             Assert.Equal(expectedRestoredSignal.Length, restoredSignal.Length);
@@ -81,7 +82,7 @@ namespace AnalyticTests
             var restoredOriginalMatrix = new double[0, 0];
 
             // Act
-            var restoredSignal = SsaAnalyticPofile.SignalRecovery(restoredOriginalMatrix, prices.Length, ssaModel.TauDelayNumber);
+            var restoredSignal = ssaModel.GetRestoredSignal();
             Assert.Empty(restoredOriginalMatrix);
         }
 
