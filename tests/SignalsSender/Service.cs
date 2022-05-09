@@ -169,7 +169,7 @@ namespace SignalsSender
                     var pairSymbols = model.TradeObjectName.Insert(model.TradeObjectName.Length - symbol.Length, "/");
                     var pairName = pairSymbols.Replace("/", "_");
                     var message = $"*{pairSymbols}*\nНовая разница: *{model.LastDeviation:0.00000}%*" +
-                        $"\nРазница за последние 5 таймфреймов: *{model.SumDeviations:0.0000000}%*" +
+                        $"\nРазница за последние 5 таймфреймов: *{model.DeviationsSum:0.0000000}%*" +
                         $"\nПоследняя цена: *{model.LastPrice}*" +
                         $"\nОбъем спроса: *{model.BidVolume:0,0.0}*" +
                         $"\nОбъем предложения: *{model.AskVolume:0,0.0}*";

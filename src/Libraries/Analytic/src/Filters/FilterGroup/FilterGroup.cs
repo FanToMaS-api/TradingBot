@@ -66,7 +66,8 @@ namespace Analytic.Filters
 
         /// <inheritdoc />
         public bool IsFilter(string tradeObjectName) =>
-            !string.IsNullOrEmpty(TargetTradeObjectName) && tradeObjectName.Contains(TargetTradeObjectName, StringComparison.InvariantCultureIgnoreCase);
+            !string.IsNullOrEmpty(TargetTradeObjectName) 
+            && tradeObjectName.Contains(TargetTradeObjectName, StringComparison.InvariantCultureIgnoreCase);
 
         /// <inheritdoc />
         public bool RemoveFilter(IFilter filter) => Filters.Remove(filter);

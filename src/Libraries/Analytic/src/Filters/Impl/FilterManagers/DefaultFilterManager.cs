@@ -14,6 +14,7 @@ namespace Analytic.Filters.Impl.FilterManagers
     {
         #region Fields
 
+        private const int PricePercentDeviationsNumber = 120;
         private readonly ILoggerDecorator _logger;
         private readonly Dictionary<string, InfoModel> _infoModels = new();
 
@@ -103,10 +104,10 @@ namespace Analytic.Filters.Impl.FilterManagers
             var lastDeviation = GetDeviation(infoModel.PrevPrice, infoModel.LastPrice);
             infoModel.PricePercentDeviations.Add(lastDeviation);
             infoModel.LastDeviation = lastDeviation;
-            if (infoModel.PricePercentDeviations.Count > 40)
+            if (infoModel.PricePercentDeviations.Count > PricePercentDeviationsNumber)
             {
                 // пока нет сохранения в бд, удаляю с целью экономии памяти
-                infoModel.PricePercentDeviations.RemoveRange(0, 30);
+                infoModel.PricePercentDeviations.RemoveRange(0, 60);
             }
         }
 
