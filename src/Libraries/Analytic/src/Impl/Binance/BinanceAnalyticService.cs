@@ -1,6 +1,7 @@
 ﻿using Analytic.AnalyticUnits;
 using Analytic.Filters;
 using Analytic.Models;
+using BinanceDatabase;
 using ExchangeLibrary;
 using Logger;
 using Microsoft.Extensions.DependencyInjection;
@@ -129,7 +130,7 @@ namespace Analytic.Binance
                 foreach (var filterManager in FilterManagers)
                 {
                     extendedFilteredModels.AddRange(await filterManager.GetFilteredDataAsync(
-                        _exchange,
+                        _serviceScopeFactory,
                         models,
                         _cancellationTokenSource.Token));
                 }

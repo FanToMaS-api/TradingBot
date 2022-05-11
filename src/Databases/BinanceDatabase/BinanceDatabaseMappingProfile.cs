@@ -19,7 +19,13 @@ namespace BinanceDatabase
                 .ForMember(_ => _.ReceivedTime, _ => _.MapFrom(_ => _.EventTimeUnix.FromUnixToDateTime()));
 
             CreateMap<MiniTradeObjectStreamModel, MiniTickerEntity>()
-                .ForMember(_ => _.EventTime, _ => _.MapFrom(_ => _.EventTimeUnix.FromUnixToDateTime()));
+                .ForMember(_ => _.EventTime, _ => _.MapFrom(_ => _.EventTimeUnix.FromUnixToDateTime()))
+                .ForMember(_ => _.PriceDeviationPercent, _ => _.MapFrom(_ => GetPercentDeviation(_.OpenPrice, _.ClosePrice)));
         }
+
+        /// <summary>
+        ///     Возвращает процентное отклонение новой цены от старой
+        /// </summary>
+        public static double GetPercentDeviation(double oldPrice, double newPrice) => (newPrice / (double)oldPrice - 1) * 100;
     }
 }

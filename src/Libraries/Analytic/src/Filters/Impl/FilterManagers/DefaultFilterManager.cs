@@ -1,7 +1,9 @@
 ﻿using Analytic.Models;
+using BinanceDatabase;
 using Common.Models;
 using ExchangeLibrary;
 using Logger;
+using Microsoft.Extensions.DependencyInjection;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -14,9 +16,8 @@ namespace Analytic.Filters.Impl.FilterManagers
     {
         #region Fields
 
-        private const int PricePercentDeviationsNumber = 120;
+        private const int PricePercentDeviationsNumberToAnalyze = 60;
         private readonly ILoggerDecorator _logger;
-        private readonly Dictionary<string, InfoModel> _infoModels = new();
 
         #endregion
 
@@ -34,11 +35,14 @@ namespace Analytic.Filters.Impl.FilterManagers
 
         /// <inheritdoc />
         public override async Task<IEnumerable<InfoModel>> GetFilteredDataAsync<T>(
-            IExchange exchange,
+            IServiceScopeFactory serviceScopeFactory,
             IEnumerable<T> modelsToFilter,
             CancellationToken cancellationToken)
         {
-            var filteredModels = GetFilteredData(modelsToFilter as IEnumerable<TradeObjectNamePriceModel>);
+            using var scope = serviceScopeFactory.CreateScope();
+            var exchange = scope.ServiceProvider.GetRequiredService<IExchange>();
+            var databaseFactory = scope.ServiceProvider.GetRequiredService<IBinanceDbContextFactory>();
+            var filteredModels = GetFilteredData(databaseFactory, modelsToFilter as IEnumerable<TradeObjectNamePriceModel>);
             return await GetExtendedFilteredModelsAsync(exchange, filteredModels.Take(2).ToList(), cancellationToken);
         }
 
@@ -49,7 +53,7 @@ namespace Analytic.Filters.Impl.FilterManagers
         /// <summary>
         ///     Первоначальная фильтрация данных
         /// </summary>
-        private List<InfoModel> GetFilteredData(IEnumerable<TradeObjectNamePriceModel> models)
+        private List<InfoModel> GetFilteredData(IBinanceDbContextFactory databaseFactory, IEnumerable<TradeObjectNamePriceModel> models)
         {
             var result = new List<InfoModel>();
             var paramountFilters = FilterGroups.Where(_ => _.Type == FilterGroupType.Primary).ToArray();
@@ -61,15 +65,10 @@ namespace Analytic.Filters.Impl.FilterManagers
                     continue;
                 }
 
-                if (!_infoModels.ContainsKey(model.Name))
+                var infoModel = new InfoModel(model.Name, model.Price)
                 {
-                    _infoModels[model.Name] = new(model.Name, model.Price);
-
-                    continue;
-                }
-
-                var infoModel = _infoModels[model.Name];
-                CalculateData(infoModel, model);
+                    PricePercentDeviations = GetPriceDeviationsFromDatabase(databaseFactory, model.Name)
+                };
 
                 // если у модели есть спец группа фильтров, то по общим ее фильтровать не надо
                 var specialPriceFilters = GetSpecialFiltersForModel(model);
@@ -95,26 +94,19 @@ namespace Analytic.Filters.Impl.FilterManagers
         }
 
         /// <summary>
-        ///     Производит новые расчеты для модели <paramref name="infoModel"/>
+        ///     Получить отклонения цены из базы данных
         /// </summary>
-        private static void CalculateData(InfoModel infoModel, TradeObjectNamePriceModel model)
+        private static IQueryable<double> GetPriceDeviationsFromDatabase(IBinanceDbContextFactory databaseFactory, string pair)
         {
-            (infoModel.PrevPrice, infoModel.LastPrice) = (infoModel.LastPrice, model.Price); // Swap
+            using var database = databaseFactory.CreateScopeDatabase();
 
-            var lastDeviation = GetDeviation(infoModel.PrevPrice, infoModel.LastPrice);
-            infoModel.PricePercentDeviations.Add(lastDeviation);
-            infoModel.LastDeviation = lastDeviation;
-            if (infoModel.PricePercentDeviations.Count > PricePercentDeviationsNumber)
-            {
-                // пока нет сохранения в бд, удаляю с целью экономии памяти
-                infoModel.PricePercentDeviations.RemoveRange(0, 60);
-            }
+            return database.ColdUnitOfWork.MiniTickers
+                .CreateQuery()
+                .Where(_ => _.ShortName == pair && _.AggregateDataInterval == BinanceDatabase.Enums.AggregateDataIntervalType.OneMinute)
+                .OrderByDescending(_ => _.EventTime)
+                .Select(_ => _.PriceDeviationPercent)
+                .Take(PricePercentDeviationsNumberToAnalyze);
         }
-
-        /// <summary>
-        ///     Возвращает процентное отклонение новой цены от старой
-        /// </summary>
-        private static double GetDeviation(double oldPrice, double newPrice) => (newPrice / (double)oldPrice - 1) * 100;
 
         /// <summary>
         ///     Возвращает группы фильтров для конкретной модели
@@ -151,7 +143,7 @@ namespace Analytic.Filters.Impl.FilterManagers
                     {
                         _logger
                             .TraceAsync(
-                                $"Ticker {model.TradeObjectName} does not suitable for SPECIAL LATEST filters",
+                                $"Ticker {model.TradeObjectName} DOES NOT suitable for SPECIAL LATEST filters",
                                 cancellationToken: cancellationToken)
                             .Wait(5 * 1000, cancellationToken);
                         models.Remove(model);
@@ -165,7 +157,7 @@ namespace Analytic.Filters.Impl.FilterManagers
                 {
                     _logger
                         .TraceAsync(
-                            $"Ticker {model.TradeObjectName} does not suitable for COMMON LATEST filters",
+                            $"Ticker {model.TradeObjectName} DOES NOT suitable for COMMON LATEST filters",
                             cancellationToken: cancellationToken)
                         .Wait(5 * 1000, cancellationToken);
                     models.Remove(model);

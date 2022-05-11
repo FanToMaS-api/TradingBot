@@ -1,6 +1,7 @@
 ﻿using Analytic.Filters;
 using Analytic.Models;
 using System.Collections.Generic;
+using System.Linq;
 using Xunit;
 
 namespace AnalyticTests
@@ -14,31 +15,31 @@ namespace AnalyticTests
 
         public static readonly IEnumerable<object[]> InfoModelsMemberData = new List<object[]>
         {
-            new object[] 
+            new object[]
             {
                 CreateModelWithNeededDeviation(60), CreatePriceDeviationFilter(ComparisonType.GreaterThan, 10, 60), 18.299999999999997, true
             },
-            new object[] 
+            new object[]
             {
                 CreateModelWithNeededDeviation(60), CreatePriceDeviationFilter(ComparisonType.GreaterThan, 20, 60), 18.299999999999997, false
             },
-            new object[] 
+            new object[]
             {
                 CreateModelWithNeededDeviation(5), CreatePriceDeviationFilter(ComparisonType.LessThan, 10, 6), 0.15000000000000002, true
             },
-            new object[] 
+            new object[]
             {
-                CreateModelWithNeededDeviation(10), CreatePriceDeviationFilter(ComparisonType.LessThan, 0.2, 6), 0.44999999999999996, false
+                CreateModelWithNeededDeviation(10), CreatePriceDeviationFilter(ComparisonType.LessThan, 0.2, 6), 0.21000000000000002, false
             },
-            new object[] 
+            new object[]
             {
-                CreateModelWithNeededDeviation(10), CreatePriceDeviationFilter(ComparisonType.Equal, 0.44999999999999996, 6), 0.44999999999999996, true
+                CreateModelWithNeededDeviation(10), CreatePriceDeviationFilter(ComparisonType.Equal, 0.21000000000000002, 6), 0.21000000000000002, true
             },
-            new object[] 
+            new object[]
             {
-                CreateModelWithNeededDeviation(10), CreatePriceDeviationFilter(ComparisonType.Equal, 0.44999999999999996, 7), 0.49, false
+                CreateModelWithNeededDeviation(10), CreatePriceDeviationFilter(ComparisonType.Equal, 0.44999999999999996, 7), 0.28, false
             },
-            new object[] 
+            new object[]
             {
                 CreateModelWithNeededDeviation(5), CreatePriceDeviationFilter(ComparisonType.Equal, 0.44999999999999996, 7), 0.15000000000000002, false
             },
@@ -68,10 +69,13 @@ namespace AnalyticTests
         private static InfoModel CreateModelWithNeededDeviation(int deviationsNumber)
         {
             var infoModel = new InfoModel("_", 0);
+            var deviations = new List<double>();
             for (var i = 0; i < deviationsNumber; i++)
             {
-                infoModel.PricePercentDeviations.Add((i + 1) / (double)100);
+                deviations.Add((i + 1) / (double)100);
             }
+
+            infoModel.PricePercentDeviations = deviations.AsQueryable();
 
             return infoModel;
         }

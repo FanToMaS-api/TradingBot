@@ -60,7 +60,7 @@ namespace Analytic.Models
         /// <summary>
         ///     Отклонения цены за последние таймфреймы в процентах
         /// </summary>
-        public List<double> PricePercentDeviations { get; internal set; } = new();
+        public IQueryable<double> PricePercentDeviations { get; internal set; }
 
         #region Public methods
 
@@ -73,7 +73,7 @@ namespace Analytic.Models
         /// </remarks>
         public void ComputeDeviationsSum(int timeframeNumber)
         {
-            var deviationsSum = PricePercentDeviations.TakeLast(timeframeNumber).Sum();
+            var deviationsSum = PricePercentDeviations.Take(timeframeNumber).Sum();
             DeviationsSum = deviationsSum;
         }
 
