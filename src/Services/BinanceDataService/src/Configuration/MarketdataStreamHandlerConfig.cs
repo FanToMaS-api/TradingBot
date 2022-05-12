@@ -10,7 +10,7 @@ namespace BinanceDataService.Configuration
         /// <summary>
         ///     Название блока настроек
         /// </summary>
-        public string Name => "MarketdataStreamHandler";
+        public static string Name => "MarketdataStreamHandler";
 
         /// <summary>
         ///     Определяет период сохранения данных, полученных от веб-сокета

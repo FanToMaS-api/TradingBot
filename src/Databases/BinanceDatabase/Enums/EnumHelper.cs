@@ -20,18 +20,5 @@ namespace BinanceDatabase.Enums
                 AggregateDataIntervalType.OneHour => TimeSpan.FromHours(1),
                 _ => throw new NotImplementedException($"Unknow interval type {intervalType}")
             };
-
-        /// <summary>
-        ///     Сравнивает временной интервал с указанным
-        /// </summary>
-        /// <param name="thisOne"></param>
-        /// <param name="anotherOne"></param>
-        /// <returns> 
-        ///     <see langword="true" /> если вызывающий интервал больше
-        /// </returns>
-        public static bool IsGreaterThan(this AggregateDataIntervalType thisOne, AggregateDataIntervalType anotherOne)
-        {
-            return thisOne.ConvertToTimeSpan() > anotherOne.ConvertToTimeSpan();
-        }
     }
 }
