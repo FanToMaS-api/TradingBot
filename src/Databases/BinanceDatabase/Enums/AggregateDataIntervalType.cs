@@ -3,6 +3,9 @@
     /// <summary>
     ///     Тип интервала агрегированных данных
     /// </summary>
+    /// <remarks>
+    ///     Важно соблюдать сортировку по росту интервалов 1s -> 1m -> 5m -> 1h -> ... 
+    /// </remarks>
     public enum AggregateDataIntervalType
     {
         /// <summary>
@@ -13,21 +16,21 @@
         /// <summary>
         ///     Одна минута
         /// </summary>
-        OneMinute,
+        OneMinute = 1,
 
         /// <summary>
         ///     Пять минут
         /// </summary>
-        FiveMinutes,
+        FiveMinutes = 2,
 
         /// <summary>
         ///     Пятнадцать минут
         /// </summary>
-        FifteenMinutes,
+        FifteenMinutes = 3,
 
         /// <summary>
         ///     1 час
         /// </summary>
-        OneHour
+        OneHour = 4
     }
 }

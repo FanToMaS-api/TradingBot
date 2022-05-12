@@ -1,4 +1,7 @@
 ﻿using Analytic.Models;
+using Microsoft.Extensions.DependencyInjection;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Analytic.Filters
 {
@@ -20,6 +23,7 @@ namespace Analytic.Filters
         /// <summary>
         ///     Проверяет модель на соответствие условию
         /// </summary>
-        bool CheckConditions(InfoModel model);
+        /// <param name="serviceScopeFactory"> Фабрика для получения сервисов </param>
+        Task<bool> CheckConditionsAsync(IServiceScopeFactory serviceScopeFactory, InfoModel model, CancellationToken cancellationToken);
     }
 }

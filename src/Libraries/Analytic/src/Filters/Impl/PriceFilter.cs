@@ -1,5 +1,8 @@
 ﻿using Analytic.Models;
+using Microsoft.Extensions.DependencyInjection;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Analytic.Filters
 {
@@ -48,7 +51,8 @@ namespace Analytic.Filters
         #region Public methods
 
         /// <inheritdoc />
-        public bool CheckConditions(InfoModel model) =>
+#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
+        public async Task<bool> CheckConditionsAsync(IServiceScopeFactory _, InfoModel model, CancellationToken cancellationToken) =>
             ComparisonType switch
             {
                 ComparisonType.GreaterThan => model.LastPrice > Limit,
@@ -56,6 +60,7 @@ namespace Analytic.Filters
                 ComparisonType.Equal => model.LastPrice == Limit,
                 _ => false
             };
+#pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
 
         #endregion
     }

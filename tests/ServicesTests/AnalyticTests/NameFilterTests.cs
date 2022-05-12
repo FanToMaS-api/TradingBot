@@ -1,5 +1,7 @@
 ﻿using Analytic.Filters;
 using Analytic.Models;
+using System.Threading;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace AnalyticTests
@@ -23,16 +25,16 @@ namespace AnalyticTests
         ///     Тест выборки только тех пар, в которых участвуют нужные тикеры
         /// </summary>
         [Fact(DisplayName = "Filter pairs by pair name Test")]
-        public void FilterPairsByPairName_Test()
+        public async Task FilterPairsByPairName_Test()
         {
             var filter = new NameFilter(
                 "NameFilter",
                 _tickers);
 
-            Assert.True(filter.CheckConditions(_infoModel_BTCUSDT));
-            Assert.True(filter.CheckConditions(_infoModel_ETHBUSD));
-            Assert.False(filter.CheckConditions(_infoModel_GALABNB));
-            Assert.False(filter.CheckConditions(_infoModel_INJBNB));
+            Assert.True(await filter.CheckConditionsAsync(null, _infoModel_BTCUSDT, CancellationToken.None));
+            Assert.True(await filter.CheckConditionsAsync(null, _infoModel_ETHBUSD, CancellationToken.None));
+            Assert.False(await filter.CheckConditionsAsync(null, _infoModel_GALABNB, CancellationToken.None));
+            Assert.False(await filter.CheckConditionsAsync(null, _infoModel_INJBNB, CancellationToken.None));
         }
     }
 }

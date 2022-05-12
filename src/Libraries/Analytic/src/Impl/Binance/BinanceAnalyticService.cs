@@ -129,7 +129,7 @@ namespace Analytic.Binance
                 foreach (var filterManager in FilterManagers)
                 {
                     extendedFilteredModels.AddRange(await filterManager.GetFilteredDataAsync(
-                        _exchange,
+                        _serviceScopeFactory,
                         models,
                         _cancellationTokenSource.Token));
                 }

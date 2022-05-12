@@ -56,27 +56,5 @@ namespace Analytic.Models
         ///     Суммарное отклонение за какое-то кол-во таймфреймов
         /// </summary>
         public double DeviationsSum { get; internal set; }
-
-        /// <summary>
-        ///     Отклонения цены за последние таймфреймы в процентах
-        /// </summary>
-        public List<double> PricePercentDeviations { get; internal set; } = new();
-
-        #region Public methods
-
-        /// <summary>
-        ///     Вычисляет суммарное отклонение цен за указанное кол-во таймфреймов
-        /// </summary>
-        /// <param name="timeframeNumber"> Кол-во таймфреймов </param>
-        /// <remarks>
-        ///     Вызывается в <see cref="PriceDeviationFilter"/>
-        /// </remarks>
-        public void ComputeDeviationsSum(int timeframeNumber)
-        {
-            var deviationsSum = PricePercentDeviations.TakeLast(timeframeNumber).Sum();
-            DeviationsSum = deviationsSum;
-        }
-
-        #endregion
     }
 }

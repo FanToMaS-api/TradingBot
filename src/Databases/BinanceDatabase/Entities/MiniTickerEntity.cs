@@ -49,6 +49,12 @@ namespace BinanceDatabase.Entities
         public double OpenPrice { get; set; }
 
         /// <summary>
+        ///     Разница между ценой закрытия и открытия
+        /// </summary>
+        [Column("price_deviation")]
+        public double PriceDeviationPercent { get; set; }
+
+        /// <summary>
         ///     Минимальная цена
         /// </summary>
         [Column("min_price")]
@@ -87,6 +93,7 @@ namespace BinanceDatabase.Entities
             builder.HasIndex(_ => _.OpenPrice).HasDatabaseName("IX_mini_tickers_open_price");
             builder.HasIndex(_ => _.MinPrice).HasDatabaseName("IX_mini_tickers_min_price");
             builder.HasIndex(_ => _.MaxPrice).HasDatabaseName("IX_mini_tickers_max_price");
+            builder.HasIndex(_ => _.PriceDeviationPercent).HasDatabaseName("IX_mini_tickers_price_deviation");
         }
 
         /// <inheritdoc />

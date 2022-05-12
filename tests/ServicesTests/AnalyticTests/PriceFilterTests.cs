@@ -1,5 +1,7 @@
 ﻿using Analytic.Filters;
 using Analytic.Models;
+using System.Threading;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace AnalyticTests
@@ -20,45 +22,45 @@ namespace AnalyticTests
         ///     Тест фильтрации: последняя цена больше указанного значения
         /// </summary>
         [Fact(DisplayName = "Last price greater than limit Test")]
-        public void LastPriceGreaterThanLimit_Test()
+        public async Task LastPriceGreaterThanLimit_Test()
         {
             var filter = new PriceFilter(
                 "LastPriceGreaterThan",
                 ComparisonType.GreaterThan,
                 10);
 
-            Assert.True(filter.CheckConditions(_infoModel_15));
-            Assert.False(filter.CheckConditions(_infoModel_10));
+            Assert.True(await filter.CheckConditionsAsync(null, _infoModel_15, CancellationToken.None));
+            Assert.False(await filter.CheckConditionsAsync(null, _infoModel_10, CancellationToken.None));
         }
 
         /// <summary>
         ///     Тест фильтрации: последняя цена меньше указанного значения
         /// </summary>
         [Fact(DisplayName = "Last price greater than limit Test")]
-        public void LastPriceLessThanLimit_Test()
+        public async Task LastPriceLessThanLimit_Test()
         {
             var filter = new PriceFilter(
                 "LastPriceLessThan",
                 ComparisonType.LessThan,
                 11);
 
-            Assert.False(filter.CheckConditions(_infoModel_15));
-            Assert.True(filter.CheckConditions(_infoModel_10));
+            Assert.False(await filter.CheckConditionsAsync(null, _infoModel_15, CancellationToken.None));
+            Assert.True(await filter.CheckConditionsAsync(null, _infoModel_10, CancellationToken.None));
         }
 
         /// <summary>
         ///     Тест фильтрации: последняя цена равна указанному значению
         /// </summary>
         [Fact(DisplayName = "Last price equal limit Test")]
-        public void LastPriceEqualLimit_Test()
+        public async Task LastPriceEqualLimit_Test()
         {
             var filter = new PriceFilter(
                 "LastPriceEqual",
                 ComparisonType.Equal,
                 10);
 
-            Assert.False(filter.CheckConditions(_infoModel_15));
-            Assert.True(filter.CheckConditions(_infoModel_10));
+            Assert.False(await filter.CheckConditionsAsync(null, _infoModel_15, CancellationToken.None));
+            Assert.True(await filter.CheckConditionsAsync(null, _infoModel_10, CancellationToken.None));
         }
     }
 }
