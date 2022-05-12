@@ -19,9 +19,9 @@ namespace Analytic
         List<IProfileGroup> ProfileGroups { get; }
 
         /// <summary>
-        ///     Менеджер фильтров
+        ///     Менеджеры фильтров
         /// </summary>
-        FilterManagerBase FilterManager { get; }
+        List<FilterManagerBase> FilterManagers { get; }
 
         /// <summary>
         ///     Событие, возникающее после фильтрации полученных данных 
@@ -36,12 +36,22 @@ namespace Analytic
         /// <summary>
         ///     Запускает сервис аналитики
         /// </summary>
-        Task RunAsync(FilterManagerBase filterManager, CancellationToken cancellationToken);
+        Task RunAsync(CancellationToken cancellationToken);
 
         /// <summary>
         ///     Останавливает сервис аналитики
         /// </summary>
         Task StopAsync(CancellationToken cancellationToken);
+
+        /// <summary>
+        ///     Добавить менеджер управления фильтрами
+        /// </summary>
+        void AddFilterManager(FilterManagerBase filterManager);
+
+        /// <summary>
+        ///     Удалить все менеджеры фильтров
+        /// </summary>
+        void ClearFilterManagers();
 
         /// <summary>
         ///     Добавить группу профилей аналитики

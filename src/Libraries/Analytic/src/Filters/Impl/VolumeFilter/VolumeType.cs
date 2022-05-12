@@ -6,11 +6,6 @@
     public enum VolumeType
     {
         /// <summary>
-        ///    Нет фильтрации по типу
-        /// </summary>
-        Default,
-
-        /// <summary>
         ///     Спрос
         /// </summary>
         Bid,

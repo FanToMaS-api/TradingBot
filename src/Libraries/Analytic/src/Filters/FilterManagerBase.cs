@@ -1,5 +1,7 @@
 ﻿using Analytic.Models;
+using BinanceDatabase;
 using ExchangeLibrary;
+using Microsoft.Extensions.DependencyInjection;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -7,7 +9,7 @@ using System.Threading.Tasks;
 namespace Analytic.Filters
 {
     /// <summary>
-    ///     Базовый класс менеджера фильтров
+    ///     Класс, управляющий фильтрацией
     /// </summary>
     public abstract class FilterManagerBase
     {
@@ -20,7 +22,7 @@ namespace Analytic.Filters
         ///     Возвращает отфильтрованные данные
         /// </summary>
         public abstract Task<IEnumerable<InfoModel>> GetFilteredDataAsync<T>(
-            IExchange exchange,
+            IServiceScopeFactory serviceScopeFactory,
             IEnumerable<T> modelsToFilter,
             CancellationToken cancellationToken);
 

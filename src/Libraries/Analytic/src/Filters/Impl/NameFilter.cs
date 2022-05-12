@@ -1,6 +1,9 @@
 ﻿using Analytic.Models;
+using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Analytic.Filters
 {
@@ -32,7 +35,9 @@ namespace Analytic.Filters
         public FilterType Type => FilterType.NameFilter;
 
         /// <inheritdoc />
-        public bool CheckConditions(InfoModel model) =>
+#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
+        public async Task<bool> CheckConditionsAsync(IServiceScopeFactory _, InfoModel model, CancellationToken __) =>
             TradeObjectNamesToAnalyze.Any(_ => model.TradeObjectName.Contains(_, StringComparison.InvariantCultureIgnoreCase));
+#pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
     }
 }

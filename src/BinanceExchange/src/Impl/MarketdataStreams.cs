@@ -237,6 +237,7 @@ namespace BinanceExchange.Impl
         private Task OnCloseHandler(BinanceWebSocket webSocket, CancellationToken cancellationToken = default)
         {
             _logger.Error($"WebSocket: {webSocket} was closed");
+            webSocket.OnClosed -= OnCloseHandler;
             webSocket.OnClosed = null;
             webSocket.OnStreamClosed = null;
             webSocket.Dispose();

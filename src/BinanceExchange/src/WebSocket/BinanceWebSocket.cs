@@ -49,6 +49,9 @@ namespace BinanceExchange.WebSocket
         /// <inheritdoc />
         public Action OnStreamClosed { get; set; }
 
+        /// <inheritdoc />
+        public WebSocketState SocketState => _webSocketHumble.State;
+
         #endregion
 
         #region Public methods

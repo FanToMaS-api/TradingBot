@@ -1,5 +1,10 @@
 ﻿using Analytic.Models;
+using ExchangeLibrary;
+using Microsoft.Extensions.DependencyInjection;
 using System;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Analytic.Filters
 {
@@ -17,19 +22,22 @@ namespace Analytic.Filters
         /// <param name="volumeType"> Тип объемов для фильтрации </param>
         /// <param name="volumeComparisonType"> Тип фильтра </param>
         /// <param name="percentDeviation"> Отклонение для объемов при дефолтной фильтрации </param>
-        /// <param name="limit"> Порог при недефолтной фильтрации </param>
+        /// <param name="orderNumber"> 
+        ///     Необходимое кол-во ордеров <br />
+        ///     Возможные значения: 5, 10, 20, 50, 100, 500, 1000, 5000
+        /// </param>
         public VolumeFilter(
             string filterName,
-            VolumeType volumeType = VolumeType.Default,
-            VolumeComparisonType volumeComparisonType = VolumeComparisonType.Default,
+            VolumeType volumeType = VolumeType.Bid,
+            VolumeComparisonType volumeComparisonType = VolumeComparisonType.GreaterThan,
             double percentDeviation = 0.05,
-            double? limit = null)
+            int orderNumber = 1000)
         {
             FilterName = filterName;
-            Limit = limit;
             VolumeType = volumeType;
             VolumeComparisonType = volumeComparisonType;
             PercentDeviation = percentDeviation;
+            OrderNumber = orderNumber;
         }
 
         #endregion
@@ -50,14 +58,17 @@ namespace Analytic.Filters
         public VolumeType VolumeType { get; }
 
         /// <summary>
-        ///     Ограничение
-        /// </summary>
-        public double? Limit { get; }
-
-        /// <summary>
         ///     Базовое отклонение объема спроса от объема предложения
         /// </summary>
         public double PercentDeviation { get; }
+
+        /// <summary>
+        ///     Кол-во ордеров, получаемых из книги ордеров при запрсое к бинансу
+        /// </summary>
+        /// <remarks>
+        ///     Возможные значения: 5, 10, 20, 50, 100, 500, 1000, 5000
+        /// </remarks>
+        public int OrderNumber { get; }
 
         /// <inheritdoc />
         public FilterType Type => FilterType.VolumeFilter;
@@ -67,16 +78,26 @@ namespace Analytic.Filters
         #region Public methods
 
         /// <inheritdoc />
-        public bool CheckConditions(InfoModel model) =>
-            VolumeComparisonType != VolumeComparisonType.Default && !Limit.HasValue && VolumeType == VolumeType.Default
-            ? throw new Exception("A non-default filter type is selected but no filtering limit is specified")
-            : VolumeComparisonType switch
-                {
-                    VolumeComparisonType.Default => model.BidVolume > model.AskVolume * (1 + PercentDeviation),
-                    VolumeComparisonType.GreaterThan => IsSatisfiesCondition(model, _ => _ > Limit),
-                    VolumeComparisonType.LessThan => IsSatisfiesCondition(model, _ => _ < Limit),
-                    _ => throw new NotImplementedException(),
-                };
+        /// <remarks>
+        ///     Данный метод также получает с бинанса значение <see cref="InfoModel.BidVolume"/> и <see cref="InfoModel.AskVolume"/>
+        /// </remarks>
+        public async Task<bool> CheckConditionsAsync(IServiceScopeFactory serviceScopeFactory, InfoModel model, CancellationToken cancellationToken)
+        {
+            using var scope = serviceScopeFactory.CreateAsyncScope();
+            var exchange = scope.ServiceProvider.GetService<IExchange>()
+                ?? throw new InvalidOperationException($"{nameof(IExchange)} not registered!");
+            var extendedModel = await exchange.Marketdata.GetOrderBookAsync(model.TradeObjectName, OrderNumber, cancellationToken);
+            model.BidVolume = extendedModel.Bids.Sum(_ => _.Quantity);
+            model.AskVolume = extendedModel.Asks.Sum(_ => _.Quantity);
+
+            return VolumeComparisonType switch
+            {
+                VolumeComparisonType.GreaterThan => IsSatisfiesCondition(model, (x, y) => x > y * (1 + PercentDeviation)),
+                VolumeComparisonType.LessThan => IsSatisfiesCondition(model, (x, y) => x <= y * (1 + PercentDeviation)),
+                _ => throw new NotImplementedException(),
+            };
+        }
+            
 
         #endregion
 
@@ -86,12 +107,11 @@ namespace Analytic.Filters
         ///     Проверка условия в соответствии с типом фильтруемых объемов
         /// </summary>
         /// <param name="filterFunc"> Функция для фильтрации </param>
-        private bool IsSatisfiesCondition(InfoModel model, Func<double, bool> filterFunc) =>
+        private bool IsSatisfiesCondition(InfoModel model, Func<double, double, bool> filterFunc) =>
             VolumeType switch
             {
-                VolumeType.Default => false,
-                VolumeType.Bid => filterFunc(model.BidVolume),
-                VolumeType.Ask => filterFunc(model.AskVolume),
+                VolumeType.Bid => filterFunc(model.BidVolume, model.AskVolume),
+                VolumeType.Ask => filterFunc(model.AskVolume, model.BidVolume),
                 _ => throw new NotImplementedException(),
             };
 

@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using Analytic.Filters;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Analytic.Models
 {
@@ -51,13 +53,8 @@ namespace Analytic.Models
         public double LastDeviation { get; internal set; }
 
         /// <summary>
-        ///     Суммарное отклонение за 5 таймфреймов
+        ///     Суммарное отклонение за какое-то кол-во таймфреймов
         /// </summary>
-        public double SumDeviations { get; internal set; }
-
-        /// <summary>
-        ///     Отклонения цены за последние таймфреймы в процентах
-        /// </summary>
-        public List<double> PricePercentDeviations { get; internal set; } = new();
+        public double DeviationsSum { get; internal set; }
     }
 }

@@ -1,5 +1,8 @@
 ﻿using Analytic.Models;
+using Microsoft.Extensions.DependencyInjection;
 using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Analytic.Filters
 {
@@ -26,7 +29,7 @@ namespace Analytic.Filters
         /// <summary>
         ///     Проверяет модель на соответствие условиям
         /// </summary>
-        bool CheckConditions(InfoModel model);
+        Task<bool> CheckConditionsAsync(IServiceScopeFactory serviceScopeFactory, InfoModel model, CancellationToken cancellationToken);
 
         /// <summary>
         ///     Добавить фильтр

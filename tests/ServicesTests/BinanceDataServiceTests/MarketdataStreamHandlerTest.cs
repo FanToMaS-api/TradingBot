@@ -3,6 +3,7 @@ using BinanceDatabase;
 using BinanceDatabase.Entities;
 using BinanceDatabase.Enums;
 using BinanceDatabase.Repositories;
+using BinanceDataService.DataAggregators;
 using BinanceDataService.DataHandlers;
 using Common.Models;
 using Common.WebSocket;
@@ -72,18 +73,18 @@ namespace BinanceDataServiceTests
         [Fact(DisplayName = "Aggregate fields Test")]
         public void AggregateFields_Test()
         {
-            var addedObject = CreateMiniTickerEntity(1, 1, 1, 1, 1, 1, StartDate, AggregateDataIntervalType.Default);
-            var aggregateObject = CreateMiniTickerEntity(1, 1, 1, 1, 1, 1, StartDate, AggregateDataIntervalType.Default);
+            var addedObject = CreateMiniTickerEntity(1, 5, 1, 0.2, 1, 1, StartDate, AggregateDataIntervalType.Default);
+            var aggregateObject = CreateMiniTickerEntity(1, 4, 1, 0.1, 1, 1, StartDate, AggregateDataIntervalType.Default);
 
-            MarketdataStreamHandler.AggregateFields(addedObject, aggregateObject);
+            DataAggregator.AggregateFields(addedObject, aggregateObject);
 
             Assert.Equal(1, addedObject.OpenPrice);
             Assert.Equal(1, addedObject.BasePurchaseVolume);
 
             Assert.Equal(2, aggregateObject.OpenPrice);
-            Assert.Equal(2, aggregateObject.MaxPrice);
+            Assert.Equal(5, aggregateObject.MaxPrice);
             Assert.Equal(2, aggregateObject.ClosePrice);
-            Assert.Equal(2, aggregateObject.MinPrice);
+            Assert.Equal(0.1, aggregateObject.MinPrice);
             Assert.Equal(2, aggregateObject.QuotePurchaseVolume);
             Assert.Equal(2, aggregateObject.BasePurchaseVolume);
         }
@@ -96,12 +97,12 @@ namespace BinanceDataServiceTests
         {
             var aggregateObject = CreateMiniTickerEntity(2.5, 2.5, 2.5, 2.5, 2.5, 2.5, StartDate, AggregateDataIntervalType.Default);
 
-            MarketdataStreamHandler.AveragingFields(aggregateObject, 2);
+            DataAggregator.AveragingFields(aggregateObject, 2);
 
             Assert.Equal(1.25, aggregateObject.OpenPrice);
-            Assert.Equal(1.25, aggregateObject.MaxPrice);
+            Assert.Equal(2.5, aggregateObject.MaxPrice);
             Assert.Equal(1.25, aggregateObject.ClosePrice);
-            Assert.Equal(1.25, aggregateObject.MinPrice);
+            Assert.Equal(2.5, aggregateObject.MinPrice);
             Assert.Equal(1.25, aggregateObject.QuotePurchaseVolume);
             Assert.Equal(1.25, aggregateObject.BasePurchaseVolume);
         }
@@ -153,8 +154,8 @@ namespace BinanceDataServiceTests
 
         private static readonly List<MiniTickerEntity> _expectedModelsForOneMinute = new()
         {
-            CreateMiniTickerEntity(6.7, 6.7, 6.7, 6.7, 6.7, 6.7, StartDate, AggregateDataIntervalType.OneMinute),
-            CreateMiniTickerEntity(11.5, 11.5, 11.5, 11.5, 11.5, 11.5, StartDate.AddSeconds(70), AggregateDataIntervalType.OneMinute),
+            CreateMiniTickerEntity(6.7, 10, 6.7, 2.5, 6.7, 6.7, StartDate, AggregateDataIntervalType.OneMinute),
+            CreateMiniTickerEntity(11.5, 12, 11.5, 11, 11.5, 11.5, StartDate.AddSeconds(70), AggregateDataIntervalType.OneMinute),
             CreateMiniTickerEntity(13, 13, 13, 13, 13, 13, StartDate.AddMinutes(3), AggregateDataIntervalType.OneMinute),
             CreateMiniTickerEntity(14, 14, 14, 14, 14, 14, StartDate.AddHours(1), AggregateDataIntervalType.OneMinute),
             CreateMiniTickerEntity(15, 15, 15, 15, 15, 15, StartDate.AddHours(2), AggregateDataIntervalType.OneMinute)
@@ -162,7 +163,7 @@ namespace BinanceDataServiceTests
 
         private static readonly List<MiniTickerEntity> _expectedModelsForOneHour = new()
         {
-            CreateMiniTickerEntity(83.5 / 9, 83.5 / 9, 83.5 / 9, 83.5 / 9, 83.5 / 9, 83.5 / 9, StartDate, AggregateDataIntervalType.OneHour),
+            CreateMiniTickerEntity(83.5 / 9, 14, 83.5 / 9, 2.5, 83.5 / 9, 83.5 / 9, StartDate, AggregateDataIntervalType.OneHour),
             CreateMiniTickerEntity(15, 15, 15, 15, 15, 15, StartDate.AddHours(2), AggregateDataIntervalType.OneHour)
         };
 
@@ -185,8 +186,7 @@ namespace BinanceDataServiceTests
             IEnumerable<MiniTickerEntity> entities,
             MiniTickerEntity[] expectedResult)
         {
-            var interval = intervalType.ConvertToTimeSpan();
-            var actual = MarketdataStreamHandler.GetAveragingTicker(entities, intervalType, interval);
+            var actual = DataAggregator.GetAveragingTicker(entities, intervalType);
             Assert.Equal(expectedResult.Length, actual.Count);
             for (var i = 0; i < expectedResult.Length; i++)
             {

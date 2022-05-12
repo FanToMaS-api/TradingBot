@@ -1,4 +1,6 @@
-﻿namespace BinanceDataService.Configuration
+﻿using BinanceDataService.Configuration.AggregatorConfigs;
+
+namespace BinanceDataService.Configuration
 {
     /// <summary>
     ///     Конфигурация обработчика данных со стримов маркетдаты для тикеров
@@ -8,7 +10,7 @@
         /// <summary>
         ///     Название блока настроек
         /// </summary>
-        public string Name => "MarketdataStreamHandler";
+        public static string Name => "MarketdataStreamHandler";
 
         /// <summary>
         ///     Определяет период сохранения данных, полученных от веб-сокета
@@ -16,18 +18,28 @@
         public string SaveDataCron { get; set; }
 
         /// <summary>
-        ///     Определяет период агрегирования данных, сохраненных в бд
+        ///     Настройки агрегации данных по одной минуте
         /// </summary>
-        public string AggregateDataCron { get; set; }
+        public OneMinuteAggregatorConfig OneMinuteAggregator { get; set; }
+
+        /// <summary>
+        ///     Настройки агрегации данных по пять минут
+        /// </summary>
+        public FiveMinutesAggregatorConfig FiveMinutesAggregator { get; set; }
+
+        /// <summary>
+        ///     Настройки агрегации данных по пятнадцать минут
+        /// </summary>
+        public FifteenMinutesAggregatorConfig FifteenMinutesAggregator { get; set; }
+
+        /// <summary>
+        ///     Настройки агрегации данных по одному часу
+        /// </summary>
+        public OneHourAggregatorConfig OneHourAggregator { get; set; }
 
         /// <summary>
         ///     Определяет период удаления данных, сохраненных в бд
         /// </summary>
         public string DeleteDataCron { get; set; }
-
-        /// <summary>
-        ///     Определяет будет ли производится сохранение и агрегированние холоддных данных
-        /// </summary>
-        public bool IsNeedToSaveColdData { get; set; }
     }
 }

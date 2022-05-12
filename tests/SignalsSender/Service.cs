@@ -4,14 +4,9 @@ using Analytic.AnalyticUnits.Profiles.SSA;
 using Analytic.Filters;
 using Analytic.Filters.Impl.FilterManagers;
 using Analytic.Models;
-using AutoMapper;
-using BinanceDataService;
-using DataServiceLibrary;
-using ExchangeLibrary;
+using BinanceDatabase.Enums;
 using Logger;
 using Microsoft.Extensions.DependencyInjection;
-using NLog;
-using Scheduler;
 using SignalsSender.Configuration;
 using System;
 using System.Collections.Generic;
@@ -70,37 +65,70 @@ namespace SignalsSender
 
             using var scope = _scopeFactory.CreateScope();
 
-            var filterManager = new DefaultFilterManager(_logger);
+            var growingPairFilterManager = new DefaultFilterManager(_logger);
+            var fallingTickersFilterManager = new DefaultFilterManager(_logger);
+
             var paramountFilterGroup = new FilterGroup("ParamountFilterGroup", FilterGroupType.Primary, null);
             var nameFilter = new NameFilter("NameFilter", _baseTickers);
             paramountFilterGroup.AddFilter(nameFilter);
-            filterManager.AddFilterGroup(paramountFilterGroup);
+            growingPairFilterManager.AddFilterGroup(paramountFilterGroup);
+            fallingTickersFilterManager.AddFilterGroup(paramountFilterGroup);
 
             var specialFilterGroupUSDT = new FilterGroup("USDT_SpecialFilterGroup", FilterGroupType.Special, "USDT");
-            var priceDeviationFilter = new PriceDeviationFilter("AnyFilter", ComparisonType.GreaterThan, 2.55);
+            var specialFilterGroupUSDTWithoutPriceDeviation = new FilterGroup(
+                "USDT_SpecialFilterGroupWithoutPriceDeviation", 
+                FilterGroupType.Special,
+                "USDT");
+
+            var priceDeviationFilter = new PriceDeviationFilter("AnyFilter", AggregateDataIntervalType.OneMinute, ComparisonType.GreaterThan, 2.55);
             var usdtPriceFilter = new PriceFilter("USDTFilter", ComparisonType.LessThan, 20);
             specialFilterGroupUSDT.AddFilter(priceDeviationFilter);
             specialFilterGroupUSDT.AddFilter(usdtPriceFilter);
-            filterManager.AddFilterGroup(specialFilterGroupUSDT);
+            growingPairFilterManager.AddFilterGroup(specialFilterGroupUSDT);
+
+            specialFilterGroupUSDTWithoutPriceDeviation.AddFilter(usdtPriceFilter);
+            fallingTickersFilterManager.AddFilterGroup(specialFilterGroupUSDTWithoutPriceDeviation);
 
             var specialFilterGroupBTC = new FilterGroup("BTC_SpecialFilterGroup", FilterGroupType.Special, "BTC");
-            var btcDeviationFilter = new PriceDeviationFilter("BTCFilter", ComparisonType.GreaterThan, 5.7);
+            var btcDeviationFilter = new PriceDeviationFilter("BTCFilter", AggregateDataIntervalType.OneMinute, ComparisonType.GreaterThan, 5.7);
             specialFilterGroupBTC.AddFilter(btcDeviationFilter);
-            filterManager.AddFilterGroup(specialFilterGroupBTC);
+            growingPairFilterManager.AddFilterGroup(specialFilterGroupBTC);
 
             var specialFilterGroupETH = new FilterGroup("ETH_SpecialFilterGroup", FilterGroupType.Special, "ETH");
-            var ethDeviationFilter = new PriceDeviationFilter("ETHFilter", ComparisonType.GreaterThan, 4.5);
+            var ethDeviationFilter = new PriceDeviationFilter("ETHFilter", AggregateDataIntervalType.OneMinute, ComparisonType.GreaterThan, 4.5);
             specialFilterGroupETH.AddFilter(ethDeviationFilter);
-            filterManager.AddFilterGroup(specialFilterGroupETH);
+            growingPairFilterManager.AddFilterGroup(specialFilterGroupETH);
 
             var commonFilterGroup = new FilterGroup("CommonFilterGroup", FilterGroupType.Common, null);
             commonFilterGroup.AddFilter(priceDeviationFilter);
-            filterManager.AddFilterGroup(commonFilterGroup);
+            growingPairFilterManager.AddFilterGroup(commonFilterGroup);
+
+            var commonFilterGroupForFallingPairs = new FilterGroup("CommonFilterGroupForFallingPairs", FilterGroupType.Common, null);
+            var fallingPriceDeviationFilter = new PriceDeviationFilter(
+                "FallingPriceDeviationFilter", AggregateDataIntervalType.FiveMinutes, ComparisonType.LessThan, -7.8, 20);
+            commonFilterGroupForFallingPairs.AddFilter(fallingPriceDeviationFilter);
+            fallingTickersFilterManager.AddFilterGroup(commonFilterGroupForFallingPairs);
 
             var commonLatestFilterGroup = new FilterGroup("CommonLatestFilterGroup", FilterGroupType.CommonLatest, null);
-            var volumeFilter = new VolumeFilter("VolumeBidFilter", percentDeviation: 0.05);
+            var volumeFilter = new VolumeFilter(
+                "VolumeBidFilter",
+                VolumeType.Bid,
+                VolumeComparisonType.GreaterThan,
+                percentDeviation: 0.05);
             commonLatestFilterGroup.AddFilter(volumeFilter);
-            filterManager.AddFilterGroup(commonLatestFilterGroup);
+            growingPairFilterManager.AddFilterGroup(commonLatestFilterGroup);
+
+            var commonLatestFilterGroupForFallingPairs = new FilterGroup(
+                "CommonLatestFilterGroupForFallingPairs", 
+                FilterGroupType.CommonLatest,
+                null);
+            var volumeFilterForFallingPairs = new VolumeFilter(
+                "VolumeBidFilterForFallingPairs", 
+                VolumeType.Ask,
+                VolumeComparisonType.GreaterThan,
+                percentDeviation: 0.35);
+            commonLatestFilterGroupForFallingPairs.AddFilter(volumeFilterForFallingPairs);
+            fallingTickersFilterManager.AddFilterGroup(commonLatestFilterGroupForFallingPairs);
 
             _analyticService.OnModelsFiltered += OnModelsFilteredReceived;
             _analyticService.OnSuccessfulAnalize += OnModelsToBuyReceived;
@@ -109,7 +137,9 @@ namespace SignalsSender
             var profileGroup = new ProfileGroup(_logger, "DefaultGroupProfile");
             profileGroup.AddAnalyticUnit(ssaProfile);
             _analyticService.AddProfileGroup(profileGroup);
-            await _analyticService.RunAsync(filterManager, cancellationToken);
+            _analyticService.AddFilterManager(growingPairFilterManager);
+            _analyticService.AddFilterManager(fallingTickersFilterManager);
+            await _analyticService.RunAsync(cancellationToken);
         }
 
         /// <summary>
@@ -135,7 +165,7 @@ namespace SignalsSender
                     var pairSymbols = model.TradeObjectName.Insert(model.TradeObjectName.Length - symbol.Length, "/");
                     var pairName = pairSymbols.Replace("/", "_");
                     var message = $"*{pairSymbols}*\nНовая разница: *{model.LastDeviation:0.00000}%*" +
-                        $"\nРазница за последние 5 таймфреймов: *{model.SumDeviations:0.0000000}%*" +
+                        $"\nРазница за последние несколько таймфреймов: *{model.DeviationsSum:0.0000000}%*" +
                         $"\nПоследняя цена: *{model.LastPrice}*" +
                         $"\nОбъем спроса: *{model.BidVolume:0,0.0}*" +
                         $"\nОбъем предложения: *{model.AskVolume:0,0.0}*";

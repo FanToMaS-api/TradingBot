@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Net.WebSockets;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -13,6 +14,11 @@ namespace Common.WebSocket
         ///     Событие, возникающее при закрытии веб-сокета
         /// </summary>
         public Action OnStreamClosed { get; set; }
+
+        /// <summary>
+        ///     Состояние веб-сокета
+        /// </summary>
+        public WebSocketState SocketState { get; }
 
         /// <summary>
         ///     Подключиться к сокету сервера

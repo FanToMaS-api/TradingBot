@@ -45,7 +45,8 @@ namespace TelegramServiceDatabase
                 Log.InfoAsync("Applying telegram database migrations...");
 
                 using var scope = serviceProvider.CreateScope();
-                var db = scope.ServiceProvider.GetService<TelegramDbContext>();
+                var db = scope.ServiceProvider.GetService<TelegramDbContext>()
+                    ?? throw new InvalidOperationException($"{nameof(TelegramDbContext)} not registered!");
 
                 db.Database.Migrate();
 
