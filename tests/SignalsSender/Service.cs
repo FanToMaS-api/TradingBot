@@ -4,14 +4,9 @@ using Analytic.AnalyticUnits.Profiles.SSA;
 using Analytic.Filters;
 using Analytic.Filters.Impl.FilterManagers;
 using Analytic.Models;
-using AutoMapper;
-using BinanceDataService;
-using DataServiceLibrary;
-using ExchangeLibrary;
+using BinanceDatabase.Enums;
 using Logger;
 using Microsoft.Extensions.DependencyInjection;
-using NLog;
-using Scheduler;
 using SignalsSender.Configuration;
 using System;
 using System.Collections.Generic;
@@ -85,7 +80,7 @@ namespace SignalsSender
                 FilterGroupType.Special,
                 "USDT");
 
-            var priceDeviationFilter = new PriceDeviationFilter("AnyFilter", ComparisonType.GreaterThan, 2.55);
+            var priceDeviationFilter = new PriceDeviationFilter("AnyFilter", AggregateDataIntervalType.OneMinute, ComparisonType.GreaterThan, 2.55);
             var usdtPriceFilter = new PriceFilter("USDTFilter", ComparisonType.LessThan, 20);
             specialFilterGroupUSDT.AddFilter(priceDeviationFilter);
             specialFilterGroupUSDT.AddFilter(usdtPriceFilter);
@@ -95,12 +90,12 @@ namespace SignalsSender
             fallingTickersFilterManager.AddFilterGroup(specialFilterGroupUSDTWithoutPriceDeviation);
 
             var specialFilterGroupBTC = new FilterGroup("BTC_SpecialFilterGroup", FilterGroupType.Special, "BTC");
-            var btcDeviationFilter = new PriceDeviationFilter("BTCFilter", ComparisonType.GreaterThan, 5.7);
+            var btcDeviationFilter = new PriceDeviationFilter("BTCFilter", AggregateDataIntervalType.OneMinute, ComparisonType.GreaterThan, 5.7);
             specialFilterGroupBTC.AddFilter(btcDeviationFilter);
             growingPairFilterManager.AddFilterGroup(specialFilterGroupBTC);
 
             var specialFilterGroupETH = new FilterGroup("ETH_SpecialFilterGroup", FilterGroupType.Special, "ETH");
-            var ethDeviationFilter = new PriceDeviationFilter("ETHFilter", ComparisonType.GreaterThan, 4.5);
+            var ethDeviationFilter = new PriceDeviationFilter("ETHFilter", AggregateDataIntervalType.OneMinute, ComparisonType.GreaterThan, 4.5);
             specialFilterGroupETH.AddFilter(ethDeviationFilter);
             growingPairFilterManager.AddFilterGroup(specialFilterGroupETH);
 
@@ -109,7 +104,8 @@ namespace SignalsSender
             growingPairFilterManager.AddFilterGroup(commonFilterGroup);
 
             var commonFilterGroupForFallingPairs = new FilterGroup("CommonFilterGroupForFallingPairs", FilterGroupType.Common, null);
-            var fallingPriceDeviationFilter = new PriceDeviationFilter("FallingPriceDeviationFilter", ComparisonType.LessThan, 5, 60);
+            var fallingPriceDeviationFilter = new PriceDeviationFilter(
+                "FallingPriceDeviationFilter", AggregateDataIntervalType.FiveMinutes, ComparisonType.LessThan, -7.8, 20);
             commonFilterGroupForFallingPairs.AddFilter(fallingPriceDeviationFilter);
             fallingTickersFilterManager.AddFilterGroup(commonFilterGroupForFallingPairs);
 
@@ -169,7 +165,7 @@ namespace SignalsSender
                     var pairSymbols = model.TradeObjectName.Insert(model.TradeObjectName.Length - symbol.Length, "/");
                     var pairName = pairSymbols.Replace("/", "_");
                     var message = $"*{pairSymbols}*\nНовая разница: *{model.LastDeviation:0.00000}%*" +
-                        $"\nРазница за последние 5 таймфреймов: *{model.DeviationsSum:0.0000000}%*" +
+                        $"\nРазница за последние несколько таймфреймов: *{model.DeviationsSum:0.0000000}%*" +
                         $"\nПоследняя цена: *{model.LastPrice}*" +
                         $"\nОбъем спроса: *{model.BidVolume:0,0.0}*" +
                         $"\nОбъем предложения: *{model.AskVolume:0,0.0}*";

@@ -1,7 +1,11 @@
 ﻿using Analytic.Models;
+using Common.Helpers;
+using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Analytic.Filters
 {
@@ -59,14 +63,15 @@ namespace Analytic.Filters
         public void AddFilter(IFilter filter) => Filters.Add(filter);
 
         /// <inheritdoc />
-        public bool CheckConditions(InfoModel model) => Filters.TrueForAll(_ => _.CheckConditions(model));
+        public async Task<bool> CheckConditionsAsync(IServiceScopeFactory serviceScopeFactory, InfoModel model, CancellationToken cancellationToken)
+            => await Filters.TrueForAllAsync(async _ => await _.CheckConditionsAsync(serviceScopeFactory, model, cancellationToken));
 
         /// <inheritdoc />
         public bool ContainsFilter(string filterName) => Filters.Any(_ => _.FilterName == filterName);
 
         /// <inheritdoc />
         public bool IsFilter(string tradeObjectName) =>
-            !string.IsNullOrEmpty(TargetTradeObjectName) 
+            !string.IsNullOrEmpty(TargetTradeObjectName)
             && tradeObjectName.Contains(TargetTradeObjectName, StringComparison.InvariantCultureIgnoreCase);
 
         /// <inheritdoc />

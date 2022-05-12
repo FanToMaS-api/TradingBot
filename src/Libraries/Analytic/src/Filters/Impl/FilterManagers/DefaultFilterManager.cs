@@ -1,7 +1,6 @@
 ﻿using Analytic.Models;
-using BinanceDatabase;
+using Common.Helpers;
 using Common.Models;
-using ExchangeLibrary;
 using Logger;
 using Microsoft.Extensions.DependencyInjection;
 using System.Collections.Generic;
@@ -16,7 +15,6 @@ namespace Analytic.Filters.Impl.FilterManagers
     {
         #region Fields
 
-        private const int PricePercentDeviationsNumberToAnalyze = 60;
         private readonly ILoggerDecorator _logger;
 
         #endregion
@@ -39,11 +37,8 @@ namespace Analytic.Filters.Impl.FilterManagers
             IEnumerable<T> modelsToFilter,
             CancellationToken cancellationToken)
         {
-            using var scope = serviceScopeFactory.CreateScope();
-            var exchange = scope.ServiceProvider.GetRequiredService<IExchange>();
-            var databaseFactory = scope.ServiceProvider.GetRequiredService<IBinanceDbContextFactory>();
-            var filteredModels = GetFilteredData(databaseFactory, modelsToFilter as IEnumerable<TradeObjectNamePriceModel>);
-            return await GetExtendedFilteredModelsAsync(exchange, filteredModels.Take(2).ToList(), cancellationToken);
+            var filteredModels = await GetFilteredDataAsync(serviceScopeFactory, modelsToFilter as IEnumerable<TradeObjectNamePriceModel>, cancellationToken);
+            return await GetExtendedFilteredModelsAsync(serviceScopeFactory, filteredModels, cancellationToken);
         }
 
         #endregion
@@ -53,39 +48,39 @@ namespace Analytic.Filters.Impl.FilterManagers
         /// <summary>
         ///     Первоначальная фильтрация данных
         /// </summary>
-        private List<InfoModel> GetFilteredData(IBinanceDbContextFactory databaseFactory, IEnumerable<TradeObjectNamePriceModel> models)
+        private async Task<List<InfoModel>> GetFilteredDataAsync(
+            IServiceScopeFactory serviceScopeFactory,
+            IEnumerable<TradeObjectNamePriceModel> models,
+            CancellationToken cancellationToken)
         {
             var result = new List<InfoModel>();
             var paramountFilters = FilterGroups.Where(_ => _.Type == FilterGroupType.Primary).ToArray();
             var commonFilters = FilterGroups.Where(_ => _.Type == FilterGroupType.Common).ToArray();
             foreach (var model in models)
             {
-                if (!paramountFilters.All(_ => _.CheckConditions(new(model.Name, model.Price))))
+                if (!await paramountFilters.TrueForAllAsync(async _ => await _.CheckConditionsAsync(serviceScopeFactory, new(model.Name, model.Price), cancellationToken)))
                 {
                     continue;
                 }
 
-                var infoModel = new InfoModel(model.Name, model.Price)
-                {
-                    PricePercentDeviations = GetPriceDeviationsFromDatabase(databaseFactory, model.Name)
-                };
+                var infoModel = new InfoModel(model.Name, model.Price);
 
                 // если у модели есть спец группа фильтров, то по общим ее фильтровать не надо
                 var specialPriceFilters = GetSpecialFiltersForModel(model);
                 if (specialPriceFilters.Any())
                 {
-                    if (specialPriceFilters.All(_ => _.CheckConditions(infoModel)))
+                    if (await specialPriceFilters.TrueForAllAsync(async _ => await _.CheckConditionsAsync(serviceScopeFactory, infoModel, cancellationToken)))
                     {
-                        _logger.TraceAsync($"Ticker {model.Name} suitable for SPECIAL filters").Wait(5 * 1000);
+                        await _logger.TraceAsync($"Ticker {model.Name} suitable for SPECIAL filters", cancellationToken: cancellationToken);
                         result.Add(infoModel);
                     }
 
                     continue;
                 }
 
-                if (commonFilters.All(_ => _.CheckConditions(infoModel)))
+                if (await commonFilters.TrueForAllAsync(async _ => await _.CheckConditionsAsync(serviceScopeFactory, infoModel, cancellationToken)))
                 {
-                    _logger.TraceAsync($"Ticker {model.Name} suitable for COMMON filters").Wait(5 * 1000);
+                    await _logger.TraceAsync($"Ticker {model.Name} suitable for COMMON filters", cancellationToken: cancellationToken);
                     result.Add(infoModel);
                 }
             }
@@ -94,31 +89,16 @@ namespace Analytic.Filters.Impl.FilterManagers
         }
 
         /// <summary>
-        ///     Получить отклонения цены из базы данных
-        /// </summary>
-        private static IQueryable<double> GetPriceDeviationsFromDatabase(IBinanceDbContextFactory databaseFactory, string pair)
-        {
-            using var database = databaseFactory.CreateScopeDatabase();
-
-            return database.ColdUnitOfWork.MiniTickers
-                .CreateQuery()
-                .Where(_ => _.ShortName == pair && _.AggregateDataInterval == BinanceDatabase.Enums.AggregateDataIntervalType.OneMinute)
-                .OrderByDescending(_ => _.EventTime)
-                .Select(_ => _.PriceDeviationPercent)
-                .Take(PricePercentDeviationsNumberToAnalyze);
-        }
-
-        /// <summary>
         ///     Возвращает группы фильтров для конкретной модели
         /// </summary>
-        private IFilterGroup[] GetSpecialFiltersForModel(TradeObjectNamePriceModel model) =>
-            FilterGroups.Where(_ => _.Type == FilterGroupType.Special && _.IsFilter(model.Name)).ToArray();
+        private List<IFilterGroup> GetSpecialFiltersForModel(TradeObjectNamePriceModel model) =>
+            FilterGroups.Where(_ => _.Type == FilterGroupType.Special && _.IsFilter(model.Name)).ToList();
 
         /// <summary>
         ///     Получение дополнительных данных и их фильтрация
         /// </summary>
         private async Task<List<InfoModel>> GetExtendedFilteredModelsAsync(
-            IExchange exchange,
+            IServiceScopeFactory serviceScopeFactory,
             List<InfoModel> models,
             CancellationToken cancellationToken)
         {
@@ -132,20 +112,15 @@ namespace Analytic.Filters.Impl.FilterManagers
                     continue;
                 }
 
-                var extendedModel = await exchange.Marketdata.GetOrderBookAsync(model.TradeObjectName, 1000, cancellationToken);
-                model.BidVolume = extendedModel.Bids.Sum(_ => _.Quantity);
-                model.AskVolume = extendedModel.Asks.Sum(_ => _.Quantity);
-
                 // если у модели есть спец группа фильтров, то по общим ее фильтровать не надо
                 if (specialFilters.Any())
                 {
-                    if (!specialFilters.All(_ => _.CheckConditions(model)))
+                    if (!await specialFilters.TrueForAllAsync(async _ => await _.CheckConditionsAsync(serviceScopeFactory, model, cancellationToken)))
                     {
-                        _logger
+                        await _logger
                             .TraceAsync(
                                 $"Ticker {model.TradeObjectName} DOES NOT suitable for SPECIAL LATEST filters",
-                                cancellationToken: cancellationToken)
-                            .Wait(5 * 1000, cancellationToken);
+                                cancellationToken: cancellationToken);
                         models.Remove(model);
                         i--;
                     }
@@ -153,13 +128,12 @@ namespace Analytic.Filters.Impl.FilterManagers
                     continue;
                 }
 
-                if (!commonLatestFilters.All(_ => _.CheckConditions(model)))
+                if (!await commonLatestFilters.TrueForAllAsync(async _ => await _.CheckConditionsAsync(serviceScopeFactory, model, cancellationToken)))
                 {
-                    _logger
+                    await _logger
                         .TraceAsync(
                             $"Ticker {model.TradeObjectName} DOES NOT suitable for COMMON LATEST filters",
-                            cancellationToken: cancellationToken)
-                        .Wait(5 * 1000, cancellationToken);
+                            cancellationToken: cancellationToken);
                     models.Remove(model);
                     i--;
                 }
@@ -171,8 +145,8 @@ namespace Analytic.Filters.Impl.FilterManagers
         /// <summary>
         ///     Возвращает группы для последней фильтрации для конкретной модели
         /// </summary>
-        private IFilterGroup[] GetSpecialLatestFiltersForModel(InfoModel model) =>
-            FilterGroups.Where(_ => _.Type == FilterGroupType.SpecialLatest && _.IsFilter(model.TradeObjectName)).ToArray();
+        private List<IFilterGroup> GetSpecialLatestFiltersForModel(InfoModel model) =>
+            FilterGroups.Where(_ => _.Type == FilterGroupType.SpecialLatest && _.IsFilter(model.TradeObjectName)).ToList();
 
         #endregion
     }

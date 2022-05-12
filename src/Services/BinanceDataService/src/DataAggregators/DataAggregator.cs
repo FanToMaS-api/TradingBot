@@ -75,7 +75,8 @@ namespace BinanceDataService.DataAggregators
             {
                 var watch = new Stopwatch();
                 watch.Start();
-                var databaseFactory = serviceProvider.GetService<IBinanceDbContextFactory>();
+                var databaseFactory = serviceProvider.GetService<IBinanceDbContextFactory>()
+                    ?? throw new InvalidOperationException($"{nameof(IBinanceDbContextFactory)} not registered!");
                 using var database = databaseFactory.CreateScopeDatabase();
                 var aggregateCount = 0;
                 var now = DateTime.Now;

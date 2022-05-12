@@ -88,7 +88,9 @@ namespace BinanceDataService.DataHandlers
             _cancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
             _webSocket = _exchange.MarketdataStreams.SubscribeAllMarketMiniTickersStream(HandleDataAsync, cancellationToken, WebSocketCloseHandler);
 
+#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
             Task.Run(async () => await StartWebSocket(_cancellationTokenSource.Token), cancellationToken);
+#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
 
             _triggerKey = await _scheduler.ScheduleAsync(_configuration.SaveDataCron, SaveDataAsync);
             _dataDelitionTriggerKey = await _scheduler.ScheduleAsync(_configuration.DeleteDataCron, DeleteDataAsync);
@@ -181,7 +183,8 @@ namespace BinanceDataService.DataHandlers
         /// </summary>
         private async Task SaveDataAsync(IServiceProvider serviceProvider, IEnumerable<MiniTradeObjectStreamModel> streamModels)
         {
-            var databaseFactory = serviceProvider.GetService<IBinanceDbContextFactory>();
+            var databaseFactory = serviceProvider.GetService<IBinanceDbContextFactory>()
+                ?? throw new InvalidOperationException($"{nameof(IBinanceDbContextFactory)} not registered!");
             using var database = databaseFactory.CreateScopeDatabase();
             var hotData = _mapper.Map<IEnumerable<HotMiniTickerEntity>>(streamModels);
             await database.HotUnitOfWork.HotMiniTickers.AddRangeAsync(hotData, _cancellationTokenSource.Token);

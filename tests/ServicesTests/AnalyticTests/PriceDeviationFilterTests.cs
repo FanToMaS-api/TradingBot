@@ -1,7 +1,15 @@
 ﻿using Analytic.Filters;
 using Analytic.Models;
+using BinanceDatabase;
+using BinanceDatabase.Enums;
+using BinanceDatabase.Repositories;
+using BinanceDatabase.Repositories.ColdRepositories;
+using Microsoft.Extensions.DependencyInjection;
+using NSubstitute;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace AnalyticTests
@@ -17,31 +25,45 @@ namespace AnalyticTests
         {
             new object[]
             {
-                CreateModelWithNeededDeviation(60), CreatePriceDeviationFilter(ComparisonType.GreaterThan, 10, 60), 18.299999999999997, true
+                CreatePriceDeviationFilter(ComparisonType.GreaterThan, AggregateDataIntervalType.Default, 10, 60),
+                18.299999999999997,
+                true
             },
             new object[]
             {
-                CreateModelWithNeededDeviation(60), CreatePriceDeviationFilter(ComparisonType.GreaterThan, 20, 60), 18.299999999999997, false
+                CreatePriceDeviationFilter(ComparisonType.GreaterThan, AggregateDataIntervalType.Default, 20, 60),
+                18.299999999999997,
+                false
             },
             new object[]
             {
-                CreateModelWithNeededDeviation(5), CreatePriceDeviationFilter(ComparisonType.LessThan, 10, 6), 0.15000000000000002, true
+                CreatePriceDeviationFilter(ComparisonType.LessThan, AggregateDataIntervalType.Default, 10, 6),
+                0.15000000000000002,
+                true
             },
             new object[]
             {
-                CreateModelWithNeededDeviation(10), CreatePriceDeviationFilter(ComparisonType.LessThan, 0.2, 6), 0.21000000000000002, false
+                CreatePriceDeviationFilter(ComparisonType.LessThan, AggregateDataIntervalType.Default, 0.2, 6),
+                0.21000000000000002,
+                false
             },
             new object[]
             {
-                CreateModelWithNeededDeviation(10), CreatePriceDeviationFilter(ComparisonType.Equal, 0.21000000000000002, 6), 0.21000000000000002, true
+                CreatePriceDeviationFilter(ComparisonType.Equal, AggregateDataIntervalType.Default, 0.21000000000000002, 6),
+                0.21000000000000002,
+                true
             },
             new object[]
             {
-                CreateModelWithNeededDeviation(10), CreatePriceDeviationFilter(ComparisonType.Equal, 0.44999999999999996, 7), 0.28, false
+                CreatePriceDeviationFilter(ComparisonType.Equal, AggregateDataIntervalType.Default, 0.44999999999999996, 7),
+                0.28,
+                false
             },
             new object[]
             {
-                CreateModelWithNeededDeviation(5), CreatePriceDeviationFilter(ComparisonType.Equal, 0.44999999999999996, 7), 0.15000000000000002, false
+                CreatePriceDeviationFilter(ComparisonType.Equal, AggregateDataIntervalType.Default, 0.44999999999999996, 7),
+                0.15000000000000002,
+                false
             },
         };
 
@@ -52,33 +74,20 @@ namespace AnalyticTests
         /// </summary>
         [Theory(DisplayName = "Filter by price deviation Test")]
         [MemberData(nameof(InfoModelsMemberData))]
-        public void FilterByPriceDeviation_Test(InfoModel infoModel, PriceDeviationFilter filter, double expectedSum, bool expectedFilterResult)
+        public async Task FilterByPriceDeviation_Test(
+            PriceDeviationFilter filter,
+            double expectedSum,
+            bool expectedFilterResult)
         {
-            var actualFilterResult = filter.CheckConditions(infoModel);
+            var serviceScopeFactory = GetServiceScopeFactoryMock(expectedSum);
+            var model = new InfoModel("Any");
+            var actualFilterResult =  await filter.CheckConditionsAsync(serviceScopeFactory, model, CancellationToken.None);
 
             Assert.Equal(expectedFilterResult, actualFilterResult);
-            Assert.Equal(expectedSum, infoModel.DeviationsSum);
+            Assert.Equal(expectedSum, model.DeviationsSum);
         }
 
         #region Private methods
-
-        /// <summary>
-        ///     Создает модель с требуемым кол-вом отклонений цены и суммарным отклонением цены
-        /// </summary>
-        /// <param name="deviationsNumber"> Нужное кол-во отклонений цены в модели </param>
-        private static InfoModel CreateModelWithNeededDeviation(int deviationsNumber)
-        {
-            var infoModel = new InfoModel("_", 0);
-            var deviations = new List<double>();
-            for (var i = 0; i < deviationsNumber; i++)
-            {
-                deviations.Add((i + 1) / (double)100);
-            }
-
-            infoModel.PricePercentDeviations = deviations.AsQueryable();
-
-            return infoModel;
-        }
 
         /// <summary>
         ///     Создает модель фильтра с заданными параметрами
@@ -88,13 +97,44 @@ namespace AnalyticTests
         /// <param name="timeframeNumber"> Кол-во таймфреймов участвующих в анализе </param>
         private static PriceDeviationFilter CreatePriceDeviationFilter(
             ComparisonType comparisonType,
+            AggregateDataIntervalType interval,
             double limit,
             int timeframeNumber)
             => new(
                 "PriceDeviationFilter",
+                interval,
                 comparisonType,
                 limit: limit,
                 timeframeNumber: timeframeNumber);
+
+        /// <summary>
+        ///     Создает мок <see cref="IServiceScopeFactory"/>
+        /// </summary>
+        /// <param name="neededPriceDeviation"> Требуемое отклонение цены </param>
+        private static IServiceScopeFactory GetServiceScopeFactoryMock(double neededPriceDeviation)
+        {
+            var miniTickerRepositoryMock = Substitute.For<IMiniTickerRepository>();
+            var coldUnitOfWorkMock = Substitute.For<IColdUnitOfWork>();
+            var databaseMock = Substitute.For<IUnitOfWork>();
+            var databaseFactoryMock = Substitute.For<IBinanceDbContextFactory>();
+            var scopeMock = Substitute.For<IServiceScope>();
+            var scopeFactoryMock = Substitute.For<IServiceScopeFactory>();
+
+            miniTickerRepositoryMock.GetPricePercentDeviationSumAsync(
+                default,
+                default,
+                default,
+                default)
+                .ReturnsForAnyArgs(Task.FromResult(neededPriceDeviation));
+            coldUnitOfWorkMock.MiniTickers.ReturnsForAnyArgs(miniTickerRepositoryMock);
+            databaseMock.ColdUnitOfWork.Returns(coldUnitOfWorkMock);
+
+            databaseFactoryMock.CreateScopeDatabase().Returns(databaseMock);
+            scopeMock.ServiceProvider.GetService<IBinanceDbContextFactory>().Returns(databaseFactoryMock);
+            scopeFactoryMock.CreateScope().Returns(scopeMock);
+
+            return scopeFactoryMock;
+        }
 
         #endregion
     }

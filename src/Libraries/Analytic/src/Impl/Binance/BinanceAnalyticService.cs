@@ -1,7 +1,6 @@
 ﻿using Analytic.AnalyticUnits;
 using Analytic.Filters;
 using Analytic.Models;
-using BinanceDatabase;
 using ExchangeLibrary;
 using Logger;
 using Microsoft.Extensions.DependencyInjection;

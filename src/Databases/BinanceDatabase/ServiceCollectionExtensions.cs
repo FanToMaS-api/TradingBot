@@ -51,7 +51,8 @@ namespace BinanceDatabase
                 Log.InfoAsync("Applying binance database migrations...");
 
                 using var scope = serviceProvider.CreateScope();
-                var db = scope.ServiceProvider.GetService<AppDbContext>();
+                var db = scope.ServiceProvider.GetService<AppDbContext>()
+                    ?? throw new InvalidOperationException($"{nameof(AppDbContext)} not registered!");
 
                 db.Database.Migrate();
 
