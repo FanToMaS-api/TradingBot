@@ -13,10 +13,10 @@ namespace Common.Plotter
     {
         #region Fields
 
+        private const int _numberOfMinutesOfImageStorage = 0; // кол-во минут хранения изображения, по истечении которых будет создано новое (опция отключена  = 0)
+        internal static string GraficsFolder = "Grafics"; // папка для хранения графиков
         private readonly ILoggerDecorator _logger;
         private readonly string _baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
-        internal static string GraficsFolder = "Grafics"; // папка для хранения графиков
-        private const int _numberOfMinutesOfImageStorage = 0; // кол-во минут хранения изображения, по истечении которых будет создано новое (опция отключена  = 0)
 
         #endregion
 
@@ -123,6 +123,21 @@ namespace Common.Plotter
         #region Private methods
 
         /// <summary>
+        ///     Возвращает массив дат в OA формате для подписей осей предсказанных данных
+        /// </summary>
+        private static double[] CreatePredictionsDates(DateTime from, int predictionDataLength, int offset)
+        {
+            var timesForPredictions = new double[predictionDataLength];
+            for (var i = 0; i < predictionDataLength; i++)
+            {
+                from = from.AddSeconds(offset);
+                timesForPredictions[i] = from.ToOADate();
+            }
+
+            return timesForPredictions;
+        }
+        
+        /// <summary>
         ///     Проверяет валидность данных перед построением
         /// </summary>
         private bool IsValid()
@@ -195,21 +210,6 @@ namespace Common.Plotter
             }
 
             return directoryPath;
-        }
-
-        /// <summary>
-        ///     Возвращает массив дат в OA формате для подписей осей предсказанных данных
-        /// </summary>
-        private static double[] CreatePredictionsDates(DateTime from, int predictionDataLength, int offset)
-        {
-            var timesForPredictions = new double[predictionDataLength];
-            for (var i = 0; i < predictionDataLength; i++)
-            {
-                from = from.AddSeconds(offset);
-                timesForPredictions[i] = from.ToOADate();
-            }
-
-            return timesForPredictions;
         }
 
         #endregion

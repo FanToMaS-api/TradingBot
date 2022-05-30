@@ -30,7 +30,10 @@ namespace BinanceExchange.Impl
         #region .ctor
 
         /// <inheritdoc cref="Marketdata"/>
-        public Marketdata(IMarketdataSender marketdataSender, IRedisDatabase redisDatabase, IMapper mapper)
+        public Marketdata(
+            IMarketdataSender marketdataSender,
+            IRedisDatabase redisDatabase,
+            IMapper mapper)
         {
             _marketdataSender = marketdataSender;
             _redisDatabase = redisDatabase;
@@ -58,7 +61,10 @@ namespace BinanceExchange.Impl
         }
 
         /// <inheritdoc />
-        public async Task<Common.Models.OrderBookModel> GetOrderBookAsync(string symbol, int limit = 100, CancellationToken cancellationToken = default)
+        public async Task<Common.Models.OrderBookModel> GetOrderBookAsync(
+            string symbol,
+            int limit = 100,
+            CancellationToken cancellationToken = default)
         {
             var requestWeight = _weightStorage.OrderBookWeight;
             if (RedisHelper.CheckLimit(_redisDatabase, requestWeight.Type, out var rateLimit))
@@ -78,7 +84,10 @@ namespace BinanceExchange.Impl
         }
 
         /// <inheritdoc />
-        public async Task<IEnumerable<Common.Models.TradeModel>> GetRecentTradesAsync(string symbol, int limit = 500, CancellationToken cancellationToken = default)
+        public async Task<IEnumerable<Common.Models.TradeModel>> GetRecentTradesAsync(
+            string symbol,
+            int limit = 500,
+            CancellationToken cancellationToken = default)
         {
             var requestWeight = _weightStorage.RecentTradesWeight;
             if (RedisHelper.CheckLimit(_redisDatabase, requestWeight.Type, out var rateLimit))

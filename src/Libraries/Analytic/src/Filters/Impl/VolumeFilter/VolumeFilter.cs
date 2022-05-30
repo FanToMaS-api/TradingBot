@@ -81,7 +81,10 @@ namespace Analytic.Filters
         /// <remarks>
         ///     Данный метод также получает с бинанса значение <see cref="InfoModel.BidVolume"/> и <see cref="InfoModel.AskVolume"/>
         /// </remarks>
-        public async Task<bool> CheckConditionsAsync(IServiceScopeFactory serviceScopeFactory, InfoModel model, CancellationToken cancellationToken)
+        public async Task<bool> CheckConditionsAsync(
+            IServiceScopeFactory serviceScopeFactory,
+            InfoModel model,
+            CancellationToken cancellationToken)
         {
             using var scope = serviceScopeFactory.CreateAsyncScope();
             var exchange = scope.ServiceProvider.GetService<IExchange>()
@@ -97,7 +100,6 @@ namespace Analytic.Filters
                 _ => throw new NotImplementedException(),
             };
         }
-            
 
         #endregion
 

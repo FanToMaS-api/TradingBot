@@ -32,6 +32,8 @@ namespace Analytic.AnalyticUnits
 
         #endregion
 
+        #region Implementation of IProfileGroup
+
         #region Properties
 
         /// <inheritdoc />
@@ -67,6 +69,7 @@ namespace Analytic.AnalyticUnits
                         continue;
                     }
 
+                    // если мы тут, значит анализ прошел впервые успешно
                     if (!isOneSuccessful)
                     {
                         analyticResultModel = resultModel;
@@ -99,7 +102,6 @@ namespace Analytic.AnalyticUnits
         }
 
         /// <inheritdoc />
-
         public void AddAnalyticUnit(IAnalyticProfile unit) => AnalyticUnits.Add(unit);
 
         /// <inheritdoc />
@@ -119,6 +121,8 @@ namespace Analytic.AnalyticUnits
         /// <inheritdoc />
         public void ChangeProfileActivity(bool isActive) => IsActive = isActive;
 
+        #endregion
+        
         #endregion
     }
 }

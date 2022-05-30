@@ -21,7 +21,7 @@ namespace ExchangeLibrary
         /// <remarks> 
         ///     Возможные значения стримов для Binance:
         ///     <br/>
-        ///     @aggTrade - торговая информация для одного ордера тейкера (Модель <see cref="AggregateTradeStreamModel"/>)
+        ///     aggTrade - торговая информация для одного ордера тейкера (Модель <see cref="AggregateTradeStreamModel"/>)
         ///     <br/>
         ///     @bookTicker - лучшая цена, количество для указанного объекта торговли (Модель <see cref="BookTickerStreamModel"/>)
         ///     <br/>

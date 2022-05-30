@@ -13,12 +13,12 @@ namespace Analytic.Filters
         /// <summary>
         ///     Название фильтра
         /// </summary>
-        public string FilterName { get; }
+        string FilterName { get; }
 
         /// <summary>
         ///     Тип фильтра
         /// </summary>
-        public FilterType Type { get; }
+        FilterType Type { get; }
 
         /// <summary>
         ///     Проверяет модель на соответствие условию

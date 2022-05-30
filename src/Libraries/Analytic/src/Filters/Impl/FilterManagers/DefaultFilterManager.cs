@@ -146,7 +146,9 @@ namespace Analytic.Filters.Impl.FilterManagers
         ///     Возвращает группы для последней фильтрации для конкретной модели
         /// </summary>
         private List<IFilterGroup> GetSpecialLatestFiltersForModel(InfoModel model) =>
-            FilterGroups.Where(_ => _.Type == FilterGroupType.SpecialLatest && _.IsFilter(model.TradeObjectName)).ToList();
+            FilterGroups
+            .Where(_ => _.Type == FilterGroupType.SpecialLatest && _.IsFilter(model.TradeObjectName))
+            .ToList();
 
         #endregion
     }

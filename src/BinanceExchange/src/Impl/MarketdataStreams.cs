@@ -21,7 +21,7 @@ namespace BinanceExchange.Impl
     {
         #region Fields
 
-        private readonly ILogger _logger = LogManager.GetCurrentClassLogger();
+        private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
         private readonly IMapper _mapper;
         private readonly JsonDeserializerWrapper _converter = GetConverter();
 
@@ -101,7 +101,7 @@ namespace BinanceExchange.Impl
                    }
                    catch (Exception ex)
                    {
-                       _logger.Warn(ex, $"Failed to recieve {nameof(Common.Models.TradeObjectStreamModel)}");
+                       Logger.Warn(ex, $"Failed to recieve {nameof(Common.Models.TradeObjectStreamModel)}");
                    }
                },
                cancellationToken);
@@ -133,7 +133,7 @@ namespace BinanceExchange.Impl
                    }
                    catch (Exception ex)
                    {
-                       _logger.Warn(ex, $"Failed to recieve {nameof(Common.Models.TradeObjectStreamModel)}");
+                       Logger.Warn(ex, $"Failed to recieve {nameof(Common.Models.TradeObjectStreamModel)}");
                    }
                },
                cancellationToken);
@@ -165,7 +165,7 @@ namespace BinanceExchange.Impl
                    }
                    catch (Exception ex)
                    {
-                       _logger.Warn(ex, $"Failed to recieve {nameof(Models.BookTickerStreamModel)}");
+                       Logger.Warn(ex, $"Failed to recieve {nameof(Models.BookTickerStreamModel)}");
                    }
                },
                cancellationToken);
@@ -236,7 +236,7 @@ namespace BinanceExchange.Impl
         /// </summary>
         private Task OnCloseHandler(BinanceWebSocket webSocket, CancellationToken cancellationToken = default)
         {
-            _logger.Error($"WebSocket: {webSocket} was closed");
+            Logger.Error($"WebSocket: {webSocket} was closed");
             webSocket.OnClosed -= OnCloseHandler;
             webSocket.OnClosed = null;
             webSocket.OnStreamClosed = null;

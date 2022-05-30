@@ -12,6 +12,8 @@ namespace Analytic.Filters
     /// </summary>
     public class NameFilter : IFilter
     {
+        #region .ctor
+        
         /// <summary>
         ///     Фильтр наименования объекта торговли
         /// </summary>
@@ -22,22 +24,34 @@ namespace Analytic.Filters
             FilterName = filterName;
             TradeObjectNamesToAnalyze = tradeObjectNamesToAnalyze;
         }
+        
+        #endregion
+
+        #region Properties
 
         /// <inheritdoc />
         public string FilterName { get; }
+
+        /// <inheritdoc />
+        public FilterType Type => FilterType.NameFilter;
 
         /// <summary>
         ///     Названия торговых объектов участвующих в анализе
         /// </summary>
         public string[] TradeObjectNamesToAnalyze { get; }
 
-        /// <inheritdoc />
-        public FilterType Type => FilterType.NameFilter;
+        #endregion
 
-        /// <inheritdoc />
+        #region Implementation of IFilter
+
 #pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
+        
+        /// <inheritdoc />
         public async Task<bool> CheckConditionsAsync(IServiceScopeFactory _, InfoModel model, CancellationToken __) =>
             TradeObjectNamesToAnalyze.Any(_ => model.TradeObjectName.Contains(_, StringComparison.InvariantCultureIgnoreCase));
+        
 #pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
+        
+        #endregion
     }
 }

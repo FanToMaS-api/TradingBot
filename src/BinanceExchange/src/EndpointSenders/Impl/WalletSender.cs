@@ -16,6 +16,7 @@ namespace BinanceExchange.EndpointSenders.Impl
         #region Fields
 
         private readonly IBinanceClient _client;
+        private readonly JsonDeserializerWrapper _converter = new JsonDeserializerWrapper();
 
         #endregion
 
@@ -39,8 +40,7 @@ namespace BinanceExchange.EndpointSenders.Impl
                  HttpMethod.Get,
                  cancellationToken: cancellationToken);
 
-            var converter = new JsonDeserializerWrapper();
-            return converter.Deserialize<SystemStatusModel>(result);
+            return _converter.Deserialize<SystemStatusModel>(result);
         }
 
         /// <inheritdoc />
@@ -54,8 +54,7 @@ namespace BinanceExchange.EndpointSenders.Impl
                 query: query,
                 cancellationToken: cancellationToken);
 
-            var converter = new JsonDeserializerWrapper();
-            return converter.Deserialize<AccountTradingStatusModel>(result);
+            return _converter.Deserialize<AccountTradingStatusModel>(result);
         }
 
         /// <inheritdoc />
@@ -69,8 +68,7 @@ namespace BinanceExchange.EndpointSenders.Impl
                 query: query,
                 cancellationToken: cancellationToken);
 
-            var converter = new JsonDeserializerWrapper();
-            return converter.Deserialize<IEnumerable<TradeFeeModel>>(result);
+            return _converter.Deserialize<IEnumerable<TradeFeeModel>>(result);
         }
 
         /// <inheritdoc />
@@ -84,8 +82,7 @@ namespace BinanceExchange.EndpointSenders.Impl
                  query: query,
                  cancellationToken: cancellationToken);
 
-            var converter = new JsonDeserializerWrapper();
-            return converter.Deserialize<List<CoinModel>>(result);
+            return _converter.Deserialize<List<CoinModel>>(result);
         }
 
         #endregion

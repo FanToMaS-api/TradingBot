@@ -54,7 +54,7 @@ namespace SignalsSender
 
         #endregion
 
-        #region Public methods
+        #region Implementation of IService
 
         /// <summary>
         ///     Запускает бота
@@ -142,6 +142,21 @@ namespace SignalsSender
             await _analyticService.RunAsync(cancellationToken);
         }
 
+        #endregion
+
+        #region Implementation of IDisposable
+
+        /// <inheritdoc />
+        public void Dispose()
+        {
+            _cancellationTokenSource?.Cancel();
+            _cancellationTokenSource?.Dispose();
+        }
+
+        #endregion
+
+        #region Private methods
+
         /// <summary>
         ///     Обработчик получения отфильтрованных моделей
         /// </summary>
@@ -169,10 +184,12 @@ namespace SignalsSender
                         $"\nПоследняя цена: *{model.LastPrice}*" +
                         $"\nОбъем спроса: *{model.BidVolume:0,0.0}*" +
                         $"\nОбъем предложения: *{model.AskVolume:0,0.0}*";
-                    builder.SetMessageText(message);
+
                     var url = _baseUrl.Replace("<pair>", pairName);
-                    builder.SetInlineButton("Перейти", $"{url}");
-                    var telegramMessage = builder.GetResult();
+                    var telegramMessage = builder
+                        .SetMessageText(message)
+                        .SetInlineButton("Перейти", $"{url}")
+                        .GetResult();
                     tasks.Add(_telegramClient.SendMessageAsync(telegramMessage, CancellationToken.None));
                 }
                 catch (Exception ex)
@@ -247,17 +264,6 @@ namespace SignalsSender
             {
                 _logger.ErrorAsync(ex, "Failed to send message with filtered models to telegram").Wait(7 * 1000);
             }
-        }
-
-        #endregion
-
-        #region Private methods
-
-        /// <inheritdoc />
-        public void Dispose()
-        {
-            _cancellationTokenSource?.Cancel();
-            _cancellationTokenSource?.Dispose();
         }
 
         #endregion

@@ -21,9 +21,9 @@ namespace BinanceExchange.WebSocket
         private readonly IBinanceWebSocketHumble _webSocketHumble;
         private readonly List<Func<string, Task>> _onMessageReceivedFunctions = new();
         private readonly List<CancellationTokenRegistration> _onMessageReceivedCancellationTokenRegistrations = new();
-        private CancellationTokenSource _loopCancellationTokenSource;
         private readonly Uri _uri;
         private readonly int _receiveBufferSize = 8 * 1024 * 512; // 4 Kb
+        private CancellationTokenSource _loopCancellationTokenSource;
         private bool _isDisposed;
 
         #endregion
@@ -39,7 +39,7 @@ namespace BinanceExchange.WebSocket
 
         #endregion
 
-        #region Properties
+        #region Events
 
         /// <summary>
         ///     Событие, возникающее при закрытии веб-сокета
@@ -48,6 +48,10 @@ namespace BinanceExchange.WebSocket
 
         /// <inheritdoc />
         public Action OnStreamClosed { get; set; }
+
+        #endregion
+
+        #region Properties
 
         /// <inheritdoc />
         public WebSocketState SocketState => _webSocketHumble.State;
@@ -119,6 +123,26 @@ namespace BinanceExchange.WebSocket
 
         #endregion
 
+        #region Implementation IDisposable
+
+        /// <inheritdoc />
+        public void Dispose()
+        {
+            if (_isDisposed)
+            {
+                return;
+            }
+
+            DisconnectAsync(CancellationToken.None).Wait();
+            _webSocketHumble?.Dispose();
+            _onMessageReceivedCancellationTokenRegistrations.ForEach(ct => ct.Dispose());
+            _loopCancellationTokenSource?.Dispose();
+
+            _isDisposed = true;
+        }
+
+        #endregion
+
         #region Private methods
 
         /// <summary>
@@ -163,26 +187,6 @@ namespace BinanceExchange.WebSocket
                 await Log.ErrorAsync(ex, $"The recieve loop was cancelled.", cancellationToken: cancellationToken);
                 await DisconnectAsync(CancellationToken.None);
             }
-        }
-
-        #endregion
-
-        #region Implementation IDisposable
-
-        /// <inheritdoc />
-        public void Dispose()
-        {
-            if (_isDisposed)
-            {
-                return;
-            }
-
-            DisconnectAsync(CancellationToken.None).Wait();
-            _webSocketHumble?.Dispose();
-            _onMessageReceivedCancellationTokenRegistrations.ForEach(ct => ct.Dispose());
-            _loopCancellationTokenSource?.Dispose();
-
-            _isDisposed = true;
         }
 
         #endregion

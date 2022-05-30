@@ -45,6 +45,18 @@ namespace Analytic.Binance
 
         #endregion
 
+        #region Implementation of IAnalyticService
+
+        #region Events
+
+        /// <inheritdoc />
+        public EventHandler<InfoModel[]> OnModelsFiltered { get; set; }
+
+        /// <inheritdoc />
+        public EventHandler<AnalyticResultModel[]> OnSuccessfulAnalize { get; set; }
+
+        #endregion
+
         #region Properties
 
         /// <inheritdoc />
@@ -52,12 +64,6 @@ namespace Analytic.Binance
 
         /// <inheritdoc />
         public List<FilterManagerBase> FilterManagers { get; internal set; }
-
-        /// <inheritdoc />
-        public EventHandler<InfoModel[]> OnModelsFiltered { get; set; }
-
-        /// <inheritdoc />
-        public EventHandler<AnalyticResultModel[]> OnSuccessfulAnalize { get; set; }
 
         #endregion
 
@@ -110,6 +116,18 @@ namespace Analytic.Binance
 
         #endregion
 
+        #endregion
+
+        #region Implemetation IDisposable
+
+        /// <inheritdoc />
+        public void Dispose()
+        {
+            _cancellationTokenSource?.Dispose();
+        }
+
+        #endregion
+
         #region Private methods
 
         /// <summary>
@@ -133,7 +151,7 @@ namespace Analytic.Binance
                         models,
                         _cancellationTokenSource.Token));
                 }
-                
+
                 if (!extendedFilteredModels.Any())
                 {
                     return;
@@ -183,16 +201,6 @@ namespace Analytic.Binance
             }
 
             return modelsToBuy;
-        }
-
-        #endregion
-
-        #region Implemetation IDisposable
-
-        /// <inheritdoc />
-        public void Dispose()
-        {
-            _cancellationTokenSource?.Dispose();
         }
 
         #endregion

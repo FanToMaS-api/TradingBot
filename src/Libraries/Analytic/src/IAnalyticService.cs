@@ -13,15 +13,7 @@ namespace Analytic
     /// </summary>
     public interface IAnalyticService : IDisposable
     {
-        /// <summary>
-        ///     Профили аналитики
-        /// </summary>
-        List<IProfileGroup> ProfileGroups { get; }
-
-        /// <summary>
-        ///     Менеджеры фильтров
-        /// </summary>
-        List<FilterManagerBase> FilterManagers { get; }
+        #region Events
 
         /// <summary>
         ///     Событие, возникающее после фильтрации полученных данных 
@@ -32,6 +24,24 @@ namespace Analytic
         ///     Событие, возникающее, если есть торговые объекты для покупки (продажи)
         /// </summary>
         EventHandler<AnalyticResultModel[]> OnSuccessfulAnalize { get; set; }
+
+        #endregion
+
+        #region Properties
+
+        /// <summary>
+        ///     Профили аналитики
+        /// </summary>
+        List<IProfileGroup> ProfileGroups { get; }
+
+        /// <summary>
+        ///     Менеджеры фильтров
+        /// </summary>
+        List<FilterManagerBase> FilterManagers { get; }
+
+        #endregion
+
+        #region Public methods
 
         /// <summary>
         ///     Запускает сервис аналитики
@@ -61,13 +71,15 @@ namespace Analytic
         /// <summary>
         ///     Удалить группу профилей аналитики
         /// </summary>
-        /// <returns> True, если удаление прошло успешно </returns>
+        /// <returns> <see langword="true" /> - если удаление прошло успешно </returns>
         bool RemoveProfileGroup(IProfileGroup profileGroup);
 
         /// <summary>
         ///     Удалить профиль аналитики
         /// </summary>
-        /// <returns> True, если удаление прошло успешно </returns>
+        /// <returns><see langword="true" /> - если удаление прошло успешно </returns>
         bool RemoveProfile(string profileName);
+
+        #endregion
     }
 }

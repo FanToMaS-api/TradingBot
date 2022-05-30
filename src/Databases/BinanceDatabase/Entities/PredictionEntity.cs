@@ -12,6 +12,8 @@ namespace BinanceDatabase.Entities
     [Table("predictions")]
     public class PredictionEntity
     {
+        #region Properties
+
         /// <summary>
         ///     Уникальный идентификатор записи
         /// </summary>
@@ -36,6 +38,8 @@ namespace BinanceDatabase.Entities
         /// </summary>
         [Column("price_values")]
         public double[] PriceValues { get; set; }
+
+        #endregion
 
         #region Setup
 

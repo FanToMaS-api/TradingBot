@@ -29,7 +29,7 @@ namespace BinanceDatabase.Repositories.HotRepositories.Impl
 
         #endregion
 
-        #region Public methods
+        #region Implementation of IHotMiniTickerRepository
 
         /// <inheritdoc />
         public IQueryable<HotMiniTickerEntity> CreateQuery() => _appDbContext.HotMiniTickers.AsQueryable();
@@ -57,7 +57,9 @@ namespace BinanceDatabase.Repositories.HotRepositories.Impl
         /// <inheritdoc />
         public async Task<int> RemoveUntilAsync(DateTime until, CancellationToken cancellationToken)
         {
-            var allCount = await _appDbContext.HotMiniTickers.AsNoTracking().CountAsync(_ => _.ReceivedTime < until, cancellationToken);
+            var allCount = await _appDbContext.HotMiniTickers
+                .AsNoTracking()
+                .CountAsync(_ => _.ReceivedTime < until, cancellationToken);
             var entitiesNumberInOneDeletion = 250; // обусловлено экономией RAM 
             var pagesCount = (int)Math.Ceiling(allCount / (double)entitiesNumberInOneDeletion);
             var removedCount = 0;

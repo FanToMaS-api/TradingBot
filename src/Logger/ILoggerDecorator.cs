@@ -11,10 +11,14 @@ namespace Logger
     /// </summary>
     public interface ILoggerDecorator : IDisposable
     {
+        #region Properties
+
         /// <summary>
         ///     Базовый логгер
         /// </summary>
         ILoggerDecorator BaseLogger { get; }
+
+        #endregion
 
         #region Public methods
 

@@ -98,7 +98,11 @@ namespace BinanceExchange.Client.Impl
         /// <summary>
         ///     Осуществляет отправку запроса
         /// </summary>
-        private async Task<string> SendAsync(string requestUri, HttpMethod httpMethod, object content = null, CancellationToken cancellationToken = default)
+        private async Task<string> SendAsync(
+            string requestUri,
+            HttpMethod httpMethod,
+            object content = null,
+            CancellationToken cancellationToken = default)
         {
             using var request = new HttpRequestMessage(httpMethod, _baseUrl + requestUri);
             if (content is not null)
@@ -145,7 +149,8 @@ namespace BinanceExchange.Client.Impl
 
             throw httpException;
 
-            #endregion
         }
+
+        #endregion
     }
 }

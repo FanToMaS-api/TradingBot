@@ -41,7 +41,9 @@ namespace BinanceExchange.EndpointSenders.Impl
         #region Public methods
 
         /// <inheritdoc />
-        public async Task<FullOrderResponseModel> SendNewTestOrderAsync(Dictionary<string, object> query, CancellationToken cancellationToken = default)
+        public async Task<FullOrderResponseModel> SendNewTestOrderAsync(
+            Dictionary<string, object> query,
+            CancellationToken cancellationToken = default)
         {
             var result = await _client.SendSignedAsync(
                 BinanceEndpoints.NEW_TEST_ORDER,
@@ -53,7 +55,9 @@ namespace BinanceExchange.EndpointSenders.Impl
         }
 
         /// <inheritdoc />
-        public async Task<FullOrderResponseModel> SendNewOrderAsync(Dictionary<string, object> query, CancellationToken cancellationToken = default)
+        public async Task<FullOrderResponseModel> SendNewOrderAsync(
+            Dictionary<string, object> query,
+            CancellationToken cancellationToken = default)
         {
             var result = await _client.SendSignedAsync(
                 BinanceEndpoints.NEW_ORDER,
@@ -65,7 +69,9 @@ namespace BinanceExchange.EndpointSenders.Impl
         }
 
         /// <inheritdoc />
-        public async Task<CancelOrderResponseModel> CancelOrderAsync(Dictionary<string, object> query, CancellationToken cancellationToken = default)
+        public async Task<CancelOrderResponseModel> CancelOrderAsync(
+            Dictionary<string, object> query,
+            CancellationToken cancellationToken = default)
         {
             var result = await _client.SendSignedAsync(
                 BinanceEndpoints.CANCEL_ORDER,
@@ -77,7 +83,9 @@ namespace BinanceExchange.EndpointSenders.Impl
         }
 
         /// <inheritdoc />
-        public async Task<IEnumerable<CancelOrderResponseModel>> CancelAllOrdersAsync(Dictionary<string, object> query, CancellationToken cancellationToken = default)
+        public async Task<IEnumerable<CancelOrderResponseModel>> CancelAllOrdersAsync(
+            Dictionary<string, object> query,
+            CancellationToken cancellationToken = default)
         {
             var result = await _client.SendSignedAsync(
                 BinanceEndpoints.CANCEL_All_ORDERS,
@@ -90,7 +98,9 @@ namespace BinanceExchange.EndpointSenders.Impl
         }
 
         /// <inheritdoc />
-        public async Task<CheckOrderResponseModel> CheckOrderAsync(Dictionary<string, object> query, CancellationToken cancellationToken = default)
+        public async Task<CheckOrderResponseModel> CheckOrderAsync(
+            Dictionary<string, object> query,
+            CancellationToken cancellationToken = default)
         {
             var result = await _client.SendSignedAsync(
                 BinanceEndpoints.CHECK_ORDER,
@@ -102,7 +112,9 @@ namespace BinanceExchange.EndpointSenders.Impl
         }
 
         /// <inheritdoc />
-        public async Task<IEnumerable<CheckOrderResponseModel>> CheckAllOpenOrdersAsync(Dictionary<string, object> query, CancellationToken cancellationToken = default)
+        public async Task<IEnumerable<CheckOrderResponseModel>> CheckAllOpenOrdersAsync(
+            Dictionary<string, object> query,
+            CancellationToken cancellationToken = default)
         {
             var result = await _client.SendSignedAsync(
                 BinanceEndpoints.CHECK_ALL_OPEN_ORDERS,
@@ -114,7 +126,9 @@ namespace BinanceExchange.EndpointSenders.Impl
         }
 
         /// <inheritdoc />
-        public async Task<IEnumerable<CheckOrderResponseModel>> GetAllOrdersAsync(Dictionary<string, object> query, CancellationToken cancellationToken = default)
+        public async Task<IEnumerable<CheckOrderResponseModel>> GetAllOrdersAsync(
+            Dictionary<string, object> query,
+            CancellationToken cancellationToken = default)
         {
             var result = await _client.SendSignedAsync(
                 BinanceEndpoints.GET_ALL_ORDERS,
@@ -126,7 +140,9 @@ namespace BinanceExchange.EndpointSenders.Impl
         }
 
         /// <inheritdoc />
-        public async Task<AccountInformationModel> GetAccountInformationAsync(Dictionary<string, object> query, CancellationToken cancellationToken = default)
+        public async Task<AccountInformationModel> GetAccountInformationAsync(
+            Dictionary<string, object> query,
+            CancellationToken cancellationToken = default)
         {
             var result = await _client.SendSignedAsync(
                 BinanceEndpoints.ACCOUNT_INFORMATION,

@@ -14,6 +14,8 @@ namespace BinanceExchange.WebSocket.Marketdata
     internal class MarketdataWebSocket : BinanceWebSocket
     {
         private const string BaseUrl = "wss://stream.binance.com:9443";
+        
+        #region .ctors
 
         /// <summary>
         ///     Создать новый запрос на подписку к стриму 
@@ -64,6 +66,10 @@ namespace BinanceExchange.WebSocket.Marketdata
         public MarketdataWebSocket(string[] streams, IBinanceWebSocketHumble webSocketHumble)
         : base(webSocketHumble, BaseUrl + "/stream?streams=" + string.Join("/", streams))
         { }
+
+        #endregion
+        
+        #region Public static methods
 
         /// <summary>
         ///     Подписаться на стрим обновления свечей для пары
@@ -186,5 +192,7 @@ namespace BinanceExchange.WebSocket.Marketdata
                 webSocketHumble,
                 url);
         }
+        
+        #endregion
     }
 }

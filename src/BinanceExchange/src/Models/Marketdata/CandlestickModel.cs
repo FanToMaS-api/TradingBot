@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using Common.JsonConvertWrapper;
+﻿using Common.JsonConvertWrapper;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 
 namespace BinanceExchange.Models
 {
@@ -88,54 +85,6 @@ namespace BinanceExchange.Models
             result.QuotePurchaseVolume = reader.ReadDoubleAndNext();
 
             return result;
-        }
-    }
-
-    /// <summary>
-    ///     Конвертирует данные в массив объектов
-    /// </summary>
-    internal class CandlestickModelEnumerableConverter : JsonConverter<IEnumerable<CandlestickModel>>
-    {
-        /// <inheritdoc />
-        public override IEnumerable<CandlestickModel> Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
-        {
-            var result = new List<CandlestickModel>();
-            while (reader.Read())
-            {
-                if (reader.TokenType != JsonTokenType.StartArray)
-                {
-                    continue;
-                }
-
-                var newCandleStick = CandlestickModel.Create(ref reader);
-                result.Add(newCandleStick);
-            }
-
-            return result;
-        }
-
-        /// <inheritdoc />
-        public override void Write(Utf8JsonWriter writer, IEnumerable<CandlestickModel> value, JsonSerializerOptions options)
-        {
-            throw new NotImplementedException();
-        }
-    }
-
-    /// <summary>
-    ///     Нормально конвертирует полученные данные
-    /// </summary>
-    internal class CandlestickModelConverter : JsonConverter<CandlestickModel>
-    {
-        /// <inheritdoc />
-        public override CandlestickModel Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
-        {
-            return CandlestickModel.Create(ref reader);
-        }
-
-        /// <inheritdoc />
-        public override void Write(Utf8JsonWriter writer, CandlestickModel value, JsonSerializerOptions options)
-        {
-            throw new NotImplementedException();
         }
     }
 }

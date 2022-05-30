@@ -17,6 +17,8 @@ namespace Common.JsonConvertWrapper
             var isSkipNeeded = true;
             while (reader.Read() && isSkipNeeded)
             {
+                // TODO: var json = JsonSerializer.Deserialize<JsonElement>(ref reader, options);
+                // json.TryGetProperty("description", out var elem)
                 if (reader.TokenType == JsonTokenType.PropertyName)
                 {
                     lastPropertyName = reader.GetString();

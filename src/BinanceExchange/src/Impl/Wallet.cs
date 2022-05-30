@@ -66,8 +66,8 @@ namespace BinanceExchange.Impl
                 throw new TooManyRequestsException(rateLimit.Expiration, rateLimit.Value, rateLimit.Key);
             }
 
-            var builder = new Builder();
-            builder.SetRecvWindow(recvWindow);
+            var builder = new Builder()
+                .SetRecvWindow(recvWindow);
             var query = builder.GetResult().GetQuery();
             var result = await _walletSender.GetAccountTradingStatusAsync(query, cancellationToken);
 
@@ -88,9 +88,9 @@ namespace BinanceExchange.Impl
                 throw new TooManyRequestsException(rateLimit.Expiration, rateLimit.Value, rateLimit.Key);
             }
 
-            var builder = new Builder();
-            builder.SetSymbol(symbol, true);
-            builder.SetRecvWindow(recvWindow);
+            var builder = new Builder()
+                .SetSymbol(symbol, true)
+                .SetRecvWindow(recvWindow);
             var query = builder.GetResult().GetQuery();
             var result = await _walletSender.GetTradeFeeAsync(query, cancellationToken);
 
@@ -108,8 +108,8 @@ namespace BinanceExchange.Impl
                 throw new TooManyRequestsException(rateLimit.Expiration, rateLimit.Value, rateLimit.Key);
             }
 
-            var builder = new Builder();
-            builder.SetRecvWindow(recvWindow);
+            var builder = new Builder()
+                .SetRecvWindow(recvWindow);
             var query = builder.GetResult().GetQuery();
             var result = await _walletSender.GetAllCoinsInformationAsync(query, cancellationToken);
 

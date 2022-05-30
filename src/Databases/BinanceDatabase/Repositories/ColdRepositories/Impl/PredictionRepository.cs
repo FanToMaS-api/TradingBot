@@ -25,7 +25,7 @@ namespace BinanceDatabase.Repositories.ColdRepositories.Impl
 
         #endregion
 
-        #region Public methods
+        #region Implementation IPredictionRepository
 
         /// <inheritdoc />
         public IQueryable<PredictionEntity> CreateQuery() => _appDbContext.Predictions.AsQueryable();

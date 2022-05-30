@@ -30,7 +30,7 @@ namespace BinanceDataService.DataHandlers
     {
         #region Fields
 
-        private const int ReconnectionLimit = 3;
+        private const int WebSocketReconnectionLimit = 3;
         private readonly ILoggerDecorator _logger;
         private readonly IExchange _exchange;
         private readonly IRecurringJobScheduler _scheduler;
@@ -39,6 +39,7 @@ namespace BinanceDataService.DataHandlers
         private readonly List<MiniTradeObjectStreamModel> _mainModelsStorage = new();
         private readonly List<MiniTradeObjectStreamModel> _assistantModelsStorage = new();
         private readonly List<DataAggregator> _dataAggregators = new();
+        private readonly object _lockObject = new();
         private TriggerKey _triggerKey;
         private TriggerKey _dataDelitionTriggerKey;
         private CancellationTokenSource _cancellationTokenSource;
@@ -71,16 +72,7 @@ namespace BinanceDataService.DataHandlers
 
         #endregion
 
-        #region Properties
-
-        /// <summary>
-        ///     Флаг определящий текущее место сохранения данных
-        /// </summary>
-        internal bool IsAssistantStorageSaving { get; private set; }
-
-        #endregion
-
-        #region Public methods
+        #region Implementation of IDataHandler
 
         /// <inheritdoc />
         public async Task StartAsync(CancellationToken cancellationToken)
@@ -89,7 +81,10 @@ namespace BinanceDataService.DataHandlers
             _webSocket = _exchange.MarketdataStreams.SubscribeAllMarketMiniTickersStream(HandleDataAsync, cancellationToken, WebSocketCloseHandler);
 
 #pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
-            Task.Run(async () => await StartWebSocket(_cancellationTokenSource.Token), cancellationToken);
+            Task.Factory.StartNew(
+                async (_) => await StartWebSocket(_cancellationTokenSource.Token),
+                TaskCreationOptions.LongRunning | TaskCreationOptions.DenyChildAttach,
+                cancellationToken);
 #pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
 
             _triggerKey = await _scheduler.ScheduleAsync(_configuration.SaveDataCron, SaveDataAsync);
@@ -110,6 +105,31 @@ namespace BinanceDataService.DataHandlers
 
             await _logger.InfoAsync("Marketdata handler stopped", cancellationToken: _cancellationTokenSource.Token);
         }
+
+        #endregion
+
+        #region Implementation IDisposable
+
+        /// <inheritdoc />
+        public void Dispose()
+        {
+            if (_isDisposed)
+            {
+                return;
+            }
+
+            StopAsync().Wait();
+            _isDisposed = true;
+        }
+
+        #endregion
+
+        #region Properties
+
+        /// <summary>
+        ///     Флаг, определяющий текущее место сохранения данных
+        /// </summary>
+        internal bool IsAssistantStorageSaving { get; private set; }
 
         #endregion
 
@@ -156,7 +176,11 @@ namespace BinanceDataService.DataHandlers
         /// </summary>
         internal async Task SaveDataAsync(IServiceProvider serviceProvider)
         {
-            IsAssistantStorageSaving = !IsAssistantStorageSaving;
+            lock (_lockObject)
+            {
+                IsAssistantStorageSaving = !IsAssistantStorageSaving;
+            }
+
             try
             {
                 if (IsAssistantStorageSaving)
@@ -210,16 +234,26 @@ namespace BinanceDataService.DataHandlers
 
             // QUESTION: интересное решение, надо проверить
             _webSocket.Dispose();
-            _webSocket = _exchange.MarketdataStreams.SubscribeAllMarketMiniTickersStream(HandleDataAsync, _cancellationTokenSource.Token, WebSocketCloseHandler);
+            _webSocket = _exchange.MarketdataStreams.SubscribeAllMarketMiniTickersStream(
+                HandleDataAsync,
+                _cancellationTokenSource.Token,
+                WebSocketCloseHandler);
 
-            for (var i = 0; i < ReconnectionLimit; i++)
+            for (var i = 0; i < WebSocketReconnectionLimit; i++)
 
             {
                 _logger.InfoAsync($"The websocket has been closed. Restarting stream, attempt number = {i + 1}").Wait(5 * 1000);
-                Task.Run(async () => await StartWebSocket(_cancellationTokenSource.Token), _cancellationTokenSource.Token);
-                if (_webSocket.SocketState == System.Net.WebSockets.WebSocketState.Open)
+                
+                Task.Factory.StartNew(
+                    async (_) => await StartWebSocket(_cancellationTokenSource.Token),
+                    TaskCreationOptions.LongRunning | TaskCreationOptions.DenyChildAttach,
+                    _cancellationTokenSource.Token);
+                
+                if (_webSocket.SocketState is System.Net.WebSockets.WebSocketState.Open)
                 {
-                    _logger.InfoAsync("Marketdata handler launched successfully!", cancellationToken: _cancellationTokenSource.Token).Wait(5 * 1000);
+                    _logger
+                        .InfoAsync("Marketdata handler launched successfully!", cancellationToken: _cancellationTokenSource.Token)
+                        .Wait(5 * 1000);
                     return;
                 }
 
@@ -238,32 +272,19 @@ namespace BinanceDataService.DataHandlers
             using var database = databaseFactory.CreateScopeDatabase();
             try
             {
-                var count = await database.HotUnitOfWork.HotMiniTickers.RemoveUntilAsync(now.AddDays(-1), _cancellationTokenSource.Token);
+                var deletedEntitiesCount = await database.HotUnitOfWork.HotMiniTickers.RemoveUntilAsync(now.AddDays(-1), _cancellationTokenSource.Token);
 
                 await _logger.InfoAsync(
-                    $"Old data deleted successfully! Entities removed: {count}",
+                    $"Old data deleted successfully! Entities removed: {deletedEntitiesCount}",
                     cancellationToken: _cancellationTokenSource.Token);
             }
             catch (Exception ex)
             {
-                await _logger.ErrorAsync(ex, "Failed to remove hot data", cancellationToken: _cancellationTokenSource.Token);
+                await _logger.ErrorAsync(
+                    ex,
+                    "Failed to remove hot data",
+                    cancellationToken: _cancellationTokenSource.Token);
             }
-        }
-
-        #endregion
-
-        #region Implementation IDisposable
-
-        /// <inheritdoc />
-        public void Dispose()
-        {
-            if (_isDisposed)
-            {
-                return;
-            }
-
-            StopAsync().Wait();
-            _isDisposed = true;
         }
 
         #endregion

@@ -72,7 +72,10 @@ namespace Analytic.Filters
         /// <remarks>
         ///     Данный метод также вычисляет значение <see cref="InfoModel.DeviationsSum"/>
         /// </remarks>
-        public async Task<bool> CheckConditionsAsync(IServiceScopeFactory serviceScopeFactory, InfoModel model, CancellationToken cancellationToken)
+        public async Task<bool> CheckConditionsAsync(
+            IServiceScopeFactory serviceScopeFactory,
+            InfoModel model,
+            CancellationToken cancellationToken)
         {
             using var scope = serviceScopeFactory.CreateScope();
             var databaseFactory = scope.ServiceProvider.GetService<IBinanceDbContextFactory>()

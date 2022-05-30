@@ -45,6 +45,8 @@ namespace Analytic.AnalyticUnits.Profiles.SSA
 
         #endregion
 
+        #region Implemetation of IAnalyticProfile
+
         #region Properties
 
         /// <inheritdoc />
@@ -107,6 +109,8 @@ namespace Analytic.AnalyticUnits.Profiles.SSA
 
             return (true, result);
         }
+
+        #endregion
 
         #endregion
 

@@ -30,14 +30,7 @@ namespace BinanceDatabase.Repositories
 
         #endregion
 
-        /// <inheritdoc />
-        public IHotUnitOfWork HotUnitOfWork { get; init; }
-
-        /// <inheritdoc />
-        public IColdUnitOfWork ColdUnitOfWork { get; init; }
-
-
-        #region Public methods
+        #region Implementation of IUnitOfWork
 
         /// <inheritdoc />
         public async Task SaveChangesAsync(CancellationToken cancellationToken = default)
@@ -47,10 +40,19 @@ namespace BinanceDatabase.Repositories
             await (_appDbContext.Database.CurrentTransaction?.CommitAsync(cancellationToken) ?? Task.CompletedTask);
         }
 
+        #region Properties
+
+        /// <inheritdoc />
+        public IHotUnitOfWork HotUnitOfWork { get; init; }
+
+        /// <inheritdoc />
+        public IColdUnitOfWork ColdUnitOfWork { get; init; }
+
         #endregion
 
+        #endregion
 
-        #region IDisposable
+        #region Implementation of IDisposable
 
         /// <inheritdoc />
         public void Dispose()

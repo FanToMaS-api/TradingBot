@@ -46,7 +46,9 @@ namespace BinanceExchange.EndpointSenders.Impl
         }
 
         /// <inheritdoc />
-        public async Task<OrderBookModel> GetOrderBookAsync(Dictionary<string, object> query, CancellationToken cancellationToken = default)
+        public async Task<OrderBookModel> GetOrderBookAsync(
+            Dictionary<string, object> query,
+            CancellationToken cancellationToken = default)
         {
             var result = await _client.SendPublicAsync(
                 BinanceEndpoints.ORDER_BOOK,
@@ -58,7 +60,9 @@ namespace BinanceExchange.EndpointSenders.Impl
         }
 
         /// <inheritdoc />
-        public async Task<IEnumerable<TradeModel>> GetRecentTradesAsync(Dictionary<string, object> query, CancellationToken cancellationToken = default)
+        public async Task<IEnumerable<TradeModel>> GetRecentTradesAsync(
+            Dictionary<string, object> query,
+            CancellationToken cancellationToken = default)
         {
             var result = await _client.SendPublicAsync(
                 BinanceEndpoints.RECENT_TRADES,
@@ -70,7 +74,9 @@ namespace BinanceExchange.EndpointSenders.Impl
         }
 
         /// <inheritdoc />
-        public async Task<IEnumerable<TradeModel>> GetOldTradesAsync(Dictionary<string, object> query, CancellationToken cancellationToken = default)
+        public async Task<IEnumerable<TradeModel>> GetOldTradesAsync(
+            Dictionary<string, object> query,
+            CancellationToken cancellationToken = default)
         {
             var result = await _client.SendPublicAsync(
                 BinanceEndpoints.OLD_TRADES,
@@ -96,7 +102,9 @@ namespace BinanceExchange.EndpointSenders.Impl
         }
 
         /// <inheritdoc />
-        public async Task<AveragePriceModel> GetAveragePriceAsync(Dictionary<string, object> query, CancellationToken cancellationToken = default)
+        public async Task<AveragePriceModel> GetAveragePriceAsync(
+            Dictionary<string, object> query,
+            CancellationToken cancellationToken = default)
         {
             var result = await _client.SendPublicAsync(
                 BinanceEndpoints.AVERAGE_PRICE,
@@ -108,7 +116,9 @@ namespace BinanceExchange.EndpointSenders.Impl
         }
 
         /// <inheritdoc />
-        public async Task<IEnumerable<DayPriceChangeModel>> GetDayPriceChangeAsync(string symbol, CancellationToken cancellationToken = default)
+        public async Task<IEnumerable<DayPriceChangeModel>> GetDayPriceChangeAsync(
+            string symbol,
+            CancellationToken cancellationToken = default)
         {
             var isNull = string.IsNullOrEmpty(symbol);
             var response = await _client.SendPublicAsync(

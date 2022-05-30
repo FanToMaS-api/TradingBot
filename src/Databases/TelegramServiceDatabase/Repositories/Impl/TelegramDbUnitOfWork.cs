@@ -30,6 +30,16 @@ namespace TelegramServiceDatabase.Repositories.Impl
 
         #endregion
 
+        #region Implementation of ITelegramDbUnitOfWork
+
+        /// <inheritdoc />
+        public async Task SaveChangesAsync(CancellationToken cancellationToken = default)
+        {
+            await _dbContext.SaveChangesAsync(cancellationToken);
+
+            await (_dbContext.Database.CurrentTransaction?.CommitAsync(cancellationToken) ?? Task.CompletedTask);
+        }
+
         #region Properties
 
         /// <inheritdoc />
@@ -40,15 +50,9 @@ namespace TelegramServiceDatabase.Repositories.Impl
 
         #endregion
 
-        #region Public methods
+        #endregion
 
-        /// <inheritdoc />
-        public async Task SaveChangesAsync(CancellationToken cancellationToken = default)
-        {
-            await _dbContext.SaveChangesAsync(cancellationToken);
-
-            await (_dbContext.Database.CurrentTransaction?.CommitAsync(cancellationToken) ?? Task.CompletedTask);
-        }
+        #region Implementation of IDisposable
 
         /// <inheritdoc />
         public void Dispose()
