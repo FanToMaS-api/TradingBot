@@ -1,6 +1,4 @@
 ﻿using Analytic.Models;
-using BinanceDatabase;
-using ExchangeLibrary;
 using Microsoft.Extensions.DependencyInjection;
 using System.Collections.Generic;
 using System.Threading;

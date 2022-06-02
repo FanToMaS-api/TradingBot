@@ -94,6 +94,9 @@ namespace Analytic.Filters
                 };
         }
 
+        /// <inheritdoc />
+        public object Clone() => new PriceDeviationFilter(FilterName, Interval, ComparisonType, Limit, TimeframeNumber);
+
         #endregion
     }
 }

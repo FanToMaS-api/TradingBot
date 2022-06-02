@@ -1,4 +1,5 @@
-﻿using Analytic.Models;
+﻿using Analytic.AnalyticUnits;
+using Analytic.Models;
 using Logger;
 using Microsoft.Extensions.DependencyInjection;
 using NLog;
@@ -7,7 +8,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Analytic.AnalyticUnits
+namespace Analytic.AnalyticUnits.ProfileGroup.Impl
 {
     /// <summary>
     ///     Группа профилей аналитики
@@ -25,7 +26,7 @@ namespace Analytic.AnalyticUnits
         /// <inheritdoc cref="ProfileGroup"/>
         public ProfileGroup(ILoggerDecorator logger, string name, bool isActive = true)
         {
-            _logger= logger;
+            _logger = logger;
             Name = name;
             IsActive = isActive;
         }
@@ -122,7 +123,7 @@ namespace Analytic.AnalyticUnits
         public void ChangeProfileActivity(bool isActive) => IsActive = isActive;
 
         #endregion
-        
+
         #endregion
     }
 }

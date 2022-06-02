@@ -1,4 +1,5 @@
-﻿using Analytic.Models;
+﻿using Analytic.Filters.FilterGroup.Impl;
+using Analytic.Models;
 using Common.Helpers;
 using Common.Models;
 using Logger;

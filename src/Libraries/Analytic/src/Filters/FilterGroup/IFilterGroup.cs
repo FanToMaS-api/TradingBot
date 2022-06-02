@@ -1,5 +1,7 @@
-﻿using Analytic.Models;
+﻿using Analytic.Filters.FilterGroup.Impl;
+using Analytic.Models;
 using Microsoft.Extensions.DependencyInjection;
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -9,7 +11,7 @@ namespace Analytic.Filters
     /// <summary>
     ///     Группа фильтров
     /// </summary>
-    public interface IFilterGroup
+    public interface IFilterGroup : ICloneable
     {
         /// <summary>
         ///     Название группы фильтров

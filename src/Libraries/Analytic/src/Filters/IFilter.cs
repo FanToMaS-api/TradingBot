@@ -1,5 +1,6 @@
 ﻿using Analytic.Models;
 using Microsoft.Extensions.DependencyInjection;
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -8,7 +9,7 @@ namespace Analytic.Filters
     /// <summary>
     ///     Общий интерфейс фильтров
     /// </summary>
-    public interface IFilter
+    public interface IFilter : ICloneable
     {
         /// <summary>
         ///     Название фильтра

@@ -101,6 +101,9 @@ namespace Analytic.Filters
             };
         }
 
+        /// <inheritdoc />
+        public object Clone() => new VolumeFilter(FilterName, VolumeType, VolumeComparisonType, PercentDeviation, OrderNumber);
+
         #endregion
 
         #region Private methods

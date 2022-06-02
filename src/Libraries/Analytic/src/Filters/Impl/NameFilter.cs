@@ -49,9 +49,11 @@ namespace Analytic.Filters
         /// <inheritdoc />
         public async Task<bool> CheckConditionsAsync(IServiceScopeFactory _, InfoModel model, CancellationToken __) =>
             TradeObjectNamesToAnalyze.Any(_ => model.TradeObjectName.Contains(_, StringComparison.InvariantCultureIgnoreCase));
-        
+
 #pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
-        
+
+        public object Clone() => new NameFilter(FilterName, TradeObjectNamesToAnalyze);
+
         #endregion
     }
 }

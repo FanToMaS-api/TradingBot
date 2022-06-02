@@ -64,8 +64,11 @@ namespace Analytic.Filters
                 ComparisonType.Equal => model.LastPrice == Limit,
                 _ => false
             };
-        
+
 #pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
+
+        /// <inheritdoc />
+        public object Clone() => new PriceFilter(FilterName, ComparisonType, Limit);
 
         #endregion
     }

@@ -1,4 +1,4 @@
-﻿namespace Analytic.Filters
+﻿namespace Analytic.Filters.FilterGroup.Impl
 {
     /// <summary>
     ///     Тип группы фильтров

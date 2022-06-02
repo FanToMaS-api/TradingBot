@@ -1,7 +1,8 @@
 ﻿using Analytic;
-using Analytic.AnalyticUnits;
+using Analytic.AnalyticUnits.ProfileGroup.Impl;
 using Analytic.AnalyticUnits.Profiles.SSA;
 using Analytic.Filters;
+using Analytic.Filters.FilterGroup.Impl;
 using Analytic.Filters.Impl.FilterManagers;
 using Analytic.Models;
 using BinanceDatabase.Enums;
@@ -62,7 +63,6 @@ namespace SignalsSender
         public async Task RunAsync()
         {
             var cancellationToken = _cancellationTokenSource.Token;
-
             using var scope = _scopeFactory.CreateScope();
 
             var growingPairFilterManager = new DefaultFilterManager(_logger);

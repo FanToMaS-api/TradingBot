@@ -7,7 +7,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Analytic.Filters
+namespace Analytic.Filters.FilterGroup.Impl
 {
     /// <summary>
     ///     Группа фильтров
@@ -76,6 +76,15 @@ namespace Analytic.Filters
 
         /// <inheritdoc />
         public bool RemoveFilter(IFilter filter) => Filters.Remove(filter);
+
+        /// <inheritdoc />
+        public object Clone()
+        {
+            var clone = new FilterGroup(FilterGroupName, Type, TargetTradeObjectName);
+            clone.Filters.AddRange(Filters.Select(_ => (IFilter)_.Clone()));
+
+            return clone;
+        }
 
         #endregion
     }
