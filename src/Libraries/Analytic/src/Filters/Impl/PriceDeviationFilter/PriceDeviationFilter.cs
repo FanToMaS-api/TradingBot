@@ -1,10 +1,8 @@
 ﻿using Analytic.Models;
 using BinanceDatabase;
 using BinanceDatabase.Enums;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using System;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -27,7 +25,7 @@ namespace Analytic.Filters
         /// <param name="timeframeNumber"> Кол-во таймфреймов участвующих в анализе </param>
         public PriceDeviationFilter(string filterName, AggregateDataIntervalType interval, ComparisonType comparisonType, double limit, int timeframeNumber = 5)
         {
-            FilterName = filterName;
+            Name = filterName;
             Interval = interval;
             ComparisonType = comparisonType;
             Limit = limit;
@@ -39,7 +37,7 @@ namespace Analytic.Filters
         #region Properties
 
         /// <inheritdoc />
-        public string FilterName { get; }
+        public string Name { get; }
 
         /// <summary>
         ///     Тип сравнения
@@ -93,9 +91,6 @@ namespace Analytic.Filters
                     _ => throw new NotImplementedException(),
                 };
         }
-
-        /// <inheritdoc />
-        public object Clone() => new PriceDeviationFilter(FilterName, Interval, ComparisonType, Limit, TimeframeNumber);
 
         #endregion
     }

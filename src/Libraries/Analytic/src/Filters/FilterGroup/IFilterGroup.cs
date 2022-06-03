@@ -1,7 +1,6 @@
 ﻿using Analytic.Filters.FilterGroup.Impl;
 using Analytic.Models;
 using Microsoft.Extensions.DependencyInjection;
-using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -11,17 +10,17 @@ namespace Analytic.Filters
     /// <summary>
     ///     Группа фильтров
     /// </summary>
-    public interface IFilterGroup : ICloneable
+    public interface IFilterGroup
     {
         /// <summary>
         ///     Название группы фильтров
         /// </summary>
-        public string FilterGroupName { get; }
+        public string Name { get; }
 
         /// <summary>
         ///     Фильтры
         /// </summary>
-        List<IFilter> Filters { get; }
+        IReadOnlyCollection<IFilter> Filters { get; }
 
         /// <summary>
         ///     Тип фильтруемой группы
@@ -32,17 +31,6 @@ namespace Analytic.Filters
         ///     Проверяет модель на соответствие условиям
         /// </summary>
         Task<bool> CheckConditionsAsync(IServiceScopeFactory serviceScopeFactory, InfoModel model, CancellationToken cancellationToken);
-
-        /// <summary>
-        ///     Добавить фильтр
-        /// </summary>
-        void AddFilter(IFilter filter);
-
-        /// <summary>
-        ///     Удалить фильтр
-        /// </summary>
-        /// <returns> True - если произошло успешное удаление </returns>
-        bool RemoveFilter(IFilter filter);
 
         /// <summary>
         ///     Показывает фильтрует ли указанный фильтр этот объект торговли

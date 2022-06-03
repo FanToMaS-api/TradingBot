@@ -1,5 +1,6 @@
 ﻿using Analytic.Filters.Impl.FilterManagers;
 using Logger;
+using System.Collections.Generic;
 
 namespace Analytic.Filters.Builders
 {
@@ -10,7 +11,9 @@ namespace Analytic.Filters.Builders
     {
         #region Fields
 
-        protected readonly FilterManagerBase _filterManager;
+        private readonly ILoggerDecorator _loggerDecorator;
+        protected readonly List<IFilterGroup> _filterGroups;
+        protected readonly List<IFilter> _filters;
 
         #endregion
 
@@ -18,11 +21,10 @@ namespace Analytic.Filters.Builders
 
         /// <inheritdoc cref="FilterManagerBuilder"/>
         public FilterManagerBuilder(ILoggerDecorator loggerDecorator)
-            => _filterManager = new DefaultFilterManager(loggerDecorator);
+            => _loggerDecorator = loggerDecorator;
 
         /// <inheritdoc cref="FilterManagerBuilder"/>
-        protected FilterManagerBuilder(FilterManagerBase filterManager)
-            => _filterManager = filterManager;
+        protected FilterManagerBuilder() => _filters = new();
 
         #endregion
 
@@ -32,17 +34,33 @@ namespace Analytic.Filters.Builders
         ///     Позволяет добавлять фильтры общего назначения
         /// </summary>
         public CommonFilterGroupBuilder CommonFilterGroup
-            => new(_filterManager);
+            => new();
 
         #endregion
 
         #region Public methods
 
         /// <summary>
-        ///     Позволяет кастить объект
+        ///     Сбрасывает настройки
         /// </summary>
-        public static implicit operator FilterManagerBase(FilterManagerBuilder builder)
-            => builder._filterManager;
+        public virtual FilterManagerBuilder Reset() => this;
+
+        /// <summary>
+        ///     Добавляет группу фильтров к менеджеру
+        /// </summary>
+        public virtual FilterManagerBuilder AddFilterGroup() => this;
+
+        /// <summary>
+        ///     Добавляет фильтр к группе
+        /// </summary>
+        public virtual FilterManagerBuilder AddFilter() => this;
+
+        /// <summary>
+        ///     Получить результат работы строителя
+        /// </summary>
+        /// <returns></returns>
+        public virtual FilterManagerBase GetResult()
+            => new DefaultFilterManager(_loggerDecorator, _filterGroups);
 
         #endregion
     }

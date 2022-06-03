@@ -3,6 +3,7 @@ using Common.Helpers;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -27,22 +28,32 @@ namespace Analytic.Filters.FilterGroup.Impl
         ///     <see langword="null"/> - для фильтрации всех
         /// </remarks>
         /// </param>
-        public FilterGroup(string filterGroupName, FilterGroupType filterGroupType, string targetTradeObjectName)
+        public FilterGroup(
+            string filterGroupName,
+            FilterGroupType filterGroupType,
+            string targetTradeObjectName,
+            IList<IFilter> filters)
         {
-            FilterGroupName = filterGroupName;
+            Name = filterGroupName;
             Type = filterGroupType;
             TargetTradeObjectName = targetTradeObjectName;
+            Filters = new ReadOnlyCollection<IFilter>(filters);
         }
+
+        /// <summary>
+        ///     Создает группу фильтров
+        /// </summary>
+        internal FilterGroup() { }
 
         #endregion
 
         #region Properties
 
         /// <inheritdoc />
-        public string FilterGroupName { get; }
+        public string Name { get; }
 
         /// <inheritdoc />
-        public List<IFilter> Filters { get; } = new();
+        public IReadOnlyCollection<IFilter> Filters { get; }
 
         /// <inheritdoc />
         public FilterGroupType Type { get; }
@@ -60,31 +71,16 @@ namespace Analytic.Filters.FilterGroup.Impl
         #region Public methods
 
         /// <inheritdoc />
-        public void AddFilter(IFilter filter) => Filters.Add(filter);
-
-        /// <inheritdoc />
         public async Task<bool> CheckConditionsAsync(IServiceScopeFactory serviceScopeFactory, InfoModel model, CancellationToken cancellationToken)
             => await Filters.TrueForAllAsync(async _ => await _.CheckConditionsAsync(serviceScopeFactory, model, cancellationToken));
 
         /// <inheritdoc />
-        public bool ContainsFilter(string filterName) => Filters.Any(_ => _.FilterName == filterName);
+        public bool ContainsFilter(string filterName) => Filters.Any(_ => _.Name == filterName);
 
         /// <inheritdoc />
         public bool IsFilter(string tradeObjectName) =>
             !string.IsNullOrEmpty(TargetTradeObjectName)
             && tradeObjectName.Contains(TargetTradeObjectName, StringComparison.InvariantCultureIgnoreCase);
-
-        /// <inheritdoc />
-        public bool RemoveFilter(IFilter filter) => Filters.Remove(filter);
-
-        /// <inheritdoc />
-        public object Clone()
-        {
-            var clone = new FilterGroup(FilterGroupName, Type, TargetTradeObjectName);
-            clone.Filters.AddRange(Filters.Select(_ => (IFilter)_.Clone()));
-
-            return clone;
-        }
 
         #endregion
     }

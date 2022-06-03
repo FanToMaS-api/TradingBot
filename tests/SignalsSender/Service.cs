@@ -2,6 +2,7 @@
 using Analytic.AnalyticUnits.ProfileGroup.Impl;
 using Analytic.AnalyticUnits.Profiles.SSA;
 using Analytic.Filters;
+using Analytic.Filters.Builders;
 using Analytic.Filters.FilterGroup.Impl;
 using Analytic.Filters.Impl.FilterManagers;
 using Analytic.Models;
@@ -62,6 +63,25 @@ namespace SignalsSender
         /// </summary>
         public async Task RunAsync()
         {
+            var builder = new FilterManagerBuilder(_logger);
+           var result = builder
+                .CommonFilterGroup
+                    .SetTargetTradeObjectName(null)
+                    .SetFilterGroupName("Common")
+                    .NameFilterBuilder
+                        .SetFilterName(null)
+                        .AddTradeObjectName(null)
+                        .AddFilter()
+                        .Reset()
+                .CommonFilterGroup
+                    .PriceFilterBuilder
+                        .SetFilterName(null)
+                        .SetComparisonType(ComparisonType.LessThan)
+                        .SetLimit(200)
+                 .AddFilterGroup()
+                 .Reset()
+                 .GetResult();
+            
             var cancellationToken = _cancellationTokenSource.Token;
             using var scope = _scopeFactory.CreateScope();
 

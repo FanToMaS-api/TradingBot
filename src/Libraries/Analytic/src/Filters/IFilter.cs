@@ -9,12 +9,12 @@ namespace Analytic.Filters
     /// <summary>
     ///     Общий интерфейс фильтров
     /// </summary>
-    public interface IFilter : ICloneable
+    public interface IFilter
     {
         /// <summary>
         ///     Название фильтра
         /// </summary>
-        string FilterName { get; }
+        string Name { get; }
 
         /// <summary>
         ///     Тип фильтра

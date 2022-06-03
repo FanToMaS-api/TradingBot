@@ -5,6 +5,7 @@ using Common.Models;
 using Logger;
 using Microsoft.Extensions.DependencyInjection;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -23,9 +24,10 @@ namespace Analytic.Filters.Impl.FilterManagers
         #region .ctor
 
         /// <inheritdoc cref="DefaultFilterManager"/>
-        public DefaultFilterManager(ILoggerDecorator logger)
+        internal DefaultFilterManager(ILoggerDecorator logger, IList<IFilterGroup> filterGroups)
         {
             _logger = logger;
+            FilterGroups = new ReadOnlyCollection<IFilterGroup>(filterGroups); 
         }
 
         #endregion

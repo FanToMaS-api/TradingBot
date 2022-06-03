@@ -33,7 +33,7 @@ namespace Analytic.Filters
             double percentDeviation = 0.05,
             int orderNumber = 1000)
         {
-            FilterName = filterName;
+            Name = filterName;
             VolumeType = volumeType;
             VolumeComparisonType = volumeComparisonType;
             PercentDeviation = percentDeviation;
@@ -45,7 +45,7 @@ namespace Analytic.Filters
         #region Properties
 
         /// <inheritdoc />
-        public string FilterName { get; }
+        public string Name { get; }
 
         /// <summary>
         ///     Тип сравнения объемов
@@ -100,9 +100,6 @@ namespace Analytic.Filters
                 _ => throw new NotImplementedException(),
             };
         }
-
-        /// <inheritdoc />
-        public object Clone() => new VolumeFilter(FilterName, VolumeType, VolumeComparisonType, PercentDeviation, OrderNumber);
 
         #endregion
 

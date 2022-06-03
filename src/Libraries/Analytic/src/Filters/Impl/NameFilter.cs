@@ -18,41 +18,43 @@ namespace Analytic.Filters
         ///     Фильтр наименования объекта торговли
         /// </summary>
         /// <param name="filterName"> Название фильтра </param>
-        /// <param name="tradeObjectNamesToAnalyze"> Названия или части названий объектов торговли необходимые в работе </param>
-        public NameFilter(string filterName, string[] tradeObjectNamesToAnalyze)
+        /// <param name="tradeObjectNamesToAnalyze"> Названия объектов торговли, которые смогут пройти фильтр </param>
+        internal NameFilter(string filterName, string[] tradeObjectNamesToAnalyze)
         {
-            FilterName = filterName;
+            Name = filterName;
             TradeObjectNamesToAnalyze = tradeObjectNamesToAnalyze;
         }
-        
+
         #endregion
 
-        #region Properties
+        #region Implemented properties of IFilter
 
         /// <inheritdoc />
-        public string FilterName { get; }
+        public string Name { get; internal set; }
 
         /// <inheritdoc />
         public FilterType Type => FilterType.NameFilter;
 
-        /// <summary>
-        ///     Названия торговых объектов участвующих в анализе
-        /// </summary>
-        public string[] TradeObjectNamesToAnalyze { get; }
-
         #endregion
 
-        #region Implementation of IFilter
+        #region Implemented public methods of IFilter
 
 #pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
-        
+
         /// <inheritdoc />
         public async Task<bool> CheckConditionsAsync(IServiceScopeFactory _, InfoModel model, CancellationToken __) =>
             TradeObjectNamesToAnalyze.Any(_ => model.TradeObjectName.Contains(_, StringComparison.InvariantCultureIgnoreCase));
 
 #pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
 
-        public object Clone() => new NameFilter(FilterName, TradeObjectNamesToAnalyze);
+        #endregion
+
+        #region Properties
+
+        /// <summary>
+        ///     Названия торговых объектов участвующих в анализе
+        /// </summary>
+        public string[] TradeObjectNamesToAnalyze { get; }
 
         #endregion
     }
