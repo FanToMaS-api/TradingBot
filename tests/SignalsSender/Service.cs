@@ -6,6 +6,8 @@ using Analytic.Filters.Builders;
 using Analytic.Filters.FilterGroup.Impl;
 using Analytic.Filters.Impl.FilterManagers;
 using Analytic.Models;
+using Analytic.src.Filters;
+using Analytic.src.Filters.Enums;
 using BinanceDatabase.Enums;
 using Logger;
 using Microsoft.Extensions.DependencyInjection;
@@ -62,7 +64,7 @@ namespace SignalsSender
         ///     Запускает бота
         /// </summary>
         public async Task RunAsync()
-        {
+        { 
             var builder = new FilterManagerBuilder(_logger);
            var result = builder
                 .CommonFilterGroup
@@ -78,6 +80,8 @@ namespace SignalsSender
                         .SetFilterName(null)
                         .SetComparisonType(ComparisonType.LessThan)
                         .SetLimit(200)
+                        .AddFilter()
+                        .Reset()
                  .AddFilterGroup()
                  .Reset()
                  .GetResult();

@@ -1,6 +1,6 @@
-﻿using Analytic.Models;
+﻿using Analytic.Filters.Enums;
+using Analytic.Models;
 using Microsoft.Extensions.DependencyInjection;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 

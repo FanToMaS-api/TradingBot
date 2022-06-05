@@ -1,4 +1,4 @@
-﻿namespace Analytic.Filters
+﻿namespace Analytic.Filters.Enums
 {
     /// <summary>
     ///     Тип сравнения

@@ -11,6 +11,7 @@ namespace Analytic.Filters.Builders
     {
         #region Fields
 
+        private CommonFilterGroupBuilder _commonFilterGroupBuilder;
         private readonly ILoggerDecorator _loggerDecorator;
         protected readonly List<IFilterGroup> _filterGroups;
         protected readonly List<IFilter> _filters;
@@ -34,7 +35,7 @@ namespace Analytic.Filters.Builders
         ///     Позволяет добавлять фильтры общего назначения
         /// </summary>
         public CommonFilterGroupBuilder CommonFilterGroup
-            => new();
+            => _commonFilterGroupBuilder ??= new();
 
         #endregion
 

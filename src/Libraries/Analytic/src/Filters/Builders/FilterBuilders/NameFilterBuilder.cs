@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Analytic.Filters.Builders.FilterBuilders
 {
@@ -27,6 +29,11 @@ namespace Analytic.Filters.Builders.FilterBuilders
         /// <inheritdoc />
         public override FilterManagerBuilder AddFilter()
         {
+            if (!_tradeObjectNamesToAnalyze.Any())
+            {
+                throw new Exception($"Trade object names {nameof(_tradeObjectNamesToAnalyze)} to analyze cannot be empty.");
+            }
+
             var nameFilter = new NameFilter(_filterName, _tradeObjectNamesToAnalyze.ToArray());
             _filters.Add(nameFilter);
 
@@ -55,7 +62,7 @@ namespace Analytic.Filters.Builders.FilterBuilders
         public NameFilterBuilder SetFilterName(string name)
         {
             _filterName = name;
-            
+
             return this;
         }
 

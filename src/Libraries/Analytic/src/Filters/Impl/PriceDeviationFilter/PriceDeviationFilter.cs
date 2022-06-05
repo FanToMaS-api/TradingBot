@@ -1,10 +1,10 @@
 ﻿using Analytic.Models;
 using BinanceDatabase;
-using BinanceDatabase.Enums;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Analytic.Filters.Enums;
 
 namespace Analytic.Filters
 {
@@ -23,7 +23,12 @@ namespace Analytic.Filters
         /// <param name="comparisonType"> Тип фильтра цен </param>
         /// <param name="limit"> Ограничение </param>
         /// <param name="timeframeNumber"> Кол-во таймфреймов участвующих в анализе </param>
-        public PriceDeviationFilter(string filterName, AggregateDataIntervalType interval, ComparisonType comparisonType, double limit, int timeframeNumber = 5)
+        public PriceDeviationFilter(
+            string filterName,
+            AggregateDataIntervalType interval,
+            ComparisonType comparisonType,
+            double limit,
+            int timeframeNumber = 5)
         {
             Name = filterName;
             Interval = interval;
@@ -45,7 +50,7 @@ namespace Analytic.Filters
         public ComparisonType ComparisonType { get; }
 
         /// <summary>
-        ///     Ограничение
+        ///     Ограничение на отклонение цены
         /// </summary>
         public double Limit { get; }
 
@@ -58,7 +63,7 @@ namespace Analytic.Filters
         public FilterType Type => FilterType.PriceDeviationFilter;
 
         /// <summary>
-        ///     Кол-во таймфреймов участвующих в анализе
+        ///     Кол-во таймфреймов, участвующих в анализе
         /// </summary>
         public int TimeframeNumber { get; }
 
@@ -81,7 +86,11 @@ namespace Analytic.Filters
             using var database = databaseFactory.CreateScopeDatabase();
 
             model.DeviationsSum = await database.ColdUnitOfWork.MiniTickers
-                .GetPricePercentDeviationSumAsync(model.TradeObjectName, Interval, TimeframeNumber, cancellationToken);
+                .GetPricePercentDeviationSumAsync(
+                model.TradeObjectName,
+                Interval.CastToBinanceDataAggregateType(),
+                TimeframeNumber,
+                cancellationToken);
 
             return ComparisonType switch
                 {

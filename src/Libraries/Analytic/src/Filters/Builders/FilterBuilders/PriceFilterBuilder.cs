@@ -1,4 +1,7 @@
-﻿namespace Analytic.Filters.Builders.FilterBuilders
+﻿using Analytic.Filters.Enums;
+using System;
+
+namespace Analytic.Filters.Builders.FilterBuilders
 {
     /// <summary>
     ///     Строитель <see cref="PriceFilter"/>
@@ -26,6 +29,11 @@
         /// <inheritdoc />
         public override FilterManagerBuilder AddFilter()
         {
+            if(_limit == 0)
+            {
+                throw new Exception($"Price limit {nameof(_limit)} cannot be 0.");
+            }
+            
             var priceFilter = new PriceFilter(_filterName, _comparisonType, _limit);
             _filters.Add(priceFilter);
 
@@ -62,8 +70,8 @@
         /// <summary>
         ///     Установить тип сравнения для лимита
         /// </summary>
-        /// <param name="limit"> Тип сравнения </param>
-        public PriceFilterBuilder SetComparisonType(ComparisonType comparisonType)
+        /// <param name="comparisonType"> Тип сравнения </param>
+        public PriceFilterBuilder SetComparisonType(ComparisonType comparisonType = ComparisonType.GreaterThan)
         {
             _comparisonType = comparisonType;
 

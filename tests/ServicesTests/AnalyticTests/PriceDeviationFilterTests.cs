@@ -1,5 +1,7 @@
 ﻿using Analytic.Filters;
 using Analytic.Models;
+using Analytic.src.Filters;
+using Analytic.src.Filters.Enums;
 using BinanceDatabase;
 using BinanceDatabase.Enums;
 using BinanceDatabase.Repositories;

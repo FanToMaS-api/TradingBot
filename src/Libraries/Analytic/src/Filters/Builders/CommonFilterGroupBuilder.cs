@@ -68,6 +68,18 @@ namespace Analytic.Filters.Builders
         public PriceFilterBuilder PriceFilterBuilder =>
             new();
 
+        /// <summary>
+        ///     Строитель фильтра отклонения цен
+        /// </summary>
+        public PriceDeviationFilterBuilder PriceDeviationFilterBuilder =>
+            new();
+
+        /// <summary>
+        ///     Строитель фильтра объемов
+        /// </summary>
+        public VolumeFilterBuilder VolumeFilterBuilder =>
+            new();
+
         #endregion
 
         #region Public methods
