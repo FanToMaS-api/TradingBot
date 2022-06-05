@@ -1,15 +1,12 @@
 ﻿using Analytic.Filters;
 using Analytic.Models;
-using Analytic.src.Filters;
-using Analytic.src.Filters.Enums;
+using Analytic.Filters.Enums;
 using BinanceDatabase;
-using BinanceDatabase.Enums;
 using BinanceDatabase.Repositories;
 using BinanceDatabase.Repositories.ColdRepositories;
 using Microsoft.Extensions.DependencyInjection;
 using NSubstitute;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit;

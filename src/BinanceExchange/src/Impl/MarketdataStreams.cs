@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using BinanceExchange.Enums;
 using BinanceExchange.Enums.Helper;
+using BinanceExchange.JsonConverters;
 using BinanceExchange.Models;
 using BinanceExchange.WebSocket;
 using BinanceExchange.WebSocket.Marketdata;

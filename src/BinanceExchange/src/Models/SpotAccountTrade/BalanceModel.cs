@@ -54,6 +54,4 @@ namespace BinanceExchange.Models
             }
         }
     }
-
-    #endregion
 }

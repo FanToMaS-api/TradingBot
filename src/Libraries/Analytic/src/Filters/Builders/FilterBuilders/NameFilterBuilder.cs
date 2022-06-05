@@ -77,6 +77,28 @@ namespace Analytic.Filters.Builders.FilterBuilders
             return this;
         }
 
+        /// <summary>
+        ///     Добавить названия объектов торговли, которые смогет пройти фильтр
+        /// </summary>
+        /// <param name="names"> Названия объектов торговли </param>
+        public NameFilterBuilder AddTradeObjectNames(IEnumerable<string> names)
+        {
+            _tradeObjectNamesToAnalyze.AddRange(names);
+
+            return this;
+        }
+
+        /// <summary>
+        ///     Добавить названия объектов торговли, которые смогет пройти фильтр
+        /// </summary>
+        /// <param name="names"> Названия объектов торговли </param>
+        public NameFilterBuilder AddTradeObjectNames(string[] names)
+        {
+            _tradeObjectNamesToAnalyze.AddRange(names);
+
+            return this;
+        }
+
         #endregion
     }
 }

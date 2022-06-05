@@ -1,6 +1,6 @@
 ﻿using Analytic.Filters;
 using Analytic.Models;
-using Analytic.src.Filters.Enums;
+using Analytic.Filters.Enums;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit;

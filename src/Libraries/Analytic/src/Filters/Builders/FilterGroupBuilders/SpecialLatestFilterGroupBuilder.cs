@@ -1,14 +1,12 @@
 ﻿using Analytic.Filters.Builders.FilterBuilders;
 using Analytic.Filters.FilterGroup.Impl;
-using Quartz.Impl;
-using System.Collections.Generic;
 
-namespace Analytic.Filters.Builders
+namespace Analytic.Filters.Builders.FilterGroupBuilders
 {
     /// <summary>
-    ///    Строитель для групп фильтров общего назначения
+    ///    Строитель для специальных групп фильтров, которые вызываются в последнюю очередь
     /// </summary>
-    public class CommonFilterGroupBuilder : FilterManagerBuilder
+    public class SpecialLatestFilterGroupBuilder : FilterManagerBuilder
     {
         #region Fields
 
@@ -19,8 +17,8 @@ namespace Analytic.Filters.Builders
 
         #region .ctor
 
-        /// <inheritdoc cref="CommonFilterGroupBuilder"/>
-        public CommonFilterGroupBuilder()
+        /// <inheritdoc cref="SpecialLatestFilterGroupBuilder"/>
+        public SpecialLatestFilterGroupBuilder()
             : base()
         { }
 
@@ -33,10 +31,10 @@ namespace Analytic.Filters.Builders
         {
             var filterGroup = new FilterGroup.Impl.FilterGroup(
                 _filterGroupName,
-                FilterGroupType.Common,
+                FilterGroupType.SpecialLatest,
                 _targetTradeObjectName,
                 _filters);
-            
+
             _filterGroups.Add(filterGroup);
 
             return this;
@@ -91,7 +89,7 @@ namespace Analytic.Filters.Builders
         /// <remarks>
         ///     <see langword="null"/> - для фильтрации всех
         /// </remarks>
-        public CommonFilterGroupBuilder SetTargetTradeObjectName(string name)
+        public SpecialLatestFilterGroupBuilder SetTargetTradeObjectName(string name)
         {
             _targetTradeObjectName = name;
 
@@ -102,7 +100,7 @@ namespace Analytic.Filters.Builders
         ///     Установить название группе фильтров
         /// </summary>
         /// <param name="filterGroupName"> Название группы фильтров </param>
-        public CommonFilterGroupBuilder SetFilterGroupName(string filterGroupName)
+        public SpecialLatestFilterGroupBuilder SetFilterGroupName(string filterGroupName)
         {
             _filterGroupName = filterGroupName;
 

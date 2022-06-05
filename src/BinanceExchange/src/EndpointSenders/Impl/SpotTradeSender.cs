@@ -1,4 +1,5 @@
 ﻿using BinanceExchange.Client;
+using BinanceExchange.JsonConverters;
 using BinanceExchange.Models;
 using Common.JsonConvertWrapper;
 using Common.JsonConvertWrapper.Converters;

@@ -98,7 +98,7 @@ namespace Analytic.Filters.Builders.FilterBuilders
         ///     Установить процентное отклонение одного типа объема продаж (указанного) от другого
         /// </summary>
         /// <param name="percentDeviation"> Процентное отклонение </param>
-        public VolumeFilterBuilder SetPercentDeviation(double percentDeviation)
+        public VolumeFilterBuilder SetPercentDeviation(double percentDeviation = 0.05)
         {
             _percentDeviation = percentDeviation;
 
