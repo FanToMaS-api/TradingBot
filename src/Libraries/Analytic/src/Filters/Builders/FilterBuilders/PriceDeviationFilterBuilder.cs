@@ -5,7 +5,7 @@ namespace Analytic.Filters.Builders.FilterBuilders
     /// <summary>
     ///     Строитель <see cref="PriceDeviationFilter"/>
     /// </summary>
-    public class PriceDeviationFilterBuilder : FilterManagerBuilder
+    public class PriceDeviationFilterBuilder
     {
         #region Fields
 
@@ -14,46 +14,6 @@ namespace Analytic.Filters.Builders.FilterBuilders
         private AggregateDataIntervalType _aggregateDataIntervalType;
         private double _limit;
         private int _timeframeNumber;
-
-        #endregion
-
-        #region .ctor
-
-        /// <inheritdoc cref="PriceDeviationFilterBuilder"/>
-        public PriceDeviationFilterBuilder()
-            : base() { }
-
-        #endregion
-
-        #region Implementation of FilterManagerBuilder
-
-        /// <inheritdoc />
-        public override FilterManagerBuilder AddFilter()
-        {
-            var priceFilter = new PriceDeviationFilter(
-                _filterName,
-                _aggregateDataIntervalType,
-                _comparisonType,
-                _limit,
-                _timeframeNumber);
-            _filters.Add(priceFilter);
-
-            return this;
-        }
-
-        /// <summary>
-        ///     Сбросить настройки фильтра названий
-        /// </summary>
-        public override FilterManagerBuilder Reset()
-        {
-            _filterName = string.Empty;
-            _aggregateDataIntervalType = AggregateDataIntervalType.Default;
-            _comparisonType = ComparisonType.GreaterThan;
-            _limit = 0;
-            _timeframeNumber = 5; // базовое значение, взято из конструктора фильтра отклонения цен
-
-            return this;
-        }
 
         #endregion
 
@@ -111,6 +71,31 @@ namespace Analytic.Filters.Builders.FilterBuilders
         public PriceDeviationFilterBuilder SetTimeframeNumber(int timeframeNumber = 5)
         {
             _timeframeNumber = timeframeNumber;
+
+            return this;
+        }
+
+        /// <summary>
+        ///     Возвращает фильтр отклонения цен
+        /// </summary>
+        public PriceDeviationFilter GetResult()
+            => new(
+                _filterName,
+                _aggregateDataIntervalType,
+                _comparisonType,
+                _limit,
+                _timeframeNumber);
+
+        /// <summary>
+        ///     Сбросить настройки фильтра отклонения цен
+        /// </summary>
+        public PriceDeviationFilterBuilder Reset()
+        {
+            _filterName = string.Empty;
+            _aggregateDataIntervalType = AggregateDataIntervalType.Default;
+            _comparisonType = ComparisonType.GreaterThan;
+            _limit = 0;
+            _timeframeNumber = 5; // базовое значение, взято из конструктора фильтра отклонения цен
 
             return this;
         }

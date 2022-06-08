@@ -59,8 +59,8 @@ namespace BinanceExchangeTests.BinanceTests.EndpointSendersTests
             builder.SetSymbol("ARPABNB");
             builder.SetRecvWindow(5000);
             builder.SetCandlestickInterval("1m");
-            var query = builder.GetResult().GetQuery();
-            var requestUrl = CreateSignUrl(BinanceEndpoints.NEW_TEST_ORDER, query, "apiSecretKey");
+            var parameters = builder.GetResult().GetRequestParameters();
+            var requestUrl = CreateSignUrl(BinanceEndpoints.NEW_TEST_ORDER, parameters, "apiSecretKey");
 
             var clientFactory = TestHelper.CreateMockIHttpClientFactory(requestUrl, filePath);
             var options = TestHelper.CreateBinanceExchangeOptions("", "apiSecretKey");
@@ -68,7 +68,7 @@ namespace BinanceExchangeTests.BinanceTests.EndpointSendersTests
             ISpotTradeSender tradeSender = new SpotTradeSender(binanceClient);
 
             // Act
-            var result = await tradeSender.SendNewTestOrderAsync(query, cancellationToken: CancellationToken.None);
+            var result = await tradeSender.SendNewTestOrderAsync(parameters, cancellationToken: CancellationToken.None);
             var properties = typeof(FullOrderResponseModel).GetProperties();
             for (var j = 0; j < properties.Length; j++)
             {
@@ -99,8 +99,8 @@ namespace BinanceExchangeTests.BinanceTests.EndpointSendersTests
             builder.SetSymbol("ARPABNB");
             builder.SetRecvWindow(5000);
             builder.SetCandlestickInterval("1m");
-            var query = builder.GetResult().GetQuery();
-            var requestUrl = CreateSignUrl(BinanceEndpoints.NEW_ORDER, query, "apiSecretKey");
+            var parameters = builder.GetResult().GetRequestParameters();
+            var requestUrl = CreateSignUrl(BinanceEndpoints.NEW_ORDER, parameters, "apiSecretKey");
 
             var clientFactory = TestHelper.CreateMockIHttpClientFactory(requestUrl, filePath);
             var options = TestHelper.CreateBinanceExchangeOptions("", "apiSecretKey");
@@ -108,7 +108,7 @@ namespace BinanceExchangeTests.BinanceTests.EndpointSendersTests
             ISpotTradeSender tradeSender = new SpotTradeSender(binanceClient);
 
             // Act
-            var result = await tradeSender.SendNewOrderAsync(query, cancellationToken: CancellationToken.None);
+            var result = await tradeSender.SendNewOrderAsync(parameters, cancellationToken: CancellationToken.None);
             TestExtensions.CheckingAssertions(_expectedResponse, result);
 
             return result;
@@ -125,8 +125,8 @@ namespace BinanceExchangeTests.BinanceTests.EndpointSendersTests
             builder.SetSymbol("LTCBTC");
             builder.SetRecvWindow(5000);
             builder.SetOrderId(4);
-            var query = builder.GetResult().GetQuery();
-            var requestUrl = CreateSignUrl(BinanceEndpoints.CANCEL_ORDER, query, "apiSecretKey");
+            var parameters = builder.GetResult().GetRequestParameters();
+            var requestUrl = CreateSignUrl(BinanceEndpoints.CANCEL_ORDER, parameters, "apiSecretKey");
 
             var clientFactory = TestHelper.CreateMockIHttpClientFactory(requestUrl, filePath);
             var options = TestHelper.CreateBinanceExchangeOptions("", "apiSecretKey");
@@ -134,7 +134,7 @@ namespace BinanceExchangeTests.BinanceTests.EndpointSendersTests
             ISpotTradeSender tradeSender = new SpotTradeSender(binanceClient);
 
             // Act
-            var result = await tradeSender.CancelOrderAsync(query, cancellationToken: CancellationToken.None);
+            var result = await tradeSender.CancelOrderAsync(parameters, cancellationToken: CancellationToken.None);
 
             Assert.Equal("LTCBTC", result.Symbol);
             Assert.Equal("myOrder1", result.OrigClientOrderId);
@@ -162,8 +162,8 @@ namespace BinanceExchangeTests.BinanceTests.EndpointSendersTests
             builder.SetSymbol("LTCBTC");
             builder.SetRecvWindow(5000);
             builder.SetOrderId(4);
-            var query = builder.GetResult().GetQuery();
-            var requestUrl = CreateSignUrl(BinanceEndpoints.CANCEL_All_ORDERS, query, "apiSecretKey");
+            var parameters = builder.GetResult().GetRequestParameters();
+            var requestUrl = CreateSignUrl(BinanceEndpoints.CANCEL_All_ORDERS, parameters, "apiSecretKey");
 
             var clientFactory = TestHelper.CreateMockIHttpClientFactory(requestUrl, filePath);
             var options = TestHelper.CreateBinanceExchangeOptions("", "apiSecretKey");
@@ -171,7 +171,7 @@ namespace BinanceExchangeTests.BinanceTests.EndpointSendersTests
             ISpotTradeSender tradeSender = new SpotTradeSender(binanceClient);
 
             // Act
-            var result = (await tradeSender.CancelAllOrdersAsync(query, cancellationToken: CancellationToken.None)).ToList();
+            var result = (await tradeSender.CancelAllOrdersAsync(parameters, cancellationToken: CancellationToken.None)).ToList();
 
             Assert.Equal(2, result.Count);
             Assert.Equal("BTCUSDT", result[0].Symbol);
@@ -214,8 +214,8 @@ namespace BinanceExchangeTests.BinanceTests.EndpointSendersTests
             builder.SetSymbol("LTCBTC");
             builder.SetRecvWindow(5000);
             builder.SetOrderId(1);
-            var query = builder.GetResult().GetQuery();
-            var url = CreateSignUrl(BinanceEndpoints.CHECK_ORDER, query, "apiSecretKey");
+            var parameters = builder.GetResult().GetRequestParameters();
+            var url = CreateSignUrl(BinanceEndpoints.CHECK_ORDER, parameters, "apiSecretKey");
 
             var clientFactory = TestHelper.CreateMockIHttpClientFactory(url, filePath);
             var options = TestHelper.CreateBinanceExchangeOptions("", "apiSecretKey");
@@ -223,7 +223,7 @@ namespace BinanceExchangeTests.BinanceTests.EndpointSendersTests
             ISpotTradeSender tradeSender = new SpotTradeSender(binanceClient);
 
             // Act
-            var result = await tradeSender.CheckOrderAsync(query, cancellationToken: CancellationToken.None);
+            var result = await tradeSender.CheckOrderAsync(parameters, cancellationToken: CancellationToken.None);
 
             TestExtensions.CheckingAssertions(_expectedCheckOrderResponse, result);
         }
@@ -238,8 +238,8 @@ namespace BinanceExchangeTests.BinanceTests.EndpointSendersTests
             var builder = new Builder();
             builder.SetSymbol("LTCBTC");
             builder.SetRecvWindow(5000);
-            var query = builder.GetResult().GetQuery();
-            var url = CreateSignUrl(BinanceEndpoints.CHECK_ALL_OPEN_ORDERS, query, "apiSecretKey");
+            var parameters = builder.GetResult().GetRequestParameters();
+            var url = CreateSignUrl(BinanceEndpoints.CHECK_ALL_OPEN_ORDERS, parameters, "apiSecretKey");
 
             var clientFactory = TestHelper.CreateMockIHttpClientFactory(url, filePath);
             var options = TestHelper.CreateBinanceExchangeOptions("", "apiSecretKey");
@@ -247,7 +247,7 @@ namespace BinanceExchangeTests.BinanceTests.EndpointSendersTests
             ISpotTradeSender tradeSender = new SpotTradeSender(binanceClient);
 
             // Act
-            var result = (await tradeSender.CheckAllOpenOrdersAsync(query, cancellationToken: CancellationToken.None)).ToList();
+            var result = (await tradeSender.CheckAllOpenOrdersAsync(parameters, cancellationToken: CancellationToken.None)).ToList();
 
             Assert.Equal(2, result.Count);
             for (var j = 0; j < 2; j++)
@@ -273,8 +273,8 @@ namespace BinanceExchangeTests.BinanceTests.EndpointSendersTests
             var builder = new Builder();
             builder.SetSymbol("LTCBTC");
             builder.SetRecvWindow(5000);
-            var query = builder.GetResult().GetQuery();
-            var url = CreateSignUrl(BinanceEndpoints.GET_ALL_ORDERS, query, "apiSecretKey");
+            var parameters = builder.GetResult().GetRequestParameters();
+            var url = CreateSignUrl(BinanceEndpoints.GET_ALL_ORDERS, parameters, "apiSecretKey");
 
             var clientFactory = TestHelper.CreateMockIHttpClientFactory(url, filePath);
             var options = TestHelper.CreateBinanceExchangeOptions("", "apiSecretKey");
@@ -282,7 +282,7 @@ namespace BinanceExchangeTests.BinanceTests.EndpointSendersTests
             ISpotTradeSender tradeSender = new SpotTradeSender(binanceClient);
 
             // Act
-            var result = (await tradeSender.GetAllOrdersAsync(query, cancellationToken: CancellationToken.None)).ToList();
+            var result = (await tradeSender.GetAllOrdersAsync(parameters, cancellationToken: CancellationToken.None)).ToList();
 
             Assert.Equal(2, result.Count);
             for (var j = 0; j < 2; j++)
@@ -306,8 +306,8 @@ namespace BinanceExchangeTests.BinanceTests.EndpointSendersTests
         internal async Task<AccountInformationModel> GetAccountInformationAsync_Test()
         {
             var filePath = "../../../BinanceTests/Jsons/SpotAccountTrade/GetAccountInformation.json";
-            var query = new Builder().GetResult().GetQuery();
-            var url = CreateSignUrl(BinanceEndpoints.ACCOUNT_INFORMATION, query, "apiSecretKey");
+            var parameters = new Builder().GetResult().GetRequestParameters();
+            var url = CreateSignUrl(BinanceEndpoints.ACCOUNT_INFORMATION, parameters, "apiSecretKey");
 
             var clientFactory = TestHelper.CreateMockIHttpClientFactory(url, filePath);
             var options = TestHelper.CreateBinanceExchangeOptions("", "apiSecretKey");
@@ -315,7 +315,7 @@ namespace BinanceExchangeTests.BinanceTests.EndpointSendersTests
             ISpotTradeSender tradeSender = new SpotTradeSender(binanceClient);
 
             // Act
-            var result = await tradeSender.GetAccountInformationAsync(query, cancellationToken: CancellationToken.None);
+            var result = await tradeSender.GetAccountInformationAsync(parameters, cancellationToken: CancellationToken.None);
 
             TestExtensions.CheckingAssertions(_expectedAccountInformationResponse, result);
 
@@ -329,10 +329,10 @@ namespace BinanceExchangeTests.BinanceTests.EndpointSendersTests
         /// <summary>
         ///     Создает подписанный Url-запрос
         /// </summary>
-        private string CreateSignUrl(string endPoint, Dictionary<string, object> query, string apiSecretKey)
+        private string CreateSignUrl(string endPoint, Dictionary<string, string> parameters, string apiSecretKey)
         {
             var urlSb = new StringBuilder();
-            BinanceUrlHelper.BuildQueryString(query, urlSb);
+            BinanceUrlHelper.BuildQueryString(parameters, urlSb);
             var signature = BinanceUrlHelper.Sign(urlSb.ToString(), apiSecretKey);
             urlSb.Append($"&signature={signature}");
 

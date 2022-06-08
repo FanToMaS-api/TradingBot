@@ -214,7 +214,10 @@ namespace BinanceExchange.Impl
         {
             var webSoket = MarketdataWebSocket.CreatePartialBookDepthStream(symbol, levels, activateFastReceive);
             webSoket.OnStreamClosed += onStreamClosedFunc;
-            webSoket.OnClosed += OnCloseHandler;
+            webSoket.OnClosed += OnCloseHandler; // ERROR: чет тут масло на масле!
+                                                 // убрать точно одно событие
+                                                 // переименовать все событяи по проекту
+                                                 // Проследить отписывание от событий!
 
             webSoket.AddOnMessageReceivedFunc(
                async content =>

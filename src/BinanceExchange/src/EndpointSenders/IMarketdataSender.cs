@@ -32,7 +32,7 @@ namespace BinanceExchange.EndpointSenders
         ///     50 - 5000;
         /// </remarks>
         Task<OrderBookModel> GetOrderBookAsync(
-            Dictionary<string, object> query,
+            Dictionary<string, string> parameters,
             CancellationToken cancellationToken = default);
 
         /// <summary>
@@ -41,7 +41,7 @@ namespace BinanceExchange.EndpointSenders
         /// <param name="symbol"> Пара </param>
         /// <param name="limit"> Кол-во сделок (максимум 1000, по умолчанию 500) </param>
         Task<IEnumerable<TradeModel>> GetRecentTradesAsync(
-            Dictionary<string, object> query,
+            Dictionary<string, string> parameters,
             CancellationToken cancellationToken = default);
 
         /// <summary>
@@ -51,7 +51,7 @@ namespace BinanceExchange.EndpointSenders
         /// <param name="fromId"> Нижняя граница выгрузки </param>
         /// <param name="limit"> Кол-во сделок (максимум 1000, по умолчанию 500) </param>
         Task<IEnumerable<TradeModel>> GetOldTradesAsync(
-            Dictionary<string, object> query,
+            Dictionary<string, string> parameters,
             CancellationToken cancellationToken = default);
 
         /// <summary>
@@ -63,14 +63,14 @@ namespace BinanceExchange.EndpointSenders
         /// <param name="endTime"> Окончание периода </param>
         /// <param name="limit"> Кол-во свечей (максимум 1000, по умолчанию 500) </param>
         Task<IEnumerable<CandlestickModel>> GetCandlestickAsync(
-            Dictionary<string, object> query,
+            Dictionary<string, string> parameters,
             CancellationToken cancellationToken = default);
 
         /// <summary>
         ///     Возвращает текущую среднюю цену пары
         /// </summary>
         Task<AveragePriceModel> GetAveragePriceAsync(
-            Dictionary<string, object> query,
+            Dictionary<string, string> parameters,
             CancellationToken cancellationToken = default);
 
         /// <summary>

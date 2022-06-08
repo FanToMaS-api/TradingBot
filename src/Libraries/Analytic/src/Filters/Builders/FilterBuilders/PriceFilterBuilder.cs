@@ -6,51 +6,13 @@ namespace Analytic.Filters.Builders.FilterBuilders
     /// <summary>
     ///     Строитель <see cref="PriceFilter"/>
     /// </summary>
-    public class PriceFilterBuilder : FilterManagerBuilder
+    public class PriceFilterBuilder
     {
         #region Fields
 
         private string _filterName;
         private ComparisonType _comparisonType;
         private double _limit;
-
-        #endregion
-
-        #region .ctor
-
-        /// <inheritdoc cref="PriceFilterBuilder"/>
-        public PriceFilterBuilder()
-            : base() { }
-
-        #endregion
-
-        #region Implementation of FilterManagerBuilder
-
-        /// <inheritdoc />
-        public override FilterManagerBuilder AddFilter()
-        {
-            if(_limit == 0)
-            {
-                throw new Exception($"Price limit {nameof(_limit)} cannot be 0.");
-            }
-            
-            var priceFilter = new PriceFilter(_filterName, _comparisonType, _limit);
-            _filters.Add(priceFilter);
-
-            return this;
-        }
-
-        /// <summary>
-        ///     Сбросить настройки фильтра названий
-        /// </summary>
-        public override FilterManagerBuilder Reset()
-        {
-            _filterName = string.Empty;
-            _comparisonType = ComparisonType.GreaterThan;
-            _limit = 0;
-
-            return this;
-        }
 
         #endregion
 
@@ -85,6 +47,29 @@ namespace Analytic.Filters.Builders.FilterBuilders
         public PriceFilterBuilder SetLimit(double limit)
         {
             _limit = limit;
+
+            return this;
+        }
+
+        /// <summary>
+        ///     Создает фильтр цен
+        /// </summary>
+        /// <exception cref="Exception"> Если значение лимита <= 0 </exception>
+        public PriceFilter GetResult()
+        {
+            return _limit <= 0 ?
+                throw new Exception($"Price limit {nameof(_limit)} cannot be 0.")
+                : new PriceFilter(_filterName, _comparisonType, _limit);
+        }
+
+        /// <summary>
+        ///     Сбросить настройки фильтра цен
+        /// </summary>
+        public PriceFilterBuilder Reset()
+        {
+            _filterName = string.Empty;
+            _comparisonType = ComparisonType.GreaterThan;
+            _limit = 0;
 
             return this;
         }

@@ -1,4 +1,5 @@
 ﻿using BinanceExchange.Client;
+using BinanceExchange.Client.Http.Request.Builders;
 using BinanceExchange.JsonConverters;
 using BinanceExchange.Models;
 using Common.JsonConvertWrapper;
@@ -43,115 +44,123 @@ namespace BinanceExchange.EndpointSenders.Impl
 
         /// <inheritdoc />
         public async Task<FullOrderResponseModel> SendNewTestOrderAsync(
-            Dictionary<string, object> query,
+            Dictionary<string, string> parameters,
             CancellationToken cancellationToken = default)
         {
-            var result = await _client.SendSignedAsync(
-                BinanceEndpoints.NEW_TEST_ORDER,
-                HttpMethod.Post,
-                query: query,
-                cancellationToken: cancellationToken);
+            var request = new HttpRequestUrlBuilder()
+                .SetEndpoint(BinanceEndpoints.NEW_TEST_ORDER)
+                .SetHttpMethod(HttpMethod.Post)
+                .SetParameters(parameters)
+                .GetResult();
+            var response = await _client.SendSignedAsync(request, cancellationToken);
 
-            return _converter.Deserialize<FullOrderResponseModel>(result);
+            return _converter.Deserialize<FullOrderResponseModel>(response);
         }
 
         /// <inheritdoc />
         public async Task<FullOrderResponseModel> SendNewOrderAsync(
-            Dictionary<string, object> query,
+            Dictionary<string, string> parameters,
             CancellationToken cancellationToken = default)
         {
-            var result = await _client.SendSignedAsync(
-                BinanceEndpoints.NEW_ORDER,
-                HttpMethod.Post,
-                query: query,
-                cancellationToken: cancellationToken);
+            var request = new HttpRequestUrlBuilder()
+                .SetEndpoint(BinanceEndpoints.NEW_ORDER)
+                .SetHttpMethod(HttpMethod.Post)
+                .SetParameters(parameters)
+                .GetResult();
+            var response = await _client.SendSignedAsync(request, cancellationToken);
 
-            return _converter.Deserialize<FullOrderResponseModel>(result);
+            return _converter.Deserialize<FullOrderResponseModel>(response);
         }
 
         /// <inheritdoc />
         public async Task<CancelOrderResponseModel> CancelOrderAsync(
-            Dictionary<string, object> query,
+            Dictionary<string, string> parameters,
             CancellationToken cancellationToken = default)
         {
-            var result = await _client.SendSignedAsync(
-                BinanceEndpoints.CANCEL_ORDER,
-                HttpMethod.Delete,
-                query: query,
-                cancellationToken: cancellationToken);
+            var request = new HttpRequestUrlBuilder()
+                .SetEndpoint(BinanceEndpoints.CANCEL_ORDER)
+                .SetHttpMethod(HttpMethod.Delete)
+                .SetParameters(parameters)
+                .GetResult();
+            var response = await _client.SendSignedAsync(request, cancellationToken);
 
-            return _converter.Deserialize<CancelOrderResponseModel>(result);
+            return _converter.Deserialize<CancelOrderResponseModel>(response);
         }
 
         /// <inheritdoc />
         public async Task<IEnumerable<CancelOrderResponseModel>> CancelAllOrdersAsync(
-            Dictionary<string, object> query,
+            Dictionary<string, string> parameters,
             CancellationToken cancellationToken = default)
         {
-            var result = await _client.SendSignedAsync(
-                BinanceEndpoints.CANCEL_All_ORDERS,
-                HttpMethod.Delete,
-                query: query,
-                cancellationToken: cancellationToken);
+            var request = new HttpRequestUrlBuilder()
+                .SetEndpoint(BinanceEndpoints.CANCEL_All_ORDERS)
+                .SetHttpMethod(HttpMethod.Delete)
+                .SetParameters(parameters)
+                .GetResult();
+            var response = await _client.SendSignedAsync(request, cancellationToken);
 
             // (TODO: OCO ордера не обрабатываются)
-            return _converter.Deserialize<IEnumerable<CancelOrderResponseModel>>(result);
+            return _converter.Deserialize<IEnumerable<CancelOrderResponseModel>>(response);
         }
 
         /// <inheritdoc />
         public async Task<CheckOrderResponseModel> CheckOrderAsync(
-            Dictionary<string, object> query,
+            Dictionary<string, string> parameters,
             CancellationToken cancellationToken = default)
         {
-            var result = await _client.SendSignedAsync(
-                BinanceEndpoints.CHECK_ORDER,
-                HttpMethod.Get,
-                query: query,
-                cancellationToken: cancellationToken);
+            var request = new HttpRequestUrlBuilder()
+                .SetEndpoint(BinanceEndpoints.CHECK_ORDER)
+                .SetHttpMethod(HttpMethod.Get)
+                .SetParameters(parameters)
+                .GetResult();
+            var response = await _client.SendSignedAsync(request, cancellationToken);
 
-            return _converter.Deserialize<CheckOrderResponseModel>(result);
+            return _converter.Deserialize<CheckOrderResponseModel>(response);
         }
 
         /// <inheritdoc />
         public async Task<IEnumerable<CheckOrderResponseModel>> CheckAllOpenOrdersAsync(
-            Dictionary<string, object> query,
+            Dictionary<string, string> parameters,
             CancellationToken cancellationToken = default)
         {
-            var result = await _client.SendSignedAsync(
-                BinanceEndpoints.CHECK_ALL_OPEN_ORDERS,
-                HttpMethod.Get,
-                query: query,
-                cancellationToken: cancellationToken);
+            var request = new HttpRequestUrlBuilder()
+                .SetEndpoint(BinanceEndpoints.CHECK_ALL_OPEN_ORDERS)
+                .SetHttpMethod(HttpMethod.Get)
+                .SetParameters(parameters)
+                .GetResult();
+            var response = await _client.SendSignedAsync(request, cancellationToken);
 
-            return _converter.Deserialize<IEnumerable<CheckOrderResponseModel>>(result);
+            return _converter.Deserialize<IEnumerable<CheckOrderResponseModel>>(response);
         }
 
         /// <inheritdoc />
         public async Task<IEnumerable<CheckOrderResponseModel>> GetAllOrdersAsync(
-            Dictionary<string, object> query,
+            Dictionary<string, string> parameters,
             CancellationToken cancellationToken = default)
         {
-            var result = await _client.SendSignedAsync(
-                BinanceEndpoints.GET_ALL_ORDERS,
-                HttpMethod.Get,
-                query: query,
-                cancellationToken: cancellationToken);
+            var request = new HttpRequestUrlBuilder()
+                .SetEndpoint(BinanceEndpoints.GET_ALL_ORDERS)
+                .SetHttpMethod(HttpMethod.Get)
+                .SetParameters(parameters)
+                .GetResult();
+            var response = await _client.SendSignedAsync(request, cancellationToken);
 
-            return _converter.Deserialize<IEnumerable<CheckOrderResponseModel>>(result);
+            return _converter.Deserialize<IEnumerable<CheckOrderResponseModel>>(response);
         }
 
         /// <inheritdoc />
         public async Task<AccountInformationModel> GetAccountInformationAsync(
-            Dictionary<string, object> query,
+            Dictionary<string, string> parameters,
             CancellationToken cancellationToken = default)
         {
-            var result = await _client.SendSignedAsync(
-                BinanceEndpoints.ACCOUNT_INFORMATION,
-                HttpMethod.Get,
-                query: query,
-                cancellationToken: cancellationToken);
+            var request = new HttpRequestUrlBuilder()
+                .SetEndpoint(BinanceEndpoints.ACCOUNT_INFORMATION)
+                .SetHttpMethod(HttpMethod.Get)
+                .SetParameters(parameters)
+                .GetResult();
+            var response = await _client.SendSignedAsync(request, cancellationToken);
 
-            return _converter.Deserialize<AccountInformationModel>(result);
+            return _converter.Deserialize<AccountInformationModel>(response);
         }
 
         #endregion

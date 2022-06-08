@@ -1,4 +1,5 @@
 ﻿using BinanceExchange.Client;
+using BinanceExchange.Client.Http.Request.Builders;
 using BinanceExchange.JsonConverters;
 using BinanceExchange.Models;
 using Common.JsonConvertWrapper;
@@ -27,7 +28,7 @@ namespace BinanceExchange.EndpointSenders.Impl
             _converter = new JsonDeserializerWrapper();
             _converter.AddConverter(new OrderBookModelConverter());
             _converter.AddConverter(new CandlestickModelEnumerableConverter());
-            _converter.AddConverter(new ExchangeInfoModelConverter());;
+            _converter.AddConverter(new ExchangeInfoModelConverter()); ;
         }
 
         #endregion
@@ -37,82 +38,88 @@ namespace BinanceExchange.EndpointSenders.Impl
         /// <inheritdoc />
         public async Task<ExchangeInfoModel> GetExchangeInfoAsync(CancellationToken cancellationToken = default)
         {
-            var result = await _client.SendPublicAsync(
-                BinanceEndpoints.EXCHANGE_INFO,
-                HttpMethod.Get,
-                cancellationToken: cancellationToken);
+            var request = new HttpRequestUrlBuilder()
+                .SetEndpoint(BinanceEndpoints.EXCHANGE_INFO)
+                .SetHttpMethod(HttpMethod.Get)
+                .GetResult();
+            var response = await _client.SendPublicAsync(request, cancellationToken);
 
-            return _converter.Deserialize<ExchangeInfoModel>(result);
+            return _converter.Deserialize<ExchangeInfoModel>(response);
         }
 
         /// <inheritdoc />
         public async Task<OrderBookModel> GetOrderBookAsync(
-            Dictionary<string, object> query,
+            Dictionary<string, string> parameters,
             CancellationToken cancellationToken = default)
         {
-            var result = await _client.SendPublicAsync(
-                BinanceEndpoints.ORDER_BOOK,
-                HttpMethod.Get,
-                query: query,
-                cancellationToken: cancellationToken);
+            var request = new HttpRequestUrlBuilder()
+                .SetEndpoint(BinanceEndpoints.ORDER_BOOK)
+                .SetHttpMethod(HttpMethod.Get)
+                .SetParameters(parameters)
+                .GetResult();
+            var response = await _client.SendPublicAsync(request, cancellationToken);
 
-            return _converter.Deserialize<OrderBookModel>(result);
+            return _converter.Deserialize<OrderBookModel>(response);
         }
 
         /// <inheritdoc />
         public async Task<IEnumerable<TradeModel>> GetRecentTradesAsync(
-            Dictionary<string, object> query,
+            Dictionary<string, string> parameters,
             CancellationToken cancellationToken = default)
         {
-            var result = await _client.SendPublicAsync(
-                BinanceEndpoints.RECENT_TRADES,
-                HttpMethod.Get,
-                query: query,
-                cancellationToken: cancellationToken);
+            var request = new HttpRequestUrlBuilder()
+                .SetEndpoint(BinanceEndpoints.RECENT_TRADES)
+                .SetHttpMethod(HttpMethod.Get)
+                .SetParameters(parameters)
+                .GetResult();
+            var response = await _client.SendPublicAsync(request, cancellationToken);
 
-            return _converter.Deserialize<IEnumerable<TradeModel>>(result);
+            return _converter.Deserialize<IEnumerable<TradeModel>>(response);
         }
 
         /// <inheritdoc />
         public async Task<IEnumerable<TradeModel>> GetOldTradesAsync(
-            Dictionary<string, object> query,
+            Dictionary<string, string> parameters,
             CancellationToken cancellationToken = default)
         {
-            var result = await _client.SendPublicAsync(
-                BinanceEndpoints.OLD_TRADES,
-                HttpMethod.Get,
-                query: query,
-                cancellationToken: cancellationToken);
+            var request = new HttpRequestUrlBuilder()
+                .SetEndpoint(BinanceEndpoints.OLD_TRADES)
+                .SetHttpMethod(HttpMethod.Get)
+                .SetParameters(parameters)
+                .GetResult();
+            var response = await _client.SendPublicAsync(request, cancellationToken);
 
-            return _converter.Deserialize<IEnumerable<TradeModel>>(result);
+            return _converter.Deserialize<IEnumerable<TradeModel>>(response);
         }
 
         /// <inheritdoc />
         public async Task<IEnumerable<CandlestickModel>> GetCandlestickAsync(
-            Dictionary<string, object> query,
+            Dictionary<string, string> parameters,
             CancellationToken cancellationToken = default)
         {
-            var result = await _client.SendPublicAsync(
-                BinanceEndpoints.CANDLESTICK_DATA,
-                HttpMethod.Get,
-                query: query,
-                cancellationToken: cancellationToken);
+            var request = new HttpRequestUrlBuilder()
+                .SetEndpoint(BinanceEndpoints.CANDLESTICK_DATA)
+                .SetHttpMethod(HttpMethod.Get)
+                .SetParameters(parameters)
+                .GetResult();
+            var response = await _client.SendPublicAsync(request, cancellationToken);
 
-            return _converter.Deserialize<IEnumerable<CandlestickModel>>(result);
+            return _converter.Deserialize<IEnumerable<CandlestickModel>>(response);
         }
 
         /// <inheritdoc />
         public async Task<AveragePriceModel> GetAveragePriceAsync(
-            Dictionary<string, object> query,
+            Dictionary<string, string> parameters,
             CancellationToken cancellationToken = default)
         {
-            var result = await _client.SendPublicAsync(
-                BinanceEndpoints.AVERAGE_PRICE,
-                HttpMethod.Get,
-                query: query,
-                cancellationToken: cancellationToken);
+            var request = new HttpRequestUrlBuilder()
+                .SetEndpoint(BinanceEndpoints.AVERAGE_PRICE)
+                .SetHttpMethod(HttpMethod.Get)
+                .SetParameters(parameters)
+                .GetResult();
+            var response = await _client.SendPublicAsync(request, cancellationToken);
 
-            return _converter.Deserialize<AveragePriceModel>(result);
+            return _converter.Deserialize<AveragePriceModel>(response);
         }
 
         /// <inheritdoc />
@@ -121,14 +128,16 @@ namespace BinanceExchange.EndpointSenders.Impl
             CancellationToken cancellationToken = default)
         {
             var isNull = string.IsNullOrEmpty(symbol);
-            var response = await _client.SendPublicAsync(
-                BinanceEndpoints.DAY_PRICE_CHANGE,
-                HttpMethod.Get,
-                query: new Dictionary<string, object>
-                {
-                    { "symbol", symbol },
-                },
-                cancellationToken: cancellationToken);
+            var parameters = new Dictionary<string, string>
+            {
+                { "symbol", symbol },
+            };
+            var request = new HttpRequestUrlBuilder()
+                .SetEndpoint(BinanceEndpoints.DAY_PRICE_CHANGE)
+                .SetHttpMethod(HttpMethod.Get)
+                .SetParameters(parameters)
+                .GetResult();
+            var response = await _client.SendPublicAsync(request, cancellationToken);
 
             if (!isNull)
             {
@@ -147,14 +156,16 @@ namespace BinanceExchange.EndpointSenders.Impl
         public async Task<IEnumerable<SymbolPriceTickerModel>> GetSymbolPriceTickerAsync(string symbol, CancellationToken cancellationToken = default)
         {
             var isNull = string.IsNullOrEmpty(symbol);
-            var response = await _client.SendPublicAsync(
-                BinanceEndpoints.SYMBOL_PRICE_TICKER,
-                HttpMethod.Get,
-                query: new Dictionary<string, object>
-                {
-                    { "symbol", symbol },
-                },
-                cancellationToken: cancellationToken);
+            var parameters = new Dictionary<string, string>
+            {
+                { "symbol", symbol },
+            };
+            var request = new HttpRequestUrlBuilder()
+                .SetEndpoint(BinanceEndpoints.SYMBOL_PRICE_TICKER)
+                .SetHttpMethod(HttpMethod.Get)
+                .SetParameters(parameters)
+                .GetResult();
+            var response = await _client.SendPublicAsync(request, cancellationToken);
 
             if (!isNull)
             {
@@ -175,14 +186,16 @@ namespace BinanceExchange.EndpointSenders.Impl
             CancellationToken cancellationToken = default)
         {
             var isNull = string.IsNullOrEmpty(symbol);
-            var response = await _client.SendPublicAsync(
-                BinanceEndpoints.SYMBOL_ORDER_BOOK_TICKER,
-                HttpMethod.Get,
-                query: new Dictionary<string, object>
-                {
-                    { "symbol", symbol },
-                },
-                cancellationToken: cancellationToken);
+            var parameters = new Dictionary<string, string>
+            {
+                { "symbol", symbol },
+            };
+            var request = new HttpRequestUrlBuilder()
+                .SetEndpoint(BinanceEndpoints.SYMBOL_ORDER_BOOK_TICKER)
+                .SetHttpMethod(HttpMethod.Get)
+                .SetParameters(parameters)
+                .GetResult();
+            var response = await _client.SendPublicAsync(request, cancellationToken);
 
             if (!isNull)
             {

@@ -14,24 +14,11 @@ namespace BinanceExchange.Client.Helpers
         #region Public methods
 
         /// <summary>
-        ///     Строит запрос к Binance
+        ///     Обединяет данные в строку, разделяя их сепаратором
         /// </summary>
-        public static StringBuilder BuildQueryString(Dictionary<string, object> queryParameters, StringBuilder builder)
+        internal static string JoinToString<T>(this IEnumerable<T> source, string separator)
         {
-            foreach (var queryParameter in queryParameters)
-            {
-                if (!string.IsNullOrWhiteSpace(queryParameter.Value?.ToString()))
-                {
-                    if (builder.Length > 0)
-                    {
-                        builder.Append("&");
-                    }
-
-                    builder.Append($"{queryParameter.Key}={HttpUtility.UrlEncode(queryParameter.Value.ToString())}");
-                }
-            }
-
-            return builder;
+            return string.Join(separator, source);
         }
 
         /// <summary>

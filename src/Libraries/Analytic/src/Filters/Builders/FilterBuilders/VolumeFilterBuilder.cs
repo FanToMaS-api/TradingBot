@@ -6,7 +6,7 @@ namespace Analytic.Filters.Builders.FilterBuilders
     /// <summary>
     ///     Строитель <see cref="VolumeFilter"/>
     /// </summary>
-    public class VolumeFilterBuilder : FilterManagerBuilder
+    public class VolumeFilterBuilder
     {
         #region Fields
 
@@ -16,46 +16,6 @@ namespace Analytic.Filters.Builders.FilterBuilders
         private VolumeComparisonType _volumeComparisonType;
         private double _percentDeviation;
         private int _orderNumber;
-
-        #endregion
-
-        #region .ctor
-
-        /// <inheritdoc cref="VolumeFilterBuilder"/>
-        public VolumeFilterBuilder()
-            : base() { }
-
-        #endregion
-
-        #region Implementation of FilterManagerBuilder
-
-        /// <inheritdoc />
-        public override FilterManagerBuilder AddFilter()
-        {
-            var priceFilter = new VolumeFilter(
-                _filterName,
-                _volumeType,
-                _volumeComparisonType,
-                _percentDeviation,
-                _orderNumber);
-            _filters.Add(priceFilter);
-
-            return this;
-        }
-
-        /// <summary>
-        ///     Сбросить настройки фильтра названий
-        /// </summary>
-        public override FilterManagerBuilder Reset()
-        {
-            _filterName = string.Empty;
-            _volumeType = VolumeType.Bid;
-            _volumeComparisonType = VolumeComparisonType.GreaterThan;
-            _percentDeviation = 0.05; // дефолтное, подобранное значение из фильтра объемов
-            _orderNumber = 1000; // данные взяты с учетом ограничений по получению данных с бинанса
-
-            return this;
-        }
 
         #endregion
 
@@ -120,6 +80,31 @@ namespace Analytic.Filters.Builders.FilterBuilders
             }
 
             _orderNumber = orderNumber;
+
+            return this;
+        }
+
+        /// <summary>
+        ///     Возвращает сформированный фильтр для объемов
+        /// </summary>
+        public VolumeFilter GetResult()
+            => new(
+                _filterName,
+                _volumeType,
+                _volumeComparisonType,
+                _percentDeviation,
+                _orderNumber);
+
+        /// <summary>
+        ///     Сбросить настройки фильтра для объемов
+        /// </summary>
+        public VolumeFilterBuilder Reset()
+        {
+            _filterName = string.Empty;
+            _volumeType = VolumeType.Bid;
+            _volumeComparisonType = VolumeComparisonType.GreaterThan;
+            _percentDeviation = 0.05; // дефолтное, подобранное значение из фильтра объемов
+            _orderNumber = 1000; // данные взяты с учетом ограничений по получению данных с бинанса
 
             return this;
         }

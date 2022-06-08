@@ -6,7 +6,6 @@ using BinanceExchange.RedisRateLimits;
 using BinanceExchange.RequestWeights;
 using Common.Models;
 using ExchangeLibrary;
-using NLog;
 using Redis;
 using System.Collections.Generic;
 using System.Threading;
@@ -19,7 +18,6 @@ namespace BinanceExchange.Impl
     {
         #region Private methods
 
-        private readonly ILogger _logger = LogManager.GetCurrentClassLogger();
         private readonly WalletRequestWeightStorage _weightStorage = new();
         private readonly IWalletSender _walletSender;
         private readonly IRedisDatabase _redisDatabase;
@@ -68,8 +66,8 @@ namespace BinanceExchange.Impl
 
             var builder = new Builder()
                 .SetRecvWindow(recvWindow);
-            var query = builder.GetResult().GetQuery();
-            var result = await _walletSender.GetAccountTradingStatusAsync(query, cancellationToken);
+            var parameters = builder.GetResult().GetRequestParameters();
+            var result = await _walletSender.GetAccountTradingStatusAsync(parameters, cancellationToken);
 
             RedisHelper.IncrementCallsMade(_redisDatabase, requestWeight, RequestWeightModel.GetDefaultKey());
 
@@ -91,8 +89,8 @@ namespace BinanceExchange.Impl
             var builder = new Builder()
                 .SetSymbol(symbol, true)
                 .SetRecvWindow(recvWindow);
-            var query = builder.GetResult().GetQuery();
-            var result = await _walletSender.GetTradeFeeAsync(query, cancellationToken);
+            var parameters = builder.GetResult().GetRequestParameters();
+            var result = await _walletSender.GetTradeFeeAsync(parameters, cancellationToken);
 
             RedisHelper.IncrementCallsMade(_redisDatabase, requestWeight, RequestWeightModel.GetDefaultKey());
 
@@ -110,8 +108,8 @@ namespace BinanceExchange.Impl
 
             var builder = new Builder()
                 .SetRecvWindow(recvWindow);
-            var query = builder.GetResult().GetQuery();
-            var result = await _walletSender.GetAllCoinsInformationAsync(query, cancellationToken);
+            var parameters = builder.GetResult().GetRequestParameters();
+            var result = await _walletSender.GetAllCoinsInformationAsync(parameters, cancellationToken);
 
             RedisHelper.IncrementCallsMade(_redisDatabase, requestWeight, RequestWeightModel.GetDefaultKey());
 

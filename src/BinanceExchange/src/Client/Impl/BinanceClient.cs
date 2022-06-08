@@ -1,10 +1,12 @@
 ﻿using BinanceExchange.Client.Helpers;
+using BinanceExchange.Client.Http.Request.Models;
 using BinanceExchange.Enums;
 using BinanceExchange.Exceptions;
 using NLog;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
 using System.Threading;
@@ -23,7 +25,6 @@ namespace BinanceExchange.Client.Impl
         private readonly string _apiSecret;
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly ILogger _logger = LogManager.GetCurrentClassLogger();
-        private readonly string _baseUrl = "https://api.binance.com";
 
         #endregion
 
@@ -43,52 +44,22 @@ namespace BinanceExchange.Client.Impl
 
         /// <inheritdoc />
         public async Task<string> SendPublicAsync(
-            string requestUri,
-            HttpMethod httpMethod,
-            Dictionary<string, object> query = null,
-            object content = null,
-            CancellationToken cancellationToken = default)
-        {
-            if (query is not null)
-            {
-                var queryStringBuilder = BinanceUrlHelper.BuildQueryString(query, new StringBuilder());
-
-                if (queryStringBuilder.Length > 0)
-                {
-                    requestUri += "?" + queryStringBuilder.ToString();
-                }
-            }
-
-            return await SendAsync(requestUri, httpMethod, content, cancellationToken: cancellationToken);
-        }
+            IRequestModel requestModel,
+            CancellationToken cancellationToken = default) =>
+            await SendAsync(requestModel, cancellationToken: cancellationToken);
 
         /// <inheritdoc />
         public async Task<string> SendSignedAsync(
-            string requestUri,
-            HttpMethod httpMethod,
-            Dictionary<string, object> query = null,
-            object content = null,
+            IRequestModel requestModel,
             CancellationToken cancellationToken = default)
         {
-            var queryStringBuilder = new StringBuilder();
+            var signParameters = BinanceUrlHelper.Sign(requestModel.ParametersStr, _apiSecret);
 
-            if (query is not null)
-            {
-                BinanceUrlHelper.BuildQueryString(query, queryStringBuilder);
-            }
+            var signature = requestModel.ParametersStr.Any()
+                ? $"&signature={signParameters}"
+                : $"?signature={signParameters}";
 
-            var signature = BinanceUrlHelper.Sign(queryStringBuilder.ToString(), _apiSecret);
-
-            if (queryStringBuilder.Length > 0)
-            {
-                queryStringBuilder.Append('&');
-            }
-
-            queryStringBuilder.Append($"signature={signature}");
-
-            requestUri += $"?{queryStringBuilder}";
-
-            return await SendAsync(requestUri, httpMethod, content, cancellationToken: cancellationToken);
+            return await SendAsync(requestModel, signature, cancellationToken);
         }
 
         #endregion
@@ -99,15 +70,15 @@ namespace BinanceExchange.Client.Impl
         ///     Осуществляет отправку запроса
         /// </summary>
         private async Task<string> SendAsync(
-            string requestUri,
-            HttpMethod httpMethod,
-            object content = null,
+            IRequestModel requestModel,
+            string signature = "",
             CancellationToken cancellationToken = default)
         {
-            using var request = new HttpRequestMessage(httpMethod, _baseUrl + requestUri);
-            if (content is not null)
+            using var request = new HttpRequestMessage(requestModel.HttpMethod, $"{requestModel.Url}{signature}");
+            if (requestModel.Body is not null)
             {
-                request.Content = new StringContent(JsonSerializer.Serialize(content), Encoding.UTF8, "application/json");
+                request.Content = new ByteArrayContent(requestModel.Body);
+                request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue(requestModel.ContentType));
             }
 
             if (_apiKey is not null)

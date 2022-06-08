@@ -75,8 +75,8 @@ namespace BinanceExchange.Impl
             var builder = new Builder();
             builder.SetSymbol(symbol);
             builder.SetLimit(limit);
-            var query = builder.GetResult(false).GetQuery();
-            var result = await _marketdataSender.GetOrderBookAsync(query, cancellationToken);
+            var parameters = builder.GetResult(false).GetRequestParameters();
+            var result = await _marketdataSender.GetOrderBookAsync(parameters, cancellationToken);
 
             RedisHelper.IncrementCallsMade(_redisDatabase, requestWeight, limit.ToString());
 
@@ -98,8 +98,8 @@ namespace BinanceExchange.Impl
             var builder = new Builder();
             builder.SetSymbol(symbol);
             builder.SetLimit(limit);
-            var query = builder.GetResult(false).GetQuery();
-            var result = await _marketdataSender.GetRecentTradesAsync(query, cancellationToken);
+            var parameters = builder.GetResult(false).GetRequestParameters();
+            var result = await _marketdataSender.GetRecentTradesAsync(parameters, cancellationToken);
 
             RedisHelper.IncrementCallsMade(_redisDatabase, requestWeight, RequestWeightModel.GetDefaultKey());
 
@@ -127,8 +127,8 @@ namespace BinanceExchange.Impl
                 builder.SetFromId(fromId.Value);
             }
 
-            var query = builder.GetResult(false).GetQuery();
-            var result = await _marketdataSender.GetOldTradesAsync(query, cancellationToken);
+            var parameters = builder.GetResult(false).GetRequestParameters();
+            var result = await _marketdataSender.GetOldTradesAsync(parameters, cancellationToken);
 
             RedisHelper.IncrementCallsMade(_redisDatabase, requestWeight, RequestWeightModel.GetDefaultKey());
 
@@ -164,8 +164,8 @@ namespace BinanceExchange.Impl
                 builder.SetEndTime(endTime.Value);
             }
 
-            var query = builder.GetResult(false).GetQuery();
-            var result = await _marketdataSender.GetCandlestickAsync(query, cancellationToken);
+            var parameters = builder.GetResult(false).GetRequestParameters();
+            var result = await _marketdataSender.GetCandlestickAsync(parameters, cancellationToken);
 
             RedisHelper.IncrementCallsMade(_redisDatabase, requestWeight, RequestWeightModel.GetDefaultKey());
 
@@ -183,8 +183,8 @@ namespace BinanceExchange.Impl
 
             var builder = new Builder();
             builder.SetSymbol(symbol);
-            var query = builder.GetResult(false).GetQuery();
-            var result = await _marketdataSender.GetAveragePriceAsync(query, cancellationToken);
+            var parameters = builder.GetResult(false).GetRequestParameters();
+            var result = await _marketdataSender.GetAveragePriceAsync(parameters, cancellationToken);
 
             RedisHelper.IncrementCallsMade(_redisDatabase, requestWeight, RequestWeightModel.GetDefaultKey());
 
