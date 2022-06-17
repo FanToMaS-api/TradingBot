@@ -47,7 +47,7 @@ namespace BinanceExchange.Client.Http.Request.Builders
             var endpointUrl = $"{BaseUrl}{endpoint}";
             _requestModel.Endpoint = endpointUrl;
             _requestModel.Url = endpointUrl;
-            
+
             return this;
         }
 
@@ -57,7 +57,7 @@ namespace BinanceExchange.Client.Http.Request.Builders
         /// <param name="httpMethod"> Http метод </param>
         public HttpRequestUrlBuilder SetHttpMethod(HttpMethod httpMethod)
         {
-            _requestModel.HttpMethod = httpMethod;
+            _requestModel.HttpMethod = httpMethod ?? throw new ArgumentNullException(nameof(httpMethod));
 
             return this;
         }
@@ -84,6 +84,11 @@ namespace BinanceExchange.Client.Http.Request.Builders
         /// </remarks>
         public HttpRequestUrlBuilder SetBody(IDictionary<string, string> body)
         {
+            if (body is null)
+            {
+                throw new ArgumentNullException(nameof(body));
+            }
+            
             var parametersStr = GetCustomParametersString(body);
             _requestModel.Body = Encoding.ASCII.GetBytes(parametersStr);
             SetContentType("application/json");
@@ -109,7 +114,7 @@ namespace BinanceExchange.Client.Http.Request.Builders
         /// </summary>
         public HttpRequestUrlBuilder SetParameters(IDictionary<string, string> parameters)
         {
-            _parameters = parameters;
+            _parameters = new Dictionary<string, string>(parameters) ?? throw new ArgumentNullException(nameof(parameters));
 
             return this;
         }
@@ -164,8 +169,10 @@ namespace BinanceExchange.Client.Http.Request.Builders
         /// </summary>
         public IRequestModel GetResult()
         {
-            _requestModel.Url = GetRequestUrl(_requestModel.Url, _parameters);
+            ThrowIsEmpty(nameof(_requestModel.Url), _requestModel.Url);
             
+            _requestModel.Url = GetRequestUrl(_requestModel.Url, _parameters);
+
             _requestModel.Parameters = new ReadOnlyDictionary<string, string>(_parameters);
 
             return _requestModel;
