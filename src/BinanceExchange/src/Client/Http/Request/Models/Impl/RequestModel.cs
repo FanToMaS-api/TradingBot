@@ -10,9 +10,6 @@ namespace BinanceExchange.Client.Http.Request.Models.Impl
 
         /// <inheritdoc />
         public string Endpoint { get; internal set; }
-        
-        /// <inheritdoc />
-        public string ParametersStr { get; internal set; }
 
         /// <inheritdoc />
         public string Url { get; internal set; }

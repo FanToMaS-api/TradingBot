@@ -50,8 +50,8 @@ namespace BinanceExchange.Impl
         {
             var streamType = stream.ConvertToMarketdataStreamType();
             var webSoket = new MarketdataWebSocket(symbol, streamType);
-            webSoket.OnClosed += OnCloseHandler;
-            webSoket.OnStreamClosed += onStreamClosedFunc;
+            webSoket.WebSocketClosed += OnCloseHandler;
+            webSoket.StreamClosed += onStreamClosedFunc;
 
             webSoket.AddOnMessageReceivedFunc(
                async content =>
@@ -88,8 +88,8 @@ namespace BinanceExchange.Impl
         {
             var interval = candleStickInterval.ConvertToCandleStickIntervalType();
             var webSoket = MarketdataWebSocket.CreateCandlestickStream(symbol, interval);
-            webSoket.OnClosed += OnCloseHandler;
-            webSoket.OnStreamClosed += onStreamClosedFunc;
+            webSoket.WebSocketClosed += OnCloseHandler;
+            webSoket.StreamClosed += onStreamClosedFunc;
 
             webSoket.AddOnMessageReceivedFunc(
                async content =>
@@ -120,8 +120,8 @@ namespace BinanceExchange.Impl
             Action onStreamClosedFunc = null)
         {
             var webSoket = MarketdataWebSocket.CreateAllTickersStream();
-            webSoket.OnClosed += OnCloseHandler;
-            webSoket.OnStreamClosed += onStreamClosedFunc;
+            webSoket.WebSocketClosed += OnCloseHandler;
+            webSoket.StreamClosed += onStreamClosedFunc;
 
             webSoket.AddOnMessageReceivedFunc(
                async content =>
@@ -152,8 +152,8 @@ namespace BinanceExchange.Impl
             Action onStreamClosedFunc = null)
         {
             var webSoket = MarketdataWebSocket.CreateAllBookTickersStream();
-            webSoket.OnClosed += OnCloseHandler;
-            webSoket.OnStreamClosed += onStreamClosedFunc;
+            webSoket.WebSocketClosed += OnCloseHandler;
+            webSoket.StreamClosed += onStreamClosedFunc;
 
             webSoket.AddOnMessageReceivedFunc(
                async content =>
@@ -184,10 +184,10 @@ namespace BinanceExchange.Impl
             Action onStreamClosedFunc = null)
         {
             var webSoket = MarketdataWebSocket.CreateAllMarketMiniTickersStream();
-            webSoket.OnClosed += OnCloseHandler;
-            webSoket.OnStreamClosed += onStreamClosedFunc;
+            webSoket.WebSocketClosed += OnCloseHandler;asdasdasd УБРАТЬ
+            webSoket.StreamClosed += onStreamClosedFunc;
 
-            webSoket.AddOnMessageReceivedFunc(
+            webSoket.AddOnMessageReceivedFunc( // TODO: такие выражения убрать в методы и корректно обрабатывать отписку и подписку!!!!
                async content =>
                {
                    var models = _converter.Deserialize<IEnumerable<MiniTickerStreamModel>>(content);
@@ -213,8 +213,8 @@ namespace BinanceExchange.Impl
             bool activateFastReceive = false)
         {
             var webSoket = MarketdataWebSocket.CreatePartialBookDepthStream(symbol, levels, activateFastReceive);
-            webSoket.OnStreamClosed += onStreamClosedFunc;
-            webSoket.OnClosed += OnCloseHandler; // ERROR: чет тут масло на масле!
+            webSoket.StreamClosed += onStreamClosedFunc;
+            webSoket.WebSocketClosed += OnCloseHandler; // ERROR: чет тут масло на масле!
                                                  // убрать точно одно событие
                                                  // переименовать все событяи по проекту
                                                  // Проследить отписывание от событий!
@@ -241,9 +241,9 @@ namespace BinanceExchange.Impl
         private Task OnCloseHandler(BinanceWebSocket webSocket, CancellationToken cancellationToken = default)
         {
             Logger.Error($"WebSocket: {webSocket} was closed");
-            webSocket.OnClosed -= OnCloseHandler;
-            webSocket.OnClosed = null;
-            webSocket.OnStreamClosed = null;
+            webSocket.WebSocketClosed -= OnCloseHandler;
+            webSocket.WebSocketClosed = null;
+            webSocket.StreamClosed = null;
             webSocket.Dispose();
 
             return Task.CompletedTask;

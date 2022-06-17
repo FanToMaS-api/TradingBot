@@ -56,7 +56,7 @@ namespace BinanceDataService
 
         #endregion
 
-        #region Implementation iDisposable
+        #region Implementation of IDisposable
 
         /// <inheritdoc />
         public void Dispose()
@@ -66,7 +66,7 @@ namespace BinanceDataService
                 return;
             }
 
-            StopAsync().GetAwaiter().GetResult();
+            StopAsync().Wait();
             _isDisposed = true;
         }
 

@@ -16,15 +16,9 @@ namespace BinanceExchange.Client.Http.Request.Models
         string Endpoint { get; }
 
         /// <summary>
-        ///     Закодированные параметры запроса в строке
-        /// </summary>
-        string ParametersStr { get; }
-
-        /// <summary>
         ///     Урл запроса с параметрами
         /// </summary>
         string Url { get; }
-
 
         /// <summary>
         ///     Метод http запроса

@@ -44,10 +44,13 @@ namespace BinanceExchange.WebSocket
         /// <summary>
         ///     Событие, возникающее при закрытии веб-сокета
         /// </summary>
-        internal Func<BinanceWebSocket, CancellationToken, Task> OnClosed { get; set; }
+        internal Func<BinanceWebSocket, CancellationToken, Task> WebSocketClosed { get; set; }
 
         /// <inheritdoc />
-        public Action OnStreamClosed { get; set; }
+        public Action StreamStarted { get; set; }
+        
+        /// <inheritdoc />
+        public Action StreamClosed { get; set; }
 
         #endregion
 
@@ -73,6 +76,7 @@ namespace BinanceExchange.WebSocket
                     TaskCreationOptions.LongRunning,
                     TaskScheduler.Default);
 
+                StreamStarted?.Invoke();
                 task.Wait(cancellationToken);
             }
         }
@@ -95,15 +99,16 @@ namespace BinanceExchange.WebSocket
         /// <inheritdoc />
         public void AddOnMessageReceivedFunc(Func<string, Task> onMessageReceivedFunc, CancellationToken cancellationToken)
         {
+            if (cancellationToken == CancellationToken.None)
+            {
+                throw new Exception("Unable to register event unsubscribe. Possible memory leak");
+            }
+
             _onMessageReceivedFunctions.Add(onMessageReceivedFunc);
 
-            if (cancellationToken != CancellationToken.None)
-            {
-                var reg = cancellationToken.Register(() =>
-                    _onMessageReceivedFunctions.Remove(onMessageReceivedFunc));
-
-                _onMessageReceivedCancellationTokenRegistrations.Add(reg);
-            }
+            var reg = cancellationToken.Register(() =>
+                _onMessageReceivedFunctions.Remove(onMessageReceivedFunc));
+            _onMessageReceivedCancellationTokenRegistrations.Add(reg);
         }
 
         /// <inheritdoc />
@@ -137,6 +142,7 @@ namespace BinanceExchange.WebSocket
             _webSocketHumble?.Dispose();
             _onMessageReceivedCancellationTokenRegistrations.ForEach(ct => ct.Dispose());
             _loopCancellationTokenSource?.Dispose();
+            _onMessageReceivedFunctions?.Clear();
 
             _isDisposed = true;
         }
@@ -155,6 +161,7 @@ namespace BinanceExchange.WebSocket
             {
                 while (!cancellationToken.IsCancellationRequested)
                 {
+                    cancellationToken.ThrowIfCancellationRequested();
                     var buffer = new ArraySegment<byte>(new byte[_receiveBufferSize]);
                     try
                     {
@@ -162,9 +169,9 @@ namespace BinanceExchange.WebSocket
 
                         if (receiveResult.MessageType == WebSocketMessageType.Close)
                         {
-                            await Log.ErrorAsync($"The web socket has been closed", cancellationToken: cancellationToken);
-                            OnStreamClosed?.Invoke();
-                            await OnClosed?.Invoke(this, cancellationToken);
+                            await Log.ErrorAsync("The web socket has been closed", cancellationToken: cancellationToken);
+                            StreamClosed?.Invoke();
+                            await WebSocketClosed?.Invoke(this, cancellationToken);
 
                             break;
                         }
@@ -185,6 +192,9 @@ namespace BinanceExchange.WebSocket
             catch (TaskCanceledException ex)
             {
                 await Log.ErrorAsync(ex, $"The recieve loop was cancelled.", cancellationToken: cancellationToken);
+            }
+            finally
+            {
                 await DisconnectAsync(CancellationToken.None);
             }
         }

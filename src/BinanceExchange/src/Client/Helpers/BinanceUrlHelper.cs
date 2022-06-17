@@ -2,12 +2,11 @@
 using System.Collections.Generic;
 using System.Security.Cryptography;
 using System.Text;
-using System.Web;
 
 namespace BinanceExchange.Client.Helpers
 {
     /// <summary>
-    ///     Создает запросы к Binance
+    ///     Помогает создавать запросы к Binance
     /// </summary>
     internal static class BinanceUrlHelper
     {
@@ -27,14 +26,12 @@ namespace BinanceExchange.Client.Helpers
         public static string Sign(string source, string key)
         {
             var keyBytes = Encoding.UTF8.GetBytes(key);
-            using (var hmacsha256 = new HMACSHA256(keyBytes))
-            {
-                var sourceBytes = Encoding.UTF8.GetBytes(source);
+            using var hmacsha256 = new HMACSHA256(keyBytes);
+            var sourceBytes = Encoding.UTF8.GetBytes(source);
 
-                var hash = hmacsha256.ComputeHash(sourceBytes);
+            var hash = hmacsha256.ComputeHash(sourceBytes);
 
-                return BitConverter.ToString(hash).Replace("-", string.Empty).ToLower();
-            }
+            return BitConverter.ToString(hash).Replace("-", string.Empty).ToLower();
         }
 
         #endregion

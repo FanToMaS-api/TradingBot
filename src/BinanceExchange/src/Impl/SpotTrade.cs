@@ -67,16 +67,16 @@ namespace BinanceExchange.Impl
                 .SetPrice(price)
                 .SetQuantity(quantity)
                 .SetRecvWindow(recvWindow);
-            var parameters = builder.GetResult().GetRequestParameters();
 
+            RedisHelper.IncrementCallsMade(
+               _redisDatabase,
+               requestWeight,
+               RequestWeightModel.GetDefaultKey());
+
+            var parameters = builder.GetResult().GetRequestParameters();
             var result = isTest
                 ? await _tradeSender.SendNewTestOrderAsync(parameters, cancellationToken)
                 : await _tradeSender.SendNewOrderAsync(parameters, cancellationToken);
-
-            RedisHelper.IncrementCallsMade(
-                _redisDatabase,
-                requestWeight,
-                RequestWeightModel.GetDefaultKey());
 
             return _mapper.Map<Common.Models.FullOrderResponseModel>(result);
         }
@@ -102,16 +102,16 @@ namespace BinanceExchange.Impl
                 .SetSymbol(symbol)
                 .SetQuantity(quantity)
                 .SetRecvWindow(recvWindow);
-            var parameters = builder.GetResult().GetRequestParameters();
-
-            var result = isTest
-                ? await _tradeSender.SendNewTestOrderAsync(parameters, cancellationToken)
-                : await _tradeSender.SendNewOrderAsync(parameters, cancellationToken);
 
             RedisHelper.IncrementCallsMade(
                 _redisDatabase,
                 requestWeight,
                 RequestWeightModel.GetDefaultKey());
+
+            var parameters = builder.GetResult().GetRequestParameters();
+            var result = isTest
+                ? await _tradeSender.SendNewTestOrderAsync(parameters, cancellationToken)
+                : await _tradeSender.SendNewOrderAsync(parameters, cancellationToken);
 
             return _mapper.Map<Common.Models.FullOrderResponseModel>(result);
         }
@@ -139,16 +139,16 @@ namespace BinanceExchange.Impl
                 .SetStopPrice(stopPrice)
                 .SetQuantity(quantity)
                 .SetRecvWindow(recvWindow);
-            var parameters = builder.GetResult().GetRequestParameters();
-
-            var result = isTest
-                ? await _tradeSender.SendNewTestOrderAsync(parameters, cancellationToken)
-                : await _tradeSender.SendNewOrderAsync(parameters, cancellationToken);
 
             RedisHelper.IncrementCallsMade(
                 _redisDatabase,
                 requestWeight,
                 RequestWeightModel.GetDefaultKey());
+
+            var parameters = builder.GetResult().GetRequestParameters();
+            var result = isTest
+                ? await _tradeSender.SendNewTestOrderAsync(parameters, cancellationToken)
+                : await _tradeSender.SendNewOrderAsync(parameters, cancellationToken);
 
             return _mapper.Map<Common.Models.FullOrderResponseModel>(result);
         }
@@ -180,16 +180,16 @@ namespace BinanceExchange.Impl
                 .SetQuantity(quantity)
                 .SetStopPrice(stopPrice)
                 .SetRecvWindow(recvWindow);
-            var parameters = builder.GetResult().GetRequestParameters();
-
-            var result = isTest
-                ? await _tradeSender.SendNewTestOrderAsync(parameters, cancellationToken)
-                : await _tradeSender.SendNewOrderAsync(parameters, cancellationToken);
 
             RedisHelper.IncrementCallsMade(
                 _redisDatabase,
                 requestWeight,
                 RequestWeightModel.GetDefaultKey());
+
+            var parameters = builder.GetResult().GetRequestParameters();
+            var result = isTest
+                ? await _tradeSender.SendNewTestOrderAsync(parameters, cancellationToken)
+                : await _tradeSender.SendNewOrderAsync(parameters, cancellationToken);
 
             return _mapper.Map<Common.Models.FullOrderResponseModel>(result);
         }
@@ -217,16 +217,16 @@ namespace BinanceExchange.Impl
                 .SetQuantity(quantity)
                 .SetStopPrice(stopPrice)
                 .SetRecvWindow(recvWindow);
-            var parameters = builder.GetResult().GetRequestParameters();
-
-            var result = isTest
-                ? await _tradeSender.SendNewTestOrderAsync(parameters, cancellationToken)
-                : await _tradeSender.SendNewOrderAsync(parameters, cancellationToken);
 
             RedisHelper.IncrementCallsMade(
                 _redisDatabase,
                 requestWeight,
                 RequestWeightModel.GetDefaultKey());
+
+            var parameters = builder.GetResult().GetRequestParameters();
+            var result = isTest
+                ? await _tradeSender.SendNewTestOrderAsync(parameters, cancellationToken)
+                : await _tradeSender.SendNewOrderAsync(parameters, cancellationToken);
 
             return _mapper.Map<Common.Models.FullOrderResponseModel>(result);
         }
@@ -258,16 +258,16 @@ namespace BinanceExchange.Impl
                 .SetQuantity(quantity)
                 .SetStopPrice(stopPrice)
                 .SetRecvWindow(recvWindow);
-            var parameters = builder.GetResult().GetRequestParameters();
 
+            RedisHelper.IncrementCallsMade(
+               _redisDatabase,
+               requestWeight,
+               RequestWeightModel.GetDefaultKey());
+
+            var parameters = builder.GetResult().GetRequestParameters();
             var result = isTest
                 ? await _tradeSender.SendNewTestOrderAsync(parameters, cancellationToken)
                 : await _tradeSender.SendNewOrderAsync(parameters, cancellationToken);
-
-            RedisHelper.IncrementCallsMade(
-                _redisDatabase,
-                requestWeight,
-                RequestWeightModel.GetDefaultKey());
 
             return _mapper.Map<Common.Models.FullOrderResponseModel>(result);
         }
@@ -295,16 +295,16 @@ namespace BinanceExchange.Impl
                 .SetPrice(price)
                 .SetQuantity(quantity)
                 .SetRecvWindow(recvWindow);
-            var parameters = builder.GetResult().GetRequestParameters();
-
-            var result = isTest
-                ? await _tradeSender.SendNewTestOrderAsync(parameters, cancellationToken)
-                : await _tradeSender.SendNewOrderAsync(parameters, cancellationToken);
 
             RedisHelper.IncrementCallsMade(
                 _redisDatabase,
                 requestWeight,
                 RequestWeightModel.GetDefaultKey());
+
+            var parameters = builder.GetResult().GetRequestParameters();
+            var result = isTest
+                ? await _tradeSender.SendNewTestOrderAsync(parameters, cancellationToken)
+                : await _tradeSender.SendNewOrderAsync(parameters, cancellationToken);
 
             return _mapper.Map<Common.Models.FullOrderResponseModel>(result);
         }
@@ -336,14 +336,13 @@ namespace BinanceExchange.Impl
                 builder.SetOrigClientOrderId(origClientOrderId);
             }
 
-            var parameters = builder.GetResult().GetRequestParameters();
-
-            var result = await _tradeSender.CancelOrderAsync(parameters, cancellationToken);
-
             RedisHelper.IncrementCallsMade(
                 _redisDatabase,
                 requestWeight,
                 RequestWeightModel.GetDefaultKey());
+
+            var parameters = builder.GetResult().GetRequestParameters();
+            var result = await _tradeSender.CancelOrderAsync(parameters, cancellationToken);
 
             return _mapper.Map<Common.Models.CancelOrderResponseModel>(result);
         }
@@ -363,13 +362,14 @@ namespace BinanceExchange.Impl
             var builder = new Builder()
                 .SetSymbol(symbol)
                 .SetRecvWindow(recvWindow);
-            var parameters = builder.GetResult().GetRequestParameters();
 
-            var result = await _tradeSender.CancelAllOrdersAsync(parameters, cancellationToken);
             RedisHelper.IncrementCallsMade(
                 _redisDatabase,
                 requestWeight,
                 RequestWeightModel.GetDefaultKey());
+
+            var parameters = builder.GetResult().GetRequestParameters();
+            var result = await _tradeSender.CancelAllOrdersAsync(parameters, cancellationToken);
 
             return _mapper.Map<IEnumerable<Common.Models.CancelOrderResponseModel>>(result);
         }
@@ -401,13 +401,13 @@ namespace BinanceExchange.Impl
                 builder.SetOrigClientOrderId(origClientOrderId);
             }
 
-            var parameters = builder.GetResult().GetRequestParameters();
-            var result = await _tradeSender.CheckOrderAsync(parameters, cancellationToken);
-
             RedisHelper.IncrementCallsMade(
                 _redisDatabase,
                 requestWeight,
                 RequestWeightModel.GetDefaultKey());
+
+            var parameters = builder.GetResult().GetRequestParameters();
+            var result = await _tradeSender.CheckOrderAsync(parameters, cancellationToken);
 
             return _mapper.Map<Common.Models.CheckOrderResponseModel>(result);
         }
@@ -424,22 +424,22 @@ namespace BinanceExchange.Impl
                 throw new TooManyRequestsException(rateLimit.Expiration, rateLimit.Value, rateLimit.Key);
             }
 
-            var builder = new Builder();
-            builder.SetRecvWindow(recvWindow);
+            var builder = new Builder()
+                .SetRecvWindow(recvWindow);
             var isSymbolOmitted = string.IsNullOrEmpty(symbol);
             if (!isSymbolOmitted)
             {
                 builder.SetSymbol(symbol);
             }
 
-            var parameters = builder.GetResult().GetRequestParameters();
-            var result = await _tradeSender.CheckAllOpenOrdersAsync(parameters, cancellationToken);
-
             var key = isSymbolOmitted ? "null" : RequestWeightModel.GetDefaultKey();
             RedisHelper.IncrementCallsMade(
                 _redisDatabase,
                 requestWeight,
                 key);
+
+            var parameters = builder.GetResult().GetRequestParameters();
+            var result = await _tradeSender.CheckAllOpenOrdersAsync(parameters, cancellationToken);
 
             return _mapper.Map<IEnumerable<Common.Models.CheckOrderResponseModel>>(result);
         }
@@ -479,12 +479,13 @@ namespace BinanceExchange.Impl
                 builder.SetEndTime(endTime.Value);
             }
 
-            var parameters = builder.GetResult().GetRequestParameters();
-            var result = await _tradeSender.GetAllOrdersAsync(parameters, cancellationToken);
             RedisHelper.IncrementCallsMade(
                 _redisDatabase,
                 requestWeight,
                 RequestWeightModel.GetDefaultKey());
+
+            var parameters = builder.GetResult().GetRequestParameters();
+            var result = await _tradeSender.GetAllOrdersAsync(parameters, cancellationToken);
 
             return _mapper.Map<IEnumerable<Common.Models.CheckOrderResponseModel>>(result);
         }
@@ -499,12 +500,13 @@ namespace BinanceExchange.Impl
                 throw new TooManyRequestsException(rateLimit.Expiration, rateLimit.Value, rateLimit.Key);
             }
 
+            RedisHelper.IncrementCallsMade(
+               _redisDatabase,
+               requestWeight,
+               RequestWeightModel.GetDefaultKey());
+
             var parameters = new Builder().GetResult().GetRequestParameters();
             var result = await _tradeSender.GetAccountInformationAsync(parameters, cancellationToken);
-            RedisHelper.IncrementCallsMade(
-                _redisDatabase,
-                requestWeight,
-                RequestWeightModel.GetDefaultKey());
 
             return _mapper.Map<Common.Models.AccountInformationModel>(result);
         }

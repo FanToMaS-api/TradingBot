@@ -71,7 +71,10 @@ namespace Analytic.Filters.FilterGroup.Impl
         #region Public methods
 
         /// <inheritdoc />
-        public async Task<bool> CheckConditionsAsync(IServiceScopeFactory serviceScopeFactory, InfoModel model, CancellationToken cancellationToken)
+        public async Task<bool> CheckConditionsAsync(
+            IServiceScopeFactory serviceScopeFactory,
+            InfoModel model,
+            CancellationToken cancellationToken)
             => await Filters.TrueForAllAsync(async _ => await _.CheckConditionsAsync(serviceScopeFactory, model, cancellationToken));
 
         /// <inheritdoc />

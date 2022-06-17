@@ -12,7 +12,7 @@ namespace Analytic.Filters.Builders
         #region Fields
         
         private readonly ILoggerDecorator _loggerDecorator;
-        private readonly List<IFilterGroup> _filterGroups;
+        private readonly List<IFilterGroup> _filterGroups = new();
 
         #endregion
 

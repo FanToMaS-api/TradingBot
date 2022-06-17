@@ -6,7 +6,6 @@ using BinanceExchange.RedisRateLimits;
 using BinanceExchange.RequestWeights;
 using Common.Models;
 using ExchangeLibrary;
-using NLog;
 using Redis;
 using System.Collections.Generic;
 using System.Threading;
@@ -19,7 +18,6 @@ namespace BinanceExchange.Impl
     {
         #region Fields
 
-        private readonly ILogger _logger = LogManager.GetCurrentClassLogger();
         private readonly MarketdataRequestWeightStorage _weightStorage = new();
         private readonly IMarketdataSender _marketdataSender;
         private readonly IRedisDatabase _redisDatabase;
@@ -53,9 +51,8 @@ namespace BinanceExchange.Impl
                 throw new TooManyRequestsException(rateLimit.Expiration, rateLimit.Value, rateLimit.Key);
             }
 
-            var model = await _marketdataSender.GetExchangeInfoAsync(cancellationToken);
-
             RedisHelper.IncrementCallsMade(_redisDatabase, requestWeight, RequestWeightModel.GetDefaultKey());
+            var model = await _marketdataSender.GetExchangeInfoAsync(cancellationToken);
 
             return _mapper.Map<IEnumerable<TradeObjectRuleTradingModel>>(model.Symbols);
         }
@@ -72,13 +69,14 @@ namespace BinanceExchange.Impl
                 throw new TooManyRequestsException(rateLimit.Expiration, rateLimit.Value, rateLimit.Key);
             }
 
-            var builder = new Builder();
-            builder.SetSymbol(symbol);
-            builder.SetLimit(limit);
-            var parameters = builder.GetResult(false).GetRequestParameters();
-            var result = await _marketdataSender.GetOrderBookAsync(parameters, cancellationToken);
+            var builder = new Builder()
+                .SetSymbol(symbol)
+                .SetLimit(limit);
 
             RedisHelper.IncrementCallsMade(_redisDatabase, requestWeight, limit.ToString());
+
+            var parameters = builder.GetResult(false).GetRequestParameters();
+            var result = await _marketdataSender.GetOrderBookAsync(parameters, cancellationToken);
 
             return _mapper.Map<Common.Models.OrderBookModel>(result);
         }
@@ -95,13 +93,14 @@ namespace BinanceExchange.Impl
                 throw new TooManyRequestsException(rateLimit.Expiration, rateLimit.Value, rateLimit.Key);
             }
 
-            var builder = new Builder();
-            builder.SetSymbol(symbol);
-            builder.SetLimit(limit);
-            var parameters = builder.GetResult(false).GetRequestParameters();
-            var result = await _marketdataSender.GetRecentTradesAsync(parameters, cancellationToken);
+            var builder = new Builder()
+                .SetSymbol(symbol)
+                .SetLimit(limit);
 
             RedisHelper.IncrementCallsMade(_redisDatabase, requestWeight, RequestWeightModel.GetDefaultKey());
+
+            var parameters = builder.GetResult(false).GetRequestParameters();
+            var result = await _marketdataSender.GetRecentTradesAsync(parameters, cancellationToken);
 
             return _mapper.Map<IEnumerable<Common.Models.TradeModel>>(result);
         }
@@ -119,18 +118,18 @@ namespace BinanceExchange.Impl
                 throw new TooManyRequestsException(rateLimit.Expiration, rateLimit.Value, rateLimit.Key);
             }
 
-            var builder = new Builder();
-            builder.SetSymbol(symbol);
-            builder.SetLimit(limit);
+            var builder = new Builder()
+                .SetSymbol(symbol)
+                .SetLimit(limit);
             if (fromId.HasValue)
             {
                 builder.SetFromId(fromId.Value);
             }
 
+            RedisHelper.IncrementCallsMade(_redisDatabase, requestWeight, RequestWeightModel.GetDefaultKey());
+
             var parameters = builder.GetResult(false).GetRequestParameters();
             var result = await _marketdataSender.GetOldTradesAsync(parameters, cancellationToken);
-
-            RedisHelper.IncrementCallsMade(_redisDatabase, requestWeight, RequestWeightModel.GetDefaultKey());
 
             return _mapper.Map<IEnumerable<Common.Models.TradeModel>>(result);
         }
@@ -150,10 +149,10 @@ namespace BinanceExchange.Impl
                 throw new TooManyRequestsException(rateLimit.Expiration, rateLimit.Value, rateLimit.Key);
             }
 
-            var builder = new Builder();
-            builder.SetSymbol(symbol);
-            builder.SetLimit(limit);
-            builder.SetCandlestickInterval(interval);
+            var builder = new Builder()
+                .SetSymbol(symbol)
+                .SetLimit(limit)
+                .SetCandlestickInterval(interval);
             if (startTime.HasValue)
             {
                 builder.SetStartTime(startTime.Value);
@@ -164,10 +163,10 @@ namespace BinanceExchange.Impl
                 builder.SetEndTime(endTime.Value);
             }
 
+            RedisHelper.IncrementCallsMade(_redisDatabase, requestWeight, RequestWeightModel.GetDefaultKey());
+
             var parameters = builder.GetResult(false).GetRequestParameters();
             var result = await _marketdataSender.GetCandlestickAsync(parameters, cancellationToken);
-
-            RedisHelper.IncrementCallsMade(_redisDatabase, requestWeight, RequestWeightModel.GetDefaultKey());
 
             return _mapper.Map<IEnumerable<Common.Models.CandlestickModel>>(result);
         }
@@ -181,18 +180,21 @@ namespace BinanceExchange.Impl
                 throw new TooManyRequestsException(rateLimit.Expiration, rateLimit.Value, rateLimit.Key);
             }
 
-            var builder = new Builder();
-            builder.SetSymbol(symbol);
-            var parameters = builder.GetResult(false).GetRequestParameters();
-            var result = await _marketdataSender.GetAveragePriceAsync(parameters, cancellationToken);
+            var builder = new Builder()
+                .SetSymbol(symbol);
 
             RedisHelper.IncrementCallsMade(_redisDatabase, requestWeight, RequestWeightModel.GetDefaultKey());
+
+            var parameters = builder.GetResult(false).GetRequestParameters();
+            var result = await _marketdataSender.GetAveragePriceAsync(parameters, cancellationToken);
 
             return result.AveragePrice;
         }
 
         /// <inheritdoc />
-        public async Task<IEnumerable<Common.Models.DayPriceChangeModel>> GetDayPriceChangeAsync(string symbol, CancellationToken cancellationToken = default)
+        public async Task<IEnumerable<Common.Models.DayPriceChangeModel>> GetDayPriceChangeAsync(
+            string symbol,
+            CancellationToken cancellationToken = default)
         {
             var requestWeight = _weightStorage.DayTickerPriceChangeWeight;
             if (RedisHelper.CheckLimit(_redisDatabase, requestWeight.Type, out var rateLimit))
@@ -200,16 +202,17 @@ namespace BinanceExchange.Impl
                 throw new TooManyRequestsException(rateLimit.Expiration, rateLimit.Value, rateLimit.Key);
             }
 
-            var result = await _marketdataSender.GetDayPriceChangeAsync(symbol, cancellationToken);
-
             var key = string.IsNullOrEmpty(symbol) ? "null" : RequestWeightModel.GetDefaultKey();
             RedisHelper.IncrementCallsMade(_redisDatabase, requestWeight, key);
+            var result = await _marketdataSender.GetDayPriceChangeAsync(symbol, cancellationToken);
 
             return _mapper.Map<IEnumerable<Common.Models.DayPriceChangeModel>>(result);
         }
 
         /// <inheritdoc />
-        public async Task<IEnumerable<TradeObjectNamePriceModel>> GetSymbolPriceTickerAsync(string symbol, CancellationToken cancellationToken = default)
+        public async Task<IEnumerable<TradeObjectNamePriceModel>> GetSymbolPriceTickerAsync(
+            string symbol,
+            CancellationToken cancellationToken = default)
         {
             var requestWeight = _weightStorage.SymbolPriceTickerWeight;
             if (RedisHelper.CheckLimit(_redisDatabase, requestWeight.Type, out var rateLimit))
@@ -217,16 +220,17 @@ namespace BinanceExchange.Impl
                 throw new TooManyRequestsException(rateLimit.Expiration, rateLimit.Value, rateLimit.Key);
             }
 
-            var result = await _marketdataSender.GetSymbolPriceTickerAsync(symbol, cancellationToken);
-
             var key = string.IsNullOrEmpty(symbol) ? "null" : RequestWeightModel.GetDefaultKey();
             RedisHelper.IncrementCallsMade(_redisDatabase, requestWeight, key);
+            var result = await _marketdataSender.GetSymbolPriceTickerAsync(symbol, cancellationToken);
 
             return _mapper.Map<IEnumerable<TradeObjectNamePriceModel>>(result);
         }
 
         /// <inheritdoc />
-        public async Task<IEnumerable<BestSymbolOrderModel>> GetBestSymbolOrdersAsync(string symbol, CancellationToken cancellationToken = default)
+        public async Task<IEnumerable<BestSymbolOrderModel>> GetBestSymbolOrdersAsync(
+            string symbol,
+            CancellationToken cancellationToken = default)
         {
             var requestWeight = _weightStorage.SymbolOrderBookTickerWeight;
             if (RedisHelper.CheckLimit(_redisDatabase, requestWeight.Type, out var rateLimit))
@@ -234,10 +238,9 @@ namespace BinanceExchange.Impl
                 throw new TooManyRequestsException(rateLimit.Expiration, rateLimit.Value, rateLimit.Key);
             }
 
-            var result = await _marketdataSender.GetSymbolOrderBookTickerAsync(symbol, cancellationToken);
-
             var key = string.IsNullOrEmpty(symbol) ? "null" : RequestWeightModel.GetDefaultKey();
             RedisHelper.IncrementCallsMade(_redisDatabase, requestWeight, key);
+            var result = await _marketdataSender.GetSymbolOrderBookTickerAsync(symbol, cancellationToken);
 
             return _mapper.Map<IEnumerable<BestSymbolOrderModel>>(result);
         }

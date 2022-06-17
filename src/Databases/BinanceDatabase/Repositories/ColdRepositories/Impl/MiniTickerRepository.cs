@@ -55,11 +55,11 @@ namespace BinanceDatabase.Repositories.ColdRepositories.Impl
             CancellationToken cancellationToken)
             => 
             await CreateQuery()
-            .Where(_ => _.ShortName == pair && _.AggregateDataInterval == interval)
-            .OrderByDescending(_ => _.EventTime)
-            .Select(_ => _.PriceDeviationPercent)
-            .Take(count)
-            .SumAsync(cancellationToken);
+                .Where(_ => _.ShortName == pair && _.AggregateDataInterval == interval)
+                .OrderByDescending(_ => _.EventTime)
+                .Select(_ => _.PriceDeviationPercent)
+                .Take(count)
+                .SumAsync(cancellationToken);
 
         #endregion
     }

@@ -38,7 +38,7 @@ namespace Analytic.AnalyticUnits.ProfileGroup.Impl
         #region Properties
 
         /// <inheritdoc />
-        public List<IAnalyticProfile> AnalyticUnits { get; } = new();
+        public List<IAnalyticProfile> AnalyticProfiles { get; } = new();
 
         /// <inheritdoc />
         public string Name { get; }
@@ -60,11 +60,14 @@ namespace Analytic.AnalyticUnits.ProfileGroup.Impl
 
             var count = 0;
             var isOneSuccessful = false;
-            foreach (var unit in AnalyticUnits)
+            foreach (var analyticProfile in AnalyticProfiles)
             {
                 try
                 {
-                    var (isSuccessful, resultModel) = await unit.TryAnalyzeAsync(serviceScopeFactory, model, cancellationToken);
+                    var (isSuccessful, resultModel) = await analyticProfile.TryAnalyzeAsync(
+                        serviceScopeFactory,
+                        model,
+                        cancellationToken);
                     if (!isSuccessful)
                     {
                         continue;
@@ -87,7 +90,7 @@ namespace Analytic.AnalyticUnits.ProfileGroup.Impl
                 {
                     await _logger.ErrorAsync(
                         ex,
-                        $"Failed to analyze model '{model.TradeObjectName}' with unit '{unit.Name}'",
+                        $"Failed to analyze model '{model.TradeObjectName}' with analyticProfile '{analyticProfile.Name}'",
                         cancellationToken: cancellationToken);
                 }
             }
@@ -103,16 +106,16 @@ namespace Analytic.AnalyticUnits.ProfileGroup.Impl
         }
 
         /// <inheritdoc />
-        public void AddAnalyticUnit(IAnalyticProfile unit) => AnalyticUnits.Add(unit);
+        public void AddAnalyticUnit(IAnalyticProfile unit) => AnalyticProfiles.Add(unit);
 
         /// <inheritdoc />
         public bool Remove(string name)
         {
-            foreach (var unit in AnalyticUnits)
+            foreach (var unit in AnalyticProfiles)
             {
                 if (unit.Name == name)
                 {
-                    return AnalyticUnits.Remove(unit);
+                    return AnalyticProfiles.Remove(unit);
                 }
             }
 

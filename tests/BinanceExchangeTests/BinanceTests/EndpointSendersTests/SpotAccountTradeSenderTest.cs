@@ -13,6 +13,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Web;
 using Xunit;
 
 namespace BinanceExchangeTests.BinanceTests.EndpointSendersTests
@@ -55,10 +56,10 @@ namespace BinanceExchangeTests.BinanceTests.EndpointSendersTests
         internal async Task<FullOrderResponseModel> SendNewTestOrderAsync_Test()
         {
             var filePath = "../../../BinanceTests/Jsons/SpotAccountTrade/NewOrderResponse.json";
-            var builder = new Builder();
-            builder.SetSymbol("ARPABNB");
-            builder.SetRecvWindow(5000);
-            builder.SetCandlestickInterval("1m");
+            var builder = new Builder()
+                .SetSymbol("ARPABNB")
+                .SetRecvWindow(5000)
+                .SetCandlestickInterval("1m");
             var parameters = builder.GetResult().GetRequestParameters();
             var requestUrl = CreateSignUrl(BinanceEndpoints.NEW_TEST_ORDER, parameters, "apiSecretKey");
 
@@ -331,13 +332,32 @@ namespace BinanceExchangeTests.BinanceTests.EndpointSendersTests
         /// </summary>
         private string CreateSignUrl(string endPoint, Dictionary<string, string> parameters, string apiSecretKey)
         {
-            var urlSb = new StringBuilder();
-            BinanceUrlHelper.BuildQueryString(parameters, urlSb);
-            var signature = BinanceUrlHelper.Sign(urlSb.ToString(), apiSecretKey);
-            urlSb.Append($"&signature={signature}");
+            var request = GetRequestUrl($"https://api.binance.com{endPoint}", parameters);
+            var signature = BinanceUrlHelper.Sign(request, apiSecretKey);
+            request += $"&signature={signature}";
 
-            return $"https://api.binance.com{endPoint}?{urlSb}";
+            return request;
         }
+
+        /// <summary>
+        ///     Возвращает полный урл запроса со всеми параметрами
+        /// </summary>
+        /// <param name="requestUri"> Адрес запроса (с инлайн параметрами) </param>
+        /// <param name="customParameters"> Параметры запроса </param>
+        private string GetRequestUrl(string requestUri, IDictionary<string, string> customParameters)
+            => string.Format(
+                "{0}?{1}",
+                requestUri,
+                GetCustomParametersString(customParameters));
+
+        /// <summary>
+        ///     Получить строковое представление тела запроса <br />
+        ///     Кодирует параметры запроса
+        /// </summary>
+        private static string GetCustomParametersString(IDictionary<string, string> body)
+            => body
+                .Select(pair => string.Format("{0}={1}", pair.Key, HttpUtility.UrlEncode(pair.Value)))
+                .JoinToString("&");
 
         #endregion
     }

@@ -19,7 +19,7 @@ namespace Analytic.AnalyticUnits
         /// <summary>
         ///     Профили аналитики
         /// </summary>
-        List<IAnalyticProfile> AnalyticUnits { get; }
+        List<IAnalyticProfile> AnalyticProfiles { get; }
 
         /// <summary>
         ///     Используется ли профиль

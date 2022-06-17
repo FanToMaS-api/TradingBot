@@ -68,29 +68,29 @@ namespace BinanceExchangeTests.BinanceTests.ImplTests
                 return await _marketdataSenderTest.GetExchangeInfoAsync_Test();
             });
 
-            _marketdataSender.GetOrderBookAsync(Arg.Any<Dictionary<string, object>>(), Arg.Any<CancellationToken>()).Returns(async _ =>
+            _marketdataSender.GetOrderBookAsync(Arg.Any<Dictionary<string, string>>(), Arg.Any<CancellationToken>()).Returns(async _ =>
             {
                 return await _marketdataSenderTest.GetOrderBookAsync_Test();
             });
 
-            _marketdataSender.GetRecentTradesAsync(Arg.Any<Dictionary<string, object>>(), Arg.Any<CancellationToken>()).Returns(async _ =>
+            _marketdataSender.GetRecentTradesAsync(Arg.Any<Dictionary<string, string>>(), Arg.Any<CancellationToken>()).Returns(async _ =>
             {
                 return await _marketdataSenderTest.GetRecentTradesAsync_Test();
             });
 
-            _marketdataSender.GetOldTradesAsync(Arg.Any<Dictionary<string, object>>(), Arg.Any<CancellationToken>()).Returns(async _ =>
+            _marketdataSender.GetOldTradesAsync(Arg.Any<Dictionary<string, string>>(), Arg.Any<CancellationToken>()).Returns(async _ =>
             {
                 return await _marketdataSenderTest.GetOldTradesAsync_Test();
             });
 
-            _marketdataSender.GetCandlestickAsync(Arg.Any<Dictionary<string, object>>(), Arg.Any<CancellationToken>()).Returns(async _ =>
+            _marketdataSender.GetCandlestickAsync(Arg.Any<Dictionary<string, string>>(), Arg.Any<CancellationToken>()).Returns(async _ =>
             {
                 return await _marketdataSenderTest.GetCandlestickAsync_Test(
                     "../../../BinanceTests/Jsons/Marketdata/CANDLESTICK_DATA.json",
                     TestHelper.GetBinanceCandlestickModels());
             });
 
-            _marketdataSender.GetAveragePriceAsync(Arg.Any<Dictionary<string, object>>(), Arg.Any<CancellationToken>()).Returns(async _ =>
+            _marketdataSender.GetAveragePriceAsync(Arg.Any<Dictionary<string, string>>(), Arg.Any<CancellationToken>()).Returns(async _ =>
             {
                 return await _marketdataSenderTest.GetAveragePriceAsync_Test();
             });

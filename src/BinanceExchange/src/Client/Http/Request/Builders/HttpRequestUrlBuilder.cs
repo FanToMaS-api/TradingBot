@@ -19,7 +19,7 @@ namespace BinanceExchange.Client.Http.Request.Builders
         #region Fields
 
         /// <summary>
-        ///     Базовый адрес твиттера
+        ///     Базовый адрес биржи
         /// </summary>
         private static readonly string BaseUrl = "https://api.binance.com";
         private RequestModel _requestModel = new();
@@ -37,12 +37,17 @@ namespace BinanceExchange.Client.Http.Request.Builders
         ///     Установить конечную точку запроса
         /// </summary>
         /// <param name="endpoint"> Конечная точка запроса </param>
+        /// <remarks>
+        ///     Также сразу устанавливает <see cref="RequestModel.Url"/>
+        /// </remarks>
         public HttpRequestUrlBuilder SetEndpoint(string endpoint)
         {
             ThrowIsEmpty(nameof(endpoint), endpoint);
 
-            _requestModel.Endpoint = $"{BaseUrl}{endpoint}";
-
+            var endpointUrl = $"{BaseUrl}{endpoint}";
+            _requestModel.Endpoint = endpointUrl;
+            _requestModel.Url = endpointUrl;
+            
             return this;
         }
 
@@ -79,8 +84,8 @@ namespace BinanceExchange.Client.Http.Request.Builders
         /// </remarks>
         public HttpRequestUrlBuilder SetBody(IDictionary<string, string> body)
         {
-            _requestModel.ParametersStr = GetCustomParametersString(body);
-            _requestModel.Body = Encoding.ASCII.GetBytes(_requestModel.ParametersStr);
+            var parametersStr = GetCustomParametersString(body);
+            _requestModel.Body = Encoding.ASCII.GetBytes(parametersStr);
             SetContentType("application/json");
 
             return this;
@@ -102,8 +107,6 @@ namespace BinanceExchange.Client.Http.Request.Builders
         /// <summary>
         ///     Установить параметры запроса
         /// </summary>
-        /// <param name="parameters"></param>
-        /// <returns></returns>
         public HttpRequestUrlBuilder SetParameters(IDictionary<string, string> parameters)
         {
             _parameters = parameters;
@@ -173,12 +176,12 @@ namespace BinanceExchange.Client.Http.Request.Builders
         #region Private methods
 
         /// <summary>
-        ///     Проверят переданный параметр на пустоту, выбрасывает исключение в случае если они пустые
+        ///     Проверят переданный параметр на пустоту, выбрасывает исключение в случае если он неинициализирован
         /// </summary>
         /// <param name="paramName"> Название параметра </param>
         /// <param name="value"> Значение </param>
         /// <exception cref="ArgumentNullException"> Если параметр пуст или не инициализирован </exception>
-        private void ThrowIsEmpty(string paramName, string value)
+        private static void ThrowIsEmpty(string paramName, string value)
         {
             if (string.IsNullOrEmpty(value))
             {
@@ -191,7 +194,7 @@ namespace BinanceExchange.Client.Http.Request.Builders
         /// </summary>
         /// <param name="requestUri"> Адрес запроса (с инлайн параметрами) </param>
         /// <param name="customParameters"> Параметры запроса </param>
-        private string GetRequestUrl(string requestUri, IDictionary<string, string> customParameters)
+        private static string GetRequestUrl(string requestUri, IDictionary<string, string> customParameters)
             => string.Format(
                 "{0}?{1}",
                 requestUri,
@@ -201,10 +204,10 @@ namespace BinanceExchange.Client.Http.Request.Builders
         ///     Получить строковое представление тела запроса <br />
         ///     Кодирует параметры запроса
         /// </summary>
-        private string GetCustomParametersString(IDictionary<string, string> body)
+        private static string GetCustomParametersString(IDictionary<string, string> body)
             => body
-            .Select(pair => string.Format("{0}={1}", pair.Key, HttpUtility.UrlEncode(pair.Value)))
-            .JoinToString("&");
+                .Select(pair => string.Format("{0}={1}", pair.Key, HttpUtility.UrlEncode(pair.Value)))
+                .JoinToString("&");
 
         #endregion
     }

@@ -207,7 +207,7 @@ namespace BinanceDataServiceTests
             serviceProvider.GetService<IBinanceDbContextFactory>().ReturnsForAnyArgs(databaseFactory);
 
             // Act #1
-            await _dataHandler.HandleDataAsync(_streamModels, CancellationToken.None);
+            await _dataHandler.OnDataReceived(_streamModels, CancellationToken.None);
 
             var isAssistantStorageSaving = _dataHandler.IsAssistantStorageSaving;
             await _dataHandler.SaveDataAsync(serviceProvider);
@@ -215,7 +215,7 @@ namespace BinanceDataServiceTests
 
             // Act #1
             _streamModels.AddRange(_streamModels);
-            await _dataHandler.HandleDataAsync(_streamModels, CancellationToken.None);
+            await _dataHandler.OnDataReceived(_streamModels, CancellationToken.None);
 
             isAssistantStorageSaving = _dataHandler.IsAssistantStorageSaving;
             await _dataHandler.SaveDataAsync(serviceProvider);

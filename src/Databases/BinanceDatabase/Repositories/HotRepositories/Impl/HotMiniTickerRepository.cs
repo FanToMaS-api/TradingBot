@@ -43,16 +43,16 @@ namespace BinanceDatabase.Repositories.HotRepositories.Impl
             => await _appDbContext.HotMiniTickers.AddRangeAsync(miniTickerEntities, cancellationToken);
 
         /// <inheritdoc />
-        public HotMiniTickerEntity[] GetArray(string pair, int neededCount = 2000)
+        public async Task<HotMiniTickerEntity[]> GetArrayAsync(string pair, CancellationToken cancellationToken, int neededCount = 2000)
             =>
             neededCount >= 2500
-            ? throw new Exception($"{nameof(neededCount)} should be less than 2500")
-            : CreateQuery()
-                .Where(_ => _.Pair == pair)
-                .OrderByDescending(_ => _.ReceivedTime)
-                .Take(neededCount)
-                .OrderBy(_ => _.ReceivedTime)
-                .ToArray();
+                ? throw new Exception($"{nameof(neededCount)} should be less than 2500")
+                : await CreateQuery()
+                    .Where(_ => _.Pair == pair)
+                    .OrderByDescending(_ => _.ReceivedTime)
+                    .Take(neededCount)
+                    .OrderBy(_ => _.ReceivedTime)
+                    .ToArrayAsync(cancellationToken);
 
         /// <inheritdoc />
         public async Task<int> RemoveUntilAsync(DateTime until, CancellationToken cancellationToken)

@@ -14,7 +14,7 @@ namespace BinanceExchange.WebSocket.Marketdata
     internal class MarketdataWebSocket : BinanceWebSocket
     {
         private const string BaseUrl = "wss://stream.binance.com:9443";
-        
+
         #region .ctors
 
         /// <summary>
@@ -30,9 +30,10 @@ namespace BinanceExchange.WebSocket.Marketdata
         /// <param name="symbol"> Пара (в нижнем регистре) </param>
         /// <param name="streamType"> Тип стрима, на который подписываемся </param>
         public MarketdataWebSocket(string symbol, MarketdataStreamType streamType)
-        : base(
-              new BinanceWebSocketHumble(new ClientWebSocket()),
-              $"{BaseUrl}/ws/{symbol.ToLower()}{streamType.ToUrl()}")
+            : base(
+                  new BinanceWebSocketHumble(new ClientWebSocket()),
+                  $"{BaseUrl}/ws/{symbol.ToLower()}{streamType.ToUrl()}"
+                  )
         { }
 
         /// <summary>
@@ -44,9 +45,10 @@ namespace BinanceExchange.WebSocket.Marketdata
             string symbol,
             MarketdataStreamType streamType,
             IBinanceWebSocketHumble webSocketHumble)
-        : base(
-              webSocketHumble,
-              $"{BaseUrl}/ws/{symbol.ToLower()}{streamType.ToUrl()}")
+            : base(
+                  webSocketHumble,
+                  $"{BaseUrl}/ws/{symbol.ToLower()}{streamType.ToUrl()}"
+                  )
         { }
 
         /// <summary>
@@ -54,9 +56,10 @@ namespace BinanceExchange.WebSocket.Marketdata
         /// </summary>
         /// <param name="streams"> Элементы symbol(в нижнем регистре) streamType </param>
         public MarketdataWebSocket(string[] streams)
-        : base(
-              new BinanceWebSocketHumble(new ClientWebSocket()),
-              $"{BaseUrl}/stream?streams={string.Join("/", streams)}")
+            : base(
+                  new BinanceWebSocketHumble(new ClientWebSocket()),
+                  $"{BaseUrl}/stream?streams={string.Join("/", streams)}"
+                  )
         { }
 
         /// <summary>
@@ -64,11 +67,11 @@ namespace BinanceExchange.WebSocket.Marketdata
         /// </summary>
         /// <param name="streams"> Элементы symbol streamType </param>
         public MarketdataWebSocket(string[] streams, IBinanceWebSocketHumble webSocketHumble)
-        : base(webSocketHumble, BaseUrl + "/stream?streams=" + string.Join("/", streams))
+            : base(webSocketHumble, BaseUrl + "/stream?streams=" + string.Join("/", streams))
         { }
 
         #endregion
-        
+
         #region Public static methods
 
         /// <summary>
@@ -81,7 +84,8 @@ namespace BinanceExchange.WebSocket.Marketdata
             CandlestickIntervalType candleStickInterval) =>
             new(
                 new BinanceWebSocketHumble(new ClientWebSocket()),
-                $"{BaseUrl}/ws/{symbol.ToLower()}{MarketdataStreamType.CandlestickStream.ToUrl()}{candleStickInterval.ToUrl()}");
+                $"{BaseUrl}/ws/{symbol.ToLower()}{MarketdataStreamType.CandlestickStream.ToUrl()}{candleStickInterval.ToUrl()}"
+                );
 
         /// <summary>
         ///     Подписаться на стрим обновления свечей для пары
@@ -94,7 +98,8 @@ namespace BinanceExchange.WebSocket.Marketdata
             IBinanceWebSocketHumble webSocketHumble) =>
             new(
                 webSocketHumble,
-                $"{BaseUrl}/ws/{symbol.ToLower()}{MarketdataStreamType.CandlestickStream.ToUrl()}{candleStickInterval.ToUrl()}");
+                $"{BaseUrl}/ws/{symbol.ToLower()}{MarketdataStreamType.CandlestickStream.ToUrl()}{candleStickInterval.ToUrl()}"
+                );
 
         /// <summary>
         ///     Получать статистику всех мини-тикеров за 24 часа
@@ -102,7 +107,8 @@ namespace BinanceExchange.WebSocket.Marketdata
         public static MarketdataWebSocket CreateAllMarketMiniTickersStream() =>
             new(
                 new BinanceWebSocketHumble(new ClientWebSocket()),
-                $"{BaseUrl}/ws/{MarketdataStreamType.AllMarketMiniTickersStream.ToUrl()}");
+                $"{BaseUrl}/ws/{MarketdataStreamType.AllMarketMiniTickersStream.ToUrl()}"
+                );
 
         /// <summary>
         ///     Получать статистику всех мини-тикеров за 24 часа
@@ -115,15 +121,11 @@ namespace BinanceExchange.WebSocket.Marketdata
         /// <summary>
         ///     Получать статистику всех тикеров за 24 часа
         /// </summary>
-        public static MarketdataWebSocket CreateAllTickersStream()
-        {
-            var converter = new JsonDeserializerWrapper();
-            converter.AddConverter(new EnumerableDeserializer<TickerStreamModel>());
-
-            return new MarketdataWebSocket(
+        public static MarketdataWebSocket CreateAllTickersStream() =>
+            new(
                 new BinanceWebSocketHumble(new ClientWebSocket()),
-                $"{BaseUrl}/ws/{MarketdataStreamType.AllMarketTickersStream.ToUrl()}");
-        }
+                $"{BaseUrl}/ws/{MarketdataStreamType.AllMarketTickersStream.ToUrl()}"
+                );
 
         /// <summary>
         ///     Получать статистику всех тикеров за 24 часа
@@ -144,8 +146,8 @@ namespace BinanceExchange.WebSocket.Marketdata
         /// <summary>
         ///     Получать обновления лучшей цены покупки или продажи или количество в режиме реального времени для всех символов
         /// </summary>
-        public static MarketdataWebSocket CreateAllBookTickersStream(
-            IBinanceWebSocketHumble webSocketHumble) =>
+        public static MarketdataWebSocket CreateAllBookTickersStream(IBinanceWebSocketHumble webSocketHumble)
+            =>
             new(webSocketHumble, $"{BaseUrl}/ws/{MarketdataStreamType.AllBookTickersStream.ToUrl()}");
 
         /// <summary>
@@ -171,7 +173,7 @@ namespace BinanceExchange.WebSocket.Marketdata
         }
 
         /// <summary>
-        ///     Получать лучший ордера спроса и предложения
+        ///     Получать лучшие ордера спроса и предложения
         /// </summary>
         /// <param name="symbol"> Пара (в нижнем регистре) </param>
         /// <param name="levels"> Кол-во оредеров. Допустимые значения 5, 10, 20 </param>
@@ -192,7 +194,7 @@ namespace BinanceExchange.WebSocket.Marketdata
                 webSocketHumble,
                 url);
         }
-        
+
         #endregion
     }
 }

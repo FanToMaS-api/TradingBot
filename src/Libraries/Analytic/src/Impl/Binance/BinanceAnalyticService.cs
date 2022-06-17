@@ -50,10 +50,10 @@ namespace Analytic.Binance
         #region Events
 
         /// <inheritdoc />
-        public EventHandler<InfoModel[]> OnModelsFiltered { get; set; }
+        public EventHandler<InfoModel[]> ModelsFiltered { get; set; }
 
         /// <inheritdoc />
-        public EventHandler<AnalyticResultModel[]> OnSuccessfulAnalize { get; set; }
+        public EventHandler<AnalyticResultModel[]> SuccessfulAnalyzed { get; set; }
 
         #endregion
 
@@ -73,7 +73,7 @@ namespace Analytic.Binance
         public async Task RunAsync(CancellationToken cancellationToken)
         {
             _cancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
-            cancellationToken.Register(() => StopAsync(CancellationToken.None).GetAwaiter().GetResult());
+            cancellationToken.Register(async () => await StopAsync(CancellationToken.None));
 
             // каждую минуту на 7ю секунду вызываем метода анализа
             _triggerKey = await _scheduler.ScheduleAsync(Cron.MinutelyOnSecond(7), AnalyzeAsync);
@@ -135,21 +135,19 @@ namespace Analytic.Binance
         /// </summary>
         private async Task AnalyzeAsync(IServiceProvider serviceProvider)
         {
-            if (_cancellationTokenSource.IsCancellationRequested)
-            {
-                await _scheduler.UnscheduleAsync(_triggerKey);
-            }
-
+            _cancellationTokenSource.Token.ThrowIfCancellationRequested();
+            
             try
             {
                 var models = await _exchange.Marketdata.GetSymbolPriceTickerAsync(null, _cancellationTokenSource.Token);
                 var extendedFilteredModels = new List<InfoModel>();
                 foreach (var filterManager in FilterManagers)
                 {
-                    extendedFilteredModels.AddRange(await filterManager.GetFilteredDataAsync(
+                    var extendedModels = await filterManager.GetFilteredDataAsync(
                         _serviceScopeFactory,
                         models,
-                        _cancellationTokenSource.Token));
+                        _cancellationTokenSource.Token);
+                    extendedFilteredModels.AddRange(extendedModels);
                 }
 
                 if (!extendedFilteredModels.Any())
@@ -157,14 +155,14 @@ namespace Analytic.Binance
                     return;
                 }
 
-                OnModelsFiltered?.Invoke(this, extendedFilteredModels.ToArray());
+                ModelsFiltered?.Invoke(this, extendedFilteredModels.ToArray());
 
                 var analyzedModels = await GetAnalyzedModelsAsync(
                     extendedFilteredModels.ToList(),
                     _cancellationTokenSource.Token);
                 if (analyzedModels.Any())
                 {
-                    OnSuccessfulAnalize?.Invoke(this, analyzedModels.ToArray());
+                    SuccessfulAnalyzed?.Invoke(this, analyzedModels.ToArray());
                 }
             }
             catch (Exception ex)

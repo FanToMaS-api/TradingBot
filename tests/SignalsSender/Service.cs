@@ -188,10 +188,8 @@ namespace SignalsSender
             var fallingTickersFilterManager = builder.GetResult();
 
             var cancellationToken = _cancellationTokenSource.Token;
-            using var scope = _scopeFactory.CreateScope();
-
-            _analyticService.OnModelsFiltered += OnModelsFilteredReceived;
-            _analyticService.OnSuccessfulAnalize += OnModelsToBuyReceived;
+            _analyticService.ModelsFiltered += OnModelsFilteredReceived;
+            _analyticService.SuccessfulAnalyzed += OnModelsToBuyReceived;
 
             var ssaProfile = new SsaAnalyticPofile(_logger, "SsaProfile");
             var profileGroup = new ProfileGroup(_logger, "DefaultGroupProfile");
@@ -199,6 +197,7 @@ namespace SignalsSender
             _analyticService.AddProfileGroup(profileGroup);
             _analyticService.AddFilterManager(growingPairFilterManager);
             _analyticService.AddFilterManager(fallingTickersFilterManager);
+            
             await _analyticService.RunAsync(cancellationToken);
         }
 
@@ -211,6 +210,8 @@ namespace SignalsSender
         {
             _cancellationTokenSource?.Cancel();
             _cancellationTokenSource?.Dispose();
+            _analyticService.ModelsFiltered -= OnModelsFilteredReceived;
+            _analyticService.SuccessfulAnalyzed -= OnModelsToBuyReceived;
         }
 
         #endregion
@@ -260,7 +261,7 @@ namespace SignalsSender
 
             try
             {
-                Task.WaitAll(tasks.ToArray());
+                Task.WhenAll(tasks).Wait();
             }
             catch (Exception ex)
             {
@@ -318,7 +319,7 @@ namespace SignalsSender
 
             try
             {
-                Task.WaitAll(tasks.ToArray());
+                Task.WhenAll(tasks).Wait();
             }
             catch (Exception ex)
             {

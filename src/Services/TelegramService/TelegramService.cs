@@ -161,8 +161,6 @@ namespace TelegramService
                     _ => { _.UserStateType = UserStateType.BlockedBot; },
                     cancellationToken);
                 await database.SaveChangesAsync(cancellationToken);
-
-                return;
             }
             catch (Exception ex)
             {
@@ -324,7 +322,7 @@ namespace TelegramService
             user.UserState.BanReason = BanReasonType.Spam;
             try
             {
-                await SendMessageAsync($"{DefaultText.BannedAccountText}. Причина бана: спам", cancellationToken);
+                await SendMessageAsync($"{DefaultText.BannedAccountText}. Причина бана - спам", cancellationToken);
             }
             catch (Exception ex)
             {

@@ -24,12 +24,13 @@ namespace Analytic.AnalyticUnits.Profiles.SSA
     {
         #region Fields
 
-        private readonly ILoggerDecorator _logger;
-        private readonly Plotter _plotter;
         private const int _numberPricesToTake = 900; // кол-во данных участвующих в предсказании цены
         private const int _denominator = 5; // делитель кол-ва данных, участвующих в предсказании цены (выше)
                                             // для прогноза только некоторого кол-ва цен
 
+        private readonly ILoggerDecorator _logger;
+        private readonly Plotter _plotter;
+        
         #endregion
 
         #region .ctor
@@ -63,7 +64,7 @@ namespace Analytic.AnalyticUnits.Profiles.SSA
             CancellationToken cancellationToken)
         {
             var pairName = model.TradeObjectName;
-            var enities = GetHotMiniTickers(serviceScopeFactory, pairName);
+            var enities = await GetHotMiniTickersAsync(serviceScopeFactory, pairName, cancellationToken);
             if (!enities.Any())
             {
                 return (false, null);
@@ -81,18 +82,13 @@ namespace Analytic.AnalyticUnits.Profiles.SSA
                 cancellationToken: cancellationToken);
             await SavePredictionAsync(serviceScopeFactory, pairName, enities.Last().ReceivedTime, predictions, cancellationToken);
 
-            var minMaxPriceModel = MinMaxPriceModel.Create(predictions);
+            var minMaxPriceModel = MinMaxPriceModel.Create(pairName, predictions);
             if (minMaxPriceModel.MinPrice <= 0)
             {
                 return (false, null);
             }
 
-            _plotter.PairName = pairName;
-            _plotter.PredictedPrices = predictions;
-            _plotter.MaxPrice = minMaxPriceModel.MaxPrice;
-            _plotter.MinPrice = minMaxPriceModel.MinPrice;
-            _plotter.MaxIndex = minMaxPriceModel.MaxIndex;
-            _plotter.MinIndex = minMaxPriceModel.MinIndex;
+            MapMinMaxModelToPlotter(minMaxPriceModel);
             var canCreateChart = _plotter.CanCreateChart(
                 prices,
                 enities.Select(_ => _.ReceivedTime),
@@ -119,13 +115,16 @@ namespace Analytic.AnalyticUnits.Profiles.SSA
         /// <summary>
         ///     Возвращает самые актуальные сущности из базы для конкретной пары
         /// </summary>
-        private static HotMiniTickerEntity[] GetHotMiniTickers(IServiceScopeFactory serviceScopeFactory, string pairName)
+        private static async Task<HotMiniTickerEntity[]> GetHotMiniTickersAsync(
+            IServiceScopeFactory serviceScopeFactory,
+            string pairName,
+            CancellationToken cancellationToken)
         {
             using var scope = serviceScopeFactory.CreateScope();
             var databaseFactory = scope.ServiceProvider.GetRequiredService<IBinanceDbContextFactory>();
             using var database = databaseFactory.CreateScopeDatabase();
 
-            return database.HotUnitOfWork.HotMiniTickers.GetArray(pairName, _numberPricesToTake);
+            return await database.HotUnitOfWork.HotMiniTickers.GetArrayAsync(pairName, cancellationToken, _numberPricesToTake);
         }
 
         /// <summary>
@@ -244,6 +243,20 @@ namespace Analytic.AnalyticUnits.Profiles.SSA
             }
 
             return predictions.ToArray();
+        }
+
+        /// <summary>
+        ///     Маппит значения модели максимальной и минимальной цены в модель для построения графика
+        /// </summary>
+        /// <param name="minMaxPriceModel"> Модели максимальной и минимальной цены </param>
+        private void MapMinMaxModelToPlotter(MinMaxPriceModel minMaxPriceModel)
+        {
+            _plotter.PairName = minMaxPriceModel.TradeObjectName;
+            _plotter.PredictedPrices = minMaxPriceModel.PredictedPrices;
+            _plotter.MaxPrice = minMaxPriceModel.MaxPrice;
+            _plotter.MinPrice = minMaxPriceModel.MinPrice;
+            _plotter.MaxIndex = minMaxPriceModel.MaxIndex;
+            _plotter.MinIndex = minMaxPriceModel.MinIndex;
         }
 
         /// <summary>

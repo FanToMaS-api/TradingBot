@@ -63,7 +63,7 @@ namespace BinanceExchangeTests.BinanceTests.ImplTests
         /// </summary>
         private ISpotTrade SetupSpotTrade()
         {
-            _tradeSender.GetAccountInformationAsync(Arg.Any<Dictionary<string, object>>(), Arg.Any<CancellationToken>()).Returns(async _ =>
+            _tradeSender.GetAccountInformationAsync(Arg.Any<Dictionary<string, string>>(), Arg.Any<CancellationToken>()).Returns(async _ =>
             {
                 return await _spotAccountTradeSenderTest.GetAccountInformationAsync_Test();
             });
@@ -81,7 +81,6 @@ namespace BinanceExchangeTests.BinanceTests.ImplTests
         public Action<string, TimeSpan, int> SetArgumentsEvent { get; set; }
 
         #endregion
-
 
         #region Spot Account/Trade Tests (Данные тесты не проверяю результат работы строителя query)
 
@@ -366,7 +365,7 @@ namespace BinanceExchangeTests.BinanceTests.ImplTests
                 TimeInForceType.IOC,
                 OrderType.Limit,
                 OrderSideType.Buy);
-            _tradeSender.CancelOrderAsync(Arg.Any<Dictionary<string, object>>(), Arg.Any<CancellationToken>()).ReturnsForAnyArgs(binanceResponse);
+            _tradeSender.CancelOrderAsync(Arg.Any<Dictionary<string, string>>(), Arg.Any<CancellationToken>()).ReturnsForAnyArgs(binanceResponse);
 
             MockRedisIncrementOrCreateKeyValue(_redisDatabase);
 
@@ -409,7 +408,7 @@ namespace BinanceExchangeTests.BinanceTests.ImplTests
                 TimeInForceType.IOC,
                 OrderType.Limit,
                 OrderSideType.Buy);
-            _tradeSender.CancelAllOrdersAsync(Arg.Any<Dictionary<string, object>>(), Arg.Any<CancellationToken>()).ReturnsForAnyArgs(
+            _tradeSender.CancelAllOrdersAsync(Arg.Any<Dictionary<string, string>>(), Arg.Any<CancellationToken>()).ReturnsForAnyArgs(
                 new List<CancelOrderResponseModel> { binanceResponse, binanceResponse });
 
             MockRedisIncrementOrCreateKeyValue(_redisDatabase);
@@ -458,7 +457,7 @@ namespace BinanceExchangeTests.BinanceTests.ImplTests
                 TimeInForceType.IOC,
                 OrderType.Limit,
                 OrderSideType.Buy);
-            _tradeSender.CheckOrderAsync(Arg.Any<Dictionary<string, object>>(), Arg.Any<CancellationToken>()).ReturnsForAnyArgs(binanceResponse);
+            _tradeSender.CheckOrderAsync(Arg.Any<Dictionary<string, string>>(), Arg.Any<CancellationToken>()).ReturnsForAnyArgs(binanceResponse);
 
             MockRedisIncrementOrCreateKeyValue(_redisDatabase);
 
@@ -503,7 +502,7 @@ namespace BinanceExchangeTests.BinanceTests.ImplTests
                 TimeInForceType.IOC,
                 OrderType.Limit,
                 OrderSideType.Buy);
-            _tradeSender.CheckAllOpenOrdersAsync(Arg.Any<Dictionary<string, object>>(), Arg.Any<CancellationToken>()).ReturnsForAnyArgs(
+            _tradeSender.CheckAllOpenOrdersAsync(Arg.Any<Dictionary<string, string>>(), Arg.Any<CancellationToken>()).ReturnsForAnyArgs(
                 new List<CheckOrderResponseModel> { binanceResponse, binanceResponse });
 
             MockRedisIncrementOrCreateKeyValue(_redisDatabase);
@@ -552,7 +551,7 @@ namespace BinanceExchangeTests.BinanceTests.ImplTests
                 TimeInForceType.IOC,
                 OrderType.Limit,
                 OrderSideType.Buy);
-            _tradeSender.GetAllOrdersAsync(Arg.Any<Dictionary<string, object>>(), Arg.Any<CancellationToken>()).ReturnsForAnyArgs(
+            _tradeSender.GetAllOrdersAsync(Arg.Any<Dictionary<string, string>>(), Arg.Any<CancellationToken>()).ReturnsForAnyArgs(
                 new List<CheckOrderResponseModel> { binanceResponse, binanceResponse });
 
             MockRedisIncrementOrCreateKeyValue(_redisDatabase);
@@ -643,7 +642,7 @@ namespace BinanceExchangeTests.BinanceTests.ImplTests
         ///     Создает мок на вызов метода создания любого типа ордера
         /// </summary>
         private (FullOrderResponseModel binanceResponse, Common.Models.FullOrderResponseModel expectedResult) MockNewOrderCreating(
-            Dictionary<string, object> query,
+            Dictionary<string, string> query,
             double priceAndQuantity,
             OrderType orderType,
             string expectedOrderType)

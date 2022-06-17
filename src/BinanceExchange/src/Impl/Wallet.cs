@@ -48,9 +48,8 @@ namespace BinanceExchange.Impl
                 throw new TooManyRequestsException(rateLimit.Expiration, rateLimit.Value, rateLimit.Key);
             }
 
-            var result = await _walletSender.GetSystemStatusAsync(cancellationToken);
-
             RedisHelper.IncrementCallsMade(_redisDatabase, requestWeight, RequestWeightModel.GetDefaultKey());
+            var result = await _walletSender.GetSystemStatusAsync(cancellationToken);
 
             return result.Status == 0 && result.Message == "normal";
         }
@@ -64,12 +63,12 @@ namespace BinanceExchange.Impl
                 throw new TooManyRequestsException(rateLimit.Expiration, rateLimit.Value, rateLimit.Key);
             }
 
+            RedisHelper.IncrementCallsMade(_redisDatabase, requestWeight, RequestWeightModel.GetDefaultKey());
+
             var builder = new Builder()
                 .SetRecvWindow(recvWindow);
             var parameters = builder.GetResult().GetRequestParameters();
             var result = await _walletSender.GetAccountTradingStatusAsync(parameters, cancellationToken);
-
-            RedisHelper.IncrementCallsMade(_redisDatabase, requestWeight, RequestWeightModel.GetDefaultKey());
 
             return _mapper.Map<TradingAccountInfoModel>(result);
         }
@@ -89,10 +88,11 @@ namespace BinanceExchange.Impl
             var builder = new Builder()
                 .SetSymbol(symbol, true)
                 .SetRecvWindow(recvWindow);
-            var parameters = builder.GetResult().GetRequestParameters();
-            var result = await _walletSender.GetTradeFeeAsync(parameters, cancellationToken);
 
             RedisHelper.IncrementCallsMade(_redisDatabase, requestWeight, RequestWeightModel.GetDefaultKey());
+
+            var parameters = builder.GetResult().GetRequestParameters();
+            var result = await _walletSender.GetTradeFeeAsync(parameters, cancellationToken);
 
             return _mapper.Map<IEnumerable<Common.Models.TradeFeeModel>>(result);
         }
@@ -106,12 +106,12 @@ namespace BinanceExchange.Impl
                 throw new TooManyRequestsException(rateLimit.Expiration, rateLimit.Value, rateLimit.Key);
             }
 
+            RedisHelper.IncrementCallsMade(_redisDatabase, requestWeight, RequestWeightModel.GetDefaultKey());
+
             var builder = new Builder()
                 .SetRecvWindow(recvWindow);
             var parameters = builder.GetResult().GetRequestParameters();
             var result = await _walletSender.GetAllCoinsInformationAsync(parameters, cancellationToken);
-
-            RedisHelper.IncrementCallsMade(_redisDatabase, requestWeight, RequestWeightModel.GetDefaultKey());
 
             return _mapper.Map<IEnumerable<TradeObject>>(result);
         }

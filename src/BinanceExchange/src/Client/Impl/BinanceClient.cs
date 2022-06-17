@@ -2,13 +2,9 @@
 using BinanceExchange.Client.Http.Request.Models;
 using BinanceExchange.Enums;
 using BinanceExchange.Exceptions;
-using NLog;
-using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
-using System.Text;
-using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -24,7 +20,6 @@ namespace BinanceExchange.Client.Impl
         private readonly string _apiKey;
         private readonly string _apiSecret;
         private readonly IHttpClientFactory _httpClientFactory;
-        private readonly ILogger _logger = LogManager.GetCurrentClassLogger();
 
         #endregion
 
@@ -45,7 +40,8 @@ namespace BinanceExchange.Client.Impl
         /// <inheritdoc />
         public async Task<string> SendPublicAsync(
             IRequestModel requestModel,
-            CancellationToken cancellationToken = default) =>
+            CancellationToken cancellationToken = default)
+            =>
             await SendAsync(requestModel, cancellationToken: cancellationToken);
 
         /// <inheritdoc />
@@ -53,9 +49,9 @@ namespace BinanceExchange.Client.Impl
             IRequestModel requestModel,
             CancellationToken cancellationToken = default)
         {
-            var signParameters = BinanceUrlHelper.Sign(requestModel.ParametersStr, _apiSecret);
+            var signParameters = BinanceUrlHelper.Sign(requestModel.Url, _apiSecret);
 
-            var signature = requestModel.ParametersStr.Any()
+            var signature = requestModel.Parameters.Any()
                 ? $"&signature={signParameters}"
                 : $"?signature={signParameters}";
 
@@ -112,7 +108,7 @@ namespace BinanceExchange.Client.Impl
                 418 => new BinanceException(BinanceExceptionType.Blocked, message),
                 >= 500 => new BinanceException(BinanceExceptionType.ServerException, message),
                 >= 400 => new BinanceException(BinanceExceptionType.InvalidRequest, message),
-                _ => new BinanceException($"Unknown error type with code")
+                _ => new BinanceException("Unknown error type with code")
             };
 
             httpException.StatusCode = statusCode;

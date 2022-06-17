@@ -19,7 +19,7 @@ namespace BinanceDatabase.Repositories.HotRepositories
         /// <summary>
         ///     Получить необходимое кол-во самых актуальных объектов, отсортированные в порядке получения
         /// </summary>
-        HotMiniTickerEntity[] GetArray(string pair, int neededCount = 2000);
+        Task<HotMiniTickerEntity[]> GetArrayAsync(string pair, CancellationToken cancellationToken, int neededCount = 2000);
 
         /// <summary>
         ///     Удаляет все записи до указанной даты
