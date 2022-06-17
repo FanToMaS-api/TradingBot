@@ -41,11 +41,6 @@ namespace BinanceExchange.WebSocket
 
         #region Events
 
-        /// <summary>
-        ///     Событие, возникающее при закрытии веб-сокета
-        /// </summary>
-        internal Func<BinanceWebSocket, CancellationToken, Task> WebSocketClosed { get; set; }
-
         /// <inheritdoc />
         public Action StreamStarted { get; set; }
         
@@ -171,7 +166,6 @@ namespace BinanceExchange.WebSocket
                         {
                             await Log.ErrorAsync("The web socket has been closed", cancellationToken: cancellationToken);
                             StreamClosed?.Invoke();
-                            await WebSocketClosed?.Invoke(this, cancellationToken);
 
                             break;
                         }

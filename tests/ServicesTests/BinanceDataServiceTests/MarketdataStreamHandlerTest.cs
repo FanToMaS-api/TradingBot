@@ -48,7 +48,7 @@ namespace BinanceDataServiceTests
 
             var webSocket = Substitute.For<IWebSocket>();
             var exchange = Substitute.For<IExchange>();
-            exchange.MarketdataStreams.SubscribeAllMarketMiniTickersStream(null, CancellationToken.None, null)
+            exchange.MarketdataStreams.SubscribeAllMarketMiniTickersStream(null, CancellationToken.None)
                 .ReturnsForAnyArgs(webSocket);
 
             var scheduler = Substitute.For<IRecurringJobScheduler>();

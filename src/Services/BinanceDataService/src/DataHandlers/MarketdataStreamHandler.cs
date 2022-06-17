@@ -81,7 +81,7 @@ namespace BinanceDataService.DataHandlers
             _webSocket = _exchange.MarketdataStreams.SubscribeAllMarketMiniTickersStream(
                 OnDataReceived,
                 cancellationToken);
-            
+
             _webSocket.StreamClosed += OnWebSocketClosed;
             _webSocket.StreamStarted += OnStreamStarted;
 
@@ -214,11 +214,11 @@ namespace BinanceDataService.DataHandlers
         {
             var databaseFactory = serviceProvider.GetService<IBinanceDbContextFactory>()
                 ?? throw new InvalidOperationException($"{nameof(IBinanceDbContextFactory)} not registered!");
-            
+
             using var database = databaseFactory.CreateScopeDatabase();
             var hotData = _mapper.Map<IEnumerable<HotMiniTickerEntity>>(streamModels);
             await database.HotUnitOfWork.HotMiniTickers.AddRangeAsync(hotData, _cancellationTokenSource.Token);
-            
+
             if (_dataAggregators.Any(_ => _.IsActive))
             {
                 var coldData = _mapper.Map<IEnumerable<MiniTickerEntity>>(streamModels);
@@ -249,6 +249,7 @@ namespace BinanceDataService.DataHandlers
         private void OnWebSocketClosed()
         {
             _webSocket.StreamClosed -= OnWebSocketClosed;
+            _logger.InfoAsync("The websocket has been closed.").Wait(5 * 1000);
 
             // QUESTION: интересное решение, надо проверить НО скорее всего неверное!
             _webSocket.Dispose();
@@ -257,11 +258,11 @@ namespace BinanceDataService.DataHandlers
                 OnDataReceived,
                 _cancellationTokenSource.Token);
             _webSocket.StreamClosed += OnWebSocketClosed;
-            
+
             for (var i = 0; i < WebSocketReconnectionLimit; i++)
 
             {
-                _logger.InfoAsync($"The websocket has been closed. Restarting stream, attempt number = {i + 1}").Wait(5 * 1000);
+                _logger.InfoAsync($"Restarting stream, attempt number = {i + 1}").Wait(5 * 1000);
 
                 Task.Factory.StartNew(
                     async (_) => await StartWebSocket(_cancellationTokenSource.Token),
