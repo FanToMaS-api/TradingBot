@@ -1,6 +1,7 @@
 using BinanceExchange.Client.Helpers;
 using BinanceExchange.Client.Http.Request.Models;
 using BinanceExchange.Client.Http.Request.Models.Impl;
+using Common.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -42,7 +43,7 @@ namespace BinanceExchange.Client.Http.Request.Builders
         /// </remarks>
         public HttpRequestUrlBuilder SetEndpoint(string endpoint)
         {
-            ThrowIsEmpty(nameof(endpoint), endpoint);
+            endpoint.ThrowIsEmptyOrNull();
 
             var endpointUrl = $"{BaseUrl}{endpoint}";
             _requestModel.Endpoint = endpointUrl;
@@ -57,7 +58,7 @@ namespace BinanceExchange.Client.Http.Request.Builders
         /// <param name="httpMethod"> Http метод </param>
         public HttpRequestUrlBuilder SetHttpMethod(HttpMethod httpMethod)
         {
-            _requestModel.HttpMethod = httpMethod ?? throw new ArgumentNullException(nameof(httpMethod));
+            _requestModel.HttpMethod = httpMethod ?? throw new ArgumentNullException();
 
             return this;
         }
@@ -68,7 +69,7 @@ namespace BinanceExchange.Client.Http.Request.Builders
         /// <param name="contentType"> Тип контента </param>
         public HttpRequestUrlBuilder SetContentType(string contentType)
         {
-            ThrowIsEmpty(nameof(contentType), contentType);
+            contentType.ThrowIsEmptyOrNull();
 
             _requestModel.ContentType = contentType;
 
@@ -86,7 +87,7 @@ namespace BinanceExchange.Client.Http.Request.Builders
         {
             if (body is null)
             {
-                throw new ArgumentNullException(nameof(body));
+                throw new ArgumentNullException();
             }
             
             var parametersStr = GetCustomParametersString(body);
@@ -102,7 +103,7 @@ namespace BinanceExchange.Client.Http.Request.Builders
         /// <param name="endpointWithInlineParams"> Конечная точка с инлайн параметрами </param>
         public HttpRequestUrlBuilder SetUrl(string endpointWithInlineParams)
         {
-            ThrowIsEmpty(nameof(endpointWithInlineParams), endpointWithInlineParams);
+            endpointWithInlineParams.ThrowIsEmptyOrNull();
 
             _requestModel.Url = $"{BaseUrl}{endpointWithInlineParams}";
 
@@ -114,7 +115,7 @@ namespace BinanceExchange.Client.Http.Request.Builders
         /// </summary>
         public HttpRequestUrlBuilder SetParameters(IDictionary<string, string> parameters)
         {
-            _parameters = new Dictionary<string, string>(parameters) ?? throw new ArgumentNullException(nameof(parameters));
+            _parameters = new Dictionary<string, string>(parameters) ?? throw new ArgumentNullException();
 
             return this;
         }
@@ -129,8 +130,8 @@ namespace BinanceExchange.Client.Http.Request.Builders
         /// </remarks>
         public HttpRequestUrlBuilder AddParameter(string key, string value)
         {
-            ThrowIsEmpty(nameof(key), key);
-            ThrowIsEmpty(nameof(value), value);
+            key.ThrowIsEmptyOrNull();
+            value.ThrowIsEmptyOrNull();
 
             _parameters.Add(key, value);
 
@@ -143,7 +144,7 @@ namespace BinanceExchange.Client.Http.Request.Builders
         /// <param name="key"> Название параметра </param>
         public HttpRequestUrlBuilder RemoveParameter(string key)
         {
-            ThrowIsEmpty(nameof(key), key);
+            key.ThrowIsEmptyOrNull();
 
             if (_parameters.ContainsKey(key))
             {
@@ -169,7 +170,7 @@ namespace BinanceExchange.Client.Http.Request.Builders
         /// </summary>
         public IRequestModel GetResult()
         {
-            ThrowIsEmpty(nameof(_requestModel.Url), _requestModel.Url);
+            _requestModel.Url.ThrowIsEmptyOrNull();
             
             _requestModel.Url = GetRequestUrl(_requestModel.Url, _parameters);
 
@@ -181,20 +182,6 @@ namespace BinanceExchange.Client.Http.Request.Builders
         #endregion
 
         #region Private methods
-
-        /// <summary>
-        ///     Проверят переданный параметр на пустоту, выбрасывает исключение в случае если он неинициализирован
-        /// </summary>
-        /// <param name="paramName"> Название параметра </param>
-        /// <param name="value"> Значение </param>
-        /// <exception cref="ArgumentNullException"> Если параметр пуст или не инициализирован </exception>
-        private static void ThrowIsEmpty(string paramName, string value)
-        {
-            if (string.IsNullOrEmpty(value))
-            {
-                throw new ArgumentNullException($"{paramName} can not be empty");
-            }
-        }
 
         /// <summary>
         ///     Возвращает полный урл запроса со всеми параметрами

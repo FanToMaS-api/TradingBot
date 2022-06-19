@@ -35,7 +35,7 @@ namespace Analytic.Filters
         {
             Name = filterName;
             VolumeType = volumeType;
-            VolumeComparisonType = volumeComparisonType;
+            ComparisonType = volumeComparisonType;
             PercentDeviation = percentDeviation;
             OrderNumber = orderNumber;
         }
@@ -50,7 +50,7 @@ namespace Analytic.Filters
         /// <summary>
         ///     Тип сравнения объемов
         /// </summary>
-        public VolumeComparisonType VolumeComparisonType { get; }
+        public VolumeComparisonType ComparisonType { get; }
 
         /// <summary>
         ///     Тип фильтруемых объемов
@@ -93,7 +93,7 @@ namespace Analytic.Filters
             model.BidVolume = extendedModel.Bids.Sum(_ => _.Quantity);
             model.AskVolume = extendedModel.Asks.Sum(_ => _.Quantity);
 
-            return VolumeComparisonType switch
+            return ComparisonType switch
             {
                 VolumeComparisonType.GreaterThan => IsSatisfiesCondition(model, (x, y) => x > y * (1 + PercentDeviation)),
                 VolumeComparisonType.LessThan => IsSatisfiesCondition(model, (x, y) => x <= y * (1 + PercentDeviation)),

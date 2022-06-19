@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Common.Helpers;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -35,6 +36,7 @@ namespace Analytic.Filters.Builders.FilterBuilders
         /// <param name="name"> Название объекта торговли </param>
         public NameFilterBuilder AddTradeObjectName(string name)
         {
+            name.ThrowIsEmptyOrNull();
             _tradeObjectNamesToAnalyze.Add(name);
 
             return this;
@@ -46,30 +48,21 @@ namespace Analytic.Filters.Builders.FilterBuilders
         /// <param name="names"> Названия объектов торговли </param>
         public NameFilterBuilder AddTradeObjectNames(IEnumerable<string> names)
         {
+            names.ThrowIsAnyEmptyOrNull();
+
             _tradeObjectNamesToAnalyze.AddRange(names);
 
             return this;
         }
 
-        /// <summary>
-        ///     Добавить названия объектов торговли, которые смогет пройти фильтр
-        /// </summary>
-        /// <param name="names"> Названия объектов торговли </param>
-        public NameFilterBuilder AddTradeObjectNames(string[] names)
-        {
-            _tradeObjectNamesToAnalyze.AddRange(names);
-
-            return this;
-        }
-        
         /// <summary>
         ///     Возвращает результат работы билдера - фильтр названий торговых объектов
         /// </summary>
         /// <exception cref="Exception"> Если не указано ни одного названия торговых объектов </exception>
         public NameFilter GetResult()
         {
-            return !_tradeObjectNamesToAnalyze.Any() ?
-                throw new Exception($"Trade object names {nameof(_tradeObjectNamesToAnalyze)} to analyze cannot be empty.")
+            return !_tradeObjectNamesToAnalyze.Any() 
+                ? throw new Exception($"Trade object names {nameof(_tradeObjectNamesToAnalyze)} to analyze cannot be empty.")
                 : new NameFilter(_filterName, _tradeObjectNamesToAnalyze.ToArray());
         }
 

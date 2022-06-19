@@ -39,13 +39,18 @@ namespace Analytic.Filters.Builders.FilterBuilders
 
             return this;
         }
-        
+
         /// <summary>
         ///     Установить ценовой лимит
         /// </summary>
         /// <param name="limit"> Лимит </param>
         public PriceFilterBuilder SetLimit(double limit)
         {
+            if (limit <= 0)
+            {
+                throw new ArgumentException($"{nameof(limit)} should be greater than 0");
+            }
+
             _limit = limit;
 
             return this;
@@ -57,8 +62,8 @@ namespace Analytic.Filters.Builders.FilterBuilders
         /// <exception cref="Exception"> Если значение лимита <= 0 </exception>
         public PriceFilter GetResult()
         {
-            return _limit <= 0 ?
-                throw new Exception($"Price limit {nameof(_limit)} cannot be 0.")
+            return _limit <= 0
+                ? throw new Exception($"Price limit {nameof(_limit)} cannot be less or equal zero")
                 : new PriceFilter(_filterName, _comparisonType, _limit);
         }
 

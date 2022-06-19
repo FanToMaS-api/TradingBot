@@ -131,7 +131,7 @@ namespace SignalsSender
             var volumeFilter = new VolumeFilterBuilder()
                 .SetFilterName("VolumeBidFilter")
                 .SetVolumeType()
-                .SetVolumeComparisonType()
+                .SetComparisonType()
                 .SetPercentDeviation()
                 .GetResult();
             var commonLatestFilterGroup = new FilterGroupBuilder()
@@ -169,7 +169,7 @@ namespace SignalsSender
             var volumeBidFilterForFallingPairs = new VolumeFilterBuilder()
                 .SetFilterName("VolumeBidFilterForFallingPairs")
                 .SetVolumeType(VolumeType.Ask)
-                .SetVolumeComparisonType(VolumeComparisonType.GreaterThan)
+                .SetComparisonType(VolumeComparisonType.GreaterThan)
                 .SetPercentDeviation(0.35)
                 .GetResult();
             var commonLatestFilterGroupForFallingPairs = new FilterGroupBuilder()

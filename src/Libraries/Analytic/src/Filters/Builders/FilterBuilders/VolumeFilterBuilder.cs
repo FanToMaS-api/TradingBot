@@ -47,7 +47,7 @@ namespace Analytic.Filters.Builders.FilterBuilders
         ///     Установить тип сравнения объемов
         /// </summary>
         /// <param name="volumeComparisonType"> Тип сравнения объемов </param>
-        public VolumeFilterBuilder SetVolumeComparisonType(VolumeComparisonType volumeComparisonType = VolumeComparisonType.GreaterThan)
+        public VolumeFilterBuilder SetComparisonType(VolumeComparisonType volumeComparisonType = VolumeComparisonType.GreaterThan)
         {
             _volumeComparisonType = volumeComparisonType;
 
@@ -66,7 +66,7 @@ namespace Analytic.Filters.Builders.FilterBuilders
         }
 
         /// <summary>
-        ///     Установить Необходимое кол-во ордеров для расчетов
+        ///     Установить необходимое кол-во ордеров для расчетов
         /// </summary>
         /// <param name="orderNumber"> 
         ///     Необходимое кол-во ордеров <br />
@@ -74,7 +74,7 @@ namespace Analytic.Filters.Builders.FilterBuilders
         /// </param>
         public VolumeFilterBuilder SetOrderNumber(int orderNumber = 1000)
         {
-            if (ValidArrayOfOrderNumber.Contains(orderNumber))
+            if (!ValidArrayOfOrderNumber.Contains(orderNumber))
             {
                 throw new ArgumentException($"Invalid number of orders {nameof(orderNumber)}");
             }

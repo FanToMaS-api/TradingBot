@@ -1,4 +1,5 @@
 ﻿using Analytic.Filters.Enums;
+using Common.Helpers;
 
 namespace Analytic.Filters.Builders.FilterBuilders
 {
