@@ -63,7 +63,7 @@ namespace BinanceExchangeTests.BinanceTests.ImplTests
         /// </summary>
         private ISpotTrade SetupSpotTrade()
         {
-            _tradeSender.GetAccountInformationAsync(Arg.Any<Dictionary<string, object>>(), Arg.Any<CancellationToken>()).Returns(async _ =>
+            _tradeSender.GetAccountInformationAsync(Arg.Any<Dictionary<string, string>>(), Arg.Any<CancellationToken>()).Returns(async _ =>
             {
                 return await _spotAccountTradeSenderTest.GetAccountInformationAsync_Test();
             });
@@ -81,7 +81,6 @@ namespace BinanceExchangeTests.BinanceTests.ImplTests
         public Action<string, TimeSpan, int> SetArgumentsEvent { get; set; }
 
         #endregion
-
 
         #region Spot Account/Trade Tests (Данные тесты не проверяю результат работы строителя query)
 
@@ -107,7 +106,7 @@ namespace BinanceExchangeTests.BinanceTests.ImplTests
             builder.SetPrice(priceAndQuantity);
             builder.SetQuantity(priceAndQuantity);
             builder.SetRecvWindow(recvWindow);
-            var query = builder.GetResult(false).GetQuery();
+            var query = builder.GetResult(false).GetRequestParameters();
 
             var (binanceResponse, expectedResult) = MockNewOrderCreating(query, priceAndQuantity, OrderType.Limit, orderType);
             SetArgumentsEvent += SetArgumentsEventHandler;
@@ -122,7 +121,7 @@ namespace BinanceExchangeTests.BinanceTests.ImplTests
             binanceResponse.Price = priceAndQuantity;
             binanceResponse.OrigQty = priceAndQuantity;
             builder.SetPrice(priceAndQuantity);
-            query = builder.GetResult(false).GetQuery();
+            query = builder.GetResult(false).GetRequestParameters();
             _tradeSender.SendNewTestOrderAsync(query, Arg.Any<CancellationToken>()).ReturnsForAnyArgs(binanceResponse);
 
             // Act #2
@@ -156,7 +155,7 @@ namespace BinanceExchangeTests.BinanceTests.ImplTests
             builder.SetSymbol(symbol);
             builder.SetQuantity(priceAndQuantity);
             builder.SetRecvWindow(recvWindow);
-            var query = builder.GetResult().GetQuery();
+            var query = builder.GetResult().GetRequestParameters();
 
             var (binanceResponse, expectedResult) = MockNewOrderCreating(query, priceAndQuantity, OrderType.Market, orderType);
             SetArgumentsEvent += SetArgumentsEventHandler;
@@ -169,7 +168,7 @@ namespace BinanceExchangeTests.BinanceTests.ImplTests
 
             priceAndQuantity = 255;
             builder.SetQuantity(priceAndQuantity); // обновляю значение кол-ва
-            query = builder.GetResult().GetQuery(); // обновляю словарь параметров запроса
+            query = builder.GetResult().GetRequestParameters(); // обновляю словарь параметров запроса
             binanceResponse.Price = priceAndQuantity;
             binanceResponse.OrigQty = priceAndQuantity;
             _tradeSender.SendNewTestOrderAsync(query, Arg.Any<CancellationToken>()).ReturnsForAnyArgs(binanceResponse);
@@ -206,7 +205,7 @@ namespace BinanceExchangeTests.BinanceTests.ImplTests
             builder.SetStopPrice(priceAndQuantity);
             builder.SetQuantity(priceAndQuantity);
             builder.SetRecvWindow(recvWindow);
-            var query = builder.GetResult().GetQuery();
+            var query = builder.GetResult().GetRequestParameters();
 
             var (binanceResponse, expectedResult) = MockNewOrderCreating(query, priceAndQuantity, OrderType.StopLoss, orderType);
             SetArgumentsEvent += SetArgumentsEventHandler;
@@ -219,7 +218,7 @@ namespace BinanceExchangeTests.BinanceTests.ImplTests
 
             priceAndQuantity = 255;
             builder.SetQuantity(priceAndQuantity); // обновляю значение кол-ва
-            query = builder.GetResult().GetQuery(); // обновляю словарь параметров запроса
+            query = builder.GetResult().GetRequestParameters(); // обновляю словарь параметров запроса
             binanceResponse.Price = priceAndQuantity;
             binanceResponse.OrigQty = priceAndQuantity;
             _tradeSender.SendNewTestOrderAsync(query, Arg.Any<CancellationToken>()).ReturnsForAnyArgs(binanceResponse);
@@ -259,7 +258,7 @@ namespace BinanceExchangeTests.BinanceTests.ImplTests
             builder.SetQuantity(priceAndQuantity);
             builder.SetStopPrice(priceAndQuantity);
             builder.SetRecvWindow(recvWindow);
-            var query = builder.GetResult().GetQuery();
+            var query = builder.GetResult().GetRequestParameters();
 
             var (binanceResponse, expectedResult) = MockNewOrderCreating(query, priceAndQuantity, OrderType.StopLossLimit, orderType);
             SetArgumentsEvent += SetArgumentsEventHandler;
@@ -272,7 +271,7 @@ namespace BinanceExchangeTests.BinanceTests.ImplTests
 
             priceAndQuantity = 255;
             builder.SetQuantity(priceAndQuantity); // обновляю значение кол-ва
-            query = builder.GetResult().GetQuery(); // обновляю словарь параметров запроса
+            query = builder.GetResult().GetRequestParameters(); // обновляю словарь параметров запроса
             binanceResponse.Price = priceAndQuantity;
             binanceResponse.OrigQty = priceAndQuantity;
             _tradeSender.SendNewTestOrderAsync(query, Arg.Any<CancellationToken>()).ReturnsForAnyArgs(binanceResponse);
@@ -309,7 +308,7 @@ namespace BinanceExchangeTests.BinanceTests.ImplTests
             builder.SetQuantity(priceAndQuantity);
             builder.SetStopPrice(priceAndQuantity);
             builder.SetRecvWindow(recvWindow);
-            var query = builder.GetResult().GetQuery();
+            var query = builder.GetResult().GetRequestParameters();
 
             var (binanceResponse, expectedResult) = MockNewOrderCreating(query, priceAndQuantity, OrderType.TakeProfit, orderType);
             SetArgumentsEvent += SetArgumentsEventHandler;
@@ -322,7 +321,7 @@ namespace BinanceExchangeTests.BinanceTests.ImplTests
 
             priceAndQuantity = 255;
             builder.SetQuantity(priceAndQuantity); // обновляю значение кол-ва
-            query = builder.GetResult().GetQuery(); // обновляю словарь параметров запроса
+            query = builder.GetResult().GetRequestParameters(); // обновляю словарь параметров запроса
             binanceResponse.Price = priceAndQuantity;
             binanceResponse.OrigQty = priceAndQuantity;
             _tradeSender.SendNewTestOrderAsync(query, Arg.Any<CancellationToken>()).ReturnsForAnyArgs(binanceResponse);
@@ -366,7 +365,7 @@ namespace BinanceExchangeTests.BinanceTests.ImplTests
                 TimeInForceType.IOC,
                 OrderType.Limit,
                 OrderSideType.Buy);
-            _tradeSender.CancelOrderAsync(Arg.Any<Dictionary<string, object>>(), Arg.Any<CancellationToken>()).ReturnsForAnyArgs(binanceResponse);
+            _tradeSender.CancelOrderAsync(Arg.Any<Dictionary<string, string>>(), Arg.Any<CancellationToken>()).ReturnsForAnyArgs(binanceResponse);
 
             MockRedisIncrementOrCreateKeyValue(_redisDatabase);
 
@@ -409,7 +408,7 @@ namespace BinanceExchangeTests.BinanceTests.ImplTests
                 TimeInForceType.IOC,
                 OrderType.Limit,
                 OrderSideType.Buy);
-            _tradeSender.CancelAllOrdersAsync(Arg.Any<Dictionary<string, object>>(), Arg.Any<CancellationToken>()).ReturnsForAnyArgs(
+            _tradeSender.CancelAllOrdersAsync(Arg.Any<Dictionary<string, string>>(), Arg.Any<CancellationToken>()).ReturnsForAnyArgs(
                 new List<CancelOrderResponseModel> { binanceResponse, binanceResponse });
 
             MockRedisIncrementOrCreateKeyValue(_redisDatabase);
@@ -458,7 +457,7 @@ namespace BinanceExchangeTests.BinanceTests.ImplTests
                 TimeInForceType.IOC,
                 OrderType.Limit,
                 OrderSideType.Buy);
-            _tradeSender.CheckOrderAsync(Arg.Any<Dictionary<string, object>>(), Arg.Any<CancellationToken>()).ReturnsForAnyArgs(binanceResponse);
+            _tradeSender.CheckOrderAsync(Arg.Any<Dictionary<string, string>>(), Arg.Any<CancellationToken>()).ReturnsForAnyArgs(binanceResponse);
 
             MockRedisIncrementOrCreateKeyValue(_redisDatabase);
 
@@ -503,7 +502,7 @@ namespace BinanceExchangeTests.BinanceTests.ImplTests
                 TimeInForceType.IOC,
                 OrderType.Limit,
                 OrderSideType.Buy);
-            _tradeSender.CheckAllOpenOrdersAsync(Arg.Any<Dictionary<string, object>>(), Arg.Any<CancellationToken>()).ReturnsForAnyArgs(
+            _tradeSender.CheckAllOpenOrdersAsync(Arg.Any<Dictionary<string, string>>(), Arg.Any<CancellationToken>()).ReturnsForAnyArgs(
                 new List<CheckOrderResponseModel> { binanceResponse, binanceResponse });
 
             MockRedisIncrementOrCreateKeyValue(_redisDatabase);
@@ -552,7 +551,7 @@ namespace BinanceExchangeTests.BinanceTests.ImplTests
                 TimeInForceType.IOC,
                 OrderType.Limit,
                 OrderSideType.Buy);
-            _tradeSender.GetAllOrdersAsync(Arg.Any<Dictionary<string, object>>(), Arg.Any<CancellationToken>()).ReturnsForAnyArgs(
+            _tradeSender.GetAllOrdersAsync(Arg.Any<Dictionary<string, string>>(), Arg.Any<CancellationToken>()).ReturnsForAnyArgs(
                 new List<CheckOrderResponseModel> { binanceResponse, binanceResponse });
 
             MockRedisIncrementOrCreateKeyValue(_redisDatabase);
@@ -643,7 +642,7 @@ namespace BinanceExchangeTests.BinanceTests.ImplTests
         ///     Создает мок на вызов метода создания любого типа ордера
         /// </summary>
         private (FullOrderResponseModel binanceResponse, Common.Models.FullOrderResponseModel expectedResult) MockNewOrderCreating(
-            Dictionary<string, object> query,
+            Dictionary<string, string> query,
             double priceAndQuantity,
             OrderType orderType,
             string expectedOrderType)

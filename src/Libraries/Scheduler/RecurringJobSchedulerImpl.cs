@@ -17,10 +17,10 @@ namespace Scheduler
         private static readonly ILoggerDecorator Log = LoggerManager.CreateDefaultLogger();
         private readonly RecurringJobSchedulerOptions _options;
         private readonly IServiceProvider _serviceProvider;
-        private IScheduler _scheduler;
         private readonly List<bool> _busyScheduled = new();
         private readonly object _runningJobCounterLock = new();
         private int _runningJobCounter;
+        private IScheduler _scheduler;
         private bool _isDisposed;
 
         #endregion
@@ -38,21 +38,7 @@ namespace Scheduler
 
         #endregion
 
-        /// <summary>
-        ///     Инициализация сервиса задач по расписанию
-        /// </summary>
-        public async Task InitializeAsync()
-        {
-            var factory = new StdSchedulerFactory();
-            _scheduler = await factory.GetScheduler();
-
-            await _scheduler.Start();
-
-            foreach (var jobDefinition in _options.RecurringJobs)
-            {
-                await ScheduleAsync(jobDefinition.CronExpression, jobDefinition.Action);
-            }
-        }
+        #region Implementation of IRecurringJobScheduler and IRecurringJobContext
 
         /// <inheritdoc />
         public async Task<TriggerKey> GeneralScheduleAsync(
@@ -197,6 +183,30 @@ namespace Scheduler
             return new JobExecutionTracker(this);
         }
 
+        #endregion
+
+        #region Public methods
+
+        /// <summary>
+        ///     Инициализация сервиса задач по расписанию
+        /// </summary>
+        public async Task InitializeAsync()
+        {
+            var factory = new StdSchedulerFactory();
+            _scheduler = await factory.GetScheduler();
+
+            await _scheduler.Start();
+
+            foreach (var jobDefinition in _options.RecurringJobs)
+            {
+                await ScheduleAsync(jobDefinition.CronExpression, jobDefinition.Action);
+            }
+        }
+
+        #endregion
+
+        #region Private methods
+
         /// <summary>
         ///     Уменьшает кол-во текущих вполняемых задач при завершении одной
         /// </summary>
@@ -210,6 +220,10 @@ namespace Scheduler
             }
         }
 
+        #endregion
+
+        #region Private nested class
+        
         /// <summary>
         ///     Отслеживание выполнения задач
         /// </summary>
@@ -227,5 +241,7 @@ namespace Scheduler
                 _scheduler.OnJobExecuted();
             }
         }
+        
+        #endregion
     }
 }

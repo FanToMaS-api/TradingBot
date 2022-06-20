@@ -1,6 +1,4 @@
 ﻿using Analytic.Models;
-using BinanceDatabase;
-using ExchangeLibrary;
 using Microsoft.Extensions.DependencyInjection;
 using System.Collections.Generic;
 using System.Threading;
@@ -16,7 +14,7 @@ namespace Analytic.Filters
         /// <summary>
         ///     Фильтры данных
         /// </summary>
-        public List<IFilterGroup> FilterGroups { get; } = new();
+        public IReadOnlyCollection<IFilterGroup> FilterGroups { init; get; }
 
         /// <summary>
         ///     Возвращает отфильтрованные данные
@@ -25,33 +23,5 @@ namespace Analytic.Filters
             IServiceScopeFactory serviceScopeFactory,
             IEnumerable<T> modelsToFilter,
             CancellationToken cancellationToken);
-
-        /// <summary>
-        ///     Добавить группу фильтров
-        /// </summary>
-        public void AddFilterGroup(IFilterGroup filterGroup) => FilterGroups.Add(filterGroup);
-
-        /// <summary>
-        ///     Удалить группу фильтров
-        /// </summary>
-        /// <returns> True, если удаление прошло успешно </returns>
-        public bool RemoveFilterGroup(IFilterGroup filterGroup) => FilterGroups.Remove(filterGroup);
-
-        /// <summary>
-        ///     Удалить фильтр
-        /// </summary>
-        /// <returns> True, если удаление прошло успешно </returns>
-        public bool RemoveFilter(string filterName)
-        {
-            foreach (var group in FilterGroups)
-            {
-                if (group.ContainsFilter(filterName))
-                {
-                    return FilterGroups.Remove(group);
-                }
-            }
-
-            return false;
-        }
     }
 }

@@ -29,7 +29,7 @@ namespace BinanceDatabase.Repositories.ColdRepositories.Impl
 
         #endregion
 
-        #region Public methods
+        #region Implementation of IMiniTickerRepository
 
         /// <inheritdoc />
         public IQueryable<MiniTickerEntity> CreateQuery() => _appDbContext.MiniTickers.AsQueryable();
@@ -39,21 +39,27 @@ namespace BinanceDatabase.Repositories.ColdRepositories.Impl
             => await _appDbContext.MiniTickers.AddAsync(entity, cancellationToken);
 
         /// <inheritdoc />
-        public async Task AddRangeAsync(IEnumerable<MiniTickerEntity> miniTickerEntities, CancellationToken cancellationToken = default)
+        public async Task AddRangeAsync(
+            IEnumerable<MiniTickerEntity> miniTickerEntities,
+            CancellationToken cancellationToken = default)
             => await _appDbContext.MiniTickers.AddRangeAsync(miniTickerEntities, cancellationToken);
 
         /// <inheritdoc />
         public void RemoveRange(IEnumerable<MiniTickerEntity> entities) => _appDbContext.RemoveRange(entities);
 
         /// <inheritdoc />
-        public async Task<double> GetPricePercentDeviationSumAsync(string pair, AggregateDataIntervalType interval, int count, CancellationToken cancellationToken)
+        public async Task<double> GetPricePercentDeviationSumAsync(
+            string pair,
+            AggregateDataIntervalType interval,
+            int count,
+            CancellationToken cancellationToken)
             => 
             await CreateQuery()
-            .Where(_ => _.ShortName == pair && _.AggregateDataInterval == interval)
-            .OrderByDescending(_ => _.EventTime)
-            .Select(_ => _.PriceDeviationPercent)
-            .Take(count)
-            .SumAsync(cancellationToken);
+                .Where(_ => _.ShortName == pair && _.AggregateDataInterval == interval)
+                .OrderByDescending(_ => _.EventTime)
+                .Select(_ => _.PriceDeviationPercent)
+                .Take(count)
+                .SumAsync(cancellationToken);
 
         #endregion
     }

@@ -4,7 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace AnalyticTests
+namespace AnalyticTests.FilterTests
 {
     /// <summary>
     ///     Тестирует <see cref="NameFilter"/>

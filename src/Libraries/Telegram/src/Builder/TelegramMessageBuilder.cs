@@ -12,7 +12,8 @@ namespace Telegram.Builder
         #region Fields
 
         // оставлены для Markdown разметки только '*' и '`'
-        private static readonly string[] SymbolsToReplace = { ".", "-", "(", ")", "!", "#", "_", "|", "{", "}", "[", "]", "~", "=", "+", ">" };
+        private static readonly string[] SymbolsToReplace =
+            { ".", "-", "(", ")", "!", "#", "_", "|", "{", "}", "[", "]", "~", "=", "+", ">" };
         private TelegramMessageModel _messageModel = new();
 
         #endregion
@@ -22,22 +23,37 @@ namespace Telegram.Builder
         /// <summary>
         ///     Сбрасывает настройки сообщения
         /// </summary>
-        public void Reset() => _messageModel = new();
+        public TelegramMessageBuilder Reset()
+        {
+            _messageModel = new();
+
+            return this;
+        }
 
         /// <summary>
         ///     Установить id чата
         /// </summary>
-        public void SetChatId(long chatId) => _messageModel.ChatId = chatId;
+        public TelegramMessageBuilder SetChatId(long chatId)
+        {
+            _messageModel.ChatId = chatId;
+
+            return this;
+        }
 
         /// <summary>
         ///     Установить id чата
         /// </summary>
-        public void SetChatId(string chatId) => _messageModel.ChatId = long.Parse(chatId);
+        public TelegramMessageBuilder SetChatId(string chatId)
+        {
+            _messageModel.ChatId = long.Parse(chatId);
+            
+            return this;
+        }
 
         /// <summary>
         ///     Установить текст сообщения
         /// </summary>
-        public void SetMessageText(string message)
+        public TelegramMessageBuilder SetMessageText(string message)
         {
             // экранирую специальные символы
             foreach (var symbol in SymbolsToReplace)
@@ -46,45 +62,55 @@ namespace Telegram.Builder
             }
 
             _messageModel.MessageText = message;
+
+            return this;
         }
 
         /// <summary>
         ///     Установить inline кнопку
         /// </summary>
-        public void SetInlineButton(string buttonText, string url)
+        public TelegramMessageBuilder SetInlineButton(string buttonText, string url)
         {
             _messageModel.Type = MessageType.WithInlineButton;
             _messageModel.InlineKeyboardButton = new InlineKeyboardButtonModel(buttonText, url);
+
+            return this;
         }
 
         /// <summary>
         ///     Удалить inline кнопку
         /// </summary>
-        public void DeleteInlineButton()
+        public TelegramMessageBuilder DeleteInlineButton()
         {
             _messageModel.Type = MessageType.Default;
             _messageModel.InlineKeyboardButton = null;
+            
+            return this;
         }
 
         /// <summary>
         ///     Установить изображение
         /// </summary>
         /// <param name="pathToImage"> Путь к нужному изображению </param>
-        public void SetImage(string pathToImage)
+        public TelegramMessageBuilder SetImage(string pathToImage)
         {
             _messageModel.Type = MessageType.WithImage;
             var imageStream = System.IO.File.OpenRead(pathToImage);
             var mediaPhoto = new InputMediaPhoto(new InputMedia(imageStream, Path.GetFileNameWithoutExtension(pathToImage)));
             _messageModel.Image = mediaPhoto;
+            
+            return this;
         }
 
         /// <summary>
         ///     Удалить изображение
         /// </summary>
-        public void DeleteImage()
+        public TelegramMessageBuilder DeleteImage()
         {
             _messageModel.Type = MessageType.Default;
             _messageModel.Image = null;
+            
+            return this;
         }
 
         /// <summary>

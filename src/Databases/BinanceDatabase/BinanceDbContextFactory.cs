@@ -22,13 +22,11 @@ namespace BinanceDatabase
 
         #endregion
 
-        #region Methods
+        #region Public methods
 
         /// <inheritdoc />
-        public IUnitOfWork CreateScopeDatabase()
-        {
-            return _serviceScopeFactory.CreateScope().ServiceProvider.GetRequiredService<IUnitOfWork>();
-        }
+        public IUnitOfWork CreateScopeDatabase() =>
+            _serviceScopeFactory.CreateScope().ServiceProvider.GetRequiredService<IUnitOfWork>();
 
         #endregion
     }

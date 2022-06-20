@@ -10,6 +10,7 @@ namespace BinanceExchange
     /// </summary>
     public class BinanceMapperProfile : Profile
     {
+        /// <inheritdoc cref="BinanceMapperProfile"/>
         public BinanceMapperProfile()
         {
             CreateMap<SymbolInfoModel, TradeObjectRuleTradingModel>()
@@ -41,7 +42,6 @@ namespace BinanceExchange
                 .ForMember(_ => _.ShortName, _ => _.MapFrom(_ => _.Symbol));
             CreateMap<SymbolTradeStreamModel, TradeStreamModel>()
                 .ForMember(_ => _.ShortName, _ => _.MapFrom(_ => _.Symbol));
-
 
             CreateMap<Models.CancelOrderResponseModel, Common.Models.CancelOrderResponseModel>();
             CreateMap<Models.CheckOrderResponseModel, Common.Models.CheckOrderResponseModel>();

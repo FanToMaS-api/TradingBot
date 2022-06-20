@@ -13,6 +13,27 @@ namespace BinanceDatabase.Entities
     [Table("mini_tickers")]
     public class MiniTickerEntity : ICloneable
     {
+        #region Implementation of ICloneable
+        
+        /// <inheritdoc />
+        public object Clone() =>
+            new MiniTickerEntity
+            {
+                ShortName = ShortName,
+                EventTime = EventTime,
+                AggregateDataInterval = AggregateDataInterval,
+                ClosePrice = ClosePrice,
+                OpenPrice = OpenPrice,
+                MaxPrice = MaxPrice,
+                MinPrice = MinPrice,
+                BasePurchaseVolume = BasePurchaseVolume,
+                QuotePurchaseVolume = QuotePurchaseVolume
+            };
+
+        #endregion
+
+        #region Properties
+
         /// <summary>
         ///     Уникальный идентификатор записи
         /// </summary>
@@ -78,6 +99,8 @@ namespace BinanceDatabase.Entities
         [Column("quote_purchase_volume")]
         public double QuotePurchaseVolume { get; set; }
 
+        #endregion
+
         #region Setup
 
         /// <summary>
@@ -95,21 +118,6 @@ namespace BinanceDatabase.Entities
             builder.HasIndex(_ => _.MaxPrice).HasDatabaseName("IX_mini_tickers_max_price");
             builder.HasIndex(_ => _.PriceDeviationPercent).HasDatabaseName("IX_mini_tickers_price_deviation");
         }
-
-        /// <inheritdoc />
-        public object Clone() =>
-            new MiniTickerEntity
-            {
-                ShortName = ShortName,
-                EventTime = EventTime,
-                AggregateDataInterval = AggregateDataInterval,
-                ClosePrice = ClosePrice,
-                OpenPrice = OpenPrice,
-                MaxPrice = MaxPrice,
-                MinPrice = MinPrice,
-                BasePurchaseVolume = BasePurchaseVolume,
-                QuotePurchaseVolume = QuotePurchaseVolume
-            };
 
         #endregion
     }

@@ -17,6 +17,7 @@ namespace Common.JsonConvertWrapper
             var isSkipNeeded = true;
             while (reader.Read() && isSkipNeeded)
             {
+                
                 if (reader.TokenType == JsonTokenType.PropertyName)
                 {
                     lastPropertyName = reader.GetString();

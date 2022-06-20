@@ -11,9 +11,14 @@ namespace Common.WebSocket
     public interface IWebSocket : IDisposable
     {
         /// <summary>
+        ///     Событие, возникающее при открытии веб-сокета
+        /// </summary>
+        public Action StreamStarted { get; set; }
+        
+        /// <summary>
         ///     Событие, возникающее при закрытии веб-сокета
         /// </summary>
-        public Action OnStreamClosed { get; set; }
+        public Action StreamClosed { get; set; }
 
         /// <summary>
         ///     Состояние веб-сокета

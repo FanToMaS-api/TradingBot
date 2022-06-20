@@ -1,12 +1,10 @@
 ﻿using Analytic.Models;
 using BinanceDatabase;
-using BinanceDatabase.Enums;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using System;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Analytic.Filters.Enums;
 
 namespace Analytic.Filters
 {
@@ -25,9 +23,14 @@ namespace Analytic.Filters
         /// <param name="comparisonType"> Тип фильтра цен </param>
         /// <param name="limit"> Ограничение </param>
         /// <param name="timeframeNumber"> Кол-во таймфреймов участвующих в анализе </param>
-        public PriceDeviationFilter(string filterName, AggregateDataIntervalType interval, ComparisonType comparisonType, double limit, int timeframeNumber = 5)
+        public PriceDeviationFilter(
+            string filterName,
+            AggregateDataIntervalType interval,
+            ComparisonType comparisonType,
+            double limit,
+            int timeframeNumber = 5)
         {
-            FilterName = filterName;
+            Name = filterName;
             Interval = interval;
             ComparisonType = comparisonType;
             Limit = limit;
@@ -39,7 +42,7 @@ namespace Analytic.Filters
         #region Properties
 
         /// <inheritdoc />
-        public string FilterName { get; }
+        public string Name { get; }
 
         /// <summary>
         ///     Тип сравнения
@@ -47,7 +50,7 @@ namespace Analytic.Filters
         public ComparisonType ComparisonType { get; }
 
         /// <summary>
-        ///     Ограничение
+        ///     Ограничение на отклонение цены
         /// </summary>
         public double Limit { get; }
 
@@ -60,7 +63,7 @@ namespace Analytic.Filters
         public FilterType Type => FilterType.PriceDeviationFilter;
 
         /// <summary>
-        ///     Кол-во таймфреймов участвующих в анализе
+        ///     Кол-во таймфреймов, участвующих в анализе
         /// </summary>
         public int TimeframeNumber { get; }
 
@@ -72,7 +75,10 @@ namespace Analytic.Filters
         /// <remarks>
         ///     Данный метод также вычисляет значение <see cref="InfoModel.DeviationsSum"/>
         /// </remarks>
-        public async Task<bool> CheckConditionsAsync(IServiceScopeFactory serviceScopeFactory, InfoModel model, CancellationToken cancellationToken)
+        public async Task<bool> CheckConditionsAsync(
+            IServiceScopeFactory serviceScopeFactory,
+            InfoModel model,
+            CancellationToken cancellationToken)
         {
             using var scope = serviceScopeFactory.CreateScope();
             var databaseFactory = scope.ServiceProvider.GetService<IBinanceDbContextFactory>()
@@ -80,7 +86,11 @@ namespace Analytic.Filters
             using var database = databaseFactory.CreateScopeDatabase();
 
             model.DeviationsSum = await database.ColdUnitOfWork.MiniTickers
-                .GetPricePercentDeviationSumAsync(model.TradeObjectName, Interval, TimeframeNumber, cancellationToken);
+                .GetPricePercentDeviationSumAsync(
+                model.TradeObjectName,
+                Interval.CastToBinanceDataAggregateType(),
+                TimeframeNumber,
+                cancellationToken);
 
             return ComparisonType switch
                 {

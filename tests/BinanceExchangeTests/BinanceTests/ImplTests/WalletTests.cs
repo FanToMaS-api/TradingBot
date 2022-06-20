@@ -65,17 +65,17 @@ namespace BinanceExchangeTests.BinanceTests.ImplTests
                 return await _walletSenderTest.GetSystemStatusAsync_Test();
             });
 
-            _walletSender.GetAccountTradingStatusAsync(Arg.Any<Dictionary<string, object>>(), Arg.Any<CancellationToken>()).Returns(async _ =>
+            _walletSender.GetAccountTradingStatusAsync(Arg.Any<Dictionary<string, string>>(), Arg.Any<CancellationToken>()).Returns(async _ =>
             {
                 return await _walletSenderTest.GetAccountTradingStatusAsync_Test();
             });
 
-            _walletSender.GetAllCoinsInformationAsync(Arg.Any<Dictionary<string, object>>(), Arg.Any<CancellationToken>()).Returns(async _ =>
+            _walletSender.GetAllCoinsInformationAsync(Arg.Any<Dictionary<string, string>>(), Arg.Any<CancellationToken>()).Returns(async _ =>
             {
                 return await _walletSenderTest.GetAllCoinsInformationAsync_Test();
             });
 
-            _walletSender.GetTradeFeeAsync(Arg.Any<Dictionary<string, object>>(), Arg.Any<CancellationToken>()).Returns(async _ =>
+            _walletSender.GetTradeFeeAsync(Arg.Any<Dictionary<string, string>>(), Arg.Any<CancellationToken>()).Returns(async _ =>
             {
                 return await _walletSenderTest.GetTradeFeeAsync_Test();
             });

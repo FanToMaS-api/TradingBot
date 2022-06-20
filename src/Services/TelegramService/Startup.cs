@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 using TelegramService.Configuration;
 using TelegramServiceDatabase;
@@ -31,7 +32,11 @@ namespace TelegramService
             services.AddSingleton<ITelegramService, TelegramService>();
             services.ConfigureForInitialization<ITelegramService>(async telegramService =>
             {
-                await telegramService.StartAsync();
+                await Task.Factory.StartNew(
+                    async () => await telegramService.StartAsync(),
+                    CancellationToken.None,
+                    TaskCreationOptions.LongRunning | TaskCreationOptions.DenyChildAttach,
+                    TaskScheduler.Default);
             });
         }
 

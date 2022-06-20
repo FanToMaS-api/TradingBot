@@ -1,6 +1,6 @@
-﻿using Analytic.Models;
+﻿using Analytic.Filters.Enums;
+using Analytic.Models;
 using Microsoft.Extensions.DependencyInjection;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -21,7 +21,7 @@ namespace Analytic.Filters
         /// <param name="limit"> Ограничение </param>
         public PriceFilter(string filterName, ComparisonType comparisonType, double limit)
         {
-            FilterName = filterName;
+            Name = filterName;
             ComparisonType = comparisonType;
             Limit = limit;
         }
@@ -31,7 +31,7 @@ namespace Analytic.Filters
         #region Properties
 
         /// <inheritdoc />
-        public string FilterName { get; }
+        public string Name { get; }
 
         /// <summary>
         ///     Тип сравнения
@@ -50,9 +50,13 @@ namespace Analytic.Filters
 
         #region Public methods
 
-        /// <inheritdoc />
 #pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
-        public async Task<bool> CheckConditionsAsync(IServiceScopeFactory _, InfoModel model, CancellationToken cancellationToken) =>
+        
+        /// <inheritdoc />
+        public async Task<bool> CheckConditionsAsync(
+            IServiceScopeFactory _,
+            InfoModel model,
+            CancellationToken cancellationToken) =>
             ComparisonType switch
             {
                 ComparisonType.GreaterThan => model.LastPrice > Limit,
@@ -60,6 +64,7 @@ namespace Analytic.Filters
                 ComparisonType.Equal => model.LastPrice == Limit,
                 _ => false
             };
+
 #pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
 
         #endregion

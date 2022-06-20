@@ -54,7 +54,7 @@ namespace BinanceExchange.WebSocket.Impl
 
         #endregion
 
-        #region Implementation IDisposable
+        #region Implementation of IDisposable
 
         /// <inheritdoc />
         public void Dispose() => _webSocket.Dispose();

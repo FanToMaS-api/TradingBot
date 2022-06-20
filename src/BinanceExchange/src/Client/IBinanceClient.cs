@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Net.Http;
+﻿using BinanceExchange.Client.Http.Request.Models;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -14,20 +13,14 @@ namespace BinanceExchange.Client
         ///     Отправить запрос без подписи
         /// </summary>
         Task<string> SendPublicAsync(
-            string requestUri,
-            HttpMethod httpMethod,
-            Dictionary<string, object> query = null,
-            object content = null,
+            IRequestModel requestModel,
             CancellationToken cancellationToken = default);
 
         /// <summary>
         ///     Отправить подписанный запрос
         /// </summary>
         Task<string> SendSignedAsync(
-            string requestUri,
-            HttpMethod httpMethod,
-            Dictionary<string, object> query = null,
-            object content = null,
+            IRequestModel requestModel,
             CancellationToken cancellationToken = default);
     }
 }

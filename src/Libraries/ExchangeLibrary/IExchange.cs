@@ -1,12 +1,4 @@
-﻿using Common.Enums;
-using Common.Models;
-using Common.WebSocket;
-using System;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
-
-namespace ExchangeLibrary
+﻿namespace ExchangeLibrary
 {
     /// <summary>
     ///     Общий интерфейс для всех бирж

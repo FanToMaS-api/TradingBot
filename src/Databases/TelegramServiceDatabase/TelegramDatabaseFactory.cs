@@ -22,13 +22,11 @@ namespace TelegramServiceDatabase
 
         #endregion
 
-        #region Methods
+        #region Implementation of ITelegramDatabaseFactory
 
         /// <inheritdoc />
-        public ITelegramDbUnitOfWork CreateScopeDatabase()
-        {
-            return _serviceScopeFactory.CreateScope().ServiceProvider.GetRequiredService<ITelegramDbUnitOfWork>();
-        }
+        public ITelegramDbUnitOfWork CreateScopeDatabase() =>
+            _serviceScopeFactory.CreateScope().ServiceProvider.GetRequiredService<ITelegramDbUnitOfWork>();
 
         #endregion
     }

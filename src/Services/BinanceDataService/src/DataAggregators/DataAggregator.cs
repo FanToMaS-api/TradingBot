@@ -41,7 +41,10 @@ namespace BinanceDataService.DataAggregators
         /// <param name="logger"> Логгер </param>
         /// <param name="scheduler">  Создает расписания агрегирования данных </param>
         /// <param name="aggregatorConfig"> Настройки агрегирования </param>
-        public DataAggregator(ILoggerDecorator logger, IRecurringJobScheduler scheduler, AggregatorConfigBase aggregatorConfig)
+        public DataAggregator(
+            ILoggerDecorator logger,
+            IRecurringJobScheduler scheduler,
+            AggregatorConfigBase aggregatorConfig)
         {
             _logger = logger;
             _scheduler = scheduler;
@@ -51,10 +54,28 @@ namespace BinanceDataService.DataAggregators
 
         #endregion
 
+        #region Implementation IDisposable
+
+        /// <inheritdoc />
+        public virtual void Dispose()
+        {
+            if (_isDisposed)
+            {
+                return;
+            }
+
+            StopAsync().Wait();
+            _cancellationTokenSource?.Cancel();
+            _cancellationTokenSource?.Dispose();
+            _isDisposed = true;
+        }
+
+        #endregion
+
         #region Properties
 
         /// <summary>
-        ///     Активный ли агррегатор данных
+        ///     Активный ли агрегатор данных
         /// </summary>
         public bool IsActive => _configuration?.IsNeedToAggregateColdData ?? false;
 
@@ -67,17 +88,19 @@ namespace BinanceDataService.DataAggregators
         /// </summary>
         internal virtual async Task AggregateAndSaveDataAsync(IServiceProvider serviceProvider)
         {
-            await _logger.InfoAsync(
-               $"{_configuration.AggregateDataInterval} data aggregating started!",
-               cancellationToken: _cancellationTokenSource.Token);
-
             try
             {
+                await _logger.InfoAsync(
+                   $"{_configuration.AggregateDataInterval} data aggregating started!",
+                   cancellationToken: _cancellationTokenSource.Token);
+
                 var watch = new Stopwatch();
                 watch.Start();
+
                 var databaseFactory = serviceProvider.GetService<IBinanceDbContextFactory>()
                     ?? throw new InvalidOperationException($"{nameof(IBinanceDbContextFactory)} not registered!");
                 using var database = databaseFactory.CreateScopeDatabase();
+
                 var aggregateCount = 0;
                 var now = DateTime.Now;
                 await foreach (var groupedData in GetAveragingMiniTickersAsync(database))
@@ -86,7 +109,9 @@ namespace BinanceDataService.DataAggregators
                     aggregateCount += count;
 
                     var name = groupedData.Select(_ => _.ShortName).FirstOrDefault();
-                    await _logger.TraceAsync($"{count} data successfully aggregated for '{name}'", cancellationToken: _cancellationTokenSource.Token);
+                    await _logger.TraceAsync(
+                        $"{count} data successfully aggregated for '{name}'",
+                        cancellationToken: _cancellationTokenSource.Token);
 
                     await database.ColdUnitOfWork.MiniTickers.AddRangeAsync(groupedData, _cancellationTokenSource.Token);
                     await database.SaveChangesAsync(_cancellationTokenSource.Token);
@@ -184,35 +209,36 @@ namespace BinanceDataService.DataAggregators
         {
             var interval = intervalType.ConvertToTimeSpan();
             var aggregatedMiniTickers = new List<MiniTickerEntity>();
-            var first = entities.FirstOrDefault();
-            var start = first.EventTime;
-            var counter = 0;
+            var firstEntity = entities.FirstOrDefault();
+            var startTime
+                = firstEntity.EventTime;
+            var averagingObjectsCounter = 0;
             var aggregateObject = new MiniTickerEntity()
             {
-                ShortName = first.ShortName,
+                ShortName = firstEntity.ShortName,
                 AggregateDataInterval = intervalType,
-                EventTime = start,
+                EventTime = startTime,
                 MinPrice = double.MaxValue,
             };
 
             foreach (var item in entities)
             {
-                if (item.EventTime - start > interval)
+                if (item.EventTime - startTime > interval)
                 {
-                    AveragingFields(aggregateObject, counter);
+                    AveragingFields(aggregateObject, averagingObjectsCounter);
                     aggregatedMiniTickers.Add(aggregateObject);
-                    counter = 1;
+                    averagingObjectsCounter = 1;
                     aggregateObject = (MiniTickerEntity)item.Clone();
                     aggregateObject.AggregateDataInterval = intervalType;
-                    start = item.EventTime;
+                    startTime = item.EventTime;
                     continue;
                 }
 
                 AggregateFields(item, aggregateObject);
-                counter++;
+                averagingObjectsCounter++;
             }
 
-            AveragingFields(aggregateObject, counter);
+            AveragingFields(aggregateObject, averagingObjectsCounter);
             aggregatedMiniTickers.Add(aggregateObject);
 
             return aggregatedMiniTickers;
@@ -234,16 +260,18 @@ namespace BinanceDataService.DataAggregators
         /// <summary>
         ///     Усредняет значения полей
         /// </summary>
-        internal static void AveragingFields(MiniTickerEntity aggregateObject, int counter)
+        internal static void AveragingFields(MiniTickerEntity aggregateObject, int averagingObjectsCounter)
         {
-            aggregateObject.OpenPrice /= counter;
-            aggregateObject.ClosePrice /= counter;
-            aggregateObject.QuotePurchaseVolume /= counter;
-            aggregateObject.BasePurchaseVolume /= counter;
+            aggregateObject.OpenPrice /= averagingObjectsCounter;
+            aggregateObject.ClosePrice /= averagingObjectsCounter;
+            aggregateObject.QuotePurchaseVolume /= averagingObjectsCounter;
+            aggregateObject.BasePurchaseVolume /= averagingObjectsCounter;
         }
 
         #endregion
 
+        #region Private methods
+        
         /// <summary>
         ///     Возвращает уникальные названия пар, хранящиеся в бд
         /// </summary>
@@ -258,23 +286,7 @@ namespace BinanceDataService.DataAggregators
 
             return pairs;
         }
-
-        #region Implementation IDisposable
-
-        /// <inheritdoc />
-        public virtual void Dispose()
-        {
-            if (_isDisposed)
-            {
-                return;
-            }
-
-            StopAsync().Wait();
-            _cancellationTokenSource?.Cancel();
-            _cancellationTokenSource?.Dispose();
-            _isDisposed = true;
-        }
-
+        
         #endregion
     }
 }

@@ -48,7 +48,7 @@ namespace BinanceDataServiceTests
 
             var webSocket = Substitute.For<IWebSocket>();
             var exchange = Substitute.For<IExchange>();
-            exchange.MarketdataStreams.SubscribeAllMarketMiniTickersStream(null, CancellationToken.None, null)
+            exchange.MarketdataStreams.SubscribeAllMarketMiniTickersStream(null, CancellationToken.None)
                 .ReturnsForAnyArgs(webSocket);
 
             var scheduler = Substitute.For<IRecurringJobScheduler>();
@@ -207,7 +207,7 @@ namespace BinanceDataServiceTests
             serviceProvider.GetService<IBinanceDbContextFactory>().ReturnsForAnyArgs(databaseFactory);
 
             // Act #1
-            await _dataHandler.HandleDataAsync(_streamModels, CancellationToken.None);
+            await _dataHandler.OnDataReceived(_streamModels, CancellationToken.None);
 
             var isAssistantStorageSaving = _dataHandler.IsAssistantStorageSaving;
             await _dataHandler.SaveDataAsync(serviceProvider);
@@ -215,7 +215,7 @@ namespace BinanceDataServiceTests
 
             // Act #1
             _streamModels.AddRange(_streamModels);
-            await _dataHandler.HandleDataAsync(_streamModels, CancellationToken.None);
+            await _dataHandler.OnDataReceived(_streamModels, CancellationToken.None);
 
             isAssistantStorageSaving = _dataHandler.IsAssistantStorageSaving;
             await _dataHandler.SaveDataAsync(serviceProvider);

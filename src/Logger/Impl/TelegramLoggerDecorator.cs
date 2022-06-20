@@ -39,14 +39,14 @@ namespace Logger.Impl
 
         #endregion
 
+        #region Implementation of ILoggerDecorator
+
         #region Properties
 
         /// <inheritdoc />
         public ILoggerDecorator BaseLogger { get; }
 
         #endregion
-
-        #region Public methods
 
         /// <inheritdoc />
         public async Task WarnAsync(
@@ -182,6 +182,13 @@ namespace Logger.Impl
 
         #endregion
 
+        #region Implementation IDisposable
+
+        /// <inheritdoc />
+        public void Dispose() => BaseLogger?.Dispose();
+
+        #endregion
+
         #region Private methods
 
         /// <inheritdoc cref="NLog.Logger.Log"/>
@@ -203,13 +210,6 @@ namespace Logger.Impl
                     cancellationToken: cancellationToken);
             }
         }
-
-        #endregion
-
-        #region Implementation IDisposable
-
-        /// <inheritdoc />
-        public void Dispose() => BaseLogger?.Dispose();
 
         #endregion
     }

@@ -1,4 +1,5 @@
-﻿using Analytic.Models;
+﻿using Analytic.AnalyticUnits;
+using Analytic.Models;
 using Logger;
 using Microsoft.Extensions.DependencyInjection;
 using NLog;
@@ -7,7 +8,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Analytic.AnalyticUnits
+namespace Analytic.AnalyticUnits.ProfileGroup.Impl
 {
     /// <summary>
     ///     Группа профилей аналитики
@@ -25,17 +26,19 @@ namespace Analytic.AnalyticUnits
         /// <inheritdoc cref="ProfileGroup"/>
         public ProfileGroup(ILoggerDecorator logger, string name, bool isActive = true)
         {
-            _logger= logger;
+            _logger = logger;
             Name = name;
             IsActive = isActive;
         }
 
         #endregion
 
+        #region Implementation of IProfileGroup
+
         #region Properties
 
         /// <inheritdoc />
-        public List<IAnalyticProfile> AnalyticUnits { get; } = new();
+        public List<IAnalyticProfile> AnalyticProfiles { get; } = new();
 
         /// <inheritdoc />
         public string Name { get; }
@@ -54,23 +57,26 @@ namespace Analytic.AnalyticUnits
             CancellationToken cancellationToken)
         {
             AnalyticResultModel analyticResultModel = null;
-
             var count = 0;
-            var isOneSuccessful = false;
-            foreach (var unit in AnalyticUnits)
+            var isFirstSuccessful = false;
+            foreach (var analyticProfile in AnalyticProfiles)
             {
                 try
                 {
-                    var (isSuccessful, resultModel) = await unit.TryAnalyzeAsync(serviceScopeFactory, model, cancellationToken);
+                    var (isSuccessful, resultModel) = await analyticProfile.TryAnalyzeAsync(
+                        serviceScopeFactory,
+                        model,
+                        cancellationToken);
                     if (!isSuccessful)
                     {
                         continue;
                     }
 
-                    if (!isOneSuccessful)
+                    // если мы тут, значит анализ прошел успешно
+                    if (!isFirstSuccessful)
                     {
                         analyticResultModel = resultModel;
-                        isOneSuccessful = true;
+                        isFirstSuccessful = true;
                         count++;
                         continue;
                     }
@@ -83,33 +89,32 @@ namespace Analytic.AnalyticUnits
                 {
                     await _logger.ErrorAsync(
                         ex,
-                        $"Failed to analyze model '{model.TradeObjectName}' with unit '{unit.Name}'",
+                        $"Failed to analyze model '{model.TradeObjectName}' with analyticProfile '{analyticProfile.Name}'",
                         cancellationToken: cancellationToken);
                 }
             }
 
             // TODO: Усреднять через список полученных моделей
-            if (isOneSuccessful)
+            if (isFirstSuccessful)
             {
                 analyticResultModel.RecommendedPurchasePrice /= count == 0 ? 1 : count;
                 analyticResultModel.RecommendedSellingPrice /= count == 0 ? 1 : count;
             }
 
-            return (isOneSuccessful, analyticResultModel);
+            return (isFirstSuccessful, analyticResultModel);
         }
 
         /// <inheritdoc />
-
-        public void AddAnalyticUnit(IAnalyticProfile unit) => AnalyticUnits.Add(unit);
+        public void AddAnalyticUnit(IAnalyticProfile unit) => AnalyticProfiles.Add(unit);
 
         /// <inheritdoc />
         public bool Remove(string name)
         {
-            foreach (var unit in AnalyticUnits)
+            foreach (var unit in AnalyticProfiles)
             {
                 if (unit.Name == name)
                 {
-                    return AnalyticUnits.Remove(unit);
+                    return AnalyticProfiles.Remove(unit);
                 }
             }
 
@@ -118,6 +123,8 @@ namespace Analytic.AnalyticUnits
 
         /// <inheritdoc />
         public void ChangeProfileActivity(bool isActive) => IsActive = isActive;
+
+        #endregion
 
         #endregion
     }

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace Analytic.Models
 {
@@ -25,26 +26,31 @@ namespace Analytic.Models
         /// <summary>
         ///     Объем спроса
         /// </summary>
+        [Obsolete("Не используется")]
         public double BidVolume { get; internal set; }
 
         /// <summary>
         ///     Объем предложения
         /// </summary>
+        [Obsolete("Не используется")]
         public double AskVolume { get; internal set; }
 
         /// <summary>
         ///     Последнее отклонение
         /// </summary>
+        [Obsolete("Не используется")]
         public double LastDeviation { get; internal set; }
 
         /// <summary>
         ///     Суммарное отклонение за 5 таймфреймов
         /// </summary>
+        [Obsolete("Не используется")]
         public double SumDeviations { get; internal set; }
 
         /// <summary>
         ///     Отклонения цены за последние таймфреймы в процентах
         /// </summary>
+        [Obsolete("Не используется")]
         public List<double> PricePercentDeviations { get; internal set; } = new();
 
         /// <summary>

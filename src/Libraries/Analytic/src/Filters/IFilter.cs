@@ -1,5 +1,6 @@
 ﻿using Analytic.Models;
 using Microsoft.Extensions.DependencyInjection;
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -13,12 +14,12 @@ namespace Analytic.Filters
         /// <summary>
         ///     Название фильтра
         /// </summary>
-        public string FilterName { get; }
+        string Name { get; }
 
         /// <summary>
         ///     Тип фильтра
         /// </summary>
-        public FilterType Type { get; }
+        FilterType Type { get; }
 
         /// <summary>
         ///     Проверяет модель на соответствие условию
