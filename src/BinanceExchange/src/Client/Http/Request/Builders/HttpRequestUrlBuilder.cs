@@ -179,6 +179,9 @@ namespace BinanceExchange.Client.Http.Request.Builders
             return _requestModel;
         }
 
+        /// <inheritdoc />
+        public override string ToString() => _requestModel.Url;
+
         #endregion
 
         #region Private methods

@@ -156,14 +156,15 @@ namespace BinanceExchange.EndpointSenders.Impl
         public async Task<IEnumerable<SymbolPriceTickerModel>> GetSymbolPriceTickerAsync(string symbol, CancellationToken cancellationToken = default)
         {
             var isNull = string.IsNullOrEmpty(symbol);
-            var parameters = new Dictionary<string, string>
+            var builder = new HttpRequestUrlBuilder();
+            if (!isNull)
             {
-                { "symbol", symbol },
-            };
-            var request = new HttpRequestUrlBuilder()
+                builder.AddParameter("symbol", symbol);
+            }
+
+            var request = builder
                 .SetEndpoint(BinanceEndpoints.SYMBOL_PRICE_TICKER)
                 .SetHttpMethod(HttpMethod.Get)
-                .SetParameters(parameters)
                 .GetResult();
             var response = await _client.SendPublicAsync(request, cancellationToken);
 
@@ -186,14 +187,15 @@ namespace BinanceExchange.EndpointSenders.Impl
             CancellationToken cancellationToken = default)
         {
             var isNull = string.IsNullOrEmpty(symbol);
-            var parameters = new Dictionary<string, string>
+            var builder = new HttpRequestUrlBuilder();
+            if (!isNull)
             {
-                { "symbol", symbol },
-            };
+                builder.AddParameter("symbol", symbol);
+            }
+
             var request = new HttpRequestUrlBuilder()
                 .SetEndpoint(BinanceEndpoints.SYMBOL_ORDER_BOOK_TICKER)
                 .SetHttpMethod(HttpMethod.Get)
-                .SetParameters(parameters)
                 .GetResult();
             var response = await _client.SendPublicAsync(request, cancellationToken);
 

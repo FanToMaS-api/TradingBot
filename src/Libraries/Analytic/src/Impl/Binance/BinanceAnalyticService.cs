@@ -63,7 +63,7 @@ namespace Analytic.Binance
         public List<IProfileGroup> ProfileGroups { get; } = new();
 
         /// <inheritdoc />
-        public List<FilterManagerBase> FilterManagers { get; internal set; }
+        public List<FilterManagerBase> FilterManagers { get; } = new();
 
         #endregion
 
