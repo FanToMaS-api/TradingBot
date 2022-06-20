@@ -29,7 +29,7 @@ namespace BinanceDatabase.Repositories.ColdRepositories.Impl
 
         #endregion
 
-        #region Implementation IMiniTickerRepository
+        #region Implementation of IMiniTickerRepository
 
         /// <inheritdoc />
         public IQueryable<MiniTickerEntity> CreateQuery() => _appDbContext.MiniTickers.AsQueryable();

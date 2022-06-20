@@ -28,7 +28,7 @@ namespace BinanceExchange.EndpointSenders.Impl
             _converter = new JsonDeserializerWrapper();
             _converter.AddConverter(new OrderBookModelConverter());
             _converter.AddConverter(new CandlestickModelEnumerableConverter());
-            _converter.AddConverter(new ExchangeInfoModelConverter()); ;
+            _converter.AddConverter(new ExchangeInfoModelConverter());
         }
 
         #endregion
@@ -128,14 +128,15 @@ namespace BinanceExchange.EndpointSenders.Impl
             CancellationToken cancellationToken = default)
         {
             var isNull = string.IsNullOrEmpty(symbol);
-            var parameters = new Dictionary<string, string>
+            var builder = new HttpRequestUrlBuilder();
+            if (!isNull)
             {
-                { "symbol", symbol },
-            };
+                builder.AddParameter("symbol", symbol);
+            }
+            
             var request = new HttpRequestUrlBuilder()
                 .SetEndpoint(BinanceEndpoints.DAY_PRICE_CHANGE)
                 .SetHttpMethod(HttpMethod.Get)
-                .SetParameters(parameters)
                 .GetResult();
             var response = await _client.SendPublicAsync(request, cancellationToken);
 
