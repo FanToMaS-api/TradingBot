@@ -22,11 +22,12 @@ namespace BinanceExchangeTests.BinanceTests.WebSocketTests
     /// <summary>
     ///     Тестирует <see cref="MarketdataWebSocket"/>
     /// </summary>
-    public class MarketdataWebSocketTest
+    public class MarketdataWebSocketTest : IDisposable
     {
         #region Fields
 
         private readonly JsonDeserializerWrapper _deserializer = MarketdataStreams.GetConverter();
+        private readonly CancellationTokenSource _cancellationTokenSource = new();
 
         private readonly BookTickerStreamModel _expectedBookTickerStreamModel = new()
         {
@@ -112,12 +113,12 @@ namespace BinanceExchangeTests.BinanceTests.WebSocketTests
                     var actual = _deserializer.Deserialize<AggregateSymbolTradeStreamModel>(content);
                     TestExtensions.CheckingAssertions(expected, actual);
 
-                    await webSocket.DisconnectAsync(CancellationToken.None);
+                    await webSocket.DisconnectAsync(_cancellationTokenSource.Token);
                 },
-                CancellationToken.None);
+                _cancellationTokenSource.Token);
 
             // Act
-            await webSocket.ConnectAsync(CancellationToken.None);
+            await webSocket.ConnectAsync(_cancellationTokenSource.Token);
         }
 
         #region Book ticker stream tests
@@ -142,12 +143,12 @@ namespace BinanceExchangeTests.BinanceTests.WebSocketTests
                     var actual = _deserializer.Deserialize<BookTickerStreamModel>(content);
                     TestExtensions.CheckingAssertions(_expectedBookTickerStreamModel, actual);
 
-                    await webSocket.DisconnectAsync(CancellationToken.None);
+                    await webSocket.DisconnectAsync(_cancellationTokenSource.Token);
                 },
-                CancellationToken.None);
+                _cancellationTokenSource.Token);
 
             // Act
-            await webSocket.ConnectAsync(CancellationToken.None);
+            await webSocket.ConnectAsync(_cancellationTokenSource.Token);
         }
 
         /// <summary>
@@ -171,12 +172,12 @@ namespace BinanceExchangeTests.BinanceTests.WebSocketTests
                         TestExtensions.CheckingAssertions(_expectedBookTickerStreamModel, actualList[j]);
                     }
 
-                    await webSocket.DisconnectAsync(CancellationToken.None);
+                    await webSocket.DisconnectAsync(_cancellationTokenSource.Token);
                 },
-                CancellationToken.None);
+                _cancellationTokenSource.Token);
 
             // Act
-            await webSocket.ConnectAsync(CancellationToken.None);
+            await webSocket.ConnectAsync(_cancellationTokenSource.Token);
         }
 
         #endregion
@@ -230,12 +231,12 @@ namespace BinanceExchangeTests.BinanceTests.WebSocketTests
 
                     TestExtensions.CheckingAssertions(expected.Kline, actual.Kline);
 
-                    await webSocket.DisconnectAsync(CancellationToken.None);
+                    await webSocket.DisconnectAsync(_cancellationTokenSource.Token);
                 },
-                CancellationToken.None);
+                _cancellationTokenSource.Token);
 
             // Act
-            await webSocket.ConnectAsync(CancellationToken.None);
+            await webSocket.ConnectAsync(_cancellationTokenSource.Token);
         }
 
         #endregion
@@ -262,12 +263,12 @@ namespace BinanceExchangeTests.BinanceTests.WebSocketTests
                     var actual = _deserializer.Deserialize<MiniTickerStreamModel>(content);
                     TestExtensions.CheckingAssertions(_expectedMiniTickerStreamModel, actual);
 
-                    await webSocket.DisconnectAsync(CancellationToken.None);
+                    await webSocket.DisconnectAsync(_cancellationTokenSource.Token);
                 },
-                CancellationToken.None);
+                _cancellationTokenSource.Token);
 
             // Act
-            await webSocket.ConnectAsync(CancellationToken.None);
+            await webSocket.ConnectAsync(_cancellationTokenSource.Token);
         }
 
         /// <summary>
@@ -292,12 +293,12 @@ namespace BinanceExchangeTests.BinanceTests.WebSocketTests
                         TestExtensions.CheckingAssertions(_expectedMiniTickerStreamModel, actualList[j]);
                     }
 
-                    await webSocket.DisconnectAsync(CancellationToken.None);
+                    await webSocket.DisconnectAsync(_cancellationTokenSource.Token);
                 },
-                CancellationToken.None);
+                _cancellationTokenSource.Token);
 
             // Act
-            await webSocket.ConnectAsync(CancellationToken.None);
+            await webSocket.ConnectAsync(_cancellationTokenSource.Token);
         }
 
         #endregion
@@ -361,12 +362,12 @@ namespace BinanceExchangeTests.BinanceTests.WebSocketTests
                     Assert.Equal(expected.Asks[1].Price, actual.Asks[1].Price);
                     Assert.Equal(expected.Asks[1].Quantity, actual.Asks[1].Quantity);
 
-                    await webSocket.DisconnectAsync(CancellationToken.None);
+                    await webSocket.DisconnectAsync(_cancellationTokenSource.Token);
                 },
-                CancellationToken.None);
+                _cancellationTokenSource.Token);
 
             // Act
-            await webSocket.ConnectAsync(CancellationToken.None);
+            await webSocket.ConnectAsync(_cancellationTokenSource.Token);
         }
 
         /// <summary>
@@ -401,12 +402,12 @@ namespace BinanceExchangeTests.BinanceTests.WebSocketTests
                     var actual = _deserializer.Deserialize<SymbolTradeStreamModel>(content);
                     TestExtensions.CheckingAssertions(expected, actual);
 
-                    await webSocket.DisconnectAsync(CancellationToken.None);
+                    await webSocket.DisconnectAsync(_cancellationTokenSource.Token);
                 },
-                CancellationToken.None);
+                _cancellationTokenSource.Token);
 
             // Act
-            await webSocket.ConnectAsync(CancellationToken.None);
+            await webSocket.ConnectAsync(_cancellationTokenSource.Token);
         }
 
         #region Market ticker stream tests
@@ -431,12 +432,12 @@ namespace BinanceExchangeTests.BinanceTests.WebSocketTests
                     var actual = _deserializer.Deserialize<TickerStreamModel>(content);
                     TestExtensions.CheckingAssertions(_expectedTickerStreamModel, actual);
 
-                    await webSocket.DisconnectAsync(CancellationToken.None);
+                    await webSocket.DisconnectAsync(_cancellationTokenSource.Token);
                 },
-                CancellationToken.None);
+                _cancellationTokenSource.Token);
 
             // Act
-            await webSocket.ConnectAsync(CancellationToken.None);
+            await webSocket.ConnectAsync(_cancellationTokenSource.Token);
         }
 
         /// <summary>
@@ -461,12 +462,12 @@ namespace BinanceExchangeTests.BinanceTests.WebSocketTests
                         TestExtensions.CheckingAssertions(_expectedTickerStreamModel, actualList[j]);
                     }
 
-                    await webSocket.DisconnectAsync(CancellationToken.None);
+                    await webSocket.DisconnectAsync(_cancellationTokenSource.Token);
                 },
-                CancellationToken.None);
+                _cancellationTokenSource.Token);
 
             // Act
-            await webSocket.ConnectAsync(CancellationToken.None);
+            await webSocket.ConnectAsync(_cancellationTokenSource.Token);
         }
 
         #endregion
@@ -508,13 +509,24 @@ namespace BinanceExchangeTests.BinanceTests.WebSocketTests
 
         #endregion
 
+        #region Implmentation of IDisposable
+
+        /// <inheritdoc />
+        public void Dispose()
+        {
+            _cancellationTokenSource?.Cancel();
+            _cancellationTokenSource?.Dispose();
+        }
+
+        #endregion
+
         #region Private methods
 
         /// <summary>
         ///     Возвращает содержимое файла в массиве байтов
         /// </summary>
         /// <param name="filePath">  путь к файлу с ответом со стрима </param>
-        private byte[] GetBytes(string filePath)
+        private static byte[] GetBytes(string filePath)
         {
             var basePath = AppDomain.CurrentDomain.BaseDirectory;
             var path = Path.Combine(basePath, filePath);
@@ -531,7 +543,7 @@ namespace BinanceExchangeTests.BinanceTests.WebSocketTests
         internal IBinanceWebSocketHumble GetMockingBinanceWebHumble(string url, byte[] bytes)
         {
             var binanceWebSocketHumble = Substitute.For<IBinanceWebSocketHumble>();
-            binanceWebSocketHumble.ConnectAsync(new Uri(url), CancellationToken.None).Returns(Task.CompletedTask);
+            binanceWebSocketHumble.ConnectAsync(new Uri(url), _cancellationTokenSource.Token).Returns(Task.CompletedTask);
             binanceWebSocketHumble.ReceiveAsync(Arg.Any<ArraySegment<byte>>(), Arg.Any<CancellationToken>())
                 .Returns(callInfo =>
                 {

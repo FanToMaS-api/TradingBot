@@ -45,19 +45,25 @@ namespace Analytic.Binance
 
         #endregion
 
+        #region Implementation of IAnalyticService
+
+        #region Events
+
+        /// <inheritdoc />
+        public EventHandler<InfoModel[]> ModelsFiltered { get; set; }
+
+        /// <inheritdoc />
+        public EventHandler<AnalyticResultModel[]> SuccessfulAnalyzed { get; set; }
+
+        #endregion
+
         #region Properties
 
         /// <inheritdoc />
         public List<IProfileGroup> ProfileGroups { get; } = new();
 
         /// <inheritdoc />
-        public List<FilterManagerBase> FilterManagers { get; internal set; }
-
-        /// <inheritdoc />
-        public EventHandler<InfoModel[]> OnModelsFiltered { get; set; }
-
-        /// <inheritdoc />
-        public EventHandler<AnalyticResultModel[]> OnSuccessfulAnalize { get; set; }
+        public List<FilterManagerBase> FilterManagers { get; } = new();
 
         #endregion
 
@@ -67,7 +73,7 @@ namespace Analytic.Binance
         public async Task RunAsync(CancellationToken cancellationToken)
         {
             _cancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
-            cancellationToken.Register(() => StopAsync(CancellationToken.None).GetAwaiter().GetResult());
+            cancellationToken.Register(async () => await StopAsync(CancellationToken.None));
 
             // каждую минуту на 7ю секунду вызываем метода анализа
             _triggerKey = await _scheduler.ScheduleAsync(Cron.MinutelyOnSecond(7), AnalyzeAsync);
@@ -110,6 +116,18 @@ namespace Analytic.Binance
 
         #endregion
 
+        #endregion
+
+        #region Implemetation IDisposable
+
+        /// <inheritdoc />
+        public void Dispose()
+        {
+            _cancellationTokenSource?.Dispose();
+        }
+
+        #endregion
+
         #region Private methods
 
         /// <summary>
@@ -117,36 +135,34 @@ namespace Analytic.Binance
         /// </summary>
         private async Task AnalyzeAsync(IServiceProvider serviceProvider)
         {
-            if (_cancellationTokenSource.IsCancellationRequested)
-            {
-                await _scheduler.UnscheduleAsync(_triggerKey);
-            }
-
+            _cancellationTokenSource.Token.ThrowIfCancellationRequested();
+            
             try
             {
                 var models = await _exchange.Marketdata.GetSymbolPriceTickerAsync(null, _cancellationTokenSource.Token);
                 var extendedFilteredModels = new List<InfoModel>();
                 foreach (var filterManager in FilterManagers)
                 {
-                    extendedFilteredModels.AddRange(await filterManager.GetFilteredDataAsync(
+                    var extendedModels = await filterManager.GetFilteredDataAsync(
                         _serviceScopeFactory,
                         models,
-                        _cancellationTokenSource.Token));
+                        _cancellationTokenSource.Token);
+                    extendedFilteredModels.AddRange(extendedModels);
                 }
-                
+
                 if (!extendedFilteredModels.Any())
                 {
                     return;
                 }
 
-                OnModelsFiltered?.Invoke(this, extendedFilteredModels.ToArray());
+                ModelsFiltered?.Invoke(this, extendedFilteredModels.ToArray());
 
                 var analyzedModels = await GetAnalyzedModelsAsync(
                     extendedFilteredModels.ToList(),
                     _cancellationTokenSource.Token);
                 if (analyzedModels.Any())
                 {
-                    OnSuccessfulAnalize?.Invoke(this, analyzedModels.ToArray());
+                    SuccessfulAnalyzed?.Invoke(this, analyzedModels.ToArray());
                 }
             }
             catch (Exception ex)
@@ -183,16 +199,6 @@ namespace Analytic.Binance
             }
 
             return modelsToBuy;
-        }
-
-        #endregion
-
-        #region Implemetation IDisposable
-
-        /// <inheritdoc />
-        public void Dispose()
-        {
-            _cancellationTokenSource?.Dispose();
         }
 
         #endregion

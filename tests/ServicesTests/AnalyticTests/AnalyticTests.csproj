@@ -22,6 +22,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\src\Libraries\Analytic\Analytic.csproj" />
+    <ProjectReference Include="..\..\SharedForTest\SharedForTest.csproj" />
   </ItemGroup>
 
   <ItemGroup>

@@ -1,10 +1,14 @@
 ﻿using Analytic;
-using Analytic.AnalyticUnits;
+using Analytic.AnalyticUnits.ProfileGroup.Impl;
 using Analytic.AnalyticUnits.Profiles.SSA;
 using Analytic.Filters;
+using Analytic.Filters.Builders;
+using Analytic.Filters.Builders.FilterBuilders;
+using Analytic.Filters.Builders.FilterGroupBuilders;
+using Analytic.Filters.Enums;
+using Analytic.Filters.FilterGroup.Impl;
 using Analytic.Filters.Impl.FilterManagers;
 using Analytic.Models;
-using BinanceDatabase.Enums;
 using Logger;
 using Microsoft.Extensions.DependencyInjection;
 using SignalsSender.Configuration;
@@ -54,84 +58,138 @@ namespace SignalsSender
 
         #endregion
 
-        #region Public methods
+        #region Implementation of IService
 
         /// <summary>
         ///     Запускает бота
         /// </summary>
         public async Task RunAsync()
         {
+            var nameFilter= new NameFilterBuilder()
+                .SetFilterName("NameFilter")
+                .AddTradeObjectNames(_baseTickers)
+                .GetResult();
+            var primaryGroup = new FilterGroupBuilder()
+                .SetFilterGroupName("ParamountFilterGroup")
+                .SetFilterGroupType(FilterGroupType.Primary)
+                .SetTargetTradeObjectName(null)
+                .AddFilter(nameFilter)
+                .GetResult();
+            
+            var priceDeviationFilter = new PriceDeviationFilterBuilder()
+                .SetFilterName("AnyFilter")
+                .SetAggregateDataIntervalType(AggregateDataIntervalType.OneMinute)
+                .SetComparisonType(ComparisonType.GreaterThan)
+                .SetLimit(2.55)
+                .GetResult();
+            var priceFilter = new PriceFilterBuilder()
+                .SetFilterName("USDT_PriceFilter")
+                .SetComparisonType(ComparisonType.LessThan)
+                .SetLimit(20)
+                .GetResult();
+            var specialFilterGroupForUSDT_Builder = new FilterGroupBuilder()
+                .SetFilterGroupName("USDT_SpecialFilterGroup")
+                .SetFilterGroupType(FilterGroupType.Special)
+                .SetTargetTradeObjectName("USDT")
+                .AddFilter(priceDeviationFilter)
+                .AddFilter(priceFilter);
+            var specialFilterGroupForUSDT = specialFilterGroupForUSDT_Builder.GetResult();
+
+            var priceDeviationFilterForBTC = new PriceDeviationFilterBuilder()
+                .SetFilterName("BTC_PriceDeviationFilter")
+                .SetAggregateDataIntervalType(AggregateDataIntervalType.OneMinute)
+                .SetComparisonType(ComparisonType.GreaterThan)
+                .SetLimit(5.7)
+                .GetResult();
+            var specialFilterGroupForBTC = new FilterGroupBuilder()
+                .SetFilterGroupName("BTC_SpecialFilterGroup")
+                .SetFilterGroupType(FilterGroupType.Special)
+                .SetTargetTradeObjectName("BTC")
+                .AddFilter(priceDeviationFilterForBTC)
+                .GetResult();
+
+            var priceDeviationFilterForETH = new PriceDeviationFilterBuilder()
+                .SetFilterName("ETH_PriceDeviationFilter")
+                .SetAggregateDataIntervalType(AggregateDataIntervalType.OneMinute)
+                .SetComparisonType(ComparisonType.GreaterThan)
+                .SetLimit(4.5)
+                .GetResult();
+            var specialFilterGroupForETH = new FilterGroupBuilder()
+                .SetFilterGroupName("ETH_SpecialFilterGroup")
+                .SetFilterGroupType(FilterGroupType.Special)
+                .SetTargetTradeObjectName("ETH")
+                .AddFilter(priceDeviationFilterForETH)
+                .GetResult();
+            
+            var commonFilterGroupFor = new FilterGroupBuilder()
+                .SetFilterGroupName("CommonFilterGroup")
+                .SetFilterGroupType(FilterGroupType.Common)
+                .SetTargetTradeObjectName("ETH")
+                .AddFilter(priceDeviationFilter)
+                .GetResult();
+
+            var volumeFilter = new VolumeFilterBuilder()
+                .SetFilterName("VolumeBidFilter")
+                .SetVolumeType()
+                .SetComparisonType()
+                .SetPercentDeviation()
+                .GetResult();
+            var commonLatestFilterGroup = new FilterGroupBuilder()
+                .SetFilterGroupType(FilterGroupType.CommonLatest)
+                .SetTargetTradeObjectName(null)
+                .AddFilter(volumeFilter)
+                .GetResult();
+
+            var builder = new FilterManagerBuilder(_logger);
+            builder.AddFilterGroup(primaryGroup);
+            builder.AddFilterGroup(specialFilterGroupForUSDT);
+            builder.AddFilterGroup(specialFilterGroupForBTC);
+            builder.AddFilterGroup(specialFilterGroupForETH);
+            builder.AddFilterGroup(commonFilterGroupFor);
+            builder.AddFilterGroup(commonLatestFilterGroup);
+            
+            var growingPairFilterManager = builder.GetResult();
+
+            builder.Reset();
+
+            var priceDeviationCommonFilter = new PriceDeviationFilterBuilder()
+                .SetFilterName("FallingPriceDeviationFilter")
+                .SetAggregateDataIntervalType(AggregateDataIntervalType.FiveMinutes)
+                .SetComparisonType(ComparisonType.LessThan)
+                .SetLimit(-7.8)
+                .SetTimeframeNumber(20)
+                .GetResult();
+            var commonFilterGroupForFallingTickers = new FilterGroupBuilder()
+                .SetTargetTradeObjectName(null)
+                .SetFilterGroupName("CommonLatestFilterGroupForFallingPairs")
+                .SetFilterGroupType(FilterGroupType.Common)
+                .AddFilter(priceDeviationCommonFilter)
+                .GetResult();
+
+            var volumeBidFilterForFallingPairs = new VolumeFilterBuilder()
+                .SetFilterName("VolumeBidFilterForFallingPairs")
+                .SetVolumeType(VolumeType.Ask)
+                .SetComparisonType(VolumeComparisonType.GreaterThan)
+                .SetPercentDeviation(0.35)
+                .GetResult();
+            var commonLatestFilterGroupForFallingPairs = new FilterGroupBuilder()
+                .SetTargetTradeObjectName(null)
+                .SetFilterGroupName("CommonLatestFilterGroupForFallingPairs")
+                .AddFilter(volumeBidFilterForFallingPairs)
+                .SetFilterGroupType(FilterGroupType.CommonLatest)
+                .GetResult();
+
+            builder.AddFilterGroup(primaryGroup);
+            specialFilterGroupForUSDT_Builder.RemoveFilter(priceDeviationFilter);
+            builder.AddFilterGroup(specialFilterGroupForUSDT);
+            builder.AddFilterGroup(commonFilterGroupForFallingTickers);
+            builder.AddFilterGroup(commonLatestFilterGroupForFallingPairs);
+            
+            var fallingTickersFilterManager = builder.GetResult();
+
             var cancellationToken = _cancellationTokenSource.Token;
-
-            using var scope = _scopeFactory.CreateScope();
-
-            var growingPairFilterManager = new DefaultFilterManager(_logger);
-            var fallingTickersFilterManager = new DefaultFilterManager(_logger);
-
-            var paramountFilterGroup = new FilterGroup("ParamountFilterGroup", FilterGroupType.Primary, null);
-            var nameFilter = new NameFilter("NameFilter", _baseTickers);
-            paramountFilterGroup.AddFilter(nameFilter);
-            growingPairFilterManager.AddFilterGroup(paramountFilterGroup);
-            fallingTickersFilterManager.AddFilterGroup(paramountFilterGroup);
-
-            var specialFilterGroupUSDT = new FilterGroup("USDT_SpecialFilterGroup", FilterGroupType.Special, "USDT");
-            var specialFilterGroupUSDTWithoutPriceDeviation = new FilterGroup(
-                "USDT_SpecialFilterGroupWithoutPriceDeviation", 
-                FilterGroupType.Special,
-                "USDT");
-
-            var priceDeviationFilter = new PriceDeviationFilter("AnyFilter", AggregateDataIntervalType.OneMinute, ComparisonType.GreaterThan, 2.55);
-            var usdtPriceFilter = new PriceFilter("USDTFilter", ComparisonType.LessThan, 20);
-            specialFilterGroupUSDT.AddFilter(priceDeviationFilter);
-            specialFilterGroupUSDT.AddFilter(usdtPriceFilter);
-            growingPairFilterManager.AddFilterGroup(specialFilterGroupUSDT);
-
-            specialFilterGroupUSDTWithoutPriceDeviation.AddFilter(usdtPriceFilter);
-            fallingTickersFilterManager.AddFilterGroup(specialFilterGroupUSDTWithoutPriceDeviation);
-
-            var specialFilterGroupBTC = new FilterGroup("BTC_SpecialFilterGroup", FilterGroupType.Special, "BTC");
-            var btcDeviationFilter = new PriceDeviationFilter("BTCFilter", AggregateDataIntervalType.OneMinute, ComparisonType.GreaterThan, 5.7);
-            specialFilterGroupBTC.AddFilter(btcDeviationFilter);
-            growingPairFilterManager.AddFilterGroup(specialFilterGroupBTC);
-
-            var specialFilterGroupETH = new FilterGroup("ETH_SpecialFilterGroup", FilterGroupType.Special, "ETH");
-            var ethDeviationFilter = new PriceDeviationFilter("ETHFilter", AggregateDataIntervalType.OneMinute, ComparisonType.GreaterThan, 4.5);
-            specialFilterGroupETH.AddFilter(ethDeviationFilter);
-            growingPairFilterManager.AddFilterGroup(specialFilterGroupETH);
-
-            var commonFilterGroup = new FilterGroup("CommonFilterGroup", FilterGroupType.Common, null);
-            commonFilterGroup.AddFilter(priceDeviationFilter);
-            growingPairFilterManager.AddFilterGroup(commonFilterGroup);
-
-            var commonFilterGroupForFallingPairs = new FilterGroup("CommonFilterGroupForFallingPairs", FilterGroupType.Common, null);
-            var fallingPriceDeviationFilter = new PriceDeviationFilter(
-                "FallingPriceDeviationFilter", AggregateDataIntervalType.FiveMinutes, ComparisonType.LessThan, -7.8, 20);
-            commonFilterGroupForFallingPairs.AddFilter(fallingPriceDeviationFilter);
-            fallingTickersFilterManager.AddFilterGroup(commonFilterGroupForFallingPairs);
-
-            var commonLatestFilterGroup = new FilterGroup("CommonLatestFilterGroup", FilterGroupType.CommonLatest, null);
-            var volumeFilter = new VolumeFilter(
-                "VolumeBidFilter",
-                VolumeType.Bid,
-                VolumeComparisonType.GreaterThan,
-                percentDeviation: 0.05);
-            commonLatestFilterGroup.AddFilter(volumeFilter);
-            growingPairFilterManager.AddFilterGroup(commonLatestFilterGroup);
-
-            var commonLatestFilterGroupForFallingPairs = new FilterGroup(
-                "CommonLatestFilterGroupForFallingPairs", 
-                FilterGroupType.CommonLatest,
-                null);
-            var volumeFilterForFallingPairs = new VolumeFilter(
-                "VolumeBidFilterForFallingPairs", 
-                VolumeType.Ask,
-                VolumeComparisonType.GreaterThan,
-                percentDeviation: 0.35);
-            commonLatestFilterGroupForFallingPairs.AddFilter(volumeFilterForFallingPairs);
-            fallingTickersFilterManager.AddFilterGroup(commonLatestFilterGroupForFallingPairs);
-
-            _analyticService.OnModelsFiltered += OnModelsFilteredReceived;
-            _analyticService.OnSuccessfulAnalize += OnModelsToBuyReceived;
+            _analyticService.ModelsFiltered += OnModelsFilteredReceived;
+            _analyticService.SuccessfulAnalyzed += OnModelsToBuyReceived;
 
             var ssaProfile = new SsaAnalyticPofile(_logger, "SsaProfile");
             var profileGroup = new ProfileGroup(_logger, "DefaultGroupProfile");
@@ -139,8 +197,26 @@ namespace SignalsSender
             _analyticService.AddProfileGroup(profileGroup);
             _analyticService.AddFilterManager(growingPairFilterManager);
             _analyticService.AddFilterManager(fallingTickersFilterManager);
+            
             await _analyticService.RunAsync(cancellationToken);
         }
+
+        #endregion
+
+        #region Implementation of IDisposable
+
+        /// <inheritdoc />
+        public void Dispose()
+        {
+            _cancellationTokenSource?.Cancel();
+            _cancellationTokenSource?.Dispose();
+            _analyticService.ModelsFiltered -= OnModelsFilteredReceived;
+            _analyticService.SuccessfulAnalyzed -= OnModelsToBuyReceived;
+        }
+
+        #endregion
+
+        #region Private methods
 
         /// <summary>
         ///     Обработчик получения отфильтрованных моделей
@@ -169,10 +245,12 @@ namespace SignalsSender
                         $"\nПоследняя цена: *{model.LastPrice}*" +
                         $"\nОбъем спроса: *{model.BidVolume:0,0.0}*" +
                         $"\nОбъем предложения: *{model.AskVolume:0,0.0}*";
-                    builder.SetMessageText(message);
+
                     var url = _baseUrl.Replace("<pair>", pairName);
-                    builder.SetInlineButton("Перейти", $"{url}");
-                    var telegramMessage = builder.GetResult();
+                    var telegramMessage = builder
+                        .SetMessageText(message)
+                        .SetInlineButton("Перейти", $"{url}")
+                        .GetResult();
                     tasks.Add(_telegramClient.SendMessageAsync(telegramMessage, CancellationToken.None));
                 }
                 catch (Exception ex)
@@ -183,7 +261,7 @@ namespace SignalsSender
 
             try
             {
-                Task.WaitAll(tasks.ToArray());
+                Task.WhenAll(tasks).Wait();
             }
             catch (Exception ex)
             {
@@ -241,23 +319,12 @@ namespace SignalsSender
 
             try
             {
-                Task.WaitAll(tasks.ToArray());
+                Task.WhenAll(tasks).Wait();
             }
             catch (Exception ex)
             {
                 _logger.ErrorAsync(ex, "Failed to send message with filtered models to telegram").Wait(7 * 1000);
             }
-        }
-
-        #endregion
-
-        #region Private methods
-
-        /// <inheritdoc />
-        public void Dispose()
-        {
-            _cancellationTokenSource?.Cancel();
-            _cancellationTokenSource?.Dispose();
         }
 
         #endregion

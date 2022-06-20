@@ -8,20 +8,6 @@ namespace Scheduler
     /// </summary>
     internal sealed class RecurringJobDefinition
     {
-        #region Properties
-
-        /// <summary>
-        ///     Cron-выражение
-        /// </summary>
-        public string CronExpression { get; }
-
-        /// <summary>
-        ///     Задача на повторение
-        /// </summary>
-        public Func<IServiceProvider, Task> Action { get; }
-
-        #endregion
-
         #region .ctor
 
         /// <summary>
@@ -34,6 +20,20 @@ namespace Scheduler
             CronExpression = cronExpression;
             Action = action;
         }
+
+        #endregion
+
+        #region Properties
+
+        /// <summary>
+        ///     Cron-выражение
+        /// </summary>
+        public string CronExpression { get; }
+
+        /// <summary>
+        ///     Задача на повторение
+        /// </summary>
+        public Func<IServiceProvider, Task> Action { get; }
 
         #endregion
     }

@@ -1,4 +1,5 @@
 ﻿using BinanceExchange.Client;
+using BinanceExchange.Client.Http.Request.Builders;
 using BinanceExchange.Models;
 using Common.JsonConvertWrapper;
 using System.Collections.Generic;
@@ -16,6 +17,7 @@ namespace BinanceExchange.EndpointSenders.Impl
         #region Fields
 
         private readonly IBinanceClient _client;
+        private readonly JsonDeserializerWrapper _converter = new();
 
         #endregion
 
@@ -34,58 +36,58 @@ namespace BinanceExchange.EndpointSenders.Impl
         /// <inheritdoc />
         public async Task<SystemStatusModel> GetSystemStatusAsync(CancellationToken cancellationToken = default)
         {
-            var result = await _client.SendPublicAsync(
-                 BinanceEndpoints.SYSTEM_STATUS,
-                 HttpMethod.Get,
-                 cancellationToken: cancellationToken);
+            var request = new HttpRequestUrlBuilder()
+                .SetEndpoint(BinanceEndpoints.SYSTEM_STATUS)
+                .SetHttpMethod(HttpMethod.Get)
+                .GetResult();
+            var response = await _client.SendPublicAsync(request, cancellationToken);
 
-            var converter = new JsonDeserializerWrapper();
-            return converter.Deserialize<SystemStatusModel>(result);
+            return _converter.Deserialize<SystemStatusModel>(response);
         }
 
         /// <inheritdoc />
         public async Task<AccountTradingStatusModel> GetAccountTradingStatusAsync(
-            Dictionary<string, object> query,
+            Dictionary<string, string> parameters,
             CancellationToken cancellationToken = default)
         {
-            var result = await _client.SendSignedAsync(
-                BinanceEndpoints.ACCOUNT_API_TRADING_STATUS,
-                HttpMethod.Get,
-                query: query,
-                cancellationToken: cancellationToken);
+            var request = new HttpRequestUrlBuilder()
+                .SetEndpoint(BinanceEndpoints.ACCOUNT_API_TRADING_STATUS)
+                .SetHttpMethod(HttpMethod.Get)
+                .SetParameters(parameters)
+                .GetResult();
+            var response = await _client.SendSignedAsync(request, cancellationToken);
 
-            var converter = new JsonDeserializerWrapper();
-            return converter.Deserialize<AccountTradingStatusModel>(result);
+            return _converter.Deserialize<AccountTradingStatusModel>(response);
         }
 
         /// <inheritdoc />
         public async Task<IEnumerable<TradeFeeModel>> GetTradeFeeAsync(
-            Dictionary<string, object> query,
+            Dictionary<string, string> parameters,
             CancellationToken cancellationToken = default)
         {
-            var result = await _client.SendSignedAsync(
-                BinanceEndpoints.TRADE_FEE,
-                HttpMethod.Get,
-                query: query,
-                cancellationToken: cancellationToken);
+            var request = new HttpRequestUrlBuilder()
+                .SetEndpoint(BinanceEndpoints.TRADE_FEE)
+                .SetHttpMethod(HttpMethod.Get)
+                .SetParameters(parameters)
+                .GetResult();
+            var response = await _client.SendSignedAsync(request, cancellationToken);
 
-            var converter = new JsonDeserializerWrapper();
-            return converter.Deserialize<IEnumerable<TradeFeeModel>>(result);
+            return _converter.Deserialize<IEnumerable<TradeFeeModel>>(response);
         }
 
         /// <inheritdoc />
         public async Task<IEnumerable<CoinModel>> GetAllCoinsInformationAsync(
-            Dictionary<string, object> query,
+            Dictionary<string, string> parameters,
             CancellationToken cancellationToken = default)
         {
-            var result = await _client.SendSignedAsync(
-                 BinanceEndpoints.ALL_COINS_INFORMATION,
-                 HttpMethod.Get,
-                 query: query,
-                 cancellationToken: cancellationToken);
+            var request = new HttpRequestUrlBuilder()
+                .SetEndpoint(BinanceEndpoints.ALL_COINS_INFORMATION)
+                .SetHttpMethod(HttpMethod.Get)
+                .SetParameters(parameters)
+                .GetResult();
+            var response = await _client.SendSignedAsync(request, cancellationToken);
 
-            var converter = new JsonDeserializerWrapper();
-            return converter.Deserialize<List<CoinModel>>(result);
+            return _converter.Deserialize<List<CoinModel>>(response);
         }
 
         #endregion

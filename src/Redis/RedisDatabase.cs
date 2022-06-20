@@ -9,8 +9,8 @@ namespace Redis
     {
         #region Fields
 
-        private static readonly ILoggerDecorator Log = LoggerManager.CreateDefaultLogger();
         private const int ReconnectionCount = 2;
+        private static readonly ILoggerDecorator Log = LoggerManager.CreateDefaultLogger();
         private readonly IConnectionMultiplexer _connectionMultiplexer;
         private readonly IDatabase _database;
 
@@ -26,6 +26,8 @@ namespace Redis
         }
 
         #endregion
+        
+        #region Implmentation of IRedisDatabase
 
         /// <inheritdoc />
         public bool TryGetIntValue(string key, out RedisKeyValue<int> model)
@@ -77,6 +79,15 @@ namespace Redis
 
             return true;
         }
+        
+        #endregion
+
+        #region Implementation IDisposable
+
+        /// <inheritdoc />
+        public void Dispose() => _connectionMultiplexer.Dispose();
+
+        #endregion
 
         #region Private Methods
 
@@ -103,13 +114,6 @@ namespace Redis
 
             throw exception;
         }
-
-        #endregion
-
-        #region Implementation IDisposable
-
-        /// <inheritdoc />
-        public void Dispose() => _connectionMultiplexer.Dispose();
 
         #endregion
     }

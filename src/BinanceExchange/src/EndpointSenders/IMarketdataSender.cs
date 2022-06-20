@@ -31,14 +31,18 @@ namespace BinanceExchange.EndpointSenders
         ///     10 - 1000;
         ///     50 - 5000;
         /// </remarks>
-        Task<OrderBookModel> GetOrderBookAsync(Dictionary<string, object> query, CancellationToken cancellationToken = default);
+        Task<OrderBookModel> GetOrderBookAsync(
+            Dictionary<string, string> parameters,
+            CancellationToken cancellationToken = default);
 
         /// <summary>
         ///     Возвращает последние сделки по паре
         /// </summary>
         /// <param name="symbol"> Пара </param>
         /// <param name="limit"> Кол-во сделок (максимум 1000, по умолчанию 500) </param>
-        Task<IEnumerable<TradeModel>> GetRecentTradesAsync(Dictionary<string, object> query, CancellationToken cancellationToken = default);
+        Task<IEnumerable<TradeModel>> GetRecentTradesAsync(
+            Dictionary<string, string> parameters,
+            CancellationToken cancellationToken = default);
 
         /// <summary>
         ///     Возвращает исторические сделки по паре
@@ -46,7 +50,9 @@ namespace BinanceExchange.EndpointSenders
         /// <param name="symbol"> Пара </param>
         /// <param name="fromId"> Нижняя граница выгрузки </param>
         /// <param name="limit"> Кол-во сделок (максимум 1000, по умолчанию 500) </param>
-        Task<IEnumerable<TradeModel>> GetOldTradesAsync(Dictionary<string, object> query, CancellationToken cancellationToken = default);
+        Task<IEnumerable<TradeModel>> GetOldTradesAsync(
+            Dictionary<string, string> parameters,
+            CancellationToken cancellationToken = default);
 
         /// <summary>
         ///     Возвращает свечи по определенной паре
@@ -56,22 +62,32 @@ namespace BinanceExchange.EndpointSenders
         /// <param name="startTime"> Время начала построения </param>
         /// <param name="endTime"> Окончание периода </param>
         /// <param name="limit"> Кол-во свечей (максимум 1000, по умолчанию 500) </param>
-        Task<IEnumerable<CandlestickModel>> GetCandlestickAsync(Dictionary<string, object> query, CancellationToken cancellationToken = default);
+        Task<IEnumerable<CandlestickModel>> GetCandlestickAsync(
+            Dictionary<string, string> parameters,
+            CancellationToken cancellationToken = default);
 
         /// <summary>
         ///     Возвращает текущую среднюю цену пары
         /// </summary>
-        Task<AveragePriceModel> GetAveragePriceAsync(Dictionary<string, object> query, CancellationToken cancellationToken = default);
+        Task<AveragePriceModel> GetAveragePriceAsync(
+            Dictionary<string, string> parameters,
+            CancellationToken cancellationToken = default);
 
         /// <summary>
-        ///     Возвращает 24 статистику о цене для пары или для всех пар, если <code><paramref name="symbol" /> = null or ""</code>
+        ///     Возвращает 24 статистику о цене для пары или для всех пар,
+        ///     если <code><paramref name="symbol" /> = <see langword="null"/> or <see langword="''"/></code>
         /// </summary>
-        Task<IEnumerable<DayPriceChangeModel>> GetDayPriceChangeAsync(string symbol, CancellationToken cancellationToken = default);
+        Task<IEnumerable<DayPriceChangeModel>> GetDayPriceChangeAsync(
+            string symbol,
+            CancellationToken cancellationToken = default);
 
         /// <summary>
-        ///     Возвращает последнюю цену для пары или для всех пар, если <code><paramref name="symbol" /> = null or ""</code>
+        ///     Возвращает последнюю цену для пары или для всех пар,
+        ///     если <code><paramref name="symbol" /> = <see langword="null"/> or <see langword="''"/></code>
         /// </summary>
-        Task<IEnumerable<SymbolPriceTickerModel>> GetSymbolPriceTickerAsync(string symbol, CancellationToken cancellationToken = default);
+        Task<IEnumerable<SymbolPriceTickerModel>> GetSymbolPriceTickerAsync(
+            string symbol,
+            CancellationToken cancellationToken = default);
 
         /// <summary>
         ///     Возвращает лучшую цену/количество в стакане для символа или символов

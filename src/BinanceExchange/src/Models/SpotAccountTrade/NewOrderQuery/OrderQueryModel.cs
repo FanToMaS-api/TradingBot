@@ -129,14 +129,14 @@ namespace BinanceExchange.Models
         /// <summary>
         ///     Возвращает словарь параметров для запроса
         /// </summary>
-        public Dictionary<string, object> GetQuery()
+        public Dictionary<string, string> GetRequestParameters()
         {
             var neededParams = typeof(OrderQueryModel)
                 .GetProperties()
                 .Where(_ => ((OrderParamWrapper)_.GetValue(this)).IsUse)
                 .ToArray();
 
-            var query = new Dictionary<string, object>();
+            var query = new Dictionary<string, string>();
             foreach (var param in neededParams)
             {
                 var paramWrapper = (OrderParamWrapper)param.GetValue(this);

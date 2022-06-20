@@ -33,9 +33,9 @@ namespace Analytic.Filters
             double percentDeviation = 0.05,
             int orderNumber = 1000)
         {
-            FilterName = filterName;
+            Name = filterName;
             VolumeType = volumeType;
-            VolumeComparisonType = volumeComparisonType;
+            ComparisonType = volumeComparisonType;
             PercentDeviation = percentDeviation;
             OrderNumber = orderNumber;
         }
@@ -45,12 +45,12 @@ namespace Analytic.Filters
         #region Properties
 
         /// <inheritdoc />
-        public string FilterName { get; }
+        public string Name { get; }
 
         /// <summary>
         ///     Тип сравнения объемов
         /// </summary>
-        public VolumeComparisonType VolumeComparisonType { get; }
+        public VolumeComparisonType ComparisonType { get; }
 
         /// <summary>
         ///     Тип фильтруемых объемов
@@ -81,7 +81,10 @@ namespace Analytic.Filters
         /// <remarks>
         ///     Данный метод также получает с бинанса значение <see cref="InfoModel.BidVolume"/> и <see cref="InfoModel.AskVolume"/>
         /// </remarks>
-        public async Task<bool> CheckConditionsAsync(IServiceScopeFactory serviceScopeFactory, InfoModel model, CancellationToken cancellationToken)
+        public async Task<bool> CheckConditionsAsync(
+            IServiceScopeFactory serviceScopeFactory,
+            InfoModel model,
+            CancellationToken cancellationToken)
         {
             using var scope = serviceScopeFactory.CreateAsyncScope();
             var exchange = scope.ServiceProvider.GetService<IExchange>()
@@ -90,14 +93,13 @@ namespace Analytic.Filters
             model.BidVolume = extendedModel.Bids.Sum(_ => _.Quantity);
             model.AskVolume = extendedModel.Asks.Sum(_ => _.Quantity);
 
-            return VolumeComparisonType switch
+            return ComparisonType switch
             {
                 VolumeComparisonType.GreaterThan => IsSatisfiesCondition(model, (x, y) => x > y * (1 + PercentDeviation)),
                 VolumeComparisonType.LessThan => IsSatisfiesCondition(model, (x, y) => x <= y * (1 + PercentDeviation)),
                 _ => throw new NotImplementedException(),
             };
         }
-            
 
         #endregion
 

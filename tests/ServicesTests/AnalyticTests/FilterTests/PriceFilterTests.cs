@@ -1,10 +1,11 @@
 ﻿using Analytic.Filters;
 using Analytic.Models;
+using Analytic.Filters.Enums;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace AnalyticTests
+namespace AnalyticTests.FilterTests
 {
     /// <summary>
     ///     Тестирует класс <see cref="PriceFilter"/>

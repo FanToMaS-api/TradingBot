@@ -18,12 +18,16 @@ namespace ExchangeLibrary
         /// <summary>
         ///     Вернуть статус аккаунта
         /// </summary>
-        Task<TradingAccountInfoModel> GetAccountTradingStatusAsync(long recvWindow = 5000, CancellationToken cancellationToken = default);
+        Task<TradingAccountInfoModel> GetAccountTradingStatusAsync(
+            long recvWindow = 5000,
+            CancellationToken cancellationToken = default);
 
         /// <summary>
         ///     Получить всю информацию об объектах торговли
         /// </summary>
-        Task<IEnumerable<TradeObject>> GetAllTradeObjectInformationAsync(long recvWindow = 5000, CancellationToken cancellationToken = default);
+        Task<IEnumerable<TradeObject>> GetAllTradeObjectInformationAsync(
+            long recvWindow = 5000,
+            CancellationToken cancellationToken = default);
 
         /// <summary>
         ///     Получить информацию о таксе за все объекты торговли или за определенный
@@ -34,6 +38,9 @@ namespace ExchangeLibrary
         ///     и формирует окно действия запроса
         /// </param>
         /// <param name="cancellationToken"> Токен отмены </param>
-        Task<IEnumerable<TradeFeeModel>> GetTradeFeeAsync(string name = null, long recvWindow = 5000, CancellationToken cancellationToken = default);
+        Task<IEnumerable<TradeFeeModel>> GetTradeFeeAsync(
+            string name = null,
+            long recvWindow = 5000,
+            CancellationToken cancellationToken = default);
     }
 }

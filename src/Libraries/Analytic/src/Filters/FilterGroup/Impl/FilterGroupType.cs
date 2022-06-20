@@ -1,4 +1,4 @@
-﻿namespace Analytic.Filters
+﻿namespace Analytic.Filters.FilterGroup.Impl
 {
     /// <summary>
     ///     Тип группы фильтров
@@ -16,7 +16,7 @@
         Special,
 
         /// <summary>
-        ///     Общий (для всех у кого нет специального)
+        ///     Общий (для всех объектов у кого нет специального)
         /// </summary>
         Common,
 

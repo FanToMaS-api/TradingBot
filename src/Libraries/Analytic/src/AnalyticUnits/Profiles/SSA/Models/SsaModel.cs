@@ -15,15 +15,16 @@ namespace Analytic.AnalyticUnits.Profiles.SSA.Models
         #region Fields
 
         private static readonly ILoggerDecorator Log = LoggerManager.CreateDefaultLogger();
-        private readonly int _pricesLength;
-        private Matrix<double> _covariationMatrix;
-        private Matrix<double> _eigenVectors;
-        private IEnumerable<Complex> _neededLambdas = new List<Complex>();
-        private MathNet.Numerics.LinearAlgebra.Vector<Complex> _eigenValues;
-        private double[,] _restoredOriginalMatrix = new double[0, 0];
         private const int _neededLambdaNumber = 7; // Кол-во значимых собственных значений, которое будет отбираться
         private const double _minMagnitudeForSsaSmoothing = 0.0002; // Минимальная магнитуда
                                                                     // для собственного значения при сглаживании
+
+        private readonly int _pricesLength;
+        private Matrix<double> _covariationMatrix;
+        private Matrix<double> _eigenVectors;
+        private MathNet.Numerics.LinearAlgebra.Vector<Complex> _eigenValues;
+        private IEnumerable<Complex> _neededLambdas = new List<Complex>();
+        private double[,] _restoredOriginalMatrix = new double[0, 0];
 
         #endregion
 

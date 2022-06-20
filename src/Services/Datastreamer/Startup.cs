@@ -11,6 +11,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Redis;
 using Scheduler;
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Datastreamer
@@ -45,7 +46,11 @@ namespace Datastreamer
             services.AddRazorPages();
             services.ConfigureForInitialization<IDataService>(async dataService =>
             {
-                await dataService.StartAsync();
+                await Task.Factory.StartNew(
+                   async () => await dataService.StartAsync(),
+                   CancellationToken.None,
+                   TaskCreationOptions.LongRunning | TaskCreationOptions.DenyChildAttach,
+                   TaskScheduler.Default);
             });
         }
 

@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using BinanceExchange.Enums;
 using BinanceExchange.Enums.Helper;
+using BinanceExchange.JsonConverters;
 using BinanceExchange.Models;
 using BinanceExchange.WebSocket;
 using BinanceExchange.WebSocket.Marketdata;
@@ -21,7 +22,7 @@ namespace BinanceExchange.Impl
     {
         #region Fields
 
-        private readonly ILogger _logger = LogManager.GetCurrentClassLogger();
+        private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
         private readonly IMapper _mapper;
         private readonly JsonDeserializerWrapper _converter = GetConverter();
 
@@ -44,13 +45,10 @@ namespace BinanceExchange.Impl
             string symbol,
             string stream,
             Func<T, CancellationToken, Task> onMessageReceivedFunc,
-            CancellationToken cancellationToken,
-            Action onStreamClosedFunc = null)
+            CancellationToken cancellationToken)
         {
             var streamType = stream.ConvertToMarketdataStreamType();
             var webSoket = new MarketdataWebSocket(symbol, streamType);
-            webSoket.OnClosed += OnCloseHandler;
-            webSoket.OnStreamClosed += onStreamClosedFunc;
 
             webSoket.AddOnMessageReceivedFunc(
                async content =>
@@ -82,13 +80,10 @@ namespace BinanceExchange.Impl
             string symbol,
             string candleStickInterval,
             Func<Common.Models.CandlestickStreamModel, CancellationToken, Task> onMessageReceivedFunc,
-            CancellationToken cancellationToken,
-            Action onStreamClosedFunc = null)
+            CancellationToken cancellationToken)
         {
             var interval = candleStickInterval.ConvertToCandleStickIntervalType();
             var webSoket = MarketdataWebSocket.CreateCandlestickStream(symbol, interval);
-            webSoket.OnClosed += OnCloseHandler;
-            webSoket.OnStreamClosed += onStreamClosedFunc;
 
             webSoket.AddOnMessageReceivedFunc(
                async content =>
@@ -101,7 +96,7 @@ namespace BinanceExchange.Impl
                    }
                    catch (Exception ex)
                    {
-                       _logger.Warn(ex, $"Failed to recieve {nameof(Common.Models.TradeObjectStreamModel)}");
+                       Logger.Warn(ex, $"Failed to recieve {nameof(Common.Models.TradeObjectStreamModel)}");
                    }
                },
                cancellationToken);
@@ -115,12 +110,9 @@ namespace BinanceExchange.Impl
         /// </remarks>
         public IWebSocket SubscribeAllMarketTickersStream(
             Func<IEnumerable<Common.Models.TradeObjectStreamModel>, CancellationToken, Task> onMessageReceivedFunc,
-            CancellationToken cancellationToken,
-            Action onStreamClosedFunc = null)
+            CancellationToken cancellationToken)
         {
             var webSoket = MarketdataWebSocket.CreateAllTickersStream();
-            webSoket.OnClosed += OnCloseHandler;
-            webSoket.OnStreamClosed += onStreamClosedFunc;
 
             webSoket.AddOnMessageReceivedFunc(
                async content =>
@@ -133,7 +125,7 @@ namespace BinanceExchange.Impl
                    }
                    catch (Exception ex)
                    {
-                       _logger.Warn(ex, $"Failed to recieve {nameof(Common.Models.TradeObjectStreamModel)}");
+                       Logger.Warn(ex, $"Failed to recieve {nameof(Common.Models.TradeObjectStreamModel)}");
                    }
                },
                cancellationToken);
@@ -147,12 +139,9 @@ namespace BinanceExchange.Impl
         /// </remarks>
         public IWebSocket SubscribeAllBookTickersStream(
             Func<Common.Models.BookTickerStreamModel, CancellationToken, Task> onMessageReceivedFunc,
-            CancellationToken cancellationToken,
-            Action onStreamClosedFunc = null)
+            CancellationToken cancellationToken)
         {
             var webSoket = MarketdataWebSocket.CreateAllBookTickersStream();
-            webSoket.OnClosed += OnCloseHandler;
-            webSoket.OnStreamClosed += onStreamClosedFunc;
 
             webSoket.AddOnMessageReceivedFunc(
                async content =>
@@ -165,7 +154,7 @@ namespace BinanceExchange.Impl
                    }
                    catch (Exception ex)
                    {
-                       _logger.Warn(ex, $"Failed to recieve {nameof(Models.BookTickerStreamModel)}");
+                       Logger.Warn(ex, $"Failed to recieve {nameof(Models.BookTickerStreamModel)}");
                    }
                },
                cancellationToken);
@@ -179,12 +168,9 @@ namespace BinanceExchange.Impl
         /// </remarks>
         public IWebSocket SubscribeAllMarketMiniTickersStream(
             Func<IEnumerable<Common.Models.MiniTradeObjectStreamModel>, CancellationToken, Task> onMessageReceivedFunc,
-            CancellationToken cancellationToken,
-            Action onStreamClosedFunc = null)
+            CancellationToken cancellationToken)
         {
             var webSoket = MarketdataWebSocket.CreateAllMarketMiniTickersStream();
-            webSoket.OnClosed += OnCloseHandler;
-            webSoket.OnStreamClosed += onStreamClosedFunc;
 
             webSoket.AddOnMessageReceivedFunc(
                async content =>
@@ -207,13 +193,10 @@ namespace BinanceExchange.Impl
             string symbol,
             Func<Common.Models.OrderBookModel, CancellationToken, Task> onMessageReceivedFunc,
             CancellationToken cancellationToken,
-            Action onStreamClosedFunc = null,
             int levels = 10,
             bool activateFastReceive = false)
         {
             var webSoket = MarketdataWebSocket.CreatePartialBookDepthStream(symbol, levels, activateFastReceive);
-            webSoket.OnStreamClosed += onStreamClosedFunc;
-            webSoket.OnClosed += OnCloseHandler;
 
             webSoket.AddOnMessageReceivedFunc(
                async content =>
@@ -230,20 +213,6 @@ namespace BinanceExchange.Impl
         #endregion
 
         #region Private methods
-
-        /// <summary>
-        ///     Обработчик закрытия стрима
-        /// </summary>
-        private Task OnCloseHandler(BinanceWebSocket webSocket, CancellationToken cancellationToken = default)
-        {
-            _logger.Error($"WebSocket: {webSocket} was closed");
-            webSocket.OnClosed -= OnCloseHandler;
-            webSocket.OnClosed = null;
-            webSocket.OnStreamClosed = null;
-            webSocket.Dispose();
-
-            return Task.CompletedTask;
-        }
 
         /// <summary>
         ///     Настраивает профили оболочки десериализации объектов

@@ -11,11 +11,20 @@ namespace Logger.Impl
     /// </summary>
     internal class BaseLoggerDecorator : ILoggerDecorator
     {
+        #region Fields
+
         private readonly ILogger _logger = LogManager.LoadConfiguration("nlog.config").GetLogger("Logger");
 
+        #endregion
+
+        #region Implementation of ILoggerDecorator
+
+        #region Properties
+
+        /// <inheritdoc />
         public ILoggerDecorator BaseLogger => null;
 
-        #region Public methods
+        #endregion
 
         /// <inheritdoc />
         public Task WarnAsync(
@@ -62,7 +71,7 @@ namespace Logger.Impl
 
         /// <inheritdoc />
         public Task ErrorAsync(
-            Exception exception, 
+            Exception exception,
             string message = null,
             [CallerMemberName] string memberName = null,
             [CallerLineNumber] int? lineNumber = null,
@@ -92,7 +101,7 @@ namespace Logger.Impl
 
         /// <inheritdoc />
         public Task InfoAsync(
-            string message = null, 
+            string message = null,
             [CallerMemberName] string memberName = null,
             [CallerLineNumber] int? lineNumber = null,
             CancellationToken cancellationToken = default)
@@ -105,7 +114,7 @@ namespace Logger.Impl
 
         /// <inheritdoc />
         public Task DebugAsync(
-            string message = null, 
+            string message = null,
             [CallerMemberName] string memberName = null,
             [CallerLineNumber] int? lineNumber = null,
             CancellationToken cancellationToken = default)
@@ -118,7 +127,7 @@ namespace Logger.Impl
 
         /// <inheritdoc />
         public Task FatalAsync(
-            Exception exception, 
+            Exception exception,
             string message = null,
             [CallerMemberName] string memberName = null,
             [CallerLineNumber] int? lineNumber = null,
@@ -135,7 +144,7 @@ namespace Logger.Impl
 
         /// <inheritdoc />
         public Task FatalAsync(
-            string message = null, 
+            string message = null,
             [CallerMemberName] string memberName = null,
             [CallerLineNumber] int? lineNumber = null,
             CancellationToken cancellationToken = default)
@@ -161,7 +170,7 @@ namespace Logger.Impl
 
         #endregion
 
-        #region IDisposable
+        #region Implementation of IDisposable
 
         /// <inheritdoc />
         public void Dispose()

@@ -104,7 +104,7 @@ namespace AnalyticTests
                 start = start.AddSeconds(1);
             }
 
-            var minMaxModel = MinMaxPriceModel.Create(predictedPrices);
+            var minMaxModel = MinMaxPriceModel.Create("TEST_GRAPH", predictedPrices);
             plotter.PredictedPrices = predictedPrices;
             plotter.MaxPrice = minMaxModel.MaxPrice;
             plotter.MinPrice = minMaxModel.MinPrice;

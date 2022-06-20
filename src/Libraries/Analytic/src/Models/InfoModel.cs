@@ -1,6 +1,4 @@
-﻿using Analytic.Filters;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System;
 
 namespace Analytic.Models
 {
@@ -9,6 +7,8 @@ namespace Analytic.Models
     /// </summary>
     public class InfoModel
     {
+        #region .ctors
+        
         /// <inheritdoc cref="InfoModel"/>
         public InfoModel(string name)
         {
@@ -22,6 +22,10 @@ namespace Analytic.Models
             LastPrice = lastPrice;
         }
 
+        #endregion
+
+        #region Properties
+        
         /// <summary>
         ///     Название объекта торговли
         /// </summary>
@@ -35,6 +39,7 @@ namespace Analytic.Models
         /// <summary>
         ///     Предпоследняя цена
         /// </summary>
+        [Obsolete("Не используется")]
         public double PrevPrice { get; internal set; }
 
         /// <summary>
@@ -56,5 +61,7 @@ namespace Analytic.Models
         ///     Суммарное отклонение за какое-то кол-во таймфреймов
         /// </summary>
         public double DeviationsSum { get; internal set; }
+
+        #endregion
     }
 }

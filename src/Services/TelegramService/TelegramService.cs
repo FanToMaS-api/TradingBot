@@ -63,7 +63,7 @@ namespace TelegramService
 
         #endregion
 
-        #region Public methods
+        #region Implementation ITelegramService
 
         /// <inheritdoc />
         public async Task StartAsync()
@@ -91,10 +91,32 @@ namespace TelegramService
 
         #endregion
 
-        #region Private methods
+        #region Implementation IDisposable
 
         /// <inheritdoc />
-        public async Task HandleUpdateAsync(Message message, string text, CancellationToken cancellationToken)
+        public void Dispose()
+        {
+            if (_isDisposed)
+            {
+                return;
+            }
+
+            _cancellationTokenSource?.Cancel();
+            _cancellationTokenSource.Dispose();
+            _isDisposed = true;
+        }
+
+        #endregion
+
+        #region Private methods
+
+        /// <summary>
+        ///     Обрабатывает новое сообщение
+        /// </summary>
+        /// <param name="message"> Модель сообщения из телеграмма </param>
+        /// <param name="text"> текст сообщения </param>
+        /// <param name="cancellationToken"> Токен отмены </param>
+        private async Task HandleUpdateAsync(Message message, string text, CancellationToken cancellationToken)
         {
             if (!await IsArgumentsValidAsync(message, text, cancellationToken))
             {
@@ -108,8 +130,7 @@ namespace TelegramService
             {
                 var userId = message.From.Id;
                 var chatId = message.Chat.Id;
-                _messageBuilder.Reset();
-                _messageBuilder.SetChatId(chatId);
+                _messageBuilder.Reset().SetChatId(chatId);
                 if (!await database.Users.IsExist(userId, cancellationToken))
                 {
                     await SendMessageAsync(DefaultText.WelcomeText, cancellationToken);
@@ -140,8 +161,6 @@ namespace TelegramService
                     _ => { _.UserStateType = UserStateType.BlockedBot; },
                     cancellationToken);
                 await database.SaveChangesAsync(cancellationToken);
-
-                return;
             }
             catch (Exception ex)
             {
@@ -303,7 +322,7 @@ namespace TelegramService
             user.UserState.BanReason = BanReasonType.Spam;
             try
             {
-                await SendMessageAsync($"{DefaultText.BannedAccountText}. Причина бана: спам", cancellationToken);
+                await SendMessageAsync($"{DefaultText.BannedAccountText}. Причина бана - спам", cancellationToken);
             }
             catch (Exception ex)
             {
@@ -357,19 +376,6 @@ namespace TelegramService
             }
 
             await _client.SendMessageAsync(_messageBuilder.GetResult(), cancellationToken);
-        }
-
-        /// <inheritdoc />
-        public void Dispose()
-        {
-            if (_isDisposed)
-            {
-                return;
-            }
-
-            _cancellationTokenSource?.Cancel();
-            _cancellationTokenSource.Dispose();
-            _isDisposed = true;
         }
 
         #endregion

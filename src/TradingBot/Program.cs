@@ -46,8 +46,8 @@ namespace TradingBot
             //var properties = typeof(AccountInformationModel).GetProperties();
             //foreach (var property in properties)
             //{
-            //    Console.Write($"{property.Name} {property.GetValue(info)} ");
-            //    if (property.Name == "Balances")
+            //    Console.Write($"{property.TradeObjectName} {property.GetValue(info)} ");
+            //    if (property.TradeObjectName == "Balances")
             //    {
             //        var properties1 = typeof(BalanceModel).GetProperties();
             //        foreach (var balance in info.Balances)
@@ -55,7 +55,7 @@ namespace TradingBot
             //            Console.WriteLine();
             //            foreach (var property2 in properties1)
             //            {
-            //                Console.Write($"{property2.Name} {property2.GetValue(balance)} ");
+            //                Console.Write($"{property2.TradeObjectName} {property2.GetValue(balance)} ");
             //            }
             //        }
             //    }
@@ -73,8 +73,8 @@ namespace TradingBot
             //    await telegramClient.SendMessageAsync(message, cts.Token);
 
             //    var pairs = (await binance.Marketdata.GetSymbolPriceTickerAsync(null))
-            //        .Where(_ => _.Name.Contains("USDT", StringComparison.CurrentCultureIgnoreCase))
-            //        .ToDictionary(_ => _.Name, _ => new List<double>());
+            //        .Where(_ => _.TradeObjectName.Contains("USDT", StringComparison.CurrentCultureIgnoreCase))
+            //        .ToDictionary(_ => _.TradeObjectName, _ => new List<double>());
             //    _logger.Info($"Всего пар: {pairs.Count}");
 
             //    var delay = TimeSpan.FromMinutes(1);
@@ -82,39 +82,39 @@ namespace TradingBot
             //    while (true)
             //    {
             //        var newPairs = (await binance.Marketdata.GetSymbolPriceTickerAsync(null))
-            //            .Where(_ => _.Name.Contains("USDT", StringComparison.CurrentCultureIgnoreCase))
+            //            .Where(_ => _.TradeObjectName.Contains("USDT", StringComparison.CurrentCultureIgnoreCase))
             //            .ToList();
             //        _logger.Trace("Новые данные получены");
 
             //        newPairs.ForEach(pair =>
             //        {
-            //            var pricesCount = pairs[pair.Name].Count;
+            //            var pricesCount = pairs[pair.TradeObjectName].Count;
             //            if (pricesCount == 0)
             //            {
-            //                pairs[pair.Name].Add(pair.Price);
+            //                pairs[pair.TradeObjectName].Add(pair.Price);
             //                return;
             //            }
 
-            //            var newDeviation = GetDeviation(pairs[pair.Name].Last(), pair.Price);
+            //            var newDeviation = GetDeviation(pairs[pair.TradeObjectName].Last(), pair.Price);
             //            var lastDeviation = 0d;
             //            var preLastDeviation = 0d;
             //            if (pricesCount > 1)
             //            {
-            //                lastDeviation = GetDeviation(pairs[pair.Name][pricesCount - 2], pairs[pair.Name].Last());
+            //                lastDeviation = GetDeviation(pairs[pair.TradeObjectName][pricesCount - 2], pairs[pair.TradeObjectName].Last());
             //            }
 
             //            if (pricesCount > 2)
             //            {
-            //                preLastDeviation = GetDeviation(pairs[pair.Name][pricesCount - 3], pairs[pair.Name][pricesCount - 2]);
+            //                preLastDeviation = GetDeviation(pairs[pair.TradeObjectName][pricesCount - 3], pairs[pair.TradeObjectName][pricesCount - 2]);
             //            }
 
             //            var sumDeviation = newDeviation + lastDeviation + preLastDeviation;
             //            if (newDeviation >= percent || sumDeviation >= percent)
             //            {
-            //                _logger.Warn($"Покупай {pair.Name} Новая разница {newDeviation:0.00} Разница за последние 3 таймфрейма: {sumDeviation:0.00}");
+            //                _logger.Warn($"Покупай {pair.TradeObjectName} Новая разница {newDeviation:0.00} Разница за последние 3 таймфрейма: {sumDeviation:0.00}");
             //            }
 
-            //            pairs[pair.Name].Add(pair.Price);
+            //            pairs[pair.TradeObjectName].Add(pair.Price);
             //        });
 
             //        await Task.Delay(delay);

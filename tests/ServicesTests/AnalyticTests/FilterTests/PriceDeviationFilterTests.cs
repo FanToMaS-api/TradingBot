@@ -1,18 +1,17 @@
 ﻿using Analytic.Filters;
+using Analytic.Filters.Enums;
 using Analytic.Models;
 using BinanceDatabase;
-using BinanceDatabase.Enums;
 using BinanceDatabase.Repositories;
 using BinanceDatabase.Repositories.ColdRepositories;
 using Microsoft.Extensions.DependencyInjection;
 using NSubstitute;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace AnalyticTests
+namespace AnalyticTests.FilterTests
 {
     /// <summary>
     ///     Тестирует <see cref="PriceDeviationFilter"/>
@@ -81,7 +80,7 @@ namespace AnalyticTests
         {
             var serviceScopeFactory = GetServiceScopeFactoryMock(expectedSum);
             var model = new InfoModel("Any");
-            var actualFilterResult =  await filter.CheckConditionsAsync(serviceScopeFactory, model, CancellationToken.None);
+            var actualFilterResult = await filter.CheckConditionsAsync(serviceScopeFactory, model, CancellationToken.None);
 
             Assert.Equal(expectedFilterResult, actualFilterResult);
             Assert.Equal(expectedSum, model.DeviationsSum);

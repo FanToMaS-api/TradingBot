@@ -24,12 +24,18 @@ namespace ExchangeLibrary
         ///     Возможные значения: 5, 10, 20, 50, 100, 500, 1000, 5000
         /// </param>
         /// <param name="cancellationToken"> Токен отмены </param>
-        Task<OrderBookModel> GetOrderBookAsync(string name, int limit = 100, CancellationToken cancellationToken = default);
+        Task<OrderBookModel> GetOrderBookAsync(
+            string name,
+            int limit = 100,
+            CancellationToken cancellationToken = default);
 
         /// <summary>
         ///     Возвращает последние сделки по паре
         /// </summary>
-        Task<IEnumerable<TradeModel>> GetRecentTradesAsync(string name, int limit = 500, CancellationToken cancellationToken = default);
+        Task<IEnumerable<TradeModel>> GetRecentTradesAsync(
+            string name,
+            int limit = 500,
+            CancellationToken cancellationToken = default);
 
         /// <summary>
         ///     Возвращает исторические сделки по объекту торговли
@@ -38,7 +44,11 @@ namespace ExchangeLibrary
         /// <param name="fromId"> Идентификатор сделки для получения. По умолчанию получают самые последние сделки </param>
         /// <param name="limit"> Кол-во сделок (максимум 1000, по умолчанию 500) </param>
         /// <param name="cancellationToken"> Токен отмены </param>
-        Task<IEnumerable<TradeModel>> GetOldTradesAsync(string name, long? fromId = null, int limit = 500, CancellationToken cancellationToken = default);
+        Task<IEnumerable<TradeModel>> GetOldTradesAsync(
+            string name,
+            long? fromId = null,
+            int limit = 500,
+            CancellationToken cancellationToken = default);
 
         /// <summary>
         ///     Возвращает свечи по определенному объекту торговли
@@ -60,21 +70,31 @@ namespace ExchangeLibrary
         /// <summary>
         ///     Возвращает текущую среднюю цену объекта торговли
         /// </summary>
-        Task<double> GetAveragePriceAsync(string name, CancellationToken cancellationToken = default);
+        Task<double> GetAveragePriceAsync(
+            string name,
+            CancellationToken cancellationToken = default);
 
         /// <summary>
-        ///     Возвращает 24 статистику о цене для объекта торговли или объектовр, если <code><paramref name="name" /> = null or ""</code>
+        ///     Возвращает 24 статистику о цене для объекта торговли или объектов,
+        ///     если <code><paramref name="name" /> = <see langword="null"/> or <see langword="''"/></code>
         /// </summary>
-        Task<IEnumerable<DayPriceChangeModel>> GetDayPriceChangeAsync(string name, CancellationToken cancellationToken = default);
+        Task<IEnumerable<DayPriceChangeModel>> GetDayPriceChangeAsync(
+            string name,
+            CancellationToken cancellationToken = default);
 
         /// <summary>
-        ///     Возвращает последнюю цену для пары или для всех объектов торговли, если <code><paramref name="name" /> = null or ""</code>
+        ///     Возвращает последнюю цену для пары или для всех объектов торговли,
+        ///     если <code><paramref name="name" /> = <see langword="null"/> or <see langword="''"/></code>
         /// </summary>
-        Task<IEnumerable<TradeObjectNamePriceModel>> GetSymbolPriceTickerAsync(string name, CancellationToken cancellationToken = default);
+        Task<IEnumerable<TradeObjectNamePriceModel>> GetSymbolPriceTickerAsync(
+            string name,
+            CancellationToken cancellationToken = default);
 
         /// <summary>
         ///     Возвращает лучшую цену/количество в стакане для объекта торговли или объектов
         /// </summary>
-        Task<IEnumerable<BestSymbolOrderModel>> GetBestSymbolOrdersAsync(string name, CancellationToken cancellationToken = default);
+        Task<IEnumerable<BestSymbolOrderModel>> GetBestSymbolOrdersAsync(
+            string name,
+            CancellationToken cancellationToken = default);
     }
 }

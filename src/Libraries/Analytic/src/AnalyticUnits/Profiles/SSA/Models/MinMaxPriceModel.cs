@@ -14,22 +14,24 @@ namespace Analytic.AnalyticUnits.Profiles.SSA.Models
         ///     Создает модель
         /// </summary>
         /// <param name="predictions"> Предсказанные значения </param>
-        public static MinMaxPriceModel Create(double[] predictions)
+        public static MinMaxPriceModel Create(string tradeObjectName, double[] predictions)
         {
             var minPrice = predictions.Min();
             var minIndex = Array.IndexOf(predictions, minPrice);
             var maxPrice = predictions.Max();
             var maxIndex = Array.IndexOf(predictions, maxPrice);
 
-            return new MinMaxPriceModel(minPrice, minIndex, maxPrice, maxIndex);
-        }
+            var model = new MinMaxPriceModel
+            {
+                PredictedPrices = predictions,
+                TradeObjectName = tradeObjectName,
+                MinPrice = minPrice,
+                MinIndex = minIndex,
+                MaxPrice = maxPrice,
+                MaxIndex = maxIndex,
+            };
 
-        private MinMaxPriceModel(double minPrice, int minIndex, double maxPrice, int maxIndex)
-        {
-            MinPrice = minPrice;
-            MinIndex = minIndex;
-            MaxPrice = maxPrice;
-            MaxIndex = maxIndex;
+            return model;
         }
 
         #endregion
@@ -37,24 +39,34 @@ namespace Analytic.AnalyticUnits.Profiles.SSA.Models
         #region Properties
 
         /// <summary>
+        ///     Название пары
+        /// </summary>
+        public string TradeObjectName { get; init; }
+
+        /// <summary>
+        ///     Спрогнозированная цена
+        /// </summary>
+        public double[] PredictedPrices { get; init; }
+
+        /// <summary>
         ///     Минимальная цена предсказания
         /// </summary>
-        public double MinPrice { get; }
+        public double MinPrice { get; init; }
 
         /// <summary>
         ///     Позиция минимальной цены в массиве предсказаний
         /// </summary>
-        public int MinIndex { get; }
+        public int MinIndex { get; init; }
 
         /// <summary>
         ///     Максимальная цена предсказания
         /// </summary>
-        public double MaxPrice { get; }
+        public double MaxPrice { get; init; }
 
         /// <summary>
         ///     Позиция максимальной цены в массиве предсказаний
         /// </summary>
-        public int MaxIndex { get; }
+        public int MaxIndex { get; init; }
 
         #endregion
     }

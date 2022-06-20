@@ -11,7 +11,7 @@ namespace DataServiceLibrary
         /// <summary>
         ///     Обработчик данных
         /// </summary>
-        public IDataHandler DataHandler { get; }
+        IDataHandler DataHandler { get; }
 
         /// <summary>
         ///     Запускает сервис по приему и обработке данных
