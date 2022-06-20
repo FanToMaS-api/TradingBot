@@ -18,11 +18,19 @@ namespace Analytic.Filters.Builders.FilterGroupBuilders
 
         #endregion
 
-        #region Implementation of FilterManagerBuilder
-        #endregion
-
         #region Public methods
 
+        /// <summary>
+        ///     Установить название группе фильтров
+        /// </summary>
+        /// <param name="filterGroupName"> Название группы фильтров </param>
+        public FilterGroupBuilder SetFilterGroupName(string filterGroupName)
+        {
+            _filterGroupName = filterGroupName;
+
+            return this;
+        }
+        
         /// <summary>
         ///     Добавить фильтр к группе
         /// </summary>
@@ -41,19 +49,6 @@ namespace Analytic.Filters.Builders.FilterGroupBuilders
         public FilterGroupBuilder RemoveFilter(IFilter filter)
         {
             _filters.Remove(filter);
-
-            return this;
-        }
-
-        /// <summary>
-        ///     Сбрасывает настройки группы фильтров
-        /// </summary>
-        public FilterGroupBuilder Reset()
-        {
-            _targetTradeObjectName = string.Empty;
-            _filterGroupName = string.Empty;
-            _filterGroupType = null;
-            _filters.Clear();
 
             return this;
         }
@@ -84,12 +79,14 @@ namespace Analytic.Filters.Builders.FilterGroupBuilders
         }
 
         /// <summary>
-        ///     Установить название группе фильтров
+        ///     Сбрасывает настройки группы фильтров
         /// </summary>
-        /// <param name="filterGroupName"> Название группы фильтров </param>
-        public FilterGroupBuilder SetFilterGroupName(string filterGroupName)
+        public FilterGroupBuilder Reset()
         {
-            _filterGroupName = filterGroupName;
+            _targetTradeObjectName = string.Empty;
+            _filterGroupName = string.Empty;
+            _filterGroupType = null;
+            _filters.Clear();
 
             return this;
         }

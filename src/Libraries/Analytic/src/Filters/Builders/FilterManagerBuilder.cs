@@ -27,16 +27,6 @@ namespace Analytic.Filters.Builders
         #region Public methods
 
         /// <summary>
-        ///     Сбрасывает настройки групп
-        /// </summary>
-        public FilterManagerBuilder Reset()
-        {
-            _filterGroups.Clear();
-            
-            return this;
-        }
-
-        /// <summary>
         ///     Добавляет группу фильтров
         /// </summary>
         public FilterManagerBuilder AddFilterGroup(IFilterGroup group)
@@ -45,7 +35,26 @@ namespace Analytic.Filters.Builders
 
             return this;
         }
-           
+
+        /// <summary>
+        ///     Удаляет группу фильтров
+        /// </summary>
+        public FilterManagerBuilder RemoveFilterGroup(IFilterGroup group)
+        {
+            _filterGroups.Remove(group);
+
+            return this;
+        }
+        
+        /// <summary>
+        ///     Сбрасывает настройки групп
+        /// </summary>
+        public FilterManagerBuilder Reset()
+        {
+            _filterGroups.Clear();
+            
+            return this;
+        }
 
         /// <summary>
         ///     Получить результат работы строителя

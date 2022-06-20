@@ -58,12 +58,7 @@ namespace Analytic.Filters.FilterGroup.Impl
         /// <inheritdoc />
         public FilterGroupType Type { get; }
 
-        /// <summary>
-        ///     Название объекта торговли
-        /// </summary>
-        /// <remarks>
-        ///     <see langword="null"/> - для фильтрации всех
-        /// </remarks>
+        /// <inheritdoc />
         public string TargetTradeObjectName { get; }
 
         #endregion

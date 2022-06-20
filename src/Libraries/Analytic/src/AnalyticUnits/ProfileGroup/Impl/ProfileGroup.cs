@@ -57,9 +57,8 @@ namespace Analytic.AnalyticUnits.ProfileGroup.Impl
             CancellationToken cancellationToken)
         {
             AnalyticResultModel analyticResultModel = null;
-
             var count = 0;
-            var isOneSuccessful = false;
+            var isFirstSuccessful = false;
             foreach (var analyticProfile in AnalyticProfiles)
             {
                 try
@@ -73,11 +72,11 @@ namespace Analytic.AnalyticUnits.ProfileGroup.Impl
                         continue;
                     }
 
-                    // если мы тут, значит анализ прошел впервые успешно
-                    if (!isOneSuccessful)
+                    // если мы тут, значит анализ прошел успешно
+                    if (!isFirstSuccessful)
                     {
                         analyticResultModel = resultModel;
-                        isOneSuccessful = true;
+                        isFirstSuccessful = true;
                         count++;
                         continue;
                     }
@@ -96,13 +95,13 @@ namespace Analytic.AnalyticUnits.ProfileGroup.Impl
             }
 
             // TODO: Усреднять через список полученных моделей
-            if (isOneSuccessful)
+            if (isFirstSuccessful)
             {
                 analyticResultModel.RecommendedPurchasePrice /= count == 0 ? 1 : count;
                 analyticResultModel.RecommendedSellingPrice /= count == 0 ? 1 : count;
             }
 
-            return (isOneSuccessful, analyticResultModel);
+            return (isFirstSuccessful, analyticResultModel);
         }
 
         /// <inheritdoc />

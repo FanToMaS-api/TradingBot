@@ -28,6 +28,14 @@ namespace Analytic.Filters
         FilterGroupType Type { get; }
 
         /// <summary>
+        ///     Название объекта торговли
+        /// </summary>
+        /// <remarks>
+        ///     <see langword="null"/> - для фильтрации всех
+        /// </remarks>
+        public string TargetTradeObjectName { get; }
+
+        /// <summary>
         ///     Проверяет модель на соответствие условиям
         /// </summary>
         Task<bool> CheckConditionsAsync(IServiceScopeFactory serviceScopeFactory, InfoModel model, CancellationToken cancellationToken);
