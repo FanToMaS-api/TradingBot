@@ -16,7 +16,7 @@ jobs:
       with:
         dotnet-version: 5.0.x
     - name: Install dotnet-coverage
-      shell: powershell
+      shell: bash
       run: |
         dotnet tool install --global dotnet-coverage
         
@@ -27,7 +27,7 @@ jobs:
       run: dotnet build --no-restore TradingBot.sln
 
     - name: Test and collect
-      shell: powershell
+      shell: bash
       run: |
        dotnet-coverage collect 'dotnet test --no-build --logger trx TradingBot.sln' -f xml -o 'coverage.xml'
 

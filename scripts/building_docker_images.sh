@@ -1,11 +1,11 @@
 #!/bin/bash
 
-timestamp= $(date -d)
-echo Start building images. Time: $(timestamp)
+timestamp= $(date)
+echo Start building images. Time: $timestamp
 
 docker-compose build --force-rm
 
-newTimestamp = $(date -d)
+newTimestamp = $(date)
 echo End building images. Elapsed time: $(newTimestamp - timestamp)
 
 docker system prune -f
