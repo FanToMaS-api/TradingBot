@@ -22,6 +22,20 @@ jobs:
     - name: Build
       run: dotnet build --no-restore TradingBot.sln
 
-    - name: Test with dotnet
-      run: dotnet test --logger trx TradingBot.sln
-      
+    - name: Install dotnet-coverage
+      run: |
+        dotnet tool install --global dotnet-coverage
+
+    - name: Test and collect
+        run: |
+          dotnet-coverage collect 'dotnet test --logger trx TradingBot.sln' -f xml -o 'coverage.xml'
+
+    - name: Upload coverage reports to Codecov with GitHub Action
+      uses: codecov/codecov-action@v3
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }} # not required for public repos
+        files: ./coverage.xml
+        flags: unittests # optional
+        name: codecov-umbrella # optional
+        fail_ci_if_error: true # optional (default = false)
+        verbose: true # optional (default = false)
