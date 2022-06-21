@@ -20,7 +20,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\src\Libraries\Telegram\Telegram.csproj" />
+    <ProjectReference Include="..\..\src\Libraries\Telegram\Telegram.csproj" />
   </ItemGroup>
 
   <ItemGroup>

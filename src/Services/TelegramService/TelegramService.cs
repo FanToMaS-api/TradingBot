@@ -11,6 +11,7 @@ using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using Telegram.Builder;
 using Telegram.Client;
+using Telegram.Models;
 using TelegramService.Configuration;
 using TelegramServiceDatabase;
 using TelegramServiceDatabase.Entities;
@@ -34,10 +35,11 @@ namespace TelegramService
         /// </summary>
         public const int LimitWarningNumber = 10;
 
+        internal readonly TelegramMessageBuilder _messageBuilder = new();
         private readonly ILoggerDecorator _log;
         private readonly ITelegramClient _client;
         private readonly IServiceScopeFactory _serviceScopeFactory;
-        private readonly TelegramMessageBuilder _messageBuilder = new();
+        private readonly object _lockObject = new();
         private readonly SsaAnalyticPofile _ssaAnalyticPofile;
         private readonly TelegramServiceConfig _configuration;
         private bool _isDisposed;
@@ -63,7 +65,7 @@ namespace TelegramService
 
         #endregion
 
-        #region Implementation ITelegramService
+        #region Implementation of ITelegramService
 
         /// <inheritdoc />
         public async Task StartAsync()
@@ -130,7 +132,11 @@ namespace TelegramService
             {
                 var userId = message.From.Id;
                 var chatId = message.Chat.Id;
-                _messageBuilder.Reset().SetChatId(chatId);
+                lock (_lockObject)
+                {
+                    _messageBuilder.Reset().SetChatId(chatId);
+                }
+
                 if (!await database.Users.IsExist(userId, cancellationToken))
                 {
                     await SendMessageAsync(DefaultText.WelcomeText, cancellationToken);
@@ -186,7 +192,7 @@ namespace TelegramService
         /// <summary>
         ///     Проверяет валидность входящих агрументов
         /// </summary>
-        private async Task<bool> IsArgumentsValidAsync(Message message, string text, CancellationToken cancellationToken)
+        internal async Task<bool> IsArgumentsValidAsync(Message message, string text, CancellationToken cancellationToken)
         {
             if (message is null)
             {
@@ -260,14 +266,15 @@ namespace TelegramService
                     await BanUserAsync(user, cancellationToken);
                 }
 
-                UpdateUserLastAction(user);
+                user.UpdateLastAction();
                 await database.SaveChangesAsync(cancellationToken);
                 return false;
             }
             else
             {
-                UnbanUser(user);
-                UpdateUserLastAction(user);
+                user.Unban();
+                user.UserState.ResetWarningNumbers();
+                user.UpdateLastAction();
                 await database.SaveChangesAsync(cancellationToken);
             }
 
@@ -283,22 +290,15 @@ namespace TelegramService
         /// <summary>
         ///     Проверка является ли пользователь спаммером
         /// </summary>
-        private static bool IsSpammer(UserEntity user)
+        internal static bool IsSpammer(UserEntity user)
             => DateTime.Now - user.LastAction < TimeToDefineSpam;
-
-        /// <summary>
-        ///     Обновляет дату последнего действия пользователя
-        /// </summary>
-        /// <param name="user"> Пользователь </param>
-        private static void UpdateUserLastAction(UserEntity user)
-            => user.LastAction = DateTime.Now;
 
         /// <summary>
         ///     Предупреждает пользователя о спаме
         /// </summary>
         private async Task WarnAboutSpamAsync(UserEntity userEntity, CancellationToken cancellationToken)
         {
-            userEntity.UserState.WarningNumber++;
+            userEntity.UserState.IncrementWarningNumbers();
             var remainingWarnings = LimitWarningNumber - userEntity.UserState.WarningNumber;
             try
             {
@@ -318,8 +318,7 @@ namespace TelegramService
         /// <param name="user"> Пользователь, который будет забанен </param>
         private async Task BanUserAsync(UserEntity user, CancellationToken cancellationToken)
         {
-            user.UserState.UserStateType = UserStateType.Banned;
-            user.UserState.BanReason = BanReasonType.Spam;
+            user.Ban(BanReasonType.Spam);
             try
             {
                 await SendMessageAsync($"{DefaultText.BannedAccountText}. Причина бана - спам", cancellationToken);
@@ -331,29 +330,24 @@ namespace TelegramService
         }
 
         /// <summary>
-        ///     Убирает все предупреждения с пользователя
-        /// </summary>
-        /// <param name="user"> Пользователь </param>
-        private void UnbanUser(UserEntity user)
-        {
-            user.UserState.UserStateType = UserStateType.Active;
-            user.UserState.BanReason = BanReasonType.NotBanned;
-            user.UserState.WarningNumber = 0;
-        }
-
-        /// <summary>
         ///     Отправляет сообщение пользователю
         /// </summary>
-        private async Task SendMessageAsync(string text, CancellationToken cancellationToken)
+        internal async Task SendMessageAsync(string text, CancellationToken cancellationToken)
         {
-            _messageBuilder.SetMessageText(text);
-            await _client.SendMessageAsync(_messageBuilder.GetResult(), cancellationToken);
+            TelegramMessageModel messageModel;
+            lock (_lockObject)
+            {
+                _messageBuilder.SetMessageText(text);
+                messageModel = _messageBuilder.GetResult();
+            }
+
+            await _client.SendMessageAsync(messageModel, cancellationToken);
         }
 
         /// <summary>
         ///     Проверяет заблокировал ли пользователь бота
         /// </summary>
-        private static bool IsUserBlockedBot(ApiRequestException ex) => ex.Message == "Forbidden: bot was blocked by the user";
+        internal static bool IsUserBlockedBot(ApiRequestException ex) => ex.Message == "Forbidden: bot was blocked by the user";
 
         /// <summary>
         ///     Отправляет прогноз пользователю
@@ -369,13 +363,19 @@ namespace TelegramService
                 forecastingMessage += $"\n*Максимальная цена прогноза: {resultModel.RecommendedSellingPrice.Value:0.00000}*";
             }
 
-            _messageBuilder.SetMessageText(forecastingMessage);
-            if (resultModel.HasPredictionImage)
+            TelegramMessageModel messageModel;
+            lock (_lockObject)
             {
-                _messageBuilder.SetImage(resultModel.ImagePath);
+                _messageBuilder.SetMessageText(forecastingMessage);
+                if (resultModel.HasPredictionImage)
+                {
+                    _messageBuilder.SetImage(resultModel.ImagePath);
+                }
+
+                messageModel = _messageBuilder.GetResult();
             }
 
-            await _client.SendMessageAsync(_messageBuilder.GetResult(), cancellationToken);
+            await _client.SendMessageAsync(messageModel, cancellationToken);
         }
 
         #endregion

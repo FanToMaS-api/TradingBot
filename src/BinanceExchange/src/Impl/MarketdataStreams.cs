@@ -3,13 +3,12 @@ using BinanceExchange.Enums;
 using BinanceExchange.Enums.Helper;
 using BinanceExchange.JsonConverters;
 using BinanceExchange.Models;
-using BinanceExchange.WebSocket;
 using BinanceExchange.WebSocket.Marketdata;
 using Common.JsonConvertWrapper;
 using Common.JsonConvertWrapper.Converters;
 using Common.WebSocket;
 using ExchangeLibrary;
-using NLog;
+using Logger;
 using System;
 using System.Collections.Generic;
 using System.Threading;
@@ -22,7 +21,7 @@ namespace BinanceExchange.Impl
     {
         #region Fields
 
-        private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
+        private readonly ILoggerDecorator _logger;
         private readonly IMapper _mapper;
         private readonly JsonDeserializerWrapper _converter = GetConverter();
 
@@ -31,11 +30,15 @@ namespace BinanceExchange.Impl
         #region .ctor
 
         /// <inheritdoc cref="MarketdataStreams"/>
-        public MarketdataStreams(IMapper mapper) => _mapper = mapper;
+        public MarketdataStreams(IMapper mapper, ILoggerDecorator logger)
+        {
+            _mapper = mapper;
+            _logger = logger;
+        }
 
         #endregion
 
-        #region Marketdata Streams
+        #region Implementation of IMarketdataStreams
 
         /// <inheritdoc />
         /// <remarks>
@@ -60,8 +63,7 @@ namespace BinanceExchange.Impl
                        MarketdataStreamType.IndividualSymbolMiniTickerStream => _converter.Deserialize<MiniTickerStreamModel>(content),
                        MarketdataStreamType.TradeStream => _converter.Deserialize<SymbolTradeStreamModel>(content),
                        MarketdataStreamType.IndividualSymbolTickerStream => _converter.Deserialize<TickerStreamModel>(content),
-                       _ => throw new InvalidOperationException($"Unknown Marketdata Stream Type {streamType}. " +
-                       "Failed to deserialize content")
+                       _ => throw new InvalidOperationException($"Unknown Marketdata Stream Type: {streamType}. Failed to deserialize content")
                    };
 
                    var neededModel = _mapper.Map<T>(model);
@@ -96,7 +98,7 @@ namespace BinanceExchange.Impl
                    }
                    catch (Exception ex)
                    {
-                       Logger.Warn(ex, $"Failed to recieve {nameof(Common.Models.TradeObjectStreamModel)}");
+                       await _logger.ErrorAsync(ex, $"Failed to recieve {nameof(Common.Models.TradeObjectStreamModel)}");
                    }
                },
                cancellationToken);
@@ -125,7 +127,7 @@ namespace BinanceExchange.Impl
                    }
                    catch (Exception ex)
                    {
-                       Logger.Warn(ex, $"Failed to recieve {nameof(Common.Models.TradeObjectStreamModel)}");
+                       await _logger.ErrorAsync(ex, $"Failed to recieve {nameof(Common.Models.TradeObjectStreamModel)}");
                    }
                },
                cancellationToken);
@@ -154,7 +156,7 @@ namespace BinanceExchange.Impl
                    }
                    catch (Exception ex)
                    {
-                       Logger.Warn(ex, $"Failed to recieve {nameof(Models.BookTickerStreamModel)}");
+                       await _logger.ErrorAsync(ex, $"Failed to recieve {nameof(BookTickerStreamModel)}");
                    }
                },
                cancellationToken);

@@ -1,8 +1,10 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Threading;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Newtonsoft.Json.Bson;
 using TelegramServiceDatabase.Types;
 
 namespace TelegramServiceDatabase.Entities
@@ -13,6 +15,12 @@ namespace TelegramServiceDatabase.Entities
     [Table("users_state")]
     public class UserStateEntity
     {
+        #region Fields
+
+        private int _warningNumber;
+
+        #endregion
+
         #region Properties
 
         /// <summary>
@@ -48,7 +56,47 @@ namespace TelegramServiceDatabase.Entities
         ///     Кол-во предупреждений полученных пользователем
         /// </summary>
         [Column("warning_number")]
-        public int WarningNumber { get; set; }
+        public int WarningNumber { get => _warningNumber; internal set => _warningNumber = value; }
+
+        #endregion
+
+        #region Public methods
+
+        /// <summary>
+        ///     Потокобезопасно увеличить кол-во предупреждений
+        /// </summary>
+        public void IncrementWarningNumbers()
+        {
+            Interlocked.Increment(ref _warningNumber);
+        }
+
+        /// <summary>
+        ///     Потокобезопасно сбросить кол-во предупреждений
+        /// </summary>
+        public void ResetWarningNumbers()
+        {
+            // вычитаем его самого
+            _warningNumber = Interlocked.Add(ref _warningNumber, -_warningNumber);
+        }
+
+        /// <summary>
+        ///     Банит пользователя
+        /// </summary>
+        /// <param name="banReason"> Причина бана </param>
+        internal void Ban(BanReasonType banReason)
+        {
+            UserStateType = UserStateType.Banned;
+            BanReason = banReason;
+        }
+
+        /// <summary>
+        ///     Убирает все предупреждения с пользователя
+        /// </summary>
+        internal void Unban()
+        {
+            UserStateType = UserStateType.Active;
+            BanReason = BanReasonType.NotBanned;
+        }
 
         #endregion
 
