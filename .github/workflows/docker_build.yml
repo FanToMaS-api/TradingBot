@@ -3,9 +3,9 @@ name: Docker Build
 on: push
 
 jobs:
-  docker:
+  build:
     runs-on: ubuntu-latest
-      steps:
-        - uses: actions/checkout@v3
-          - name: Building images
-            run: chmod +x .github/scripts/building_docker_images.sh; ./.github/scripts/building_docker_images.sh
+    steps:
+      - uses: actions/checkout@v3
+      - name: Building images
+        run: chmod +x scripts/building_docker_images.sh; ./scripts/building_docker_images.sh
