@@ -43,7 +43,7 @@ namespace BinanceExchange.WebSocket
 
         /// <inheritdoc />
         public Action StreamStarted { get; set; }
-        
+
         /// <inheritdoc />
         public Action StreamClosed { get; set; }
 

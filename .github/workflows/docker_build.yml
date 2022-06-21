@@ -1,6 +1,8 @@
 name: Docker Build
 
-on: push
+on: 
+  repository_dispatch:
+    types: [Docker Build]
 
 jobs:
   build:

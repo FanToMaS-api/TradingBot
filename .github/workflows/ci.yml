@@ -40,3 +40,12 @@ jobs:
         name: codecov-umbrella # optional
         fail_ci_if_error: true # optional (default = false)
         verbose: true # optional (default = false)
+
+    - name: Trigger next workflow
+      if: success()
+      uses: peter-evans/repository-dispatch@v1
+      with:
+          token: ${{ secrets.REPO_GHA_PAT }}
+          repository: ${{ github.repository }}
+          event-type: Docker Build
+          client-payload: '{"ref": "${{ github.ref }}", "sha": "${{ github.sha }}"}'
