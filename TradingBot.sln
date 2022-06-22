@@ -57,7 +57,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AnalyticTests", "tests\Serv
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ExtensionsLibrary", "src\Libraries\ExtensionsLibrary\ExtensionsLibrary.csproj", "{D2844B35-C792-4E37-B00F-973873DFB2C3}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TelegramService", "src\Services\TelegramService\TelegramService.csproj", "{CB5EB234-A967-42C3-A5ED-CA8DFC65B48C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TelegramServiceWeb", "src\Services\TelegramServiceWeb\TelegramServiceWeb.csproj", "{CB5EB234-A967-42C3-A5ED-CA8DFC65B48C}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TelegramServiceDatabase", "src\Databases\TelegramServiceDatabase\TelegramServiceDatabase.csproj", "{871C975E-2060-44EE-99C6-3A913F6C2B52}"
 EndProject

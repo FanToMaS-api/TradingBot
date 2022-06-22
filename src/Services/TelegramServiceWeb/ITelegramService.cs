@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 
-namespace TelegramService
+namespace TelegramServiceWeb
 {
     /// <summary>
     ///     Сервис для работы с пользователями в телеграмме

@@ -8,10 +8,10 @@ using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using TelegramService.Configuration;
 using TelegramServiceDatabase;
+using TelegramServiceWeb.Configuration;
 
-namespace TelegramService
+namespace TelegramServiceWeb
 {
     public class Startup
     {
