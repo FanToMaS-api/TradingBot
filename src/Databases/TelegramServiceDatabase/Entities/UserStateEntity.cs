@@ -43,8 +43,8 @@ namespace TelegramServiceDatabase.Entities
         /// <summary>
         ///     Текущее состояние пользователя
         /// </summary>
-        [Column("state_type")]
-        public UserStateType UserStateType { get; set; }
+        [Column("status")]
+        public UserStatusType Status { get; set; }
 
         /// <summary>
         ///     Причина бана
@@ -85,16 +85,16 @@ namespace TelegramServiceDatabase.Entities
         /// <param name="banReason"> Причина бана </param>
         internal void Ban(BanReasonType banReason)
         {
-            UserStateType = UserStateType.Banned;
+            Status = UserStatusType.Banned;
             BanReason = banReason;
         }
 
         /// <summary>
-        ///     Убирает все предупреждения с пользователя
+        ///     Убирает пользователя из бана
         /// </summary>
         internal void Unban()
         {
-            UserStateType = UserStateType.Active;
+            Status = UserStatusType.Active;
             BanReason = BanReasonType.NotBanned;
         }
 
@@ -120,16 +120,16 @@ namespace TelegramServiceDatabase.Entities
             // Индексы
             builder.HasIndex(_ => _.UserId).IsUnique().HasDatabaseName("IX_users_state_user_id");
             builder.HasIndex(_ => _.Id).IsUnique().HasDatabaseName("IX_users_state_id");
-            builder.HasIndex(_ => _.UserStateType).HasDatabaseName("IX_users_state_state_type");
+            builder.HasIndex(_ => _.Status).HasDatabaseName("IX_users_state_status");
             builder.HasIndex(_ => _.BanReason).HasDatabaseName("IX_users_state_ban_reason");
             builder.HasIndex(_ => _.WarningNumber).HasDatabaseName("IX_users_state_warning_number");
 
             // конвертеры
             builder
-                .Property(_ => _.UserStateType)
+                .Property(_ => _.Status)
                 .HasConversion(
                     v => v.ToString(),
-                    v => string.IsNullOrEmpty(v) ? UserStateType.Active : (UserStateType)Enum.Parse(typeof(UserStateType), v));
+                    v => string.IsNullOrEmpty(v) ? UserStatusType.Active : (UserStatusType)Enum.Parse(typeof(UserStatusType), v));
 
             builder
                 .Property(_ => _.BanReason)

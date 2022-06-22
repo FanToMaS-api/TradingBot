@@ -1,8 +1,8 @@
-name: Docker Build
+name: Docker_Build
 
 on: 
   repository_dispatch:
-    types: [Docker Build]
+    types: [Docker_Build]
 
 jobs:
   build:

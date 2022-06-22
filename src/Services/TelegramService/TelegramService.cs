@@ -164,7 +164,7 @@ namespace TelegramService
 
                 await database.UserStates.UpdateAsync(
                     user.UserState.Id,
-                    _ => { _.UserStateType = UserStateType.BlockedBot; },
+                    _ => { _.Status = UserStatusType.BlockedBot; },
                     cancellationToken);
                 await database.SaveChangesAsync(cancellationToken);
             }
@@ -184,7 +184,7 @@ namespace TelegramService
                 user.UserState = new UserStateEntity
                 {
                     UserId = user.TelegramId,
-                    UserStateType = UserStateType.Active,
+                    Status = UserStatusType.Active,
                 };
             }
         }
@@ -220,16 +220,12 @@ namespace TelegramService
             Message message,
             CancellationToken cancellationToken)
         {
-            if (!await IsUserValidAsync(database, message, cancellationToken))
+            if (!await CanUserGetForecastAsync(database, message, cancellationToken))
             {
                 return;
             }
 
-            var pairName = message.Text
-                .Replace(" ", "")
-                .Replace("/", "")
-                .Replace("\\", "")
-                .ToUpper();
+            var pairName = ConvertUserMessageToPairName(message.Text);
             var infoModel = new InfoModel(pairName);
             var (isSuccessfulAnalyze, resultModel) =
                 await _ssaAnalyticPofile.TryAnalyzeAsync(_serviceScopeFactory, infoModel, cancellationToken);
@@ -248,11 +244,11 @@ namespace TelegramService
         /// <param name="database"> База данных </param>
         /// <param name="message"> Модель сообщения телеграмма </param>
         /// <param name="cancellationToken"> Токен отмены </param>
-        private async Task<bool> IsUserValidAsync(ITelegramDbUnitOfWork database, Message message, CancellationToken cancellationToken)
+        internal async Task<bool> CanUserGetForecastAsync(ITelegramDbUnitOfWork database, Message message, CancellationToken cancellationToken)
         {
             var userId = message.From.Id;
             var user = await database.Users.GetAsync(userId, cancellationToken);
-            if (user.UserState.UserStateType == UserStateType.Banned)
+            if (user.UserState.Status == UserStatusType.Banned)
             {
                 await SendMessageAsync(DefaultText.BannedAccountText, cancellationToken);
                 return false;
@@ -263,7 +259,7 @@ namespace TelegramService
                 await WarnAboutSpamAsync(user, cancellationToken);
                 if (LimitWarningNumber - user.UserState.WarningNumber <= 0)
                 {
-                    await BanUserAsync(user, cancellationToken);
+                    await BanUserForSpamAsync(user, cancellationToken);
                 }
 
                 user.UpdateLastAction();
@@ -272,7 +268,6 @@ namespace TelegramService
             }
             else
             {
-                user.Unban();
                 user.UserState.ResetWarningNumbers();
                 user.UpdateLastAction();
                 await database.SaveChangesAsync(cancellationToken);
@@ -285,6 +280,25 @@ namespace TelegramService
             }
 
             return true;
+        }
+
+        /// <summary>
+        ///     Преобразует сообщение пользователя в название пары
+        /// </summary>
+        /// <param name="text"> Сообщение пользователя  </param>
+        /// <returns>
+        ///     Название пары
+        /// </returns>
+        internal string ConvertUserMessageToPairName(string text)
+        {
+            var pairName = text
+                .Replace(" ", "")
+                .Replace("/", "")
+                .Replace("\\", "")
+                .Replace("-", "")
+                .ToUpper();
+
+            return pairName;
         }
 
         /// <summary>
@@ -313,10 +327,10 @@ namespace TelegramService
         }
 
         /// <summary>
-        ///     Банит пользователя
+        ///     Банит пользователя за спам
         /// </summary>
         /// <param name="user"> Пользователь, который будет забанен </param>
-        private async Task BanUserAsync(UserEntity user, CancellationToken cancellationToken)
+        private async Task BanUserForSpamAsync(UserEntity user, CancellationToken cancellationToken)
         {
             user.Ban(BanReasonType.Spam);
             try

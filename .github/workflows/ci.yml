@@ -47,5 +47,5 @@ jobs:
       with:
           token: ${{ secrets.REPO_GHA_PAT }}
           repository: ${{ github.repository }}
-          event-type: Docker Build
+          event-type: Docker_Build
           client-payload: '{"ref": "${{ github.ref }}", "sha": "${{ github.sha }}"}'

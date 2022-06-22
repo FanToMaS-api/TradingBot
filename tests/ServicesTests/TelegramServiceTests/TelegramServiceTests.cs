@@ -1,3 +1,4 @@
+using BinanceDatabase.Repositories;
 using Logger;
 using Microsoft.Extensions.DependencyInjection;
 using NSubstitute;
@@ -5,9 +6,12 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Telegram.Bot.Exceptions;
+using Telegram.Bot.Types;
 using Telegram.Client;
 using TelegramService.Configuration;
 using TelegramServiceDatabase.Entities;
+using TelegramServiceDatabase.Repositories;
+using TelegramServiceDatabase.Types;
 using Xunit;
 
 namespace TelegramServiceTests
@@ -19,6 +23,10 @@ namespace TelegramServiceTests
     {
         #region Fields
 
+        private static readonly ILoggerDecorator Logger = LoggerManager.CreateDefaultLogger();
+        private readonly TelegramServiceConfig _config = new();
+        private readonly ITelegramClient _client;
+        private readonly IServiceScopeFactory _serviceScopeFactory;
         private readonly TelegramService.TelegramService _telegramService;
 
         #endregion
@@ -27,16 +35,14 @@ namespace TelegramServiceTests
 
         public TelegramServiceTests()
         {
-            var config = new TelegramServiceConfig();
-            var serviceScopeFactory = Substitute.For<IServiceScopeFactory>();
-            var client = Substitute.For<ITelegramClient>();
-            var logger = LoggerManager.CreateDefaultLogger();
+            _serviceScopeFactory = Substitute.For<IServiceScopeFactory>();
+            _client = Substitute.For<ITelegramClient>();
 
             _telegramService = new TelegramService.TelegramService(
-                config,
-                serviceScopeFactory,
-                client,
-                logger);
+                _config,
+                _serviceScopeFactory,
+                _client,
+                Logger);
         }
 
         #endregion
@@ -84,7 +90,7 @@ namespace TelegramServiceTests
         /// <summary>
         ///     “ест определени€ спаммер ли пользователь
         /// </summary>
-        [Fact(DisplayName = "Is user spammer Test")]
+        [Fact(DisplayName = "Is user spammerThatShouldBeBanned Test")]
         public void IsSpammer_Test()
         {
             var user = new UserEntity
@@ -101,6 +107,104 @@ namespace TelegramServiceTests
 
             user.LastAction = DateTime.Now.Subtract(TimeSpan.FromSeconds(61));
             Assert.False(TelegramService.TelegramService.IsSpammer(user));
+        }
+
+        /// <summary>
+        ///     “ест может ли пользователь получать прогнозы
+        /// </summary>
+        [Fact(DisplayName = "Can user get forecast Test")]
+        public async Task CanUserGetForecastAsync_Test()
+        {
+            var userId = 1;
+            var message = new Message
+            {
+                From = new User
+                {
+                    Id = userId
+                }
+            };
+            var bannedUser = new UserEntity
+            {
+                UserState = new UserStateEntity
+                {
+                    Status = UserStatusType.Banned
+                }
+            };
+
+            var userRepositoryMock = Substitute.For<IUserRepository>();
+            var databaseMock = Substitute.For<ITelegramDbUnitOfWork>();
+            databaseMock.Users.Returns(userRepositoryMock);
+            databaseMock.SaveChangesAsync().ReturnsForAnyArgs(Task.CompletedTask);
+
+            userRepositoryMock.GetAsync(userId, Arg.Any<CancellationToken>()).Returns(bannedUser);
+            Assert.False(await _telegramService.CanUserGetForecastAsync(databaseMock, message, CancellationToken.None));
+
+            var spammerThatShouldBeBanned = new UserEntity
+            {
+                LastAction = DateTime.Now,
+                UserState = new()
+                {
+                    WarningNumber = 10
+                }
+            };
+            userRepositoryMock.GetAsync(userId, Arg.Any<CancellationToken>()).Returns(spammerThatShouldBeBanned);
+            Assert.False(await _telegramService.CanUserGetForecastAsync(databaseMock, message, CancellationToken.None));
+            Assert.Equal(11, spammerThatShouldBeBanned.UserState.WarningNumber);
+            Assert.Equal(UserStatusType.Banned, spammerThatShouldBeBanned.UserState.Status);
+            Assert.Equal(BanReasonType.Spam, spammerThatShouldBeBanned.UserState.BanReason);
+
+            var spammerThatShouldNotBeBanned = new UserEntity
+            {
+                LastAction = DateTime.Now,
+                UserState = new()
+                {
+                    WarningNumber = 5
+                }
+            };
+            userRepositoryMock.GetAsync(userId, Arg.Any<CancellationToken>()).Returns(spammerThatShouldNotBeBanned);
+            Assert.False(await _telegramService.CanUserGetForecastAsync(databaseMock, message, CancellationToken.None));
+            Assert.Equal(6, spammerThatShouldNotBeBanned.UserState.WarningNumber);
+            Assert.Equal(UserStatusType.Active, spammerThatShouldNotBeBanned.UserState.Status);
+            Assert.Equal(BanReasonType.NotBanned, spammerThatShouldNotBeBanned.UserState.BanReason);
+
+            var notSpamLastActionDate = DateTime.Now.Subtract(TimeSpan.FromSeconds(61));
+            var notSpammer = new UserEntity
+            {
+                LastAction = notSpamLastActionDate,
+                UserState = new()
+                {
+                    WarningNumber = 5
+                }
+            };
+
+            _client.IsInChannelAsync(Arg.Any<long>(), userId, Arg.Any<CancellationToken>()).Returns(Task.FromResult(false));
+            userRepositoryMock.GetAsync(userId, Arg.Any<CancellationToken>()).Returns(notSpammer);
+            Assert.False(await _telegramService.CanUserGetForecastAsync(databaseMock, message, CancellationToken.None));
+            Assert.Equal(0, notSpammer.UserState.WarningNumber);
+            Assert.True(notSpammer.LastAction > notSpamLastActionDate);
+
+            notSpammer.LastAction = notSpamLastActionDate;
+            _client.IsInChannelAsync(Arg.Any<long>(), userId, Arg.Any<CancellationToken>()).Returns(Task.FromResult(true));
+            Assert.True(await _telegramService.CanUserGetForecastAsync(databaseMock, message, CancellationToken.None));
+        }
+
+        /// <summary>
+        ///     “ест преобразовани€ сообщени€ пользовател€ в название пары
+        /// </summary>
+        [Fact(DisplayName = "Convert user message to pair name Test")]
+        public void ConvertUserMessageToPairName_Test()
+        {
+            var text1 = "btc USDT";
+            var text2 = "BTC-usdt";
+            var text3 = "btc/usdt";
+            var text4 = "BTC\\USDT";
+
+            var expectedResult = "BTCUSDT";
+
+            Assert.Equal(expectedResult, _telegramService.ConvertUserMessageToPairName(text1));
+            Assert.Equal(expectedResult, _telegramService.ConvertUserMessageToPairName(text2));
+            Assert.Equal(expectedResult, _telegramService.ConvertUserMessageToPairName(text3));
+            Assert.Equal(expectedResult, _telegramService.ConvertUserMessageToPairName(text4));
         }
 
         #endregion

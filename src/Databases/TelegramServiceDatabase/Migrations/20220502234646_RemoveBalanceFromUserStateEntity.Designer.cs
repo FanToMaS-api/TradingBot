@@ -99,7 +99,7 @@ namespace TelegramServiceDatabase.Migrations
                         .HasColumnType("bigint")
                         .HasColumnName("user_id");
 
-                    b.Property<string>("UserStateType")
+                    b.Property<string>("UserStatusType")
                         .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("state_type");
@@ -121,7 +121,7 @@ namespace TelegramServiceDatabase.Migrations
                         .IsUnique()
                         .HasDatabaseName("IX_users_state_user_id");
 
-                    b.HasIndex("UserStateType")
+                    b.HasIndex("UserStatusType")
                         .HasDatabaseName("IX_users_state_state_type");
 
                     b.HasIndex("WarningNumber")
