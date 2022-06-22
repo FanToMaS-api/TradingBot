@@ -1,0 +1,11 @@
+name: DockerBuild
+
+on: push
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Building images
+        run: chmod +x scripts/building_docker_images.sh; ./scripts/building_docker_images.sh

@@ -45,8 +45,6 @@ namespace Analytic.Binance
 
         #endregion
 
-        #region Implementation of IAnalyticService
-
         #region Events
 
         /// <inheritdoc />
@@ -111,8 +109,6 @@ namespace Analytic.Binance
 
             return false;
         }
-
-        #endregion
 
         #endregion
 

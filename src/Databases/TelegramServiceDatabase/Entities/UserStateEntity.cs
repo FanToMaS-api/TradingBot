@@ -1,8 +1,10 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Threading;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Newtonsoft.Json.Bson;
 using TelegramServiceDatabase.Types;
 
 namespace TelegramServiceDatabase.Entities
@@ -13,6 +15,12 @@ namespace TelegramServiceDatabase.Entities
     [Table("users_state")]
     public class UserStateEntity
     {
+        #region Fields
+
+        private int _warningNumber;
+
+        #endregion
+
         #region Properties
 
         /// <summary>
@@ -35,8 +43,8 @@ namespace TelegramServiceDatabase.Entities
         /// <summary>
         ///     Текущее состояние пользователя
         /// </summary>
-        [Column("state_type")]
-        public UserStateType UserStateType { get; set; }
+        [Column("status")]
+        public UserStatusType Status { get; set; }
 
         /// <summary>
         ///     Причина бана
@@ -48,7 +56,47 @@ namespace TelegramServiceDatabase.Entities
         ///     Кол-во предупреждений полученных пользователем
         /// </summary>
         [Column("warning_number")]
-        public int WarningNumber { get; set; }
+        public int WarningNumber { get => _warningNumber; internal set => _warningNumber = value; }
+
+        #endregion
+
+        #region Public methods
+
+        /// <summary>
+        ///     Потокобезопасно увеличить кол-во предупреждений
+        /// </summary>
+        public void IncrementWarningNumbers()
+        {
+            Interlocked.Increment(ref _warningNumber);
+        }
+
+        /// <summary>
+        ///     Потокобезопасно сбросить кол-во предупреждений
+        /// </summary>
+        public void ResetWarningNumbers()
+        {
+            // вычитаем его самого
+            _warningNumber = Interlocked.Add(ref _warningNumber, -_warningNumber);
+        }
+
+        /// <summary>
+        ///     Банит пользователя
+        /// </summary>
+        /// <param name="banReason"> Причина бана </param>
+        internal void Ban(BanReasonType banReason)
+        {
+            Status = UserStatusType.Banned;
+            BanReason = banReason;
+        }
+
+        /// <summary>
+        ///     Убирает пользователя из бана
+        /// </summary>
+        internal void Unban()
+        {
+            Status = UserStatusType.Active;
+            BanReason = BanReasonType.NotBanned;
+        }
 
         #endregion
 
@@ -72,16 +120,16 @@ namespace TelegramServiceDatabase.Entities
             // Индексы
             builder.HasIndex(_ => _.UserId).IsUnique().HasDatabaseName("IX_users_state_user_id");
             builder.HasIndex(_ => _.Id).IsUnique().HasDatabaseName("IX_users_state_id");
-            builder.HasIndex(_ => _.UserStateType).HasDatabaseName("IX_users_state_state_type");
+            builder.HasIndex(_ => _.Status).HasDatabaseName("IX_users_state_status");
             builder.HasIndex(_ => _.BanReason).HasDatabaseName("IX_users_state_ban_reason");
             builder.HasIndex(_ => _.WarningNumber).HasDatabaseName("IX_users_state_warning_number");
 
             // конвертеры
             builder
-                .Property(_ => _.UserStateType)
+                .Property(_ => _.Status)
                 .HasConversion(
                     v => v.ToString(),
-                    v => string.IsNullOrEmpty(v) ? UserStateType.Active : (UserStateType)Enum.Parse(typeof(UserStateType), v));
+                    v => string.IsNullOrEmpty(v) ? UserStatusType.Active : (UserStatusType)Enum.Parse(typeof(UserStatusType), v));
 
             builder
                 .Property(_ => _.BanReason)

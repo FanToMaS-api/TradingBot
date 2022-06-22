@@ -3,7 +3,7 @@
     /// <summary>
     ///     Тип состояния пользователя
     /// </summary>
-    public enum UserStateType
+    public enum UserStatusType
     {
         /// <summary>
         ///     Активный
