@@ -116,6 +116,8 @@ namespace TelegramServiceTests
         public async Task CanUserGetForecastAsync_Test()
         {
             var userId = 1;
+            var firstName = "TestName";
+            var lastName = "TestLastName";
             var message = new Message
             {
                 From = new User
@@ -173,14 +175,23 @@ namespace TelegramServiceTests
                 LastAction = notSpamLastActionDate,
                 UserState = new()
                 {
-                    WarningNumber = 5
-                }
+                    WarningNumber = 5,
+                    BanReason = BanReasonType.NotBanned,
+                    Status = UserStatusType.Active,
+                    UserId = userId
+                },
+                FirstName = firstName,
+                LastName = lastName,
+                Nickname = firstName
             };
 
             _client.IsInChannelAsync(Arg.Any<long>(), userId, Arg.Any<CancellationToken>()).Returns(Task.FromResult(false));
             userRepositoryMock.GetAsync(userId, Arg.Any<CancellationToken>()).Returns(notSpammer);
             Assert.False(await _telegramService.CanUserGetForecastAsync(databaseMock, message, CancellationToken.None));
             Assert.Equal(0, notSpammer.UserState.WarningNumber);
+            Assert.Equal(BanReasonType.NotBanned, notSpammer.UserState.BanReason);
+            Assert.Equal(UserStatusType.Active, notSpammer.UserState.Status);
+            Assert.Equal(userId, notSpammer.UserState.UserId);
             Assert.True(notSpammer.LastAction > notSpamLastActionDate);
 
             notSpammer.LastAction = notSpamLastActionDate;

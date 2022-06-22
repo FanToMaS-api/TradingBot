@@ -3,3 +3,6 @@ coverage:
     project:
       default:
         target: 68%
+  ignore:
+    - "src/Databases/BinanceDatabase/Migrations"
+    - "src/Databases/TelegramServiceDatabase/Migrations"
