@@ -7,7 +7,6 @@ using BinanceExchange.RedisRateLimits;
 using BinanceExchange.RequestWeights;
 using Common.Enums;
 using ExchangeLibrary;
-using NLog;
 using Redis;
 using System.Collections.Generic;
 using System.Threading;
@@ -20,7 +19,6 @@ namespace BinanceExchange.Impl
     {
         #region Fields
 
-        private readonly ILogger _logger = LogManager.GetCurrentClassLogger();
         private readonly ISpotTradeSender _tradeSender;
         private readonly IRedisDatabase _redisDatabase;
         private readonly IMapper _mapper;

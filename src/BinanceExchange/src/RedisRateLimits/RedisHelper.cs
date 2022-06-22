@@ -2,7 +2,7 @@
 using BinanceExchange.Models;
 using Common.Enums;
 using Common.Models;
-using NLog;
+using Logger;
 using Redis;
 using System;
 using System.Collections.Generic;
@@ -14,7 +14,7 @@ namespace BinanceExchange.RedisRateLimits
     /// </summary>
     internal static class RedisHelper
     {
-        private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
+        private static readonly ILoggerDecorator Logger = LoggerManager.CreateDefaultLogger();
         private static readonly RateLimitStorage _rateLimitsStorage = new();
 
         /// <summary>
@@ -26,7 +26,8 @@ namespace BinanceExchange.RedisRateLimits
             var key = GetRedisKey(rateLimit.Type);
             if (redisDatabase.TryGetIntValue(key, out keyValue) && keyValue.Value >= rateLimit.Limit)
             {
-                Logger.Warn($"Too many request '{keyValue.Value}' for '{keyValue.Key}' endpoint. Expiration limit '{keyValue.Expiration?.ToString("s")}'");
+                Logger.WarnAsync($"Too many request '{keyValue.Value}' for '{keyValue.Key}' endpoint." +
+                    $" Expiration limit '{keyValue.Expiration?.ToString("s")}'");
 
                 return true;
             }

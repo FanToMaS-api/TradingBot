@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
+using TelegramServiceDatabase.Types;
 
 namespace TelegramServiceDatabase.Entities
 {
@@ -60,6 +61,27 @@ namespace TelegramServiceDatabase.Entities
         ///     Св-во для навигации
         /// </summary>
         public UserStateEntity UserState { get; set; }
+
+        #endregion
+
+        #region Public methods
+
+        /// <summary>
+        ///     Банит пользователя
+        /// </summary>
+        /// <param name="banReason"> Причина бана </param>
+        public void Ban(BanReasonType banReason) => UserState.Ban(banReason);
+
+        /// <summary>
+        ///     Убирает пользователя из бана
+        /// </summary>
+        public void Unban() => UserState.Unban();
+
+        /// <summary>
+        ///     Обновляет дату последнего действия пользователя
+        /// </summary>
+        public void UpdateLastAction()
+            => LastAction = DateTime.Now;
 
         #endregion
 

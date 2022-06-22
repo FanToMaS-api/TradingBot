@@ -11,4 +11,11 @@
     <ProjectReference Include="..\..\Logger\Logger.csproj" />
   </ItemGroup>
 
+
+	<ItemGroup>
+		<AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
+			<_Parameter1>TelegramServiceTests</_Parameter1>
+		</AssemblyAttribute>
+	</ItemGroup>
+	
 </Project>

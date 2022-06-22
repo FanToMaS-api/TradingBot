@@ -13,17 +13,17 @@ namespace Common.WebSocket
         /// <summary>
         ///     Событие, возникающее при открытии веб-сокета
         /// </summary>
-        public Action StreamStarted { get; set; }
-        
+        Action StreamStarted { get; set; }
+
         /// <summary>
         ///     Событие, возникающее при закрытии веб-сокета
         /// </summary>
-        public Action StreamClosed { get; set; }
+        Action StreamClosed { get; set; }
 
         /// <summary>
         ///     Состояние веб-сокета
         /// </summary>
-        public WebSocketState SocketState { get; }
+        WebSocketState SocketState { get; }
 
         /// <summary>
         ///     Подключиться к сокету сервера

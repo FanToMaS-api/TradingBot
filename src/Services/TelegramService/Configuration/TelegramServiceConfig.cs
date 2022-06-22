@@ -11,7 +11,7 @@
         public string Name => "TelegramService";
 
         /// <summary>
-        ///     Id канала, на который необходимо пользотваелю подписаться
+        ///     Id канала, на который необходимо пользователю подписаться
         /// </summary>
         public long ChannelId { get; set; }
     }

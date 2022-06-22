@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using TelegramServiceDatabase;
@@ -9,9 +10,10 @@ using TelegramServiceDatabase;
 namespace TelegramServiceDatabase.Migrations
 {
     [DbContext(typeof(TelegramDbContext))]
-    partial class TelegramDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220622182257_RenameUserStateEntityField")]
+    partial class RenameUserStateEntityField
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

@@ -1,0 +1,7 @@
+coverage:
+  status:
+    project:
+      default:
+        target: 75%
+  ignore:
+    - "src/Databases"
