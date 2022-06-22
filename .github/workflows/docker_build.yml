@@ -1,8 +1,8 @@
 name: DockerBuild
 
-on: 
-  repository_dispatch:
-    types: [DockerBuild]
+on:  
+ pull_request:
+    types: [closed]
 
 jobs:
   build:
