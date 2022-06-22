@@ -1,4 +1,3 @@
-using BinanceDatabase.Repositories;
 using Logger;
 using Microsoft.Extensions.DependencyInjection;
 using NSubstitute;
@@ -8,16 +7,17 @@ using System.Threading.Tasks;
 using Telegram.Bot.Exceptions;
 using Telegram.Bot.Types;
 using Telegram.Client;
-using TelegramService.Configuration;
 using TelegramServiceDatabase.Entities;
 using TelegramServiceDatabase.Repositories;
 using TelegramServiceDatabase.Types;
+using TelegramServiceWeb;
+using TelegramServiceWeb.Configuration;
 using Xunit;
 
 namespace TelegramServiceTests
 {
     /// <summary>
-    ///     Тестирует <see cref="TelegramService.TelegramService"/>
+    ///     Тестирует <see cref="TelegramService"/>
     /// </summary>
     public class TelegramServiceTests
     {
@@ -27,7 +27,7 @@ namespace TelegramServiceTests
         private readonly TelegramServiceConfig _config = new();
         private readonly ITelegramClient _client;
         private readonly IServiceScopeFactory _serviceScopeFactory;
-        private readonly TelegramService.TelegramService _telegramService;
+        private readonly TelegramService _telegramService;
 
         #endregion
 
@@ -38,7 +38,7 @@ namespace TelegramServiceTests
             _serviceScopeFactory = Substitute.For<IServiceScopeFactory>();
             _client = Substitute.For<ITelegramClient>();
 
-            _telegramService = new TelegramService.TelegramService(
+            _telegramService = new TelegramService(
                 _config,
                 _serviceScopeFactory,
                 _client,
@@ -68,10 +68,10 @@ namespace TelegramServiceTests
         public void IsUserBlockedBot_Test()
         {
             var blockedException = new ApiRequestException("Forbidden: bot was blocked by the user");
-            Assert.True(TelegramService.TelegramService.IsUserBlockedBot(blockedException));
+            Assert.True(TelegramServiceWeb.TelegramService.IsUserBlockedBot(blockedException));
 
             var nonBlockedException = new ApiRequestException("Another exception: Another text of exception");
-            Assert.False(TelegramService.TelegramService.IsUserBlockedBot(nonBlockedException));
+            Assert.False(TelegramServiceWeb.TelegramService.IsUserBlockedBot(nonBlockedException));
         }
 
         /// <summary>
@@ -97,16 +97,16 @@ namespace TelegramServiceTests
             {
                 LastAction = DateTime.Now
             };
-            Assert.True(TelegramService.TelegramService.IsSpammer(user));
+            Assert.True(TelegramServiceWeb.TelegramService.IsSpammer(user));
 
             user.LastAction = DateTime.Now.Subtract(TimeSpan.FromSeconds(50));
-            Assert.True(TelegramService.TelegramService.IsSpammer(user));
+            Assert.True(TelegramServiceWeb.TelegramService.IsSpammer(user));
 
             user.LastAction = DateTime.Now.Subtract(TimeSpan.FromSeconds(55));
-            Assert.True(TelegramService.TelegramService.IsSpammer(user));
+            Assert.True(TelegramServiceWeb.TelegramService.IsSpammer(user));
 
             user.LastAction = DateTime.Now.Subtract(TimeSpan.FromSeconds(61));
-            Assert.False(TelegramService.TelegramService.IsSpammer(user));
+            Assert.False(TelegramServiceWeb.TelegramService.IsSpammer(user));
         }
 
         /// <summary>

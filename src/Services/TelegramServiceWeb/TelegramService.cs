@@ -12,13 +12,13 @@ using Telegram.Bot.Types.Enums;
 using Telegram.Builder;
 using Telegram.Client;
 using Telegram.Models;
-using TelegramService.Configuration;
 using TelegramServiceDatabase;
 using TelegramServiceDatabase.Entities;
 using TelegramServiceDatabase.Repositories;
 using TelegramServiceDatabase.Types;
+using TelegramServiceWeb.Configuration;
 
-namespace TelegramService
+namespace TelegramServiceWeb
 {
     /// <inheritdoc cref="ITelegramService"/>
     internal class TelegramService : ITelegramService

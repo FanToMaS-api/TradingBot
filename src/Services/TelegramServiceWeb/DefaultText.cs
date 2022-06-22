@@ -1,4 +1,4 @@
-﻿namespace TelegramService
+﻿namespace TelegramServiceWeb
 {
     /// <summary>
     ///     Стандартные тексты для ответов пользователям

@@ -1,4 +1,4 @@
-﻿namespace TelegramService.Configuration
+﻿namespace TelegramServiceWeb.Configuration
 {
     /// <summary>
     ///     Конфигурация сервиса для работы с пользователями в телеграмме
