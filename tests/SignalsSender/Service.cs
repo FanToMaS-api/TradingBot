@@ -1,13 +1,12 @@
 ﻿using Analytic;
 using Analytic.AnalyticUnits.ProfileGroup.Impl;
-using Analytic.AnalyticUnits.Profiles.SSA;
+using Analytic.AnalyticUnits.Profiles.ML;
 using Analytic.Filters;
 using Analytic.Filters.Builders;
 using Analytic.Filters.Builders.FilterBuilders;
 using Analytic.Filters.Builders.FilterGroupBuilders;
 using Analytic.Filters.Enums;
 using Analytic.Filters.FilterGroup.Impl;
-using Analytic.Filters.Impl.FilterManagers;
 using Analytic.Models;
 using Logger;
 using Microsoft.Extensions.DependencyInjection;
@@ -32,7 +31,6 @@ namespace SignalsSender
         private readonly ILoggerDecorator _logger;
         private readonly SignalSenderConfig _settings;
         private readonly ITelegramClient _telegramClient;
-        private readonly IServiceScopeFactory _scopeFactory;
         private readonly IAnalyticService _analyticService;
         private readonly string _baseUrl = "https://www.binance.com/en/trade/<pair>/?layout=pro";
         private readonly string[] _baseTickers = new[] { "USDT", "BTC", "ETH" };
@@ -44,13 +42,11 @@ namespace SignalsSender
 
         public Service(
             SignalSenderConfig settings,
-            IServiceScopeFactory scopeFactory,
             IAnalyticService analyticService,
             ITelegramClient telegramClient,
             ILoggerDecorator logger)
         {
             _settings = settings;
-            _scopeFactory = scopeFactory;
             _analyticService = analyticService;
             _logger = logger;
             _telegramClient = telegramClient;
@@ -131,6 +127,7 @@ namespace SignalsSender
             var volumeFilter = new VolumeFilterBuilder()
                 .SetFilterName("VolumeBidFilter")
                 .SetVolumeType()
+                .SetOrderNumber()
                 .SetComparisonType()
                 .SetPercentDeviation()
                 .GetResult();
@@ -169,6 +166,7 @@ namespace SignalsSender
             var volumeBidFilterForFallingPairs = new VolumeFilterBuilder()
                 .SetFilterName("VolumeBidFilterForFallingPairs")
                 .SetVolumeType(VolumeType.Ask)
+                .SetOrderNumber()
                 .SetComparisonType(VolumeComparisonType.GreaterThan)
                 .SetPercentDeviation(0.35)
                 .GetResult();
@@ -179,9 +177,12 @@ namespace SignalsSender
                 .SetFilterGroupType(FilterGroupType.CommonLatest)
                 .GetResult();
 
-            builder.AddFilterGroup(primaryGroup);
             specialFilterGroupForUSDT_Builder.RemoveFilter(priceDeviationFilter);
-            builder.AddFilterGroup(specialFilterGroupForUSDT);
+            specialFilterGroupForUSDT_Builder.AddFilter(priceDeviationCommonFilter);
+            var specialUsdtFilterGroupForFallingPairs = specialFilterGroupForUSDT_Builder.GetResult();
+
+            builder.AddFilterGroup(primaryGroup);
+            builder.AddFilterGroup(specialUsdtFilterGroupForFallingPairs);
             builder.AddFilterGroup(commonFilterGroupForFallingTickers);
             builder.AddFilterGroup(commonLatestFilterGroupForFallingPairs);
             
@@ -191,9 +192,9 @@ namespace SignalsSender
             _analyticService.ModelsFiltered += OnModelsFilteredReceived;
             _analyticService.SuccessfulAnalyzed += OnModelsToBuyReceived;
 
-            var ssaProfile = new SsaAnalyticPofile(_logger, "SsaProfile");
+            var mlProfile = new MlAnalyticProfile(_logger, "MlSsaProfile");
             var profileGroup = new ProfileGroup(_logger, "DefaultGroupProfile");
-            profileGroup.AddAnalyticUnit(ssaProfile);
+            profileGroup.AddAnalyticUnit(mlProfile);
             _analyticService.AddProfileGroup(profileGroup);
             _analyticService.AddFilterManager(growingPairFilterManager);
             _analyticService.AddFilterManager(fallingTickersFilterManager);

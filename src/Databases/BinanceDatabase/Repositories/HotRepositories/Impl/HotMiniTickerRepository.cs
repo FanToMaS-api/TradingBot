@@ -43,30 +43,36 @@ namespace BinanceDatabase.Repositories.HotRepositories.Impl
             => await _appDbContext.HotMiniTickers.AddRangeAsync(miniTickerEntities, cancellationToken);
 
         /// <inheritdoc />
-        public async Task<HotMiniTickerEntity[]> GetArrayAsync(string pair, CancellationToken cancellationToken, int neededCount = 2000)
-            =>
-            neededCount >= 2500
-                ? throw new Exception($"{nameof(neededCount)} should be less than 2500")
-                : await CreateQuery()
-                    .Where(_ => _.Pair == pair)
-                    .OrderByDescending(_ => _.ReceivedTime)
-                    .Take(neededCount)
+        public IEnumerable<HotMiniTickerEntity> GetEntities(
+            string pair,
+            int? neededCount = null)
+        {
+            var query = CreateQuery()
+                .Where(_ => _.Pair == pair)
+                .OrderByDescending(_ => _.ReceivedTime);
+
+            return neededCount.HasValue
+                ? query
+                    .Take(neededCount.Value)
                     .OrderBy(_ => _.ReceivedTime)
-                    .ToArrayAsync(cancellationToken);
+                : query
+                    .OrderBy(_ => _.ReceivedTime);
+        }
 
         /// <inheritdoc />
-        public async Task<int> RemoveUntilAsync(DateTime until, CancellationToken cancellationToken)
+        public async Task<int> RemoveUntilAsync(DateTime before, CancellationToken cancellationToken)
         {
-            var allCount = await _appDbContext.HotMiniTickers
+            var isNonEnumerated = _appDbContext.HotMiniTickers
                 .AsNoTracking()
-                .CountAsync(_ => _.ReceivedTime < until, cancellationToken);
+                .Where(_ => _.ReceivedTime < before)
+                .TryGetNonEnumeratedCount(out var allCount);
             var entitiesNumberInOneDeletion = 250; // обусловлено экономией RAM 
             var pagesCount = (int)Math.Ceiling(allCount / (double)entitiesNumberInOneDeletion);
             var removedCount = 0;
             for (var page = 0; page < pagesCount; page++)
             {
                 var entitiesToRemove = _appDbContext.HotMiniTickers.AsNoTracking()
-                    .Where(_ => _.ReceivedTime < until)
+                    .Where(_ => _.ReceivedTime < before)
                     .OrderBy(_ => _.ReceivedTime)
                     .Skip(page * entitiesNumberInOneDeletion)
                     .Take(entitiesNumberInOneDeletion);

@@ -1,3 +1,4 @@
+using AutoMapper;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using System;
@@ -36,6 +37,21 @@ namespace Common.Initialization
         /// </summary>
         public static void ConfigureForInitialization(this IServiceCollection services, Func<IServiceProvider, Task> action) =>
             services.Configure<AppInitializerOptions>(options => { options.InitActions.Add(action); });
+
+        /// <summary>
+        ///     Добавить профили для маппинга
+        /// </summary>
+        public static void AddMappingProfiles(this IServiceCollection services, params Profile[] profiles)
+        {
+            var mapperConfig = new MapperConfiguration(
+                mc =>
+                {
+                    mc.AddProfiles(profiles);
+                }
+            );
+
+            services.AddSingleton(mapperConfig.CreateMapper());
+        }
 
         /// <summary>
         ///     Выполняет заданные действия

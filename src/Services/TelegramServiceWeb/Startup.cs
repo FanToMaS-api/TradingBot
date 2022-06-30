@@ -38,6 +38,11 @@ namespace TelegramServiceWeb
                     TaskCreationOptions.LongRunning | TaskCreationOptions.DenyChildAttach,
                     TaskScheduler.Default);
             });
+
+            // постгрес 6 имеет критически важные изменения пр обработке DateTime
+            // https://stackoverflow.com/questions/69961449/net6-and-datetime-problem-cannot-write-datetime-with-kind-utc-to-postgresql-ty
+            // https://github.com/nhibernate/nhibernate-core/issues/2994
+            AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
         }
 
         public void Configure(IApplicationBuilder app, IServiceProvider serviceProvider)

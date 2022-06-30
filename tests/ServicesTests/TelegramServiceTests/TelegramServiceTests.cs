@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Telegram.Bot.Exceptions;
 using Telegram.Bot.Types;
+using Telegram.Builder;
 using Telegram.Client;
 using TelegramServiceDatabase.Entities;
 using TelegramServiceDatabase.Repositories;
@@ -68,23 +69,10 @@ namespace TelegramServiceTests
         public void IsUserBlockedBot_Test()
         {
             var blockedException = new ApiRequestException("Forbidden: bot was blocked by the user");
-            Assert.True(TelegramServiceWeb.TelegramService.IsUserBlockedBot(blockedException));
+            Assert.True(TelegramService.IsUserBlockedBot(blockedException));
 
             var nonBlockedException = new ApiRequestException("Another exception: Another text of exception");
-            Assert.False(TelegramServiceWeb.TelegramService.IsUserBlockedBot(nonBlockedException));
-        }
-
-        /// <summary>
-        ///     Тест простановки текста сообщения перед отправкой (без теста отправки)
-        /// </summary>
-        [Fact(DisplayName = "Set message text Test")]
-        public async Task SendMessageText_Test()
-        {
-            var testText = "Test text";
-            await _telegramService.SendMessageAsync(testText, CancellationToken.None);
-
-            var messageModel = _telegramService._messageBuilder.GetResult();
-            Assert.Equal(testText, messageModel.MessageText);
+            Assert.False(TelegramService.IsUserBlockedBot(nonBlockedException));
         }
 
         /// <summary>
@@ -97,16 +85,16 @@ namespace TelegramServiceTests
             {
                 LastAction = DateTime.Now
             };
-            Assert.True(TelegramServiceWeb.TelegramService.IsSpammer(user));
+            Assert.True(TelegramService.IsSpammer(user));
 
             user.LastAction = DateTime.Now.Subtract(TimeSpan.FromSeconds(50));
-            Assert.True(TelegramServiceWeb.TelegramService.IsSpammer(user));
+            Assert.True(TelegramService.IsSpammer(user));
 
             user.LastAction = DateTime.Now.Subtract(TimeSpan.FromSeconds(55));
-            Assert.True(TelegramServiceWeb.TelegramService.IsSpammer(user));
+            Assert.True(TelegramService.IsSpammer(user));
 
             user.LastAction = DateTime.Now.Subtract(TimeSpan.FromSeconds(61));
-            Assert.False(TelegramServiceWeb.TelegramService.IsSpammer(user));
+            Assert.False(TelegramService.IsSpammer(user));
         }
 
         /// <summary>
@@ -118,6 +106,7 @@ namespace TelegramServiceTests
             var userId = 1;
             var firstName = "TestName";
             var lastName = "TestLastName";
+            var messageBuilder = new TelegramMessageBuilder();
             var message = new Message
             {
                 From = new User
@@ -139,7 +128,7 @@ namespace TelegramServiceTests
             databaseMock.SaveChangesAsync().ReturnsForAnyArgs(Task.CompletedTask);
 
             userRepositoryMock.GetAsync(userId, Arg.Any<CancellationToken>()).Returns(bannedUser);
-            Assert.False(await _telegramService.CanUserGetForecastAsync(databaseMock, message, CancellationToken.None));
+            Assert.False(await _telegramService.CanUserGetForecastAsync(databaseMock, message, messageBuilder, CancellationToken.None));
 
             var spammerThatShouldBeBanned = new UserEntity
             {
@@ -150,7 +139,7 @@ namespace TelegramServiceTests
                 }
             };
             userRepositoryMock.GetAsync(userId, Arg.Any<CancellationToken>()).Returns(spammerThatShouldBeBanned);
-            Assert.False(await _telegramService.CanUserGetForecastAsync(databaseMock, message, CancellationToken.None));
+            Assert.False(await _telegramService.CanUserGetForecastAsync(databaseMock, message, messageBuilder, CancellationToken.None));
             Assert.Equal(11, spammerThatShouldBeBanned.UserState.WarningNumber);
             Assert.Equal(UserStatusType.Banned, spammerThatShouldBeBanned.UserState.Status);
             Assert.Equal(BanReasonType.Spam, spammerThatShouldBeBanned.UserState.BanReason);
@@ -164,7 +153,7 @@ namespace TelegramServiceTests
                 }
             };
             userRepositoryMock.GetAsync(userId, Arg.Any<CancellationToken>()).Returns(spammerThatShouldNotBeBanned);
-            Assert.False(await _telegramService.CanUserGetForecastAsync(databaseMock, message, CancellationToken.None));
+            Assert.False(await _telegramService.CanUserGetForecastAsync(databaseMock, message, messageBuilder, CancellationToken.None));
             Assert.Equal(6, spammerThatShouldNotBeBanned.UserState.WarningNumber);
             Assert.Equal(UserStatusType.Active, spammerThatShouldNotBeBanned.UserState.Status);
             Assert.Equal(BanReasonType.NotBanned, spammerThatShouldNotBeBanned.UserState.BanReason);
@@ -187,7 +176,7 @@ namespace TelegramServiceTests
 
             _client.IsInChannelAsync(Arg.Any<long>(), userId, Arg.Any<CancellationToken>()).Returns(Task.FromResult(false));
             userRepositoryMock.GetAsync(userId, Arg.Any<CancellationToken>()).Returns(notSpammer);
-            Assert.False(await _telegramService.CanUserGetForecastAsync(databaseMock, message, CancellationToken.None));
+            Assert.False(await _telegramService.CanUserGetForecastAsync(databaseMock, message, messageBuilder, CancellationToken.None));
             Assert.Equal(0, notSpammer.UserState.WarningNumber);
             Assert.Equal(BanReasonType.NotBanned, notSpammer.UserState.BanReason);
             Assert.Equal(UserStatusType.Active, notSpammer.UserState.Status);
@@ -196,7 +185,21 @@ namespace TelegramServiceTests
 
             notSpammer.LastAction = notSpamLastActionDate;
             _client.IsInChannelAsync(Arg.Any<long>(), userId, Arg.Any<CancellationToken>()).Returns(Task.FromResult(true));
-            Assert.True(await _telegramService.CanUserGetForecastAsync(databaseMock, message, CancellationToken.None));
+            Assert.True(await _telegramService.CanUserGetForecastAsync(databaseMock, message, messageBuilder, CancellationToken.None));
+        }
+
+        /// <summary>
+        ///     Тест простановки текста сообщения перед отправкой (без теста отправки)
+        /// </summary>
+        [Fact(DisplayName = "Set message text Test")]
+        public async Task SendMessageText_Test()
+        {
+            var messageBuilder = new TelegramMessageBuilder();
+            var testText = "Test text";
+            await _telegramService.SendMessageAsync(messageBuilder, testText, CancellationToken.None);
+
+            var messageModel = messageBuilder.GetResult();
+            Assert.Equal(testText, messageModel.MessageText);
         }
 
         /// <summary>
@@ -212,10 +215,10 @@ namespace TelegramServiceTests
 
             var expectedResult = "BTCUSDT";
 
-            Assert.Equal(expectedResult, _telegramService.ConvertUserMessageToPairName(text1));
-            Assert.Equal(expectedResult, _telegramService.ConvertUserMessageToPairName(text2));
-            Assert.Equal(expectedResult, _telegramService.ConvertUserMessageToPairName(text3));
-            Assert.Equal(expectedResult, _telegramService.ConvertUserMessageToPairName(text4));
+            Assert.Equal(expectedResult, TelegramService.ConvertUserMessageToPairName(text1));
+            Assert.Equal(expectedResult, TelegramService.ConvertUserMessageToPairName(text2));
+            Assert.Equal(expectedResult, TelegramService.ConvertUserMessageToPairName(text3));
+            Assert.Equal(expectedResult, TelegramService.ConvertUserMessageToPairName(text4));
         }
 
         #endregion

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
 
-namespace Analytic.AnalyticUnits.Profiles.SSA.Models
+namespace Analytic.AnalyticUnits.Profiles
 {
     /// <summary>
     ///     Содержит в себе информацию о максимальной и минимальной цене предсказания
