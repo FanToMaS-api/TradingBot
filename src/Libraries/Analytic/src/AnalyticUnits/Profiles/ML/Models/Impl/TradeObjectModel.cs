@@ -1,11 +1,13 @@
-﻿using System;
+﻿using Analytic.Filters.Enums;
+using Microsoft.ML.Data;
+using System;
 
-namespace Analytic.AnalyticUnits.Profiles.ML.Models
+namespace Analytic.AnalyticUnits.Profiles.ML.Models.Impl
 {
     /// <summary>
-    ///     Модель объекта торговли
+    ///     Модель объекта торговли для прогноза цены с помощью машинного обучения
     /// </summary>
-    internal class TradeObjectModel
+    internal class TradeObjectModel : IObjectForMachineLearning
     {
         #region Features
 
@@ -17,12 +19,18 @@ namespace Analytic.AnalyticUnits.Profiles.ML.Models
         /// <summary>
         ///     Тип агрегирования данных
         /// </summary>
-        public float AggregateDataInterval { get; set; }
+        [NoColumn]
+        public AggregateDataIntervalType AggregateDataInterval { get; set; }
 
         /// <summary>
         ///     Цена закрытия
         /// </summary>
         public float ClosePrice { get; set; }
+
+        /// <summary>
+        ///     Цена закрытия
+        /// </summary>
+        public double ClosePriceDouble { get; set; }
 
         /// <summary>
         ///     Цена открытия

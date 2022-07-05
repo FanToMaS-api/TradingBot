@@ -1,12 +1,13 @@
 ﻿using Analytic.AnalyticUnits.Profiles.ML.Models;
+using Analytic.AnalyticUnits.Profiles.ML.Models.Impl;
+using Analytic.DataLoaders;
 using Analytic.Models;
-using BinanceDatabase.Entities;
+using AutoMapper;
 using Common.Plotter;
 using Logger;
 using Microsoft.Extensions.DependencyInjection;
 using Pipelines.Sockets.Unofficial.Arenas;
 using System;
-using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Threading;
@@ -22,22 +23,30 @@ namespace Analytic.AnalyticUnits.Profiles.ML
         #region Fields
 
         private readonly ILoggerDecorator _logger;
+        private readonly IMachineLearningModel _mlContextModel;
+        private readonly IDataLoader _dataLoader;
         private readonly Plotter _plotter;
-        private readonly MlContextModel _mlContextModel;
-        private readonly bool _useSsaForecasting;
 
         #endregion
 
         #region .ctor
 
         /// <inheritdoc cref="MlAnalyticProfile" />
-        public MlAnalyticProfile(ILoggerDecorator logger, string name, bool useSsaForecasting = true)
+        public MlAnalyticProfile(
+            ILoggerDecorator logger,
+            MachineLearningModelType learningModelType,
+            IDataLoader dataLoader,
+            string name)
         {
             Name = name;
             _logger = logger;
             _plotter = new(_logger);
-            _useSsaForecasting = useSsaForecasting;
-            _mlContextModel = new MlContextModel();
+
+            _mlContextModel = learningModelType switch
+            {
+                MachineLearningModelType.SSA => new ForecastBySsaModel(),
+                _ => throw new Exception($"Unknown type of {nameof(MachineLearningModelType)} = '{learningModelType}'")
+            };
         }
 
         #endregion
@@ -54,26 +63,21 @@ namespace Analytic.AnalyticUnits.Profiles.ML
             CancellationToken cancellationToken)
         {
             var pairName = model.TradeObjectName;
-            var entities = _mlContextModel.LoadData(serviceScopeFactory, pairName);
 
-            return !entities.Any()
-                ? (false, null)
-                : _useSsaForecasting
-                    ? await ForecastBySsaAsync(entities, pairName, cancellationToken)
-                    : (false, null);
+            return await ForecastAsync(serviceScopeFactory, pairName, cancellationToken);
         }
 
         /// <summary>
-        ///     Строит прогноз с использованием алгоритма Сингулярного спектрального анализа
+        ///     Строит прогноз
         /// </summary>
-        /// <param name="entities"> Сущности, которые используются для обучения модели </param>
         /// <param name="pairName"> Название пары </param>
-        private async Task<(bool isSuccessfulAnalyze, AnalyticResultModel resultModel)> ForecastBySsaAsync(
-            IEnumerable<MiniTickerEntity> entities,
+        private async Task<(bool isSuccessfulAnalyze, AnalyticResultModel resultModel)> ForecastAsync(
+            IServiceScopeFactory _,
             string pairName,
             CancellationToken cancellationToken)
         {
-            var predictions = _mlContextModel.ForecastWithSsa();
+            var models = _dataLoader.GetDataForSsa(pairName, _mlContextModel.NumberPricesToTake);
+            var predictions = _mlContextModel.Forecast(models);
             if (!predictions.Any())
             {
                 return (false, null);
@@ -91,9 +95,10 @@ namespace Analytic.AnalyticUnits.Profiles.ML
             }
 
             MapMinMaxModelToPlotter(minMaxPriceModel);
+            var doublePrices = Array.ConvertAll(predictions, _ => (double)_);
             var canCreateChart = _plotter.CanCreateChart(
-                entities.Select(_ => _.ClosePrice).ToArray(),
-                entities.Select(_ => _.EventTime),
+                models.Select(_ => _.ClosePriceDouble).ToArray(),
+                models.Select(_ => _.EventTime),
                 out var imagePath);
 
             var result = new AnalyticResultModel()

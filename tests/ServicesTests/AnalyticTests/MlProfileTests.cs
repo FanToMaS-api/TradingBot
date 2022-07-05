@@ -1,6 +1,9 @@
 ﻿using Analytic.AnalyticUnits.Profiles;
 using Analytic.AnalyticUnits.Profiles.ML;
-using Analytic.AnalyticUnits.Profiles.ML.Models;
+using Analytic.AnalyticUnits.Profiles.ML.DataLoaders.Impl;
+using Analytic.AnalyticUnits.Profiles.ML.MapperProfiles;
+using Analytic.AnalyticUnits.Profiles.ML.Models.Impl;
+using AutoMapper;
 using BinanceDatabase;
 using BinanceDatabase.Entities;
 using BinanceDatabase.Enums;
@@ -24,6 +27,10 @@ namespace AnalyticTests
     /// </summary>
     public class MlProfileTests
     {
+        private readonly ILoggerDecorator _logger = LoggerManager.CreateDefaultLogger();
+        private readonly IMapper _mapper = new MapperConfiguration
+            (mc => mc.AddProfile(new MlMapperProfile())).CreateMapper();
+
         #region Test
 
         /// <summary>
@@ -34,9 +41,11 @@ namespace AnalyticTests
         {
             var serviceScopeFactoryMock = CreateMockServiceScopeFactory("Files/EntitiesForTest_1000.txt");
 
-            var contextModel = new MlContextModel(1);
-            var entities = contextModel.LoadData(serviceScopeFactoryMock, "BTCUSDT");
-            var predictions = contextModel.ForecastWithSsa();
+            var contextModel = new ForecastBySsaModel(1);
+            var dataLoader = new BinanceDataLoader(serviceScopeFactoryMock, _logger, _mapper);
+            var models = dataLoader.GetDataForSsa("BTCUSDT", contextModel.NumberPricesToTake);
+            
+            var predictions = contextModel.Forecast(models);
             var loggerMock = Substitute.For<ILoggerDecorator>();
             var plotter = new Plotter(loggerMock);
             var doublePredictions = Array.ConvertAll(predictions, _ => (double)_);
@@ -49,8 +58,8 @@ namespace AnalyticTests
             plotter.MaxIndex = minMaxPriceModel.MaxIndex;
             plotter.MinIndex = minMaxPriceModel.MinIndex;
             var canCreateChart = plotter.CanCreateChart(
-                entities.Select(_ => _.ClosePrice).ToArray(),
-                entities.Select(_ => _.EventTime),
+                models.Select(_ => _.ClosePriceDouble).ToArray(),
+                models.Select(_ => _.EventTime),
                 out var imagePath);
 
             Assert.True(canCreateChart);
@@ -71,9 +80,11 @@ namespace AnalyticTests
         {
             var serviceScopeFactoryMock = CreateMockServiceScopeFactory("Files/EntitiesForTest_2000.txt");
 
-            var contextModel = new MlContextModel(1);
-            var entities = contextModel.LoadData(serviceScopeFactoryMock, "BTCUSDT");
-            var predictions = contextModel.ForecastWithSsa();
+            var contextModel = new ForecastBySsaModel(1);
+            var dataLoader = new BinanceDataLoader(serviceScopeFactoryMock, _logger, _mapper);
+            var models = dataLoader.GetDataForSsa("BTCUSDT", contextModel.NumberPricesToTake);
+            
+            var predictions = contextModel.Forecast(models);
             var loggerMock = Substitute.For<ILoggerDecorator>();
             var plotter = new Plotter(loggerMock);
             var doublePredictions = Array.ConvertAll(predictions, _ => (double)_);
@@ -87,8 +98,8 @@ namespace AnalyticTests
             plotter.MaxIndex = minMaxPriceModel.MaxIndex;
             plotter.MinIndex = minMaxPriceModel.MinIndex;
             var canCreateChart = plotter.CanCreateChart(
-                entities.Select(_ => _.ClosePrice).ToArray(),
-                entities.Select(_ => _.EventTime),
+                models.Select(_ => _.ClosePriceDouble).ToArray(),
+                models.Select(_ => _.EventTime),
                 out var imagePath);
 
             Assert.True(canCreateChart);
