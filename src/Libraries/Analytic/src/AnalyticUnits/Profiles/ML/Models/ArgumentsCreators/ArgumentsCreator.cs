@@ -6,9 +6,9 @@ using System.Linq;
 namespace Analytic.AnalyticUnits.Profiles.ML.Models.ArgumentsCreators
 {
     /// <summary>
-    ///     Вычисляет аргументы для SSA прогноза
+    ///     Вычисляет аргументы для прогноза
     /// </summary>
-    internal class SsaArgumentsCreator
+    internal class ArgumentsCreator
     {
         #region Fields
 
@@ -25,11 +25,11 @@ namespace Analytic.AnalyticUnits.Profiles.ML.Models.ArgumentsCreators
         
         #region .ctor
 
-        /// <inheritdoc cref="SsaArgumentsCreator"/>
+        /// <inheritdoc cref="ArgumentsCreator"/>
         /// <remarks> 
         ///     Данные должны быть строго одного интервала агрегирования
         /// </remarks>
-        internal SsaArgumentsCreator(IEnumerable<IObjectForMachineLearning> data)
+        internal ArgumentsCreator(IEnumerable<IObjectForMachineLearning> data)
         {
             _data = data;
             data.TryGetNonEnumeratedCount(out var dataLength);

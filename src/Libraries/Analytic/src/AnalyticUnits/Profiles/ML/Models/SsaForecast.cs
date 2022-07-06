@@ -1,12 +1,12 @@
 ﻿namespace Analytic.AnalyticUnits.Profiles.ML.Models
 {
     /// <summary>
-    ///     Модель прогноза цены пары
+    ///     Модель прогноза цены пары при использовании SSA
     /// </summary>
-    internal class TradeObjectForecast
+    internal class SsaForecast
     {
         /// <summary>
-        ///     Прогноз цены
+        ///     Прогнозы цены
         /// </summary>
         public float[] Forecast { get; set; }
     }

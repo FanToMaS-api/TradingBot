@@ -198,11 +198,20 @@ namespace SignalsSender
             _analyticService.ModelsFiltered += OnModelsFilteredReceived;
             _analyticService.SuccessfulAnalyzed += OnModelsToBuyReceived;
 
-            var dataLoader = new BinanceDataLoaderForSsa(_logger, _mapper);
-            var mlProfile = new MlAnalyticProfile(_logger, MachineLearningModelType.SSA, dataLoader, "MlSsaProfile");
-            var profileGroup = new ProfileGroup(_logger, "DefaultGroupProfile");
-            profileGroup.AddAnalyticUnit(mlProfile);
-            _analyticService.AddProfileGroup(profileGroup);
+            var ssaDataLoader = new BinanceDataLoaderForSsa(_logger, _mapper);
+            var ssaMlProfile = new MlAnalyticProfile(_logger, MachineLearningModelType.SSA, ssaDataLoader, "MlSsaProfile");
+
+            var fastTreeDataLoader = new BinanceDataLoader(_logger, _mapper);
+            var fastTreeProfile = new MlAnalyticProfile(_logger, MachineLearningModelType.FastTree, fastTreeDataLoader, "MlFastTreeProfile");
+            
+            var ssaProfileGroup = new ProfileGroup(_logger, "SsaGroupProfile");
+            ssaProfileGroup.AddAnalyticUnit(ssaMlProfile);
+            _analyticService.AddProfileGroup(ssaProfileGroup);
+            
+            var fastTreeProfileGroup = new ProfileGroup(_logger, "fastTreeGroupProfile");
+            fastTreeProfileGroup.AddAnalyticUnit(fastTreeProfile);
+            _analyticService.AddProfileGroup(fastTreeProfileGroup);
+
             _analyticService.AddFilterManager(growingPairFilterManager);
             _analyticService.AddFilterManager(fallingTickersFilterManager);
             

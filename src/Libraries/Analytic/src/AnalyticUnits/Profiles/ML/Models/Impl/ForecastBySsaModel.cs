@@ -52,7 +52,7 @@ namespace Analytic.AnalyticUnits.Profiles.ML.Models.Impl
             }
 
             var  trainingDataView = _context.Data.LoadFromEnumerable(data);
-            var argumentsCreator = new SsaArgumentsCreator(data);
+            var argumentsCreator = new ArgumentsCreator(data);
             var numberPricesToForecast = argumentsCreator.GetNumberPricesToForecast();
             var windowSize = argumentsCreator.GetWindowSize();
             var seriesLength = argumentsCreator.GetSeriesLength();
@@ -61,7 +61,7 @@ namespace Analytic.AnalyticUnits.Profiles.ML.Models.Impl
             // и разделит данные на часовые интервалы ('seriesLength').
             // Каждый образец анализируется через windowSize окно
             var pipeline = _context.Forecasting.ForecastBySsa(
-            nameof(TradeObjectForecast.Forecast),
+            nameof(SsaForecast.Forecast),
             nameof(IObjectForMachineLearning.ClosePrice),
             windowSize,
             seriesLength,
@@ -72,7 +72,7 @@ namespace Analytic.AnalyticUnits.Profiles.ML.Models.Impl
 
             var model = pipeline.Fit(trainingDataView);
 
-            var forecastingEngine = model.CreateTimeSeriesEngine<TradeObjectModel, TradeObjectForecast>(_context);
+            var forecastingEngine = model.CreateTimeSeriesEngine<HotTradeObjectModel, SsaForecast>(_context);
 
             return forecastingEngine.Predict().Forecast;
         }

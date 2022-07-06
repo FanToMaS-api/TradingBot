@@ -45,6 +45,7 @@ namespace Analytic.AnalyticUnits.Profiles.ML
             _mlContextModel = learningModelType switch
             {
                 MachineLearningModelType.SSA => new ForecastBySsaModel(),
+                MachineLearningModelType.FastTree => new ForecastByFastTreeModel(_logger),
                 _ => throw new Exception($"Unknown type of {nameof(MachineLearningModelType)} = '{learningModelType}'")
             };
         }

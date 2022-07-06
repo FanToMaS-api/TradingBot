@@ -10,6 +10,11 @@
         /// </summary>
         SSA = 0,
 
+        /// <summary>
+        ///     Модель использует тренера FastTree для прогнозов
+        /// </summary>
+        FastTree = 1,
+
         // TODO: other
     }
 }

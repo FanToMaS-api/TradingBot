@@ -12,6 +12,11 @@ namespace Analytic.AnalyticUnits.Profiles.ML.Models.Impl
         #region Features
 
         /// <summary>
+        ///     Цена закрытия
+        /// </summary>
+        public float ClosePrice { get; set; }
+
+        /// <summary>
         ///     Время события
         /// </summary>
         public DateTime EventTime { get; set; }
@@ -21,11 +26,6 @@ namespace Analytic.AnalyticUnits.Profiles.ML.Models.Impl
         /// </summary>
         [NoColumn]
         public AggregateDataIntervalType AggregateDataInterval { get; set; }
-
-        /// <summary>
-        ///     Цена закрытия
-        /// </summary>
-        public float ClosePrice { get; set; }
 
         /// <summary>
         ///     Цена закрытия
@@ -41,6 +41,7 @@ namespace Analytic.AnalyticUnits.Profiles.ML.Models.Impl
         /// <summary>
         ///     Разница между ценой закрытия и открытия
         /// </summary>
+        [NoColumn]
         public float PriceDeviationPercent { get; set; }
 
         /// <summary>
