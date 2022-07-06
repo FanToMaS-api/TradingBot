@@ -69,7 +69,6 @@ namespace AnalyticTests
                 out var imagePath);
 
             Assert.True(canCreateChart);
-
             Assert.True(File.Exists(imagePath));
             File.Delete(imagePath);
 

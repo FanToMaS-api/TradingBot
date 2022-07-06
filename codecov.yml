@@ -3,5 +3,6 @@ coverage:
     project:
       default:
         target: 75%
+        threshold: 1%
   ignore:
     - "src/Databases"
