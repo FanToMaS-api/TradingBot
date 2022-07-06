@@ -58,11 +58,11 @@ namespace Analytic.AnalyticUnits.Profiles.ML.Models.Impl
             var seriesLength = argumentsCreator.GetSeriesLength();
 
             // Сформированный ниже конвейер возьмет _numberPricesToTake обучающих выборок
-            // и разделит данные на часовые интервалы (поскольку 'seriesLength' указан как 60).
+            // и разделит данные на часовые интервалы ('seriesLength').
             // Каждый образец анализируется через windowSize окно
             var pipeline = _context.Forecasting.ForecastBySsa(
             nameof(TradeObjectForecast.Forecast),
-            nameof(TradeObjectModel.ClosePrice),
+            nameof(IObjectForMachineLearning.ClosePrice),
             windowSize,
             seriesLength,
             NumberPricesToTake,

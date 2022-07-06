@@ -17,6 +17,7 @@ namespace Analytic.AnalyticUnits.Profiles.ML.Models
         /// <summary>
         ///     Цена закрытия
         /// </summary>
+        [NoColumn]
         public double ClosePriceDouble { get; }
 
         /// <summary>

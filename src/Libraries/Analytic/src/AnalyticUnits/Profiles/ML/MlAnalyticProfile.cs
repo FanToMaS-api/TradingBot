@@ -41,7 +41,7 @@ namespace Analytic.AnalyticUnits.Profiles.ML
             Name = name;
             _logger = logger;
             _plotter = new(_logger);
-
+            _dataLoader = dataLoader;
             _mlContextModel = learningModelType switch
             {
                 MachineLearningModelType.SSA => new ForecastBySsaModel(),
@@ -71,12 +71,12 @@ namespace Analytic.AnalyticUnits.Profiles.ML
         ///     Строит прогноз
         /// </summary>
         /// <param name="pairName"> Название пары </param>
-        private async Task<(bool isSuccessfulAnalyze, AnalyticResultModel resultModel)> ForecastAsync(
-            IServiceScopeFactory _,
+        internal async Task<(bool isSuccessfulAnalyze, AnalyticResultModel resultModel)> ForecastAsync(
+            IServiceScopeFactory serviceScopeFactory,
             string pairName,
             CancellationToken cancellationToken)
         {
-            var models = _dataLoader.GetDataForSsa(pairName, _mlContextModel.NumberPricesToTake);
+            var models = _dataLoader.GetData(serviceScopeFactory, pairName, _mlContextModel.NumberPricesToTake);
             var predictions = _mlContextModel.Forecast(models);
             if (!predictions.Any())
             {

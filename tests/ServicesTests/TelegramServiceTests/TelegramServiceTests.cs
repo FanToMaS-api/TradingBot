@@ -1,3 +1,4 @@
+using AutoMapper;
 using Logger;
 using Microsoft.Extensions.DependencyInjection;
 using NSubstitute;
@@ -27,6 +28,7 @@ namespace TelegramServiceTests
         private static readonly ILoggerDecorator Logger = LoggerManager.CreateDefaultLogger();
         private readonly TelegramServiceConfig _config = new();
         private readonly ITelegramClient _client;
+        private readonly IMapper _mapper;
         private readonly IServiceScopeFactory _serviceScopeFactory;
         private readonly TelegramService _telegramService;
 
@@ -38,11 +40,13 @@ namespace TelegramServiceTests
         {
             _serviceScopeFactory = Substitute.For<IServiceScopeFactory>();
             _client = Substitute.For<ITelegramClient>();
+            _mapper = Substitute.For<IMapper>();
 
             _telegramService = new TelegramService(
                 _config,
                 _serviceScopeFactory,
                 _client,
+                _mapper,
                 Logger);
         }
 

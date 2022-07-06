@@ -1,4 +1,5 @@
 ﻿using Analytic.AnalyticUnits.Profiles.ML.Models;
+using Microsoft.Extensions.DependencyInjection;
 using System.Collections.Generic;
 
 namespace Analytic.DataLoaders
@@ -9,9 +10,10 @@ namespace Analytic.DataLoaders
     public interface IDataLoader
     {
         /// <summary>
-        ///     Получить объекты для обучения модели SSA
+        ///     Получить объекты для обучения
         /// </summary>
-        IEnumerable<IObjectForMachineLearning> GetDataForSsa(
+        IEnumerable<IObjectForMachineLearning> GetData(
+            IServiceScopeFactory serviceScopeFactory,
             string tradeObjectName,
             int numberPricesToTake);
     }

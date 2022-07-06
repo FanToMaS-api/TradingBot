@@ -19,12 +19,8 @@ namespace Logger.Impl
 
         #region Implementation of ILoggerDecorator
 
-        #region Properties
-
         /// <inheritdoc />
         public ILoggerDecorator BaseLogger => null;
-
-        #endregion
 
         /// <inheritdoc />
         public Task WarnAsync(

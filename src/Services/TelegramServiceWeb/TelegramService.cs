@@ -1,5 +1,8 @@
-﻿using Analytic.AnalyticUnits.Profiles.SSA;
+﻿using Analytic.AnalyticUnits;
+using Analytic.AnalyticUnits.Profiles.ML;
+using Analytic.AnalyticUnits.Profiles.ML.DataLoaders.Impl.Binance;
 using Analytic.Models;
+using AutoMapper;
 using Logger;
 using Microsoft.Extensions.DependencyInjection;
 using System;
@@ -37,7 +40,7 @@ namespace TelegramServiceWeb
         private readonly ILoggerDecorator _log;
         private readonly ITelegramClient _client;
         private readonly IServiceScopeFactory _serviceScopeFactory;
-        private readonly SsaAnalyticPofile _ssaAnalyticPofile;
+        private readonly IAnalyticProfile _analyticProfile;
         private readonly TelegramServiceConfig _configuration;
         private bool _isDisposed;
         private CancellationTokenSource _cancellationTokenSource;
@@ -51,13 +54,19 @@ namespace TelegramServiceWeb
             TelegramServiceConfig config,
             IServiceScopeFactory serviceScopeFactory,
             ITelegramClient client,
+            IMapper mapper,
             ILoggerDecorator logger)
         {
             _configuration = config;
             _serviceScopeFactory = serviceScopeFactory;
             _client = client;
             _log = logger;
-            _ssaAnalyticPofile = new(_log, "TelegramService_SsaAnalyticUnit");
+            var dataLoader = new BinanceDataLoaderForSsa(_log, mapper);
+            _analyticProfile = new MlAnalyticProfile(
+                _log,
+                MachineLearningModelType.SSA,
+                dataLoader,
+                "SsaAnalyticProfile");
         }
 
         #endregion
@@ -100,6 +109,7 @@ namespace TelegramServiceWeb
                 return;
             }
 
+            _log?.Dispose();
             _cancellationTokenSource?.Cancel();
             _cancellationTokenSource.Dispose();
             _isDisposed = true;
@@ -209,7 +219,7 @@ namespace TelegramServiceWeb
             var pairName = ConvertUserMessageToPairName(message.Text);
             var infoModel = new InfoModel(pairName);
             var (isSuccessfulAnalyze, resultModel) =
-                await _ssaAnalyticPofile.TryAnalyzeAsync(_serviceScopeFactory, infoModel, cancellationToken);
+                await _analyticProfile.TryAnalyzeAsync(_serviceScopeFactory, infoModel, cancellationToken);
             if (!isSuccessfulAnalyze)
             {
                 await SendMessageAsync(messageBuilder, DefaultText.UnsuccessfulAnalyzeText, cancellationToken);

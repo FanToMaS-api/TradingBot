@@ -1,6 +1,8 @@
 ﻿using Analytic;
 using Analytic.AnalyticUnits.ProfileGroup.Impl;
 using Analytic.AnalyticUnits.Profiles.ML;
+using Analytic.AnalyticUnits.Profiles.ML.DataLoaders.Impl;
+using Analytic.AnalyticUnits.Profiles.ML.DataLoaders.Impl.Binance;
 using Analytic.Filters;
 using Analytic.Filters.Builders;
 using Analytic.Filters.Builders.FilterBuilders;
@@ -8,6 +10,7 @@ using Analytic.Filters.Builders.FilterGroupBuilders;
 using Analytic.Filters.Enums;
 using Analytic.Filters.FilterGroup.Impl;
 using Analytic.Models;
+using AutoMapper;
 using Logger;
 using Microsoft.Extensions.DependencyInjection;
 using SignalsSender.Configuration;
@@ -31,6 +34,7 @@ namespace SignalsSender
         private readonly ILoggerDecorator _logger;
         private readonly SignalSenderConfig _settings;
         private readonly ITelegramClient _telegramClient;
+        private readonly IMapper _mapper;
         private readonly IAnalyticService _analyticService;
         private readonly string _baseUrl = "https://www.binance.com/en/trade/<pair>/?layout=pro";
         private readonly string[] _baseTickers = new[] { "USDT", "BTC", "ETH" };
@@ -44,12 +48,14 @@ namespace SignalsSender
             SignalSenderConfig settings,
             IAnalyticService analyticService,
             ITelegramClient telegramClient,
+            IMapper mapper,
             ILoggerDecorator logger)
         {
             _settings = settings;
             _analyticService = analyticService;
             _logger = logger;
             _telegramClient = telegramClient;
+            _mapper = mapper;
         }
 
         #endregion
@@ -192,7 +198,8 @@ namespace SignalsSender
             _analyticService.ModelsFiltered += OnModelsFilteredReceived;
             _analyticService.SuccessfulAnalyzed += OnModelsToBuyReceived;
 
-            var mlProfile = new MlAnalyticProfile(_logger, "MlSsaProfile");
+            var dataLoader = new BinanceDataLoaderForSsa(_logger, _mapper);
+            var mlProfile = new MlAnalyticProfile(_logger, MachineLearningModelType.SSA, dataLoader, "MlSsaProfile");
             var profileGroup = new ProfileGroup(_logger, "DefaultGroupProfile");
             profileGroup.AddAnalyticUnit(mlProfile);
             _analyticService.AddProfileGroup(profileGroup);

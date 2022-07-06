@@ -1,3 +1,5 @@
+using Analytic.AnalyticUnits.Profiles.ML.MapperProfiles;
+using Analytic.DataLoaders;
 using BinanceDatabase;
 using Common.Initialization;
 using ExtensionsLibrary;
@@ -27,6 +29,10 @@ namespace TelegramServiceWeb
             services.AddTelegramLogger(Configuration);
             services.AddBinanceDatabase(Configuration);
             services.AddTelegramDatabase(Configuration);
+            services.AddMappingProfiles(
+                new MlMapperProfile(),
+                new BinanceDatabaseMappingProfile()
+            );
             services.AddRazorPages();
             services.LoadOptions<TelegramServiceConfig>(Configuration);
             services.AddSingleton<ITelegramService, TelegramService>();

@@ -1,5 +1,5 @@
-﻿using Analytic.AnalyticUnits.Profiles.ML.Models;
-using Analytic.AnalyticUnits.Profiles.ML.Models.Impl;
+﻿using Analytic.AnalyticUnits.Profiles.ML.Models.Impl;
+using Analytic.Filters.Enums;
 using AutoMapper;
 using BinanceDatabase.Entities;
 
@@ -16,7 +16,10 @@ namespace Analytic.AnalyticUnits.Profiles.ML.MapperProfiles
         public MlMapperProfile()
         {
             CreateMap<HotMiniTickerEntity, HotTradeObjectModel>()
-                .ForMember(_ => _.Price, _ => _.MapFrom(_ => (float)_.Price));
+                .ForMember(_ => _.ClosePrice, _ => _.MapFrom(_ => (float)_.Price))
+                .ForMember(_ => _.ClosePriceDouble, _ => _.MapFrom(_ => _.Price))
+                .ForMember(_ => _.EventTime, _ => _.MapFrom(_ => _.ReceivedTime))
+                .ForMember(_ => _.AggregateDataInterval, _ => _.MapFrom(_ => AggregateDataIntervalType.Default));
 
             CreateMap<MiniTickerEntity, TradeObjectModel>()
                 .ForMember(_ => _.MinPrice, _ => _.MapFrom(_ => (float)_.MinPrice))

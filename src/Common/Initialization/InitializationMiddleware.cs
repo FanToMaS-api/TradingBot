@@ -29,7 +29,7 @@ namespace Common.Initialization
             {
                 // TODO: ПРОТЕСТИРОВАТЬ!
                 /*await ??*/
-                Interlocked.CompareExchange(ref _initializationTask, Task.Run(InitializeAsync), null);
+                await Interlocked.CompareExchange(ref _initializationTask, Task.Run(InitializeAsync), null);
             }
 
             // TODO: ПРОТЕСТИРОВАТЬ!
