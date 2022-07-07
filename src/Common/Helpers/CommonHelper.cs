@@ -8,6 +8,13 @@ namespace Common.Helpers
     /// </summary>
     public static class CommonHelper
     {
+
+        /// <summary>
+        ///     Возвращает процентное отклонение новой цены от старой
+        /// </summary>
+        public static double GetPercentDeviation(double oldPrice, double newPrice)
+            => (newPrice / (double)oldPrice - 1) * 100;
+
         /// <summary>
         ///     Проверят объект на пустоту, выбрасывает исключение в случае если он неинициализирован
         /// </summary>

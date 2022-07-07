@@ -1,6 +1,7 @@
 ﻿using BinanceDatabase.Entities;
 using BinanceDatabase.Enums;
 using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -48,6 +49,21 @@ namespace BinanceDatabase.Repositories.ColdRepositories.Impl
         public void RemoveRange(IEnumerable<MiniTickerEntity> entities) => _appDbContext.RemoveRange(entities);
 
         /// <inheritdoc />
+        public IEnumerable<MiniTickerEntity> GetEntities(
+            string pair,
+            AggregateDataIntervalType aggregateDataInterval = AggregateDataIntervalType.Default,
+            int? neededCount = null)
+        {
+            var query = CreateQuery()
+                .Where(_ => _.ShortName == pair && _.AggregateDataInterval == aggregateDataInterval)
+                .OrderByDescending(_ => _.EventTime);
+
+            return neededCount.HasValue
+                ? query.Take(neededCount.Value).OrderBy(_ => _.EventTime)
+                : query.OrderBy(_ => _.EventTime);
+        }
+
+        /// <inheritdoc />
         public async Task<double> GetPricePercentDeviationSumAsync(
             string pair,
             AggregateDataIntervalType interval,
@@ -60,6 +76,32 @@ namespace BinanceDatabase.Repositories.ColdRepositories.Impl
                 .Select(_ => _.PriceDeviationPercent)
                 .Take(count)
                 .SumAsync(cancellationToken);
+
+        /// <inheritdoc />
+        public async Task<int> RemoveUntilAsync(DateTime before, CancellationToken cancellationToken)
+        {
+            var isNonEnumerated = _appDbContext.MiniTickers
+                .AsNoTracking()
+                .Where(_ => _.EventTime < before)
+                .TryGetNonEnumeratedCount(out var allCount);
+            var entitiesNumberInOneDeletion = 250; // обусловлено экономией RAM 
+            var pagesCount = (int)Math.Ceiling(allCount / (double)entitiesNumberInOneDeletion);
+            var removedCount = 0;
+            for (var page = 0; page < pagesCount; page++)
+            {
+                var entitiesToRemove = _appDbContext.MiniTickers.AsNoTracking()
+                    .Where(_ => _.EventTime < before)
+                    .OrderBy(_ => _.EventTime)
+                    .Skip(page * entitiesNumberInOneDeletion)
+                    .Take(entitiesNumberInOneDeletion);
+
+                _appDbContext.MiniTickers.RemoveRange(entitiesToRemove);
+                await _appDbContext.SaveChangesAsync(cancellationToken);
+                removedCount += entitiesToRemove.Count();
+            }
+
+            return removedCount;
+        }
 
         #endregion
     }

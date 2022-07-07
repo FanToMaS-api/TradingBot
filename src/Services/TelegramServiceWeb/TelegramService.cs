@@ -1,5 +1,8 @@
-﻿using Analytic.AnalyticUnits.Profiles.SSA;
+﻿using Analytic.AnalyticUnits;
+using Analytic.AnalyticUnits.Profiles.ML;
+using Analytic.AnalyticUnits.Profiles.ML.DataLoaders.Impl.Binance;
 using Analytic.Models;
+using AutoMapper;
 using Logger;
 using Microsoft.Extensions.DependencyInjection;
 using System;
@@ -11,7 +14,6 @@ using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using Telegram.Builder;
 using Telegram.Client;
-using Telegram.Models;
 using TelegramServiceDatabase;
 using TelegramServiceDatabase.Entities;
 using TelegramServiceDatabase.Repositories;
@@ -35,12 +37,10 @@ namespace TelegramServiceWeb
         /// </summary>
         public const int LimitWarningNumber = 10;
 
-        internal readonly TelegramMessageBuilder _messageBuilder = new();
         private readonly ILoggerDecorator _log;
         private readonly ITelegramClient _client;
         private readonly IServiceScopeFactory _serviceScopeFactory;
-        private readonly object _lockObject = new();
-        private readonly SsaAnalyticPofile _ssaAnalyticPofile;
+        private readonly IAnalyticProfile _analyticProfile;
         private readonly TelegramServiceConfig _configuration;
         private bool _isDisposed;
         private CancellationTokenSource _cancellationTokenSource;
@@ -54,13 +54,19 @@ namespace TelegramServiceWeb
             TelegramServiceConfig config,
             IServiceScopeFactory serviceScopeFactory,
             ITelegramClient client,
+            IMapper mapper,
             ILoggerDecorator logger)
         {
             _configuration = config;
             _serviceScopeFactory = serviceScopeFactory;
             _client = client;
             _log = logger;
-            _ssaAnalyticPofile = new(_log, "TelegramService_SsaAnalyticUnit");
+            var dataLoader = new BinanceDataLoaderForSsa(_log, mapper);
+            _analyticProfile = new MlAnalyticProfile(
+                _log,
+                MachineLearningModelType.SSA,
+                dataLoader,
+                "SsaAnalyticProfile");
         }
 
         #endregion
@@ -103,6 +109,7 @@ namespace TelegramServiceWeb
                 return;
             }
 
+            _log?.Dispose();
             _cancellationTokenSource?.Cancel();
             _cancellationTokenSource.Dispose();
             _isDisposed = true;
@@ -120,6 +127,7 @@ namespace TelegramServiceWeb
         /// <param name="cancellationToken"> Токен отмены </param>
         private async Task HandleUpdateAsync(Message message, string text, CancellationToken cancellationToken)
         {
+            var messageBuilder = new TelegramMessageBuilder();
             if (!await IsArgumentsValidAsync(message, text, cancellationToken))
             {
                 return;
@@ -132,41 +140,23 @@ namespace TelegramServiceWeb
             {
                 var userId = message.From.Id;
                 var chatId = message.Chat.Id;
-                lock (_lockObject)
-                {
-                    _messageBuilder.Reset().SetChatId(chatId);
-                }
+                messageBuilder.SetChatId(chatId);
 
                 if (!await database.Users.IsExist(userId, cancellationToken))
                 {
-                    await SendMessageAsync(DefaultText.WelcomeText, cancellationToken);
+                    await SendMessageAsync(messageBuilder, DefaultText.WelcomeText, cancellationToken);
+
                     var newUser = await database.Users.CreateAsync(CreateUserEntity, cancellationToken);
                     await database.SaveChangesAsync(cancellationToken);
 
                     return;
                 }
 
-                await HandleUserMessageAsync(database, message, cancellationToken);
+                await HandleUserMessageAsync(database, message, messageBuilder, cancellationToken);
             }
             catch (ApiRequestException apiEx)
             {
-                if (!IsUserBlockedBot(apiEx))
-                {
-                    await _log.ErrorAsync(apiEx, cancellationToken: cancellationToken);
-                    return;
-                }
-
-                var user = await database.Users.GetAsync(message.From.Id, cancellationToken);
-                if (user is null)
-                {
-                    return;
-                }
-
-                await database.UserStates.UpdateAsync(
-                    user.UserState.Id,
-                    _ => { _.Status = UserStatusType.BlockedBot; },
-                    cancellationToken);
-                await database.SaveChangesAsync(cancellationToken);
+                await HandleApiRequestExceptionAsync(apiEx, database, message.From.Id, cancellationToken);
             }
             catch (Exception ex)
             {
@@ -218,9 +208,10 @@ namespace TelegramServiceWeb
         private async Task HandleUserMessageAsync(
             ITelegramDbUnitOfWork database,
             Message message,
+            TelegramMessageBuilder messageBuilder,
             CancellationToken cancellationToken)
         {
-            if (!await CanUserGetForecastAsync(database, message, cancellationToken))
+            if (!await CanUserGetForecastAsync(database, message, messageBuilder, cancellationToken))
             {
                 return;
             }
@@ -228,14 +219,16 @@ namespace TelegramServiceWeb
             var pairName = ConvertUserMessageToPairName(message.Text);
             var infoModel = new InfoModel(pairName);
             var (isSuccessfulAnalyze, resultModel) =
-                await _ssaAnalyticPofile.TryAnalyzeAsync(_serviceScopeFactory, infoModel, cancellationToken);
+                await _analyticProfile.TryAnalyzeAsync(_serviceScopeFactory, infoModel, cancellationToken);
             if (!isSuccessfulAnalyze)
             {
-                await SendMessageAsync(DefaultText.UnsuccessfulAnalyzeText, cancellationToken);
+                await SendMessageAsync(messageBuilder, DefaultText.UnsuccessfulAnalyzeText, cancellationToken);
+
                 return;
             }
 
-            await SendForecastAsync(pairName, resultModel, cancellationToken);
+            await SendForecastAsync(pairName, resultModel, messageBuilder, cancellationToken);
+            messageBuilder.Reset().SetChatId(message.Chat.Id);
         }
 
         /// <summary>
@@ -244,22 +237,27 @@ namespace TelegramServiceWeb
         /// <param name="database"> База данных </param>
         /// <param name="message"> Модель сообщения телеграмма </param>
         /// <param name="cancellationToken"> Токен отмены </param>
-        internal async Task<bool> CanUserGetForecastAsync(ITelegramDbUnitOfWork database, Message message, CancellationToken cancellationToken)
+        internal async Task<bool> CanUserGetForecastAsync(
+            ITelegramDbUnitOfWork database,
+            Message message,
+            TelegramMessageBuilder messageBuilder,
+            CancellationToken cancellationToken)
         {
             var userId = message.From.Id;
             var user = await database.Users.GetAsync(userId, cancellationToken);
             if (user.UserState.Status == UserStatusType.Banned)
             {
-                await SendMessageAsync(DefaultText.BannedAccountText, cancellationToken);
+                await SendMessageAsync(messageBuilder, DefaultText.BannedAccountText, cancellationToken);
+
                 return false;
             }
 
             if (IsSpammer(user))
             {
-                await WarnAboutSpamAsync(user, cancellationToken);
+                await WarnAboutSpamAsync(user, messageBuilder, cancellationToken);
                 if (LimitWarningNumber - user.UserState.WarningNumber <= 0)
                 {
-                    await BanUserForSpamAsync(user, cancellationToken);
+                    await BanUserForSpamAsync(user, messageBuilder, cancellationToken);
                 }
 
                 user.UpdateLastAction();
@@ -275,11 +273,28 @@ namespace TelegramServiceWeb
 
             if (!await _client.IsInChannelAsync(_configuration.ChannelId, userId, cancellationToken))
             {
-                await SendMessageAsync(DefaultText.RequiredSubscriptionText, cancellationToken);
+                await SendMessageAsync(messageBuilder, DefaultText.RequiredSubscriptionText, cancellationToken);
+
                 return false;
             }
 
             return true;
+        }
+
+        /// <summary>
+        ///     Отправляет сообщение пользователю
+        /// </summary>
+        /// <param name="messageBuilder"> Строитель с указанным Id чата </param>
+        /// <param name="text"> Текст сообщения </param>
+        public async Task SendMessageAsync(
+            TelegramMessageBuilder messageBuilder,
+            string text,
+            CancellationToken cancellationToken)
+        {
+            var messageModel = messageBuilder
+                   .SetMessageText(text)
+                   .GetResult();
+            await _client.SendMessageAsync(messageModel, cancellationToken);
         }
 
         /// <summary>
@@ -289,7 +304,7 @@ namespace TelegramServiceWeb
         /// <returns>
         ///     Название пары
         /// </returns>
-        internal string ConvertUserMessageToPairName(string text)
+        internal static string ConvertUserMessageToPairName(string text)
         {
             var pairName = text
                 .Replace(" ", "")
@@ -310,15 +325,18 @@ namespace TelegramServiceWeb
         /// <summary>
         ///     Предупреждает пользователя о спаме
         /// </summary>
-        private async Task WarnAboutSpamAsync(UserEntity userEntity, CancellationToken cancellationToken)
+        private async Task WarnAboutSpamAsync(
+            UserEntity userEntity,
+            TelegramMessageBuilder messageBuilder,
+            CancellationToken cancellationToken)
         {
             userEntity.UserState.IncrementWarningNumbers();
             var remainingWarnings = LimitWarningNumber - userEntity.UserState.WarningNumber;
             try
             {
-                await SendMessageAsync(
-                    $"{DefaultText.WarnAboutSpamText}\nОсталось предупреждений до бана: *{remainingWarnings}*",
-                    cancellationToken);
+                var warningText = $"{DefaultText.WarnAboutSpamText}\n" +
+                    $"Осталось предупреждений до бана: *{remainingWarnings}*";
+                await SendMessageAsync(messageBuilder, warningText, cancellationToken);
             }
             catch (Exception ex)
             {
@@ -330,12 +348,16 @@ namespace TelegramServiceWeb
         ///     Банит пользователя за спам
         /// </summary>
         /// <param name="user"> Пользователь, который будет забанен </param>
-        private async Task BanUserForSpamAsync(UserEntity user, CancellationToken cancellationToken)
+        private async Task BanUserForSpamAsync(
+            UserEntity user,
+            TelegramMessageBuilder messageBuilder,
+            CancellationToken cancellationToken)
         {
             user.Ban(BanReasonType.Spam);
             try
             {
-                await SendMessageAsync($"{DefaultText.BannedAccountText}. Причина бана - спам", cancellationToken);
+                var banTextMessage = $"{DefaultText.BannedAccountText}. Причина бана - спам";
+                await SendMessageAsync(messageBuilder, banTextMessage, cancellationToken);
             }
             catch (Exception ex)
             {
@@ -344,18 +366,31 @@ namespace TelegramServiceWeb
         }
 
         /// <summary>
-        ///     Отправляет сообщение пользователю
+        ///     Обрабатывает ошибку апи
         /// </summary>
-        internal async Task SendMessageAsync(string text, CancellationToken cancellationToken)
+        internal async Task HandleApiRequestExceptionAsync(
+            ApiRequestException apiEx,
+            ITelegramDbUnitOfWork database,
+            long userId,
+            CancellationToken cancellationToken)
         {
-            TelegramMessageModel messageModel;
-            lock (_lockObject)
+            if (!IsUserBlockedBot(apiEx))
             {
-                _messageBuilder.SetMessageText(text);
-                messageModel = _messageBuilder.GetResult();
+                await _log.ErrorAsync(apiEx, cancellationToken: cancellationToken);
+                return;
             }
 
-            await _client.SendMessageAsync(messageModel, cancellationToken);
+            var user = await database.Users.GetAsync(userId, cancellationToken);
+            if (user is null)
+            {
+                return;
+            }
+
+            await database.UserStates.UpdateAsync(
+                user.UserState.Id,
+                _ => { _.Status = UserStatusType.BlockedBot; },
+                cancellationToken);
+            await database.SaveChangesAsync(cancellationToken);
         }
 
         /// <summary>
@@ -369,7 +404,11 @@ namespace TelegramServiceWeb
         /// <param name="pairName"> Название пары </param>
         /// <param name="resultModel"> Модель прогноза </param>
         /// <param name="cancellationToken"> Токен отмены </param>
-        private async Task SendForecastAsync(string pairName, AnalyticResultModel resultModel, CancellationToken cancellationToken)
+        private async Task SendForecastAsync(
+            string pairName,
+            AnalyticResultModel resultModel,
+            TelegramMessageBuilder messageBuilder,
+            CancellationToken cancellationToken)
         {
             var forecastingMessage = $"*{pairName}*\n*Минимальная цена прогноза: {resultModel.RecommendedPurchasePrice:0.00000}*";
             if (resultModel.RecommendedSellingPrice is not null)
@@ -377,19 +416,12 @@ namespace TelegramServiceWeb
                 forecastingMessage += $"\n*Максимальная цена прогноза: {resultModel.RecommendedSellingPrice.Value:0.00000}*";
             }
 
-            TelegramMessageModel messageModel;
-            lock (_lockObject)
+            if (resultModel.HasPredictionImage)
             {
-                _messageBuilder.SetMessageText(forecastingMessage);
-                if (resultModel.HasPredictionImage)
-                {
-                    _messageBuilder.SetImage(resultModel.ImagePath);
-                }
-
-                messageModel = _messageBuilder.GetResult();
+                messageBuilder.SetImage(resultModel.ImagePath);
             }
 
-            await _client.SendMessageAsync(messageModel, cancellationToken);
+            await SendMessageAsync(messageBuilder, forecastingMessage, cancellationToken);
         }
 
         #endregion

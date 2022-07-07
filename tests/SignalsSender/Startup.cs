@@ -1,4 +1,5 @@
 using Analytic;
+using Analytic.AnalyticUnits.Profiles.ML.MapperProfiles;
 using AutoMapper;
 using BinanceDatabase;
 using BinanceExchange;
@@ -29,14 +30,10 @@ namespace SignalsSender
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            var mapperConfig = new MapperConfiguration(
-            mc =>
-            {
-                mc.AddProfile(new BinanceMapperProfile());
-            }
-        );
+            services.AddMappingProfiles(
+                new BinanceMapperProfile(),
+                new MlMapperProfile());
 
-            services.AddSingleton(mapperConfig.CreateMapper());
             services.AddTelegramClient(Configuration);
             services.AddTelegramLogger(Configuration);
             services.AddBinanceDatabase(Configuration);
@@ -51,6 +48,11 @@ namespace SignalsSender
 
             services.AddRazorPages();
             services.ConfigureForInitialization<IService>(async _ => await _.RunAsync());
+
+            // постгрес 6 имеет критически важные изменения пр обработке DateTime
+            // https://stackoverflow.com/questions/69961449/net6-and-datetime-problem-cannot-write-datetime-with-kind-utc-to-postgresql-ty
+            // https://github.com/nhibernate/nhibernate-core/issues/2994
+            AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

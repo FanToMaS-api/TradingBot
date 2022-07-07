@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using BinanceDatabase.Entities;
+using Common.Helpers;
 using Common.Models;
 using ExtensionsLibrary;
 
@@ -22,13 +23,7 @@ namespace BinanceDatabase
                 .ForMember(_ => _.EventTime, _ => _.MapFrom(_ => _.EventTimeUnix.FromUnixToDateTime()))
                 .ForMember(
                     _ => _.PriceDeviationPercent,
-                    _ => _.MapFrom(_ => GetPercentDeviation(_.OpenPrice, _.ClosePrice)));
+                    _ => _.MapFrom(_ => CommonHelper.GetPercentDeviation(_.OpenPrice, _.ClosePrice)));
         }
-
-        /// <summary>
-        ///     Возвращает процентное отклонение новой цены от старой
-        /// </summary>
-        public static double GetPercentDeviation(double oldPrice, double newPrice) 
-            => (newPrice / (double)oldPrice - 1) * 100;
     }
 }

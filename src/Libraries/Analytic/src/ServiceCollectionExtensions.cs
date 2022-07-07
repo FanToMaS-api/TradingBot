@@ -9,7 +9,7 @@ namespace Analytic
     public static class ServiceCollectionExtensions
     {
         /// <summary>
-        ///     Добавить сервис аналитики для бинанс биржи
+        ///     Добавить сервис аналитики для биржи
         /// </summary>
         public static void AddBinanceAnalyticService(this IServiceCollection services)
             => services.AddSingleton<IAnalyticService, BinanceAnalyticService>();

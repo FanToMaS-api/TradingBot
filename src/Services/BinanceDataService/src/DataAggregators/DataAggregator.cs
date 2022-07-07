@@ -165,13 +165,19 @@ namespace BinanceDataService.DataAggregators
                 var aggregatedMiniTickers = new List<MiniTickerEntity>();
                 var allCount = await database.ColdUnitOfWork.MiniTickers
                     .CreateQuery()
-                    .CountAsync(_ => _.ShortName == name && _configuration.AggregateDataInterval > _.AggregateDataInterval);
+                    .CountAsync(
+                        _ => _.ShortName == name && _configuration.AggregateDataInterval > _.AggregateDataInterval,
+                        _cancellationTokenSource.Token);
+                if (allCount == 0)
+                {
+                    continue;
+                }
+
                 var pagesCount = (int)Math.Ceiling(allCount / (double)pageSize);
                 for (var page = 0; page < pagesCount; page++)
                 {
                     var entities = GetNonAggregatingMiniTickersEntities(database, name, page, pageSize);
                     averagedGroup.AddRange(GetAveragingTicker(entities, _configuration.AggregateDataInterval));
-                    database.ColdUnitOfWork.MiniTickers.RemoveRange(entities);
                 }
 
                 aggregatedMiniTickers.AddRange(averagedGroup);
@@ -271,7 +277,7 @@ namespace BinanceDataService.DataAggregators
         #endregion
 
         #region Private methods
-        
+
         /// <summary>
         ///     Возвращает уникальные названия пар, хранящиеся в бд
         /// </summary>
@@ -286,7 +292,7 @@ namespace BinanceDataService.DataAggregators
 
             return pairs;
         }
-        
+
         #endregion
     }
 }

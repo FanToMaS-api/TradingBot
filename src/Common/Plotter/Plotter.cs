@@ -26,6 +26,7 @@ namespace Common.Plotter
         public Plotter(ILoggerDecorator logger)
         {
             _logger = logger;
+            _logger.TraceAsync($"Directory with saved grafics='{_baseDirectory}'").Wait(5 * 1000);
         }
 
         #endregion
