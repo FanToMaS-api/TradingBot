@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using Telegram.Bot.Extensions.Polling;
 using Telegram.Bot.Types.Enums;
@@ -18,6 +19,12 @@ namespace Telegram.Client
         ///     Если получатель обновлений был уже создан, возвращает существующий экземпляр
         /// </remarks>
         QueuedUpdateReceiver GetUpdateReceiver(UpdateType[] allowedUpdates);
+
+        /// <summary>
+        ///     Отправляет блок сообщений за раз
+        /// </summary>
+        /// <param name="models"> Модели сообщений для отправки </param>
+        Task SendManyMessagesAsync(IEnumerable<TelegramMessageModel> models, CancellationToken cancellationToken);
 
         /// <summary>
         ///     Отправляет сообщение в указанный чат

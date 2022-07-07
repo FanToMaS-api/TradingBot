@@ -29,6 +29,17 @@ namespace Common.Helpers
         }
 
         /// <summary>
+        ///     Выполнеяет указанное действие для каждого элемента из коллекции
+        /// </summary>
+        public static void ForEach<T>(this IEnumerable<T> collection, Action<T> action)
+        {
+            foreach (var item in collection)
+            {
+                action(item);
+            }
+        }
+
+        /// <summary>
         ///     Проверят объекты на пустоту,
         ///     выбрасывает исключение в случае если какой-либо из объектов списка пуст или неинициализирован
         /// </summary>

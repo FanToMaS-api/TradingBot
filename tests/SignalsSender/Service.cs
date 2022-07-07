@@ -21,6 +21,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Telegram.Builder;
 using Telegram.Client;
+using Telegram.Models;
 
 namespace SignalsSender
 {
@@ -240,7 +241,7 @@ namespace SignalsSender
         /// </summary>
         private void OnModelsFilteredReceived(object sender, InfoModel[] models)
         {
-            var tasks = new List<Task>();
+            var messageModels = new List<TelegramMessageModel>();
             var builder = new TelegramMessageBuilder();
             builder.SetChatId(_settings.ChannelId);
             foreach (var model in models)
@@ -268,17 +269,18 @@ namespace SignalsSender
                         .SetMessageText(message)
                         .SetInlineButton("Перейти", $"{url}")
                         .GetResult();
-                    tasks.Add(_telegramClient.SendMessageAsync(telegramMessage, CancellationToken.None));
+
+                    messageModels.Add(telegramMessage);
                 }
                 catch (Exception ex)
                 {
-                    tasks.Add(_logger.ErrorAsync(ex, "Failed to send message wtih filtered models to telegram"));
+                    _logger.ErrorAsync(ex, "Failed to send message wtih filtered models to telegram").Wait(5 * 1000);
                 }
             }
 
             try
             {
-                Task.WhenAll(tasks).Wait();
+                _telegramClient.SendManyMessagesAsync(messageModels, _cancellationTokenSource.Token).Wait();
             }
             catch (Exception ex)
             {
@@ -291,7 +293,7 @@ namespace SignalsSender
         /// </summary>
         private void OnModelsToBuyReceived(object sender, AnalyticResultModel[] models)
         {
-            var tasks = new List<Task>();
+            var messageModels = new List<TelegramMessageModel>();
             var builder = new TelegramMessageBuilder();
             builder.SetChatId(_settings.ChannelId);
             foreach (var model in models)
@@ -326,17 +328,17 @@ namespace SignalsSender
                     }
 
                     var telegramMessage = builder.GetResult();
-                    tasks.Add(_telegramClient.SendMessageAsync(telegramMessage, CancellationToken.None));
+                    messageModels.Add(telegramMessage);
                 }
                 catch (Exception ex)
                 {
-                    tasks.Add(_logger.ErrorAsync(ex, "Failed to send message with models to buy to telegram"));
+                    _logger.ErrorAsync(ex, "Failed to send message with models to buy to telegram").Wait(7 * 1000);
                 }
             }
 
             try
             {
-                Task.WhenAll(tasks).Wait();
+                _telegramClient.SendManyMessagesAsync(messageModels, _cancellationTokenSource.Token).Wait();
             }
             catch (Exception ex)
             {

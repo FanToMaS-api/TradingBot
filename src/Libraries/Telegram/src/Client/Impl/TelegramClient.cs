@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Telegram.Bot;
@@ -16,6 +18,7 @@ namespace Telegram.Client.Impl
     {
         #region Fields
 
+        private const int MessagesNumberInOneSending = 4;
         private readonly ITelegramBotClient _client;
         private QueuedUpdateReceiver _updateReceiver;
 
@@ -49,6 +52,32 @@ namespace Telegram.Client.Impl
             _updateReceiver = new QueuedUpdateReceiver(_client, receiverOptions);
 
             return _updateReceiver;
+        }
+
+        /// <inheritdoc />
+        public async Task SendManyMessagesAsync(IEnumerable<TelegramMessageModel> models, CancellationToken cancellationToken)
+        {
+            var pagesCount = (int)Math.Ceiling(models.Count() / (double)MessagesNumberInOneSending);
+            var tasks = new List<Task>();
+            for (var page = 0; page < pagesCount; page++)
+            {
+                var modelsToSend = models
+                    .Skip(MessagesNumberInOneSending * page)
+                    .Take(MessagesNumberInOneSending)
+                    .ToArray();
+
+                for (var i = 0; i < modelsToSend.Length; i++)
+                {
+                    tasks.Add(SendMessageAsync(modelsToSend[i], cancellationToken));
+
+                }
+
+                await Task.WhenAll(tasks);
+                tasks.Clear();
+
+                // принудительная задержка чтобы телеграм не отбивал запросы
+                await Task.Delay(TimeSpan.FromSeconds(2), cancellationToken);
+            }
         }
 
         /// <inheritdoc />
