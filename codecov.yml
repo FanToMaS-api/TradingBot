@@ -5,7 +5,7 @@ coverage:
         target: 75%
         threshold: 1%
     patch:
-      default:
-        informational: true
+      defalt:
+        target: 5%
   ignore:
     - "src/Databases"
