@@ -1,13 +1,16 @@
 ﻿using Analytic.AnalyticUnits;
 using Analytic.Filters;
 using Analytic.Models;
+using Common.Models;
 using ExchangeLibrary;
+using ExtensionsLibrary;
 using Logger;
 using Microsoft.Extensions.DependencyInjection;
 using Quartz;
 using Scheduler;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -25,6 +28,7 @@ namespace Analytic.Binance
         private readonly IRecurringJobScheduler _scheduler;
         private TriggerKey _triggerKey;
         private CancellationTokenSource _cancellationTokenSource;
+        private bool _isDisposed;
 
         #endregion
 
@@ -119,7 +123,13 @@ namespace Analytic.Binance
         /// <inheritdoc />
         public void Dispose()
         {
+            if (_isDisposed)
+            {
+                return;
+            }
+
             _cancellationTokenSource?.Dispose();
+            _isDisposed = true;
         }
 
         #endregion
@@ -132,7 +142,7 @@ namespace Analytic.Binance
         private async Task AnalyzeAsync(IServiceProvider serviceProvider)
         {
             _cancellationTokenSource.Token.ThrowIfCancellationRequested();
-            
+
             try
             {
                 var models = await _exchange.Marketdata.GetSymbolPriceTickerAsync(null, _cancellationTokenSource.Token);

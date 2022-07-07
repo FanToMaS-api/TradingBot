@@ -181,14 +181,16 @@ namespace BinanceDataService.DataHandlers
         /// </summary>
         internal async Task SaveDataAsync(IServiceProvider serviceProvider)
         {
+            var isAssistantStorageSaving = false;
             lock (_lockObject)
             {
-                IsAssistantStorageSaving = !IsAssistantStorageSaving;
+                isAssistantStorageSaving = !IsAssistantStorageSaving;
+                IsAssistantStorageSaving = isAssistantStorageSaving;
             }
 
             try
             {
-                if (IsAssistantStorageSaving)
+                if (isAssistantStorageSaving)
                 {
                     await SaveDataAsync(serviceProvider, _assistantModelsStorage);
                     _assistantModelsStorage.Clear();
@@ -202,7 +204,7 @@ namespace BinanceDataService.DataHandlers
             {
                 await _logger.ErrorAsync(
                     ex,
-                    $"Failed to save data _isAssistantStorageSaving='{IsAssistantStorageSaving}'",
+                    $"Failed to save data {nameof(IsAssistantStorageSaving)}='{IsAssistantStorageSaving}'",
                     cancellationToken: _cancellationTokenSource.Token);
             }
         }
@@ -249,11 +251,16 @@ namespace BinanceDataService.DataHandlers
         private void OnWebSocketClosed()
         {
             _webSocket.StreamClosed -= OnWebSocketClosed;
-            _logger.InfoAsync("The websocket has been closed.").Wait(5 * 1000);
+            _logger.InfoAsync("The websocket has been closed").Wait(5 * 1000);
+
+            if (_cancellationTokenSource.IsCancellationRequested)
+            {
+                return;
+            }
 
             // QUESTION: интересное решение, надо проверить НО скорее всего неверное!
-            _webSocket.Dispose();
             _webSocket?.DisconnectAsync(_cancellationTokenSource.Token);
+            _webSocket.Dispose();
             _webSocket = _exchange.MarketdataStreams.SubscribeAllMarketMiniTickersStream(
                 OnDataReceived,
                 _cancellationTokenSource.Token);
@@ -291,11 +298,15 @@ namespace BinanceDataService.DataHandlers
             using var database = databaseFactory.CreateScopeDatabase();
             try
             {
-                var deletedEntitiesCount = await database.HotUnitOfWork.HotMiniTickers
+                var deletedHotEntitiesCount = await database.HotUnitOfWork.HotMiniTickers
                     .RemoveUntilAsync(now.AddDays(-1), _cancellationTokenSource.Token);
 
+                var deletedColdEntitiesCount = await database.ColdUnitOfWork.MiniTickers
+                    .RemoveUntilAsync(now.AddDays(-2), _cancellationTokenSource.Token);
+
                 await _logger.InfoAsync(
-                    $"Old data deleted successfully! Entities removed: {deletedEntitiesCount}",
+                    $"Old data deleted successfully! HOT entities removed: {deletedHotEntitiesCount}. " +
+                    $"COLD entities removed: {deletedColdEntitiesCount}",
                     cancellationToken: _cancellationTokenSource.Token);
             }
             catch (Exception ex)

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.AspNetCore.Http;
@@ -6,14 +7,12 @@ using Microsoft.AspNetCore.Http;
 namespace Common.Initialization
 {
     /// <summary>
-    ///     Компонент настраивающий сервисы и службы
+    ///     Компонент, настраивающий сервисы и службы
     /// </summary>
     public sealed class InitializationMiddleware
     {
         private readonly RequestDelegate _next;
         private readonly IServiceProvider _services;
-
-        private readonly object _syncRoot = new();
         private Task _initializationTask;
 
         [UsedImplicitly]
@@ -26,18 +25,12 @@ namespace Common.Initialization
         [UsedImplicitly]
         public async Task Invoke(HttpContext context)
         {
-            Task task;
-            lock (_syncRoot)
+            if (_initializationTask == null)
             {
-                if (_initializationTask == null)
-                {
-                    _initializationTask = Task.Run(InitializeAsync);
-                }
-
-                task = _initializationTask;
+                await Interlocked.CompareExchange(ref _initializationTask, Task.Run(InitializeAsync), null);
             }
 
-            await task;
+            await _initializationTask;
 
             await _next.Invoke(context);
         }

@@ -1,4 +1,6 @@
 ﻿using Logger.Impl;
+using System;
+using System.Threading;
 
 namespace Logger
 {
@@ -7,9 +9,29 @@ namespace Logger
     /// </summary>
     public static class LoggerManager
     {
+        private static ILoggerDecorator Logger;
+
         /// <summary>
-        ///     Создать простой логгер
+        ///     Создать базовый логгер
         /// </summary>
-        public static ILoggerDecorator CreateDefaultLogger() => new BaseLoggerDecorator();
+        public static ILoggerDecorator CreateDefaultLogger()
+        {
+            if (Logger is null)
+            {
+                Interlocked.CompareExchange(ref Logger, new BaseLoggerDecorator(), null);
+                AppDomain.CurrentDomain.ProcessExit += OnProcessExit;
+            }
+
+            return Logger;
+        }
+
+        private static void OnProcessExit(object sender, EventArgs e)
+        {
+            Logger.Dispose();
+
+            AppDomain.CurrentDomain.ProcessExit -= OnProcessExit;
+
+            Logger.InfoAsync("Logger shutdown successfully").Wait();
+        }
     }
 }

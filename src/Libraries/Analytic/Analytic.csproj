@@ -5,7 +5,11 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+		<PackageReference Include="AutoMapper" Version="11.0.1" />
 		<PackageReference Include="MathNet.Numerics" Version="5.0.0" />
+		<PackageReference Include="Microsoft.ML" Version="1.7.1" />
+		<PackageReference Include="Microsoft.ML.FastTree" Version="1.7.1" />
+		<PackageReference Include="Microsoft.ML.TimeSeries" Version="1.7.1" />
 		<PackageReference Include="Quartz" Version="3.4.0" />
 	</ItemGroup>
 

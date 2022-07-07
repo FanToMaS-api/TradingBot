@@ -28,14 +28,10 @@ namespace Datastreamer
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            var mapperConfig = new MapperConfiguration(
-                mc =>
-                {
-                    mc.AddProfile(new BinanceDatabaseMappingProfile());
-                    mc.AddProfile(new BinanceMapperProfile());
-                });
+            services.AddMappingProfiles(
+                new BinanceMapperProfile(),
+                new BinanceDatabaseMappingProfile());
 
-            services.AddSingleton(mapperConfig.CreateMapper());
             services.AddTelegramLogger(Configuration);
             services.AddBinanceDatabase(Configuration);
             services.AddRecurringJobScheduler();
@@ -52,6 +48,11 @@ namespace Datastreamer
                    TaskCreationOptions.LongRunning | TaskCreationOptions.DenyChildAttach,
                    TaskScheduler.Default);
             });
+
+            // постгрес 6 имеет критически важные изменения пр обработке DateTime
+            // https://stackoverflow.com/questions/69961449/net6-and-datetime-problem-cannot-write-datetime-with-kind-utc-to-postgresql-ty
+            // https://github.com/nhibernate/nhibernate-core/issues/2994
+            AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

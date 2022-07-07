@@ -13,18 +13,25 @@ namespace Logger.Impl
     {
         #region Fields
 
-        private readonly ILogger _logger = LogManager.LoadConfiguration("nlog.config").GetLogger("Logger");
+        private readonly ILogger _logger;
+
+        #endregion
+
+        #region .ctor
+
+        /// <inheritdoc cref="BaseLoggerDecorator"/>
+        public BaseLoggerDecorator()
+        {
+            using var loggerFactory = LogManager.LoadConfiguration("nlog.config");
+            _logger = loggerFactory.GetLogger("Logger");
+        }
 
         #endregion
 
         #region Implementation of ILoggerDecorator
 
-        #region Properties
-
         /// <inheritdoc />
         public ILoggerDecorator BaseLogger => null;
-
-        #endregion
 
         /// <inheritdoc />
         public Task WarnAsync(

@@ -1,3 +1,5 @@
+using Analytic.AnalyticUnits.Profiles.ML.MapperProfiles;
+using Analytic.DataLoaders;
 using BinanceDatabase;
 using Common.Initialization;
 using ExtensionsLibrary;
@@ -27,6 +29,10 @@ namespace TelegramServiceWeb
             services.AddTelegramLogger(Configuration);
             services.AddBinanceDatabase(Configuration);
             services.AddTelegramDatabase(Configuration);
+            services.AddMappingProfiles(
+                new MlMapperProfile(),
+                new BinanceDatabaseMappingProfile()
+            );
             services.AddRazorPages();
             services.LoadOptions<TelegramServiceConfig>(Configuration);
             services.AddSingleton<ITelegramService, TelegramService>();
@@ -38,6 +44,11 @@ namespace TelegramServiceWeb
                     TaskCreationOptions.LongRunning | TaskCreationOptions.DenyChildAttach,
                     TaskScheduler.Default);
             });
+
+            // постгрес 6 имеет критически важные изменения пр обработке DateTime
+            // https://stackoverflow.com/questions/69961449/net6-and-datetime-problem-cannot-write-datetime-with-kind-utc-to-postgresql-ty
+            // https://github.com/nhibernate/nhibernate-core/issues/2994
+            AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
         }
 
         public void Configure(IApplicationBuilder app, IServiceProvider serviceProvider)

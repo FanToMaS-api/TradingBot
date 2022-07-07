@@ -77,7 +77,9 @@ namespace Analytic
         /// <summary>
         ///     Удалить профиль аналитики
         /// </summary>
-        /// <returns><see langword="true" /> - если удаление прошло успешно </returns>
+        /// <returns>
+        ///     <see langword="true" /> - если удаление прошло успешно
+        /// </returns>
         bool RemoveProfile(string profileName);
 
         #endregion
