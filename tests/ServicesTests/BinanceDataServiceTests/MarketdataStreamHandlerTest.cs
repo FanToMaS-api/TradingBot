@@ -105,6 +105,7 @@ namespace BinanceDataServiceTests
             Assert.Equal(2.5, aggregateObject.MinPrice);
             Assert.Equal(1.25, aggregateObject.QuotePurchaseVolume);
             Assert.Equal(1.25, aggregateObject.BasePurchaseVolume);
+            Assert.Equal(0, aggregateObject.PriceDeviationPercent);
         }
 
         #region Member data for GetAveragingMiniTickers_Test

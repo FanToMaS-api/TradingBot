@@ -1,4 +1,6 @@
-﻿using Xunit;
+﻿using Logger;
+using System;
+using Xunit;
 
 namespace SharedForTest
 {

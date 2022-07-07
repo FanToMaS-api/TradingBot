@@ -159,7 +159,7 @@ namespace SignalsSender
                 .SetFilterName("FallingPriceDeviationFilter")
                 .SetAggregateDataIntervalType(AggregateDataIntervalType.FiveMinutes)
                 .SetComparisonType(ComparisonType.LessThan)
-                .SetLimit(-7.8)
+                .SetLimit(-10)
                 .SetTimeframeNumber(20)
                 .GetResult();
             var commonFilterGroupForFallingTickers = new FilterGroupBuilder()

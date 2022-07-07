@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Common.Helpers
 {
@@ -8,7 +9,6 @@ namespace Common.Helpers
     /// </summary>
     public static class CommonHelper
     {
-
         /// <summary>
         ///     Возвращает процентное отклонение новой цены от старой
         /// </summary>

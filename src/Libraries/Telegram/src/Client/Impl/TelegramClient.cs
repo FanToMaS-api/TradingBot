@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using Telegram.Bot;
 using Telegram.Bot.Extensions.Polling;
@@ -53,19 +54,50 @@ namespace Telegram.Client.Impl
         /// <inheritdoc />
         public async Task SendMessageAsync(TelegramMessageModel messageModel, CancellationToken cancellationToken)
         {
-            if (messageModel.Type == Models.MessageType.WithImage)
+            switch (messageModel.Type)
             {
-                messageModel.Image.Caption = messageModel.MessageText;
-                messageModel.Image.ParseMode = ParseMode.MarkdownV2;
+                case Models.MessageType.WithImage:
+                    await SendMessageWithImage(messageModel, cancellationToken);
+                    break;
+                case Models.MessageType.WithInlineButton:
+                    await SendMessageWithInlineButton(messageModel, cancellationToken);
+                    break;
+                default:
+                    throw new NotImplementedException($"{nameof(messageModel.Type)} = {messageModel.Type}");
+            };
+        }
 
-                await _client.SendMediaGroupAsync(
-                    messageModel.ChatId,
-                    new IAlbumInputMedia[] { messageModel.Image },
-                    cancellationToken: cancellationToken);
+        /// <inheritdoc />
+        public async Task<bool> IsInChannelAsync(long channelId, long userId, CancellationToken cancellationToken)
+        {
+            var user = (await _client.GetChatMemberAsync(channelId, userId, cancellationToken)).User;
 
-                return;
-            }
+            return user is not null;
+        }
 
+        #endregion
+
+        #region Private methods
+
+        /// <summary>
+        ///     Отправить сообщение с изображением
+        /// </summary>
+        private async Task SendMessageWithImage(TelegramMessageModel messageModel, CancellationToken cancellationToken)
+        {
+            messageModel.Image.Caption = messageModel.MessageText;
+            messageModel.Image.ParseMode = ParseMode.MarkdownV2;
+
+            await _client.SendMediaGroupAsync(
+                messageModel.ChatId,
+                new IAlbumInputMedia[] { messageModel.Image },
+                cancellationToken: cancellationToken);
+        }
+
+        /// <summary>
+        ///     Отправить сообщение с встроенной кнопкой
+        /// </summary>
+        private async Task SendMessageWithInlineButton(TelegramMessageModel messageModel, CancellationToken cancellationToken)
+        {
             await _client.SendTextMessageAsync(
                 messageModel.ChatId,
                 messageModel.MessageText,
@@ -77,14 +109,6 @@ namespace Telegram.Client.Impl
                             messageModel.InlineKeyboardButton.Url))
                     : null,
                 cancellationToken: cancellationToken);
-        }
-
-        /// <inheritdoc />
-        public async Task<bool> IsInChannelAsync(long channelId, long userId, CancellationToken cancellationToken)
-        {
-            var user = (await _client.GetChatMemberAsync(channelId, userId, cancellationToken)).User;
-
-            return user is not null;
         }
 
         #endregion

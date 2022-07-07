@@ -217,8 +217,7 @@ namespace BinanceDataService.DataAggregators
             var interval = intervalType.ConvertToTimeSpan();
             var aggregatedMiniTickers = new List<MiniTickerEntity>();
             var firstEntity = entities.FirstOrDefault();
-            var startTime
-                = firstEntity.EventTime;
+            var startTime = firstEntity.EventTime;
             var averagingObjectsCounter = 0;
             var aggregateObject = new MiniTickerEntity()
             {
@@ -256,8 +255,10 @@ namespace BinanceDataService.DataAggregators
         /// </summary>
         internal static void AggregateFields(MiniTickerEntity addedObject, MiniTickerEntity aggregateObject)
         {
+            Assert.True(addedObject.ShortName == aggregateObject.ShortName, "Names are different!");
             aggregateObject.OpenPrice += addedObject.OpenPrice;
             aggregateObject.ClosePrice += addedObject.ClosePrice;
+            aggregateObject.PriceDeviationPercent += addedObject.PriceDeviationPercent;
             aggregateObject.MaxPrice = aggregateObject.MaxPrice > addedObject.MaxPrice ? aggregateObject.MaxPrice : addedObject.MaxPrice;
             aggregateObject.MinPrice = aggregateObject.MinPrice < addedObject.MinPrice ? aggregateObject.MinPrice : addedObject.MinPrice;
             aggregateObject.QuotePurchaseVolume += addedObject.QuotePurchaseVolume;
@@ -269,11 +270,12 @@ namespace BinanceDataService.DataAggregators
         /// </summary>
         internal static void AveragingFields(MiniTickerEntity aggregateObject, int averagingObjectsCounter)
         {
+            Assert.True(averagingObjectsCounter > 0, $"{averagingObjectsCounter} should be greater than 0");
             aggregateObject.OpenPrice /= averagingObjectsCounter;
             aggregateObject.ClosePrice /= averagingObjectsCounter;
             aggregateObject.QuotePurchaseVolume /= averagingObjectsCounter;
             aggregateObject.BasePurchaseVolume /= averagingObjectsCounter;
-            aggregateObject.PriceDeviationPercent = CommonHelper.GetPercentDeviation(aggregateObject.OpenPrice, aggregateObject.ClosePrice);
+            aggregateObject.PriceDeviationPercent /= averagingObjectsCounter;
         }
 
         #endregion
