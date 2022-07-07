@@ -3,6 +3,7 @@ using BinanceDatabase.Entities;
 using BinanceDatabase.Enums;
 using BinanceDatabase.Repositories;
 using BinanceDataService.Configuration.AggregatorConfigs;
+using Common.Helpers;
 using Logger;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -272,6 +273,7 @@ namespace BinanceDataService.DataAggregators
             aggregateObject.ClosePrice /= averagingObjectsCounter;
             aggregateObject.QuotePurchaseVolume /= averagingObjectsCounter;
             aggregateObject.BasePurchaseVolume /= averagingObjectsCounter;
+            aggregateObject.PriceDeviationPercent = CommonHelper.GetPercentDeviation(aggregateObject.OpenPrice, aggregateObject.ClosePrice);
         }
 
         #endregion
