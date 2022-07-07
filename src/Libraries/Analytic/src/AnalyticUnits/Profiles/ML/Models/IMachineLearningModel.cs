@@ -4,7 +4,7 @@ using System.Collections.Generic;
 namespace Analytic.AnalyticUnits.Profiles.ML.Models
 {
     /// <summary>
-    ///     Определяет модель машинного обучения
+    ///     Определяет модель машинного обучения для прогнозов
     /// </summary>
     public interface IMachineLearningModel
     {

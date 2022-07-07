@@ -30,6 +30,8 @@ namespace Logger
             Logger.Dispose();
 
             AppDomain.CurrentDomain.ProcessExit -= OnProcessExit;
+
+            Logger.InfoAsync("Logger shutdown successfully").Wait();
         }
     }
 }

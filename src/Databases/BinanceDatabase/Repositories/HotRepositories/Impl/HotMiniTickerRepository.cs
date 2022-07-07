@@ -52,11 +52,8 @@ namespace BinanceDatabase.Repositories.HotRepositories.Impl
                 .OrderByDescending(_ => _.ReceivedTime);
 
             return neededCount.HasValue
-                ? query
-                    .Take(neededCount.Value)
-                    .OrderBy(_ => _.ReceivedTime)
-                : query
-                    .OrderBy(_ => _.ReceivedTime);
+                ? query.Take(neededCount.Value).OrderBy(_ => _.ReceivedTime)
+                : query.OrderBy(_ => _.ReceivedTime);
         }
 
         /// <inheritdoc />

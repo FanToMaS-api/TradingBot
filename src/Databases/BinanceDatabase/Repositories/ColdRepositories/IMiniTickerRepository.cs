@@ -23,7 +23,7 @@ namespace BinanceDatabase.Repositories.ColdRepositories
         void RemoveRange(IEnumerable<MiniTickerEntity> entities);
 
         /// <summary>
-        ///     Получить необходимое кол-во самых актуальных объектов, отсортированные в порядке получения
+        ///     Получить необходимое кол-во самых актуальных объектов, отсортированных в порядке получения
         /// </summary>
         IEnumerable<MiniTickerEntity> GetEntities(
             string pair,

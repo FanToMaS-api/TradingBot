@@ -27,12 +27,9 @@ namespace Common.Initialization
         {
             if (_initializationTask == null)
             {
-                // TODO: ПРОТЕСТИРОВАТЬ!
-                /*await ??*/
                 await Interlocked.CompareExchange(ref _initializationTask, Task.Run(InitializeAsync), null);
             }
 
-            // TODO: ПРОТЕСТИРОВАТЬ!
             await _initializationTask;
 
             await _next.Invoke(context);

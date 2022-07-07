@@ -14,7 +14,7 @@ namespace Analytic.AnalyticUnits.Profiles.ML.Models.ArgumentsCreators
 
         private const int _maxNumberPricesToForecast = 150; // максимальное кол-во данных для прогноза
         private const int _minNumberPricesToForecast = 10; // минимальное кол-во данных для прогноза
-        private const int _denominator = 10; // делитель кол-ва данных, участвующих в предсказании цены (выше)
+        private const int _denominator = 25; // делитель кол-ва данных, участвующих в предсказании цены
                                              // для прогноза только некоторого кол-ва цен
 
         private readonly IEnumerable<IObjectForMachineLearning> _data;

@@ -59,11 +59,8 @@ namespace BinanceDatabase.Repositories.ColdRepositories.Impl
                 .OrderByDescending(_ => _.EventTime);
 
             return neededCount.HasValue
-                ? query
-                    .Take(neededCount.Value)
-                    .OrderBy(_ => _.EventTime)
-                : query
-                    .OrderBy(_ => _.EventTime);
+                ? query.Take(neededCount.Value).OrderBy(_ => _.EventTime)
+                : query.OrderBy(_ => _.EventTime);
         }
 
         /// <inheritdoc />
@@ -83,22 +80,22 @@ namespace BinanceDatabase.Repositories.ColdRepositories.Impl
         /// <inheritdoc />
         public async Task<int> RemoveUntilAsync(DateTime before, CancellationToken cancellationToken)
         {
-            var isNonEnumerated = _appDbContext.HotMiniTickers
+            var isNonEnumerated = _appDbContext.MiniTickers
                 .AsNoTracking()
-                .Where(_ => _.ReceivedTime < before)
+                .Where(_ => _.EventTime < before)
                 .TryGetNonEnumeratedCount(out var allCount);
             var entitiesNumberInOneDeletion = 250; // обусловлено экономией RAM 
             var pagesCount = (int)Math.Ceiling(allCount / (double)entitiesNumberInOneDeletion);
             var removedCount = 0;
             for (var page = 0; page < pagesCount; page++)
             {
-                var entitiesToRemove = _appDbContext.HotMiniTickers.AsNoTracking()
-                    .Where(_ => _.ReceivedTime < before)
-                    .OrderBy(_ => _.ReceivedTime)
+                var entitiesToRemove = _appDbContext.MiniTickers.AsNoTracking()
+                    .Where(_ => _.EventTime < before)
+                    .OrderBy(_ => _.EventTime)
                     .Skip(page * entitiesNumberInOneDeletion)
                     .Take(entitiesNumberInOneDeletion);
 
-                _appDbContext.HotMiniTickers.RemoveRange(entitiesToRemove);
+                _appDbContext.MiniTickers.RemoveRange(entitiesToRemove);
                 await _appDbContext.SaveChangesAsync(cancellationToken);
                 removedCount += entitiesToRemove.Count();
             }

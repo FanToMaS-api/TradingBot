@@ -5,7 +5,7 @@ using System;
 namespace Analytic.AnalyticUnits.Profiles.ML.Models
 {
     /// <summary>
-    ///     Определяет модель для прогноза с помощью машинного обучения
+    ///     Объект, использующийся для обучения модели машинного обучения
     /// </summary>
     public interface IObjectForMachineLearning
     {

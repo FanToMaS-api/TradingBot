@@ -75,8 +75,10 @@ namespace Analytic.AnalyticUnits.Profiles.ML.Models.Impl
                 return Array.Empty<float>();
             }
 
+            var argumentCreator = new ArgumentsCreator(data);
+            var horizon = argumentCreator.GetNumberPricesToForecast();
             var dataForPredict = _context.Data
-                .LoadFromEnumerable(data.TakeLast(150)
+                .LoadFromEnumerable(data.TakeLast(horizon)
                 .Cast<TradeObjectModel>());
             var f = model.Transform(dataForPredict);
 
