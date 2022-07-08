@@ -69,7 +69,7 @@ namespace Analytic.AnalyticUnits.Profiles.ML.Models.Impl
             // Тестирование
             var predictions = model.Transform(testData);
             var metrics = _context.Regression.Evaluate(predictions, nameof(TradeObjectModel.ClosePrice));
-            if (metrics.RSquared < 0.8)
+            if (metrics.RSquared < 0.93)
             {
                 _logger.InfoAsync("FastTree regression gave poor performance");
                 return Array.Empty<float>();

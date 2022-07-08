@@ -1,5 +1,6 @@
 ﻿using BinanceDatabase.Entities;
 using BinanceDatabase.Enums;
+using Common.Helpers;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -64,18 +65,29 @@ namespace BinanceDatabase.Repositories.ColdRepositories.Impl
         }
 
         /// <inheritdoc />
-        public async Task<double> GetPricePercentDeviationSumAsync(
+        public async Task<double> GetPricePercentDeviationAsync(
             string pair,
             AggregateDataIntervalType interval,
             int count,
             CancellationToken cancellationToken)
-            => 
-            await CreateQuery()
+        {
+            var query = CreateQuery()
                 .Where(_ => _.ShortName == pair && _.AggregateDataInterval == interval)
                 .OrderByDescending(_ => _.EventTime)
                 .Select(_ => _.PriceDeviationPercent)
-                .Take(count)
-                .SumAsync(cancellationToken);
+                .Take(count);
+
+            Assert.True(await query.AnyAsync());
+
+            var oldPrice = await query.FirstOrDefaultAsync();
+            Assert.True(oldPrice > 0);
+
+            var newPrice = await query.LastOrDefaultAsync();
+            Assert.True(newPrice > 0);
+
+            return CommonHelper.GetPercentDeviation(oldPrice, newPrice);
+        }
+
 
         /// <inheritdoc />
         public async Task<int> RemoveUntilAsync(DateTime before, CancellationToken cancellationToken)

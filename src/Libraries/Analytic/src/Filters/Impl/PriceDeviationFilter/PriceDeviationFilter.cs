@@ -11,7 +11,7 @@ namespace Analytic.Filters
     /// <summary>
     ///     Фильтр цен
     /// </summary>
-    public class PriceDeviationFilter : IFilter
+    public class BinancePriceDeviationFilter : IFilter
     {
         #region .ctor
 
@@ -23,7 +23,7 @@ namespace Analytic.Filters
         /// <param name="comparisonType"> Тип фильтра цен </param>
         /// <param name="limit"> Ограничение </param>
         /// <param name="timeframeNumber"> Кол-во таймфреймов участвующих в анализе </param>
-        public PriceDeviationFilter(
+        public BinancePriceDeviationFilter(
             string filterName,
             AggregateDataIntervalType interval,
             ComparisonType comparisonType,
@@ -85,20 +85,27 @@ namespace Analytic.Filters
                 ?? throw new InvalidOperationException($"{nameof(IBinanceDbContextFactory)} not registered!");
             using var database = databaseFactory.CreateScopeDatabase();
 
-            model.DeviationsSum = await database.ColdUnitOfWork.MiniTickers
-                .GetPricePercentDeviationSumAsync(
-                model.TradeObjectName,
-                Interval.CastToBinanceDataAggregateType(),
-                TimeframeNumber,
-                cancellationToken);
+            try
+            {
+                model.DeviationsSum = await database.ColdUnitOfWork.MiniTickers
+                    .GetPricePercentDeviationAsync(
+                        model.TradeObjectName,
+                        Interval.CastToBinanceDataAggregateType(),
+                        TimeframeNumber,
+                        cancellationToken);
+            }
+            catch (Exception)
+            {
+                return false;
+            }
 
             return ComparisonType switch
-                {
-                    ComparisonType.GreaterThan => model.DeviationsSum > Limit,
-                    ComparisonType.LessThan => model.DeviationsSum < Limit,
-                    ComparisonType.Equal => model.DeviationsSum == Limit,
-                    _ => throw new NotImplementedException(),
-                };
+            {
+                ComparisonType.GreaterThan => model.DeviationsSum > Limit,
+                ComparisonType.LessThan => model.DeviationsSum < Limit,
+                ComparisonType.Equal => model.DeviationsSum == Limit,
+                _ => throw new NotImplementedException(),
+            };
         }
 
         #endregion

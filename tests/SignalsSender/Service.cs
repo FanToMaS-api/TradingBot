@@ -158,7 +158,7 @@ namespace SignalsSender
 
             var priceDeviationCommonFilter = new PriceDeviationFilterBuilder()
                 .SetFilterName("FallingPriceDeviationFilter")
-                .SetAggregateDataIntervalType(AggregateDataIntervalType.FiveMinutes)
+                .SetAggregateDataIntervalType(AggregateDataIntervalType.Default)
                 .SetComparisonType(ComparisonType.LessThan)
                 .SetLimit(-10)
                 .SetTimeframeNumber(20)
@@ -199,19 +199,16 @@ namespace SignalsSender
             _analyticService.ModelsFiltered += OnModelsFilteredReceived;
             _analyticService.SuccessfulAnalyzed += OnModelsToBuyReceived;
 
-            var ssaDataLoader = new BinanceDataLoaderForSsa(_logger, _mapper);
-            var ssaMlProfile = new MlAnalyticProfile(_logger, MachineLearningModelType.SSA, ssaDataLoader, "MlSsaProfile");
+            // var ssaDataLoader = new BinanceDataLoaderForSsa(_logger, _mapper);
+            // var ssaMlProfile = new MlAnalyticProfile(_logger, MachineLearningModelType.SSA, ssaDataLoader, "MlSsaProfile");
 
             var fastTreeDataLoader = new BinanceDataLoader(_logger, _mapper);
             var fastTreeProfile = new MlAnalyticProfile(_logger, MachineLearningModelType.FastTree, fastTreeDataLoader, "MlFastTreeProfile");
+            var profileGroup = new ProfileGroup(_logger, "ProfileGroup");
             
-            var ssaProfileGroup = new ProfileGroup(_logger, "SsaGroupProfile");
-            ssaProfileGroup.AddAnalyticUnit(ssaMlProfile);
-            _analyticService.AddProfileGroup(ssaProfileGroup);
-            
-            var fastTreeProfileGroup = new ProfileGroup(_logger, "fastTreeGroupProfile");
-            fastTreeProfileGroup.AddAnalyticUnit(fastTreeProfile);
-            _analyticService.AddProfileGroup(fastTreeProfileGroup);
+            // profileGroup.AddAnalyticUnit(ssaMlProfile);
+            profileGroup.AddAnalyticUnit(fastTreeProfile);
+            _analyticService.AddProfileGroup(profileGroup);
 
             _analyticService.AddFilterManager(growingPairFilterManager);
             _analyticService.AddFilterManager(fallingTickersFilterManager);
@@ -258,11 +255,11 @@ namespace SignalsSender
 
                     var pairSymbols = model.TradeObjectName.Insert(model.TradeObjectName.Length - symbol.Length, "/");
                     var pairName = pairSymbols.Replace("/", "_");
-                    var message = $"*{pairSymbols}*\nНовая разница: *{model.LastDeviation:0.00000}%*" +
-                        $"\nРазница за последние несколько таймфреймов: *{model.DeviationsSum:0.0000000}%*" +
-                        $"\nПоследняя цена: *{model.LastPrice}*" +
-                        $"\nОбъем спроса: *{model.BidVolume:0,0.0}*" +
-                        $"\nОбъем предложения: *{model.AskVolume:0,0.0}*";
+                    var message = $"*{pairSymbols}*\nНовая разница: *{model.LastDeviation:e+3}%*" +
+                        $"\nРазница за последние несколько таймфреймов: *{model.DeviationsSum:e+3}%*" +
+                        $"\nПоследняя цена: *{model.LastPrice:e+3}*" +
+                        $"\nОбъем спроса: *{model.BidVolume:e+3}*" +
+                        $"\nОбъем предложения: *{model.AskVolume:e+3}*";
 
                     var url = _baseUrl.Replace("<pair>", pairName);
                     var telegramMessage = builder
@@ -310,10 +307,10 @@ namespace SignalsSender
 
                     var pairSymbols = model.TradeObjectName.Insert(model.TradeObjectName.Length - symbol.Length, "/");
                     var pairName = pairSymbols.Replace("/", "_");
-                    var message = $"*{pairSymbols}*\n*Минимальная цена прогноза: {model.RecommendedPurchasePrice:0.00000}*";
+                    var message = $"*{pairSymbols}*\n*Минимальная цена прогноза: {model.RecommendedPurchasePrice:e+3}*";
                     if (model.RecommendedSellingPrice is not null)
                     {
-                        message += $"\n*Максимальная цена прогноза: {model.RecommendedSellingPrice.Value:0.00000}*";
+                        message += $"\n*Максимальная цена прогноза: {model.RecommendedSellingPrice.Value:e+3}*";
                     }
 
                     builder.SetMessageText(message);

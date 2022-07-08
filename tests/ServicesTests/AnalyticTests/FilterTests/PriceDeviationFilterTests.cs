@@ -14,7 +14,7 @@ using Xunit;
 namespace AnalyticTests.FilterTests
 {
     /// <summary>
-    ///     Тестирует <see cref="PriceDeviationFilter"/>
+    ///     Тестирует <see cref="BinancePriceDeviationFilter"/>
     /// </summary>
     public class PriceDeviationFilterTests
     {
@@ -74,7 +74,7 @@ namespace AnalyticTests.FilterTests
         [Theory(DisplayName = "Filter by price deviation Test")]
         [MemberData(nameof(InfoModelsMemberData))]
         public async Task FilterByPriceDeviation_Test(
-            PriceDeviationFilter filter,
+            BinancePriceDeviationFilter filter,
             double expectedSum,
             bool expectedFilterResult)
         {
@@ -94,13 +94,13 @@ namespace AnalyticTests.FilterTests
         /// <param name="comparisonType"> Тип сравнения </param>
         /// <param name="limit"> Ограничение </param>
         /// <param name="timeframeNumber"> Кол-во таймфреймов участвующих в анализе </param>
-        private static PriceDeviationFilter CreatePriceDeviationFilter(
+        private static BinancePriceDeviationFilter CreatePriceDeviationFilter(
             ComparisonType comparisonType,
             AggregateDataIntervalType interval,
             double limit,
             int timeframeNumber)
             => new(
-                "PriceDeviationFilter",
+                "BinancePriceDeviationFilter",
                 interval,
                 comparisonType,
                 limit: limit,
@@ -119,7 +119,7 @@ namespace AnalyticTests.FilterTests
             var scopeMock = Substitute.For<IServiceScope>();
             var scopeFactoryMock = Substitute.For<IServiceScopeFactory>();
 
-            miniTickerRepositoryMock.GetPricePercentDeviationSumAsync(
+            miniTickerRepositoryMock.GetPricePercentDeviationAsync(
                 default,
                 default,
                 default,
