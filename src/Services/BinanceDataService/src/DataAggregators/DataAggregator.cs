@@ -181,7 +181,10 @@ namespace BinanceDataService.DataAggregators
                 for (var page = 0; page < pagesCount; page++)
                 {
                     var entities = GetNonAggregatingMiniTickersEntities(query, page, pageSize);
-                    averagedGroup.AddRange(GetAveragingTicker(entities, _configuration.AggregateDataInterval));
+                    if (entities.Any())
+                    {
+                        averagedGroup.AddRange(GetAveragingTicker(entities, _configuration.AggregateDataInterval));
+                    }
                 }
 
                 aggregatedMiniTickers.AddRange(averagedGroup);
@@ -269,7 +272,7 @@ namespace BinanceDataService.DataAggregators
         /// </summary>
         internal static void AveragingFields(MiniTickerEntity aggregateObject, int averagingObjectsCounter)
         {
-            Assert.True(averagingObjectsCounter > 0, $"{averagingObjectsCounter} should be greater than 0");
+            Assert.True(averagingObjectsCounter > 0, $"{nameof(averagingObjectsCounter)} should be greater than 0");
             aggregateObject.OpenPrice /= averagingObjectsCounter;
             aggregateObject.ClosePrice /= averagingObjectsCounter;
             aggregateObject.QuotePurchaseVolume /= averagingObjectsCounter;

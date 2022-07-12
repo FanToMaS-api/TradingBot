@@ -83,7 +83,7 @@ namespace AnalyticTests.FilterTests
             var actualFilterResult = await filter.CheckConditionsAsync(serviceScopeFactory, model, CancellationToken.None);
 
             Assert.Equal(expectedFilterResult, actualFilterResult);
-            Assert.Equal(expectedSum, model.DeviationsSum);
+            Assert.Equal(expectedSum, model.PricePercentDeviation);
         }
 
         #region Private methods

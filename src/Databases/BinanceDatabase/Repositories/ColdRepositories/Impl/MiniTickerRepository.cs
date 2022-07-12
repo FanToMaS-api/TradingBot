@@ -84,18 +84,19 @@ namespace BinanceDatabase.Repositories.ColdRepositories.Impl
             var query = CreateQuery()
                 .Where(_ => _.ShortName == pair && _.AggregateDataInterval == interval)
                 .OrderByDescending(_ => _.EventTime)
-                .Select(_ => _.PriceDeviationPercent)
+                .Select(_ => _.ClosePrice)
                 .Take(count);
 
-            Assert.True(await query.AnyAsync());
+            Assert.True(await query.AnyAsync(cancellationToken), $"Query result for pair {pair} is empty");
 
             var oldPrice = await query.FirstOrDefaultAsync();
-            Assert.True(oldPrice > 0);
+            Assert.True(oldPrice > 0, $"{nameof(oldPrice)} is less or equal to zero");
 
             var newPrice = await query.LastOrDefaultAsync();
-            Assert.True(newPrice > 0);
+            Assert.True(newPrice > 0, $"{nameof(newPrice)} is less or equal to zero");
+            var deviation = CommonHelper.GetPercentDeviation(oldPrice, newPrice);
 
-            return CommonHelper.GetPercentDeviation(oldPrice, newPrice);
+            return deviation;
         }
 
 

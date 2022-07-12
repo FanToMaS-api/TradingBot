@@ -179,11 +179,11 @@ namespace Common.Plotter
             plot.XAxis.TickLabelFormat("g", dateTimeFormat: true);
 
             plot.AddText(
-                $"Min: {MinPrice:e+3}",
+                $"Min: {MinPrice:e3}",
                 timeForPredictions[MinIndex],
                 MinPrice, 17);
             plot.AddText(
-                $"Max: {MaxPrice:e+3}",
+                $"Max: {MaxPrice:e3}",
                 timeForPredictions[MaxIndex],
                 MaxPrice, 17);
 

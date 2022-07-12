@@ -25,7 +25,7 @@ namespace Common.Helpers
         {
             if (!condition)
             {
-                throw new ArgumentNullException($"Error! Condition is false. {message}");
+                throw new ArgumentException($"Error! Condition is false. {message}");
             }
         }
 
@@ -36,7 +36,7 @@ namespace Common.Helpers
         {
             if (condition)
             {
-                throw new ArgumentNullException($"Error! Condition is true. {message}");
+                throw new ArgumentException($"Error! Condition is true. {message}");
             }
         }
     }

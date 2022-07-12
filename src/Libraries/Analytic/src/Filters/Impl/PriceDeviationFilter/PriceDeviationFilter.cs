@@ -1,10 +1,10 @@
-﻿using Analytic.Models;
+﻿using Analytic.Filters.Enums;
+using Analytic.Models;
 using BinanceDatabase;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Analytic.Filters.Enums;
 
 namespace Analytic.Filters
 {
@@ -73,7 +73,7 @@ namespace Analytic.Filters
 
         /// <inheritdoc />
         /// <remarks>
-        ///     Данный метод также вычисляет значение <see cref="InfoModel.DeviationsSum"/>
+        ///     Данный метод также вычисляет значение <see cref="InfoModel.PricePercentDeviation"/>
         /// </remarks>
         public async Task<bool> CheckConditionsAsync(
             IServiceScopeFactory serviceScopeFactory,
@@ -87,23 +87,23 @@ namespace Analytic.Filters
 
             try
             {
-                model.DeviationsSum = await database.ColdUnitOfWork.MiniTickers
+                model.PricePercentDeviation = await database.ColdUnitOfWork.MiniTickers
                     .GetPricePercentDeviationAsync(
                         model.TradeObjectName,
                         Interval.CastToBinanceDataAggregateType(),
                         TimeframeNumber,
                         cancellationToken);
             }
-            catch (Exception)
+            catch (Exception _)
             {
                 return false;
             }
 
             return ComparisonType switch
             {
-                ComparisonType.GreaterThan => model.DeviationsSum > Limit,
-                ComparisonType.LessThan => model.DeviationsSum < Limit,
-                ComparisonType.Equal => model.DeviationsSum == Limit,
+                ComparisonType.GreaterThan => model.PricePercentDeviation > Limit,
+                ComparisonType.LessThan => model.PricePercentDeviation < Limit,
+                ComparisonType.Equal => model.PricePercentDeviation == Limit,
                 _ => throw new NotImplementedException(),
             };
         }
