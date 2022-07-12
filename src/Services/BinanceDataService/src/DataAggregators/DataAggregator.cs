@@ -29,6 +29,7 @@ namespace BinanceDataService.DataAggregators
         private readonly CancellationTokenSource _cancellationTokenSource;
         private readonly ILoggerDecorator _logger;
         private readonly IRecurringJobScheduler _scheduler;
+        private readonly AggregateDataIntervalType _reducedDataIntervalType;
         private TriggerKey _triggerKey;
         private bool _isDisposed;
 
@@ -51,6 +52,7 @@ namespace BinanceDataService.DataAggregators
             _scheduler = scheduler;
             _configuration = aggregatorConfig;
             _cancellationTokenSource = new();
+            _reducedDataIntervalType = GetReducedDataAggregationInterval();
         }
 
         #endregion
@@ -167,7 +169,7 @@ namespace BinanceDataService.DataAggregators
                 var allCount = await database.ColdUnitOfWork.MiniTickers
                     .CreateQuery()
                     .CountAsync(
-                        _ => _.ShortName == name && _configuration.AggregateDataInterval > _.AggregateDataInterval,
+                        _ => _.ShortName == name && _reducedDataIntervalType == _.AggregateDataInterval,
                         _cancellationTokenSource.Token);
                 if (allCount == 0)
                 {
@@ -175,9 +177,10 @@ namespace BinanceDataService.DataAggregators
                 }
 
                 var pagesCount = (int)Math.Ceiling(allCount / (double)pageSize);
+                var query = CreateQuery(database, _ => _.ShortName == name && _reducedDataIntervalType == _.AggregateDataInterval);
                 for (var page = 0; page < pagesCount; page++)
                 {
-                    var entities = GetNonAggregatingMiniTickersEntities(database, name, page, pageSize);
+                    var entities = GetNonAggregatingMiniTickersEntities(query, page, pageSize);
                     averagedGroup.AddRange(GetAveragingTicker(entities, _configuration.AggregateDataInterval));
                 }
 
@@ -192,15 +195,11 @@ namespace BinanceDataService.DataAggregators
         ///     Возвращает еще не агрегированные модели
         /// </summary>
         internal IEnumerable<MiniTickerEntity> GetNonAggregatingMiniTickersEntities(
-            IUnitOfWork database,
-            string name,
+            IOrderedEnumerable<MiniTickerEntity> query,
             int page,
             int pageSize)
         {
-            var models = database.ColdUnitOfWork.MiniTickers
-                .CreateQuery()
-                .Where(_ => _.ShortName == name && _configuration.AggregateDataInterval > _.AggregateDataInterval)
-                .OrderBy(_ => _.EventTime)
+            var models = query
                 .Skip(page * pageSize)
                 .Take(pageSize);
 
@@ -278,9 +277,38 @@ namespace BinanceDataService.DataAggregators
             aggregateObject.PriceDeviationPercent /= averagingObjectsCounter;
         }
 
+        /// <summary>
+        ///     Возвращает пониженный на 1 интервал для агрегирования данных
+        /// </summary>
+        /// <remarks>
+        ///     Чтобы при агрегированиии например по 5ти минутному интервалу,
+        ///     не попадались одновременно с 1минутными данными Default данные,
+        ///     т.е. не выполнялась двойная агрегация
+        /// </remarks>
+        internal AggregateDataIntervalType GetReducedDataAggregationInterval()
+        {
+            var reducedDataAggregationInterval = _configuration.AggregateDataInterval - 1 < 0
+                ? AggregateDataIntervalType.Default
+                : _configuration.AggregateDataInterval - 1;
+
+            return reducedDataAggregationInterval;
+        }
+
         #endregion
 
         #region Private methods
+
+        /// <summary>
+        ///     Создает запрос мини тикеров к базе данных
+        /// </summary>
+        /// <param name="func"> Функция отбора </param>
+        private IOrderedEnumerable<MiniTickerEntity> CreateQuery(IUnitOfWork database, Func<MiniTickerEntity, bool> func)
+        {
+            return database.ColdUnitOfWork.MiniTickers
+                .CreateQuery()
+                .Where(func)
+                .OrderBy(_ => _.EventTime);
+        }
 
         /// <summary>
         ///     Возвращает уникальные названия пар, хранящиеся в бд
@@ -289,7 +317,7 @@ namespace BinanceDataService.DataAggregators
         {
             var pairs = database.ColdUnitOfWork.MiniTickers
                 .CreateQuery()
-                .Where(_ => _configuration.AggregateDataInterval > _.AggregateDataInterval)
+                .Where(_ => _reducedDataIntervalType == _.AggregateDataInterval)
                 .Select(_ => _.ShortName)
                 .Distinct()
                 .ToList();

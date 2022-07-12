@@ -21,6 +21,14 @@ namespace Telegram.Client
         QueuedUpdateReceiver GetUpdateReceiver(UpdateType[] allowedUpdates);
 
         /// <summary>
+        ///     Удаляет сообщение из чата
+        /// </summary>
+        /// <param name="channelId"> Id канала </param>
+        /// <param name="messageId"> Id сообщения, которое хотим удалить </param>
+        /// <param name="cancellationToken"> Токен отмены </param>
+        Task DeleteMessageAsync(long channelId, int messageId, CancellationToken cancellationToken);
+
+        /// <summary>
         ///     Отправляет блок сообщений за раз
         /// </summary>
         /// <param name="models"> Модели сообщений для отправки </param>

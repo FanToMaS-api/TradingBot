@@ -55,6 +55,12 @@ namespace Telegram.Client.Impl
         }
 
         /// <inheritdoc />
+        public async Task DeleteMessageAsync(long channelId, int messageId, CancellationToken cancellationToken)
+        {
+            await _client.DeleteMessageAsync(channelId, messageId, cancellationToken);
+        }
+
+        /// <inheritdoc />
         public async Task SendManyMessagesAsync(IEnumerable<TelegramMessageModel> models, CancellationToken cancellationToken)
         {
             var pagesCount = (int)Math.Ceiling(models.Count() / (double)MessagesNumberInOneSending);
