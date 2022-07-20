@@ -49,8 +49,8 @@ namespace AnalyticTests
             var dataLoader = new BinanceDataLoaderForSsa(_logger, _mapper);
             var models = dataLoader.GetData(serviceScopeFactoryMock, "BTCUSDT", contextModel.NumberPricesToTake);
 
-            Assert.NotNull(models);
-            Assert.Equal(1000, models.Count());
+            Xunit.Assert.NotNull(models);
+            Xunit.Assert.Equal(1000, models.Count());
             var predictions = contextModel.Forecast(models);
             var loggerMock = Substitute.For<ILoggerDecorator>();
             var plotter = new Plotter(loggerMock);
@@ -68,8 +68,8 @@ namespace AnalyticTests
                 models.Select(_ => _.EventTime),
                 out var imagePath);
 
-            Assert.True(canCreateChart);
-            Assert.True(File.Exists(imagePath));
+            Xunit.Assert.True(canCreateChart);
+            Xunit.Assert.True(File.Exists(imagePath));
             File.Delete(imagePath);
 
             // deleting a Directory
@@ -89,8 +89,8 @@ namespace AnalyticTests
             var dataLoader = new BinanceDataLoaderForSsa(_logger, _mapper);
             var models = dataLoader.GetData(serviceScopeFactoryMock, "BTCUSDT", contextModel.NumberPricesToTake);
 
-            Assert.NotNull(models);
-            Assert.Equal(2000, models.Count());
+            Xunit.Assert.NotNull(models);
+            Xunit.Assert.Equal(2000, models.Count());
             var predictions = contextModel.Forecast(models);
             var loggerMock = Substitute.For<ILoggerDecorator>();
             var plotter = new Plotter(loggerMock);
@@ -109,9 +109,9 @@ namespace AnalyticTests
                 models.Select(_ => _.EventTime),
                 out var imagePath);
 
-            Assert.True(canCreateChart);
+            Xunit.Assert.True(canCreateChart);
 
-            Assert.True(File.Exists(imagePath));
+            Xunit.Assert.True(File.Exists(imagePath));
             File.Delete(imagePath);
 
             // deleting a Directory
@@ -135,7 +135,7 @@ namespace AnalyticTests
                 serviceScopeFactoryMock,
                 infoModel,
                 CancellationToken.None);
-            Assert.True(isSuccessfulAnalyze);
+            Xunit.Assert.True(isSuccessfulAnalyze);
 
             var plotter = new Plotter(_logger);
             var direcroryPath = plotter.GetOrCreateFolderPath(Plotter.GraficsFolder);
@@ -161,7 +161,7 @@ namespace AnalyticTests
                 serviceScopeFactoryMock,
                 "NOT BTCUSDT",
                 CancellationToken.None);
-            Assert.True(isSuccessfulAnalyze);
+            Xunit.Assert.True(isSuccessfulAnalyze);
 
             var plotter = new Plotter(_logger);
             var direcroryPath = plotter.GetOrCreateFolderPath(Plotter.GraficsFolder);
@@ -188,7 +188,7 @@ namespace AnalyticTests
                 serviceScopeFactoryMock,
                 infoModel,
                 CancellationToken.None);
-            Assert.True(isSuccessfulAnalyze);
+            Xunit.Assert.True(isSuccessfulAnalyze);
 
             var plotter = new Plotter(_logger);
             var direcroryPath = plotter.GetOrCreateFolderPath(Plotter.GraficsFolder);
@@ -214,7 +214,7 @@ namespace AnalyticTests
                 serviceScopeFactoryMock,
                 "NOT BTCUSDT",
                 CancellationToken.None);
-            Assert.True(isSuccessfulAnalyze);
+            Xunit.Assert.True(isSuccessfulAnalyze);
 
             var plotter = new Plotter(_logger);
             var direcroryPath = plotter.GetOrCreateFolderPath(Plotter.GraficsFolder);

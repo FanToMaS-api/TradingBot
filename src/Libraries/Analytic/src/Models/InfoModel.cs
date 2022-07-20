@@ -55,12 +55,12 @@ namespace Analytic.Models
         /// <summary>
         ///     Последнее отклонение
         /// </summary>
-        public double LastDeviation { get; internal set; }
+        public double LastPercentDeviation { get; internal set; }
 
         /// <summary>
-        ///     Суммарное отклонение за какое-то кол-во таймфреймов
+        ///     Отклонение за какое-то кол-во таймфреймов
         /// </summary>
-        public double DeviationsSum { get; internal set; }
+        public double PricePercentDeviation { get; internal set; }
 
         #endregion
     }

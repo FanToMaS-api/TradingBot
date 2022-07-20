@@ -109,13 +109,15 @@ namespace Analytic.Filters
         ///     Проверка условия в соответствии с типом фильтруемых объемов
         /// </summary>
         /// <param name="filterFunc"> Функция для фильтрации </param>
-        private bool IsSatisfiesCondition(InfoModel model, Func<double, double, bool> filterFunc) =>
-            VolumeType switch
+        private bool IsSatisfiesCondition(InfoModel model, Func<double, double, bool> filterFunc)
+        {
+            return VolumeType switch
             {
                 VolumeType.Bid => filterFunc(model.BidVolume, model.AskVolume),
                 VolumeType.Ask => filterFunc(model.AskVolume, model.BidVolume),
                 _ => throw new NotImplementedException(),
             };
+        }
 
         #endregion
     }

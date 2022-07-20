@@ -31,13 +31,17 @@ namespace BinanceDatabase.Repositories.ColdRepositories
             int? neededCount = null);
 
         /// <summary>
-        ///     Возвращает суммарное отклонение цены при заданном интервале
+        ///     Возвращает отклонение цены при заданном интервале между первым и последним элементом
+        ///     Например: <paramref name="count"/> = 5 <br />
+        ///     Цены в бд: 2 5 6 4 3 8 9 10 <br />
+        ///     Выборка: 4 3 8 9 10 <br />
+        ///     Отклонение будет высчитываться между элементами 4 и 10
         /// </summary>
         /// <param name="pair"> Название пары </param>
         /// <param name="interval"> Определяет с каким интервалом идет подсчет отклонений </param>
-        /// <param name="count"> Нужное кол-во отклонений в сумме </param>
+        /// <param name="count"> Кол-во элементов между которым мы рассматриваем отклонение цены </param>
         /// <param name="cancellationToken"> Токен отмены </param>
-        Task<double> GetPricePercentDeviationSumAsync(
+        Task<double> GetPricePercentDeviationAsync(
             string pair,
             AggregateDataIntervalType interval,
             int count,

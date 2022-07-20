@@ -4,7 +4,7 @@ using Common.Helpers;
 namespace Analytic.Filters.Builders.FilterBuilders
 {
     /// <summary>
-    ///     Строитель <see cref="PriceDeviationFilter"/>
+    ///     Строитель <see cref="BinancePriceDeviationFilter"/>
     /// </summary>
     public class PriceDeviationFilterBuilder
     {
@@ -79,7 +79,7 @@ namespace Analytic.Filters.Builders.FilterBuilders
         /// <summary>
         ///     Возвращает фильтр отклонения цен
         /// </summary>
-        public PriceDeviationFilter GetResult()
+        public BinancePriceDeviationFilter GetResult()
             => new(
                 _filterName,
                 _aggregateDataIntervalType,

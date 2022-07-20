@@ -69,7 +69,7 @@ namespace AnalyticTests
             var data = _mapper.Map<IEnumerable<TradeObjectModel>>(enitites);
             var model = new ForecastByFastTreeModel(_logger, 1);
             var predictions = model.Forecast(data);
-            Assert.Equal(150, predictions.Length);
+            Assert.Equal(80, predictions.Length);
         }
 
         #endregion
