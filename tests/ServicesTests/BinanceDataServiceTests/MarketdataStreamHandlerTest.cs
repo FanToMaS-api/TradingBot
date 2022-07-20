@@ -3,6 +3,8 @@ using BinanceDatabase;
 using BinanceDatabase.Entities;
 using BinanceDatabase.Enums;
 using BinanceDatabase.Repositories;
+using BinanceDataService.Configuration;
+using BinanceDataService.Configuration.AggregatorConfigs;
 using BinanceDataService.DataAggregators;
 using BinanceDataService.DataHandlers;
 using Common.Models;
@@ -54,8 +56,16 @@ namespace BinanceDataServiceTests
             var scheduler = Substitute.For<IRecurringJobScheduler>();
             scheduler.ScheduleAsync(null, null).ReturnsForAnyArgs(new TriggerKey("Test"));
 
+            var marketdataStreamHandlerConfig = new MarketdataStreamHandlerConfig
+            {
+                OneMinuteAggregator = new OneMinuteAggregatorConfig(),
+                FiveMinutesAggregator = new FiveMinutesAggregatorConfig(),
+                FifteenMinutesAggregator = new FifteenMinutesAggregatorConfig(),
+                OneHourAggregator = new OneHourAggregatorConfig(),
+            };
+
             _dataHandler = new MarketdataStreamHandler(
-                new(),
+                marketdataStreamHandlerConfig,
                 exchange,
                 scheduler,
                 mapperConfig.CreateMapper(),
@@ -68,13 +78,13 @@ namespace BinanceDataServiceTests
         #region Tests
 
         /// <summary>
-        ///     Тест функции аггрегирования данных объекта
+        ///     Тест функции агрегирования данных объекта
         /// </summary>
         [Fact(DisplayName = "Aggregate fields Test")]
         public void AggregateFields_Test()
         {
-            var addedObject = CreateMiniTickerEntity(1, 5, 1, 0.2, 1, 1, StartDate, AggregateDataIntervalType.Default);
-            var aggregateObject = CreateMiniTickerEntity(1, 4, 1, 0.1, 1, 1, StartDate, AggregateDataIntervalType.Default);
+            var addedObject = CreateMiniTickerEntity(1, 5, 1, 0.2, 1, 1, 1, StartDate, AggregateDataIntervalType.Default);
+            var aggregateObject = CreateMiniTickerEntity(1, 4, 1, 0.1, 1, 1, 1, StartDate, AggregateDataIntervalType.Default);
 
             DataAggregator.AggregateFields(addedObject, aggregateObject);
 
@@ -95,7 +105,7 @@ namespace BinanceDataServiceTests
         [Fact(DisplayName = "Averaging fields Test")]
         public void AveragingFields_Test()
         {
-            var aggregateObject = CreateMiniTickerEntity(2.5, 2.5, 2.5, 2.5, 2.5, 2.5, StartDate, AggregateDataIntervalType.Default);
+            var aggregateObject = CreateMiniTickerEntity(2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 5, StartDate, AggregateDataIntervalType.Default);
 
             DataAggregator.AveragingFields(aggregateObject, 2);
 
@@ -105,6 +115,7 @@ namespace BinanceDataServiceTests
             Assert.Equal(2.5, aggregateObject.MinPrice);
             Assert.Equal(1.25, aggregateObject.QuotePurchaseVolume);
             Assert.Equal(1.25, aggregateObject.BasePurchaseVolume);
+            Assert.Equal(2.5, aggregateObject.PriceDeviationPercent);
         }
 
         #region Member data for GetAveragingMiniTickers_Test
@@ -123,55 +134,85 @@ namespace BinanceDataServiceTests
             CreateMiniTradeStreamModel(15, 15, 15, 15, 15, 15, StartDate.AddHours(2).FromDateTimeToUnix()),
         };
 
-        private static readonly List<MiniTickerEntity> _entities = new()
+        private static readonly List<MiniTickerEntity> _defaultAggregateDataIntervalTypeEntities = new()
         {
-            CreateMiniTickerEntity(2.5, 2.5, 2.5, 2.5, 2.5, 2.5, StartDate, AggregateDataIntervalType.Default),
-            CreateMiniTickerEntity(5, 5, 5, 5, 5, 5, StartDate.AddSeconds(10), AggregateDataIntervalType.Default),
-            CreateMiniTickerEntity(7, 7, 7, 7, 7, 7, StartDate.AddSeconds(20), AggregateDataIntervalType.Default),
-            CreateMiniTickerEntity(9, 9, 9, 9, 9, 9, StartDate.AddSeconds(30), AggregateDataIntervalType.Default),
-            CreateMiniTickerEntity(10, 10, 10, 10, 10, 10, StartDate.AddSeconds(60), AggregateDataIntervalType.Default),
-            CreateMiniTickerEntity(11, 11, 11, 11, 11, 11, StartDate.AddSeconds(70), AggregateDataIntervalType.Default),
+            CreateMiniTickerEntity(2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, StartDate, AggregateDataIntervalType.Default),
+            CreateMiniTickerEntity(5, 5, 5, 5, 5, 5, 5, StartDate.AddSeconds(10), AggregateDataIntervalType.Default),
+            CreateMiniTickerEntity(7, 7, 7, 7, 7, 7, 7, StartDate.AddSeconds(20), AggregateDataIntervalType.Default),
+            CreateMiniTickerEntity(9, 9, 9, 9, 9, 9, 9, StartDate.AddSeconds(30), AggregateDataIntervalType.Default),
+            CreateMiniTickerEntity(10, 10, 10, 10, 10, 10, 10, StartDate.AddSeconds(60), AggregateDataIntervalType.Default),
+            CreateMiniTickerEntity(11, 11, 11, 11, 11, 11, 11, StartDate.AddSeconds(70), AggregateDataIntervalType.Default),
 
-            CreateMiniTickerEntity(12, 12, 12, 12, 12, 12, StartDate.AddMinutes(2), AggregateDataIntervalType.Default),
-            CreateMiniTickerEntity(13, 13, 13, 13, 13, 13, StartDate.AddMinutes(3), AggregateDataIntervalType.Default),
-            CreateMiniTickerEntity(14, 14, 14, 14, 14, 14, StartDate.AddHours(1), AggregateDataIntervalType.Default),
-            CreateMiniTickerEntity(15, 15, 15, 15, 15, 15, StartDate.AddHours(2), AggregateDataIntervalType.Default),
+            CreateMiniTickerEntity(12, 12, 12, 12, 12, 12, 12, StartDate.AddMinutes(2), AggregateDataIntervalType.Default),
+            CreateMiniTickerEntity(13, 13, 13, 13, 13, 13, 13, StartDate.AddMinutes(3), AggregateDataIntervalType.Default),
+            CreateMiniTickerEntity(14, 14, 14, 14, 14, 14, 14, StartDate.AddHours(1), AggregateDataIntervalType.Default),
+            CreateMiniTickerEntity(15, 15, 15, 15, 15, 15, 15, StartDate.AddHours(2), AggregateDataIntervalType.Default),
+        };
+
+        private static readonly List<MiniTickerEntity> _oneMinuteAggregateDataIntervalTypeEntities = new()
+        {
+            CreateMiniTickerEntity(2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, StartDate, AggregateDataIntervalType.OneMinute),
+            CreateMiniTickerEntity(5, 5, 5, 5, 5, 5, 5, StartDate.AddSeconds(10), AggregateDataIntervalType.OneMinute),
+            CreateMiniTickerEntity(7, 7, 7, 7, 7, 7, 7, StartDate.AddSeconds(20), AggregateDataIntervalType.OneMinute),
+            CreateMiniTickerEntity(9, 9, 9, 9, 9, 9, 9, StartDate.AddSeconds(30), AggregateDataIntervalType.OneMinute),
+            CreateMiniTickerEntity(10, 10, 10, 10, 10, 10, 10, StartDate.AddSeconds(60), AggregateDataIntervalType.OneMinute),
+            CreateMiniTickerEntity(11, 11, 11, 11, 11, 11, 11, StartDate.AddSeconds(70), AggregateDataIntervalType.OneMinute),
+
+            CreateMiniTickerEntity(12, 12, 12, 12, 12, 12, 12, StartDate.AddMinutes(2), AggregateDataIntervalType.OneMinute),
+            CreateMiniTickerEntity(13, 13, 13, 13, 13, 13, 13, StartDate.AddMinutes(3), AggregateDataIntervalType.OneMinute),
+            CreateMiniTickerEntity(14, 14, 14, 14, 14, 14, 14, StartDate.AddHours(1), AggregateDataIntervalType.OneMinute),
+            CreateMiniTickerEntity(15, 15, 15, 15, 15, 15, 15, StartDate.AddHours(2), AggregateDataIntervalType.OneMinute),
+        };
+
+        private static readonly List<MiniTickerEntity> _fifteenMinutesAggregateDataIntervalTypeEntities = new()
+        {
+            CreateMiniTickerEntity(2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, StartDate, AggregateDataIntervalType.FifteenMinutes),
+            CreateMiniTickerEntity(5, 5, 5, 5, 5, 5, 5, StartDate.AddSeconds(10), AggregateDataIntervalType.FifteenMinutes),
+            CreateMiniTickerEntity(7, 7, 7, 7, 7, 7, 7, StartDate.AddSeconds(20), AggregateDataIntervalType.FifteenMinutes),
+            CreateMiniTickerEntity(9, 9, 9, 9, 9, 9, 9, StartDate.AddSeconds(30), AggregateDataIntervalType.FifteenMinutes),
+            CreateMiniTickerEntity(10, 10, 10, 10, 10, 10, 10, StartDate.AddSeconds(60), AggregateDataIntervalType.FifteenMinutes),
+            CreateMiniTickerEntity(11, 11, 11, 11, 11, 11, 11, StartDate.AddSeconds(70), AggregateDataIntervalType.FifteenMinutes),
+
+            CreateMiniTickerEntity(12, 12, 12, 12, 12, 12, 12, StartDate.AddMinutes(2), AggregateDataIntervalType.FifteenMinutes),
+            CreateMiniTickerEntity(13, 13, 13, 13, 13, 13, 13, StartDate.AddMinutes(3), AggregateDataIntervalType.FifteenMinutes),
+            CreateMiniTickerEntity(14, 14, 14, 14, 14, 14, 14, StartDate.AddHours(1), AggregateDataIntervalType.FifteenMinutes),
+            CreateMiniTickerEntity(15, 15, 15, 15, 15, 15, 15, StartDate.AddHours(2), AggregateDataIntervalType.FifteenMinutes),
         };
 
         private static readonly List<MiniTickerEntity> _expectedModelsForDefault = new()
         {
-            CreateMiniTickerEntity(2.5, 2.5, 2.5, 2.5, 2.5, 2.5, StartDate, AggregateDataIntervalType.Default),
-            CreateMiniTickerEntity(5, 5, 5, 5, 5, 5, StartDate.AddSeconds(10), AggregateDataIntervalType.Default),
-            CreateMiniTickerEntity(7, 7, 7, 7, 7, 7, StartDate.AddSeconds(20), AggregateDataIntervalType.Default),
-            CreateMiniTickerEntity(9, 9, 9, 9, 9, 9, StartDate.AddSeconds(30), AggregateDataIntervalType.Default),
-            CreateMiniTickerEntity(10, 10, 10, 10, 10, 10, StartDate.AddSeconds(60), AggregateDataIntervalType.Default),
-            CreateMiniTickerEntity(11, 11, 11, 11, 11, 11, StartDate.AddSeconds(70), AggregateDataIntervalType.Default),
-            CreateMiniTickerEntity(12, 12, 12, 12, 12, 12, StartDate.AddMinutes(2), AggregateDataIntervalType.Default),
-            CreateMiniTickerEntity(13, 13, 13, 13, 13, 13, StartDate.AddMinutes(3), AggregateDataIntervalType.Default),
-            CreateMiniTickerEntity(14, 14, 14, 14, 14, 14, StartDate.AddHours(1), AggregateDataIntervalType.Default),
-            CreateMiniTickerEntity(15, 15, 15, 15, 15, 15, StartDate.AddHours(2), AggregateDataIntervalType.Default)
+            CreateMiniTickerEntity(2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, StartDate, AggregateDataIntervalType.Default),
+            CreateMiniTickerEntity(5, 5, 5, 5, 5, 5, 5, StartDate.AddSeconds(10), AggregateDataIntervalType.Default),
+            CreateMiniTickerEntity(7, 7, 7, 7, 7, 7, 7, StartDate.AddSeconds(20), AggregateDataIntervalType.Default),
+            CreateMiniTickerEntity(9, 9, 9, 9, 9, 9, 9, StartDate.AddSeconds(30), AggregateDataIntervalType.Default),
+            CreateMiniTickerEntity(10, 10, 10, 10, 10, 10, 10, StartDate.AddSeconds(60), AggregateDataIntervalType.Default),
+            CreateMiniTickerEntity(11, 11, 11, 11, 11, 11, 11, StartDate.AddSeconds(70), AggregateDataIntervalType.Default),
+            CreateMiniTickerEntity(12, 12, 12, 12, 12, 12, 12, StartDate.AddMinutes(2), AggregateDataIntervalType.Default),
+            CreateMiniTickerEntity(13, 13, 13, 13, 13, 13, 13, StartDate.AddMinutes(3), AggregateDataIntervalType.Default),
+            CreateMiniTickerEntity(14, 14, 14, 14, 14, 14, 14, StartDate.AddHours(1), AggregateDataIntervalType.Default),
+            CreateMiniTickerEntity(15, 15, 15, 15, 15, 15, 15, StartDate.AddHours(2), AggregateDataIntervalType.Default)
         };
 
         private static readonly List<MiniTickerEntity> _expectedModelsForOneMinute = new()
         {
-            CreateMiniTickerEntity(6.7, 10, 6.7, 2.5, 6.7, 6.7, StartDate, AggregateDataIntervalType.OneMinute),
-            CreateMiniTickerEntity(11.5, 12, 11.5, 11, 11.5, 11.5, StartDate.AddSeconds(70), AggregateDataIntervalType.OneMinute),
-            CreateMiniTickerEntity(13, 13, 13, 13, 13, 13, StartDate.AddMinutes(3), AggregateDataIntervalType.OneMinute),
-            CreateMiniTickerEntity(14, 14, 14, 14, 14, 14, StartDate.AddHours(1), AggregateDataIntervalType.OneMinute),
-            CreateMiniTickerEntity(15, 15, 15, 15, 15, 15, StartDate.AddHours(2), AggregateDataIntervalType.OneMinute)
+            CreateMiniTickerEntity(6.7, 10, 6.7, 2.5, 6.7, 6.7, 6.7, StartDate, AggregateDataIntervalType.OneMinute),
+            CreateMiniTickerEntity(11.5, 12, 11.5, 11, 11.5, 11.5, 11.5, StartDate.AddSeconds(70), AggregateDataIntervalType.OneMinute),
+            CreateMiniTickerEntity(13, 13, 13, 13, 13, 13, 13, StartDate.AddMinutes(3), AggregateDataIntervalType.OneMinute),
+            CreateMiniTickerEntity(14, 14, 14, 14, 14, 14, 14, StartDate.AddHours(1), AggregateDataIntervalType.OneMinute),
+            CreateMiniTickerEntity(15, 15, 15, 15, 15, 15, 15, StartDate.AddHours(2), AggregateDataIntervalType.OneMinute)
         };
 
         private static readonly List<MiniTickerEntity> _expectedModelsForOneHour = new()
         {
-            CreateMiniTickerEntity(83.5 / 9, 14, 83.5 / 9, 2.5, 83.5 / 9, 83.5 / 9, StartDate, AggregateDataIntervalType.OneHour),
-            CreateMiniTickerEntity(15, 15, 15, 15, 15, 15, StartDate.AddHours(2), AggregateDataIntervalType.OneHour)
+            CreateMiniTickerEntity(83.5 / 9, 14, 83.5 / 9, 2.5, 83.5 / 9, 83.5 / 9, 83.5 / 9, StartDate, AggregateDataIntervalType.OneHour),
+            CreateMiniTickerEntity(15, 15, 15, 15, 15, 15, 15, StartDate.AddHours(2), AggregateDataIntervalType.OneHour)
         };
 
         public static readonly IEnumerable<object[]> IntervalsStreamModels = new List<object[]>
         {
-            new object[] { AggregateDataIntervalType.Default, _entities, _expectedModelsForDefault},
-            new object[] { AggregateDataIntervalType.OneMinute, _entities, _expectedModelsForOneMinute },
-            new object[] { AggregateDataIntervalType.OneHour, _entities, _expectedModelsForOneHour }
+            new object[] { AggregateDataIntervalType.Default, _defaultAggregateDataIntervalTypeEntities, _expectedModelsForDefault },
+            new object[] { AggregateDataIntervalType.OneMinute, _oneMinuteAggregateDataIntervalTypeEntities, _expectedModelsForOneMinute },
+            new object[] { AggregateDataIntervalType.OneHour, _fifteenMinutesAggregateDataIntervalTypeEntities, _expectedModelsForOneHour },
         };
 
         #endregion
@@ -186,12 +227,36 @@ namespace BinanceDataServiceTests
             IEnumerable<MiniTickerEntity> entities,
             MiniTickerEntity[] expectedResult)
         {
-            var actual = DataAggregator.GetAveragingTicker(entities, intervalType);
+            var actual = DataAggregator.GetAveragingTickers(entities, intervalType);
             Assert.Equal(expectedResult.Length, actual.Count);
             for (var i = 0; i < expectedResult.Length; i++)
             {
                 TestExtensions.CheckingAssertions(expectedResult[i], actual[i]);
             }
+        }
+
+        public static readonly IEnumerable<object[]> AggregatorConfigs = new List<object[]>
+        {
+            new object[] { new OneMinuteAggregatorConfig(), AggregateDataIntervalType.Default },
+            new object[] { new FiveMinutesAggregatorConfig(), AggregateDataIntervalType.OneMinute },
+            new object[] { new FifteenMinutesAggregatorConfig(), AggregateDataIntervalType.FiveMinutes },
+            new object[] { new OneHourAggregatorConfig(), AggregateDataIntervalType.FifteenMinutes },
+        };
+
+        /// <summary>
+        ///     Тест агрегирования данных через усреднение
+        /// </summary>
+        [Theory(DisplayName = "Get reduced data aggregation interval Test")]
+        [MemberData(nameof(AggregatorConfigs))]
+        internal void GetReducedDataAggregationInterval_Test(AggregatorConfigBase config, AggregateDataIntervalType expected)
+        {
+            var logger = Substitute.For<ILoggerDecorator>();
+            var scheduler = Substitute.For<IRecurringJobScheduler>();
+            var dataAggregator = new DataAggregator(logger, scheduler, config);
+
+            var actual = dataAggregator.GetReducedDataAggregationInterval();
+
+            Assert.Equal(expected, actual);
         }
 
         /// <summary>
@@ -259,6 +324,7 @@ namespace BinanceDataServiceTests
             double minPrice,
             double quotePurchaseVolume,
             double basePurchaseVolume,
+            double priceDeviationPercent,
             DateTime eventTime,
             AggregateDataIntervalType aggregateDataInterval) =>
             new()
@@ -269,6 +335,7 @@ namespace BinanceDataServiceTests
                 MinPrice = minPrice,
                 QuotePurchaseVolume = quotePurchaseVolume,
                 BasePurchaseVolume = basePurchaseVolume,
+                PriceDeviationPercent = priceDeviationPercent,
                 ShortName = "SOLUSDT",
                 EventTime = eventTime,
                 AggregateDataInterval = aggregateDataInterval

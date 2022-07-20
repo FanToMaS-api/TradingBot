@@ -26,6 +26,7 @@ namespace BinanceDatabase.Entities
                 OpenPrice = OpenPrice,
                 MaxPrice = MaxPrice,
                 MinPrice = MinPrice,
+                PriceDeviationPercent = PriceDeviationPercent,
                 BasePurchaseVolume = BasePurchaseVolume,
                 QuotePurchaseVolume = QuotePurchaseVolume
             };

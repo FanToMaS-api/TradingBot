@@ -51,19 +51,21 @@ namespace Analytic.Filters
         #region Public methods
 
 #pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
-        
+
         /// <inheritdoc />
         public async Task<bool> CheckConditionsAsync(
             IServiceScopeFactory _,
             InfoModel model,
-            CancellationToken cancellationToken) =>
-            ComparisonType switch
+            CancellationToken cancellationToken)
+        {
+            return ComparisonType switch
             {
                 ComparisonType.GreaterThan => model.LastPrice > Limit,
                 ComparisonType.LessThan => model.LastPrice < Limit,
                 ComparisonType.Equal => model.LastPrice == Limit,
                 _ => false
             };
+        }
 
 #pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
 

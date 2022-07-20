@@ -1,5 +1,6 @@
 ﻿using BinanceDatabase.Entities;
 using BinanceDatabase.Enums;
+using Common.Helpers;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -33,20 +34,30 @@ namespace BinanceDatabase.Repositories.ColdRepositories.Impl
         #region Implementation of IMiniTickerRepository
 
         /// <inheritdoc />
-        public IQueryable<MiniTickerEntity> CreateQuery() => _appDbContext.MiniTickers.AsQueryable();
+        public IQueryable<MiniTickerEntity> CreateQuery()
+        {
+            return _appDbContext.MiniTickers.AsQueryable();
+        }
 
         /// <inheritdoc />
         public async Task AddAsync(MiniTickerEntity entity, CancellationToken cancellationToken = default)
-            => await _appDbContext.MiniTickers.AddAsync(entity, cancellationToken);
+        {
+            await _appDbContext.MiniTickers.AddAsync(entity, cancellationToken);
+        }
 
         /// <inheritdoc />
         public async Task AddRangeAsync(
             IEnumerable<MiniTickerEntity> miniTickerEntities,
             CancellationToken cancellationToken = default)
-            => await _appDbContext.MiniTickers.AddRangeAsync(miniTickerEntities, cancellationToken);
+        {
+            await _appDbContext.MiniTickers.AddRangeAsync(miniTickerEntities, cancellationToken);
+        }
 
         /// <inheritdoc />
-        public void RemoveRange(IEnumerable<MiniTickerEntity> entities) => _appDbContext.RemoveRange(entities);
+        public void RemoveRange(IEnumerable<MiniTickerEntity> entities)
+        {
+            _appDbContext.RemoveRange(entities);
+        }
 
         /// <inheritdoc />
         public IEnumerable<MiniTickerEntity> GetEntities(
@@ -64,18 +75,30 @@ namespace BinanceDatabase.Repositories.ColdRepositories.Impl
         }
 
         /// <inheritdoc />
-        public async Task<double> GetPricePercentDeviationSumAsync(
+        public async Task<double> GetPricePercentDeviationAsync(
             string pair,
             AggregateDataIntervalType interval,
             int count,
             CancellationToken cancellationToken)
-            => 
-            await CreateQuery()
+        {
+            var query = CreateQuery()
                 .Where(_ => _.ShortName == pair && _.AggregateDataInterval == interval)
                 .OrderByDescending(_ => _.EventTime)
-                .Select(_ => _.PriceDeviationPercent)
-                .Take(count)
-                .SumAsync(cancellationToken);
+                .Select(_ => _.ClosePrice)
+                .Take(count);
+
+            Assert.True(await query.AnyAsync(cancellationToken), $"Query result for pair {pair} is empty");
+
+            var oldPrice = await query.FirstOrDefaultAsync();
+            Assert.True(oldPrice > 0, $"{nameof(oldPrice)} is less or equal to zero");
+
+            var newPrice = await query.LastOrDefaultAsync();
+            Assert.True(newPrice > 0, $"{nameof(newPrice)} is less or equal to zero");
+            var deviation = CommonHelper.GetPercentDeviation(oldPrice, newPrice);
+
+            return deviation;
+        }
+
 
         /// <inheritdoc />
         public async Task<int> RemoveUntilAsync(DateTime before, CancellationToken cancellationToken)

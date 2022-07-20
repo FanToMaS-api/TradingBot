@@ -84,16 +84,16 @@ namespace Analytic.AnalyticUnits.Profiles.ML
                 return (false, null);
             }
 
-            await _logger.TraceAsync(
-                $"Successful predicted {predictions.Length} prices for {pairName}",
-                cancellationToken: cancellationToken);
-
             var doublePredictions = Array.ConvertAll(predictions, _ => (double)_);
             var minMaxPriceModel = MinMaxPriceModel.Create(pairName, doublePredictions);
             if (minMaxPriceModel.MinPrice <= 0)
             {
                 return (false, null);
             }
+
+            await _logger.TraceAsync(
+                $"Successful predicted {predictions.Length} prices for {pairName}",
+                cancellationToken: cancellationToken);
 
             MapMinMaxModelToPlotter(minMaxPriceModel);
             var doublePrices = Array.ConvertAll(predictions, _ => (double)_);

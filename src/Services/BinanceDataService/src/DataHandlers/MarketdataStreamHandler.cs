@@ -5,6 +5,7 @@ using BinanceDatabase.Enums;
 using BinanceDatabase.Repositories;
 using BinanceDataService.Configuration;
 using BinanceDataService.DataAggregators;
+using Common.Helpers;
 using Common.Models;
 using Common.WebSocket;
 using DataServiceLibrary;
@@ -41,7 +42,7 @@ namespace BinanceDataService.DataHandlers
         private readonly List<DataAggregator> _dataAggregators = new();
         private readonly object _lockObject = new();
         private TriggerKey _triggerKey;
-        private TriggerKey _dataDelitionTriggerKey;
+        private TriggerKey _dataDeletionTriggerKey;
         private CancellationTokenSource _cancellationTokenSource;
         private bool _isDisposed;
         private IWebSocket _webSocket;
@@ -78,31 +79,20 @@ namespace BinanceDataService.DataHandlers
         public async Task StartAsync(CancellationToken cancellationToken)
         {
             _cancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
-            _webSocket = _exchange.MarketdataStreams.SubscribeAllMarketMiniTickersStream(
-                OnDataReceived,
-                cancellationToken);
+            InitializeWebSocket(cancellationToken);
+            StartWebSocketTask(cancellationToken);
 
-            _webSocket.StreamClosed += OnWebSocketClosed;
-            _webSocket.StreamStarted += OnStreamStarted;
+            _triggerKey = await _scheduler.GeneralScheduleAsync(_configuration.SaveDataCron, SaveDataAsync);
+            _dataDeletionTriggerKey = await _scheduler.GeneralScheduleAsync(_configuration.DeleteDataCron, DeleteDataAsync);
 
-#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
-            Task.Factory.StartNew(
-                async (_) => await StartWebSocket(_cancellationTokenSource.Token),
-                TaskCreationOptions.LongRunning | TaskCreationOptions.DenyChildAttach,
-                cancellationToken);
-#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
-
-            _triggerKey = await _scheduler.ScheduleAsync(_configuration.SaveDataCron, SaveDataAsync);
-            _dataDelitionTriggerKey = await _scheduler.ScheduleAsync(_configuration.DeleteDataCron, DeleteDataAsync);
-            _dataAggregators.ForEach(async _ => await _.StartAsync());
-
+            StartDataAggregators();
         }
 
         /// <inheritdoc />
         public async Task StopAsync()
         {
             _scheduler?.UnscheduleAsync(_triggerKey);
-            _scheduler?.UnscheduleAsync(_dataDelitionTriggerKey);
+            _scheduler?.UnscheduleAsync(_dataDeletionTriggerKey);
             _dataAggregators.ForEach(async _ => await _.StopAsync());
 
             _webSocket?.DisconnectAsync(_cancellationTokenSource.Token);
@@ -140,6 +130,27 @@ namespace BinanceDataService.DataHandlers
 
         #region Private methods
 
+        private void InitializeWebSocket(CancellationToken cancellationToken)
+        {
+            _webSocket = _exchange.MarketdataStreams.SubscribeAllMarketMiniTickersStream(
+                OnDataReceived,
+                cancellationToken);
+
+            _webSocket.StreamClosed += OnWebSocketClosed;
+            _webSocket.StreamStarted += OnStreamStarted;
+        }
+
+        /// <summary>
+        ///     Запускает задачу стрима с вебсокета
+        /// </summary>
+        private void StartWebSocketTask(CancellationToken cancellationToken)
+        {
+            Task.Factory.StartNew(
+                async (_) => await StartWebSocket(_cancellationTokenSource.Token),
+                TaskCreationOptions.LongRunning | TaskCreationOptions.DenyChildAttach,
+                cancellationToken);
+        }
+
         /// <summary>
         ///     Запускает стрим
         /// </summary>
@@ -153,6 +164,11 @@ namespace BinanceDataService.DataHandlers
             {
                 await _logger.ErrorAsync(ex, "Failed to start websocket stream", cancellationToken: cancellationToken);
             }
+        }
+
+        private void StartDataAggregators()
+        {
+            _dataAggregators.ForEach(async _ => await _.StartAsync());
         }
 
         /// <summary>
@@ -190,15 +206,21 @@ namespace BinanceDataService.DataHandlers
 
             try
             {
+                var entitiesCount = 0;
                 if (isAssistantStorageSaving)
                 {
+                    entitiesCount = _assistantModelsStorage.Count;
                     await SaveDataAsync(serviceProvider, _assistantModelsStorage);
-                    _assistantModelsStorage.Clear();
+
+                    ClearListWithAssertion(_assistantModelsStorage, entitiesCount);
+
                     return;
                 }
 
+                entitiesCount = _mainModelsStorage.Count;
                 await SaveDataAsync(serviceProvider, _mainModelsStorage);
-                _mainModelsStorage.Clear();
+
+                ClearListWithAssertion(_mainModelsStorage, entitiesCount);
             }
             catch (Exception ex)
             {
@@ -207,6 +229,15 @@ namespace BinanceDataService.DataHandlers
                     $"Failed to save data {nameof(IsAssistantStorageSaving)}='{IsAssistantStorageSaving}'",
                     cancellationToken: _cancellationTokenSource.Token);
             }
+        }
+
+        private void ClearListWithAssertion(List<MiniTradeObjectStreamModel> list, int entitiesCount)
+        {
+            Assert.True(list.Count == entitiesCount);
+
+            list.Clear();
+
+            Assert.True(list.Count == 0);
         }
 
         /// <summary>
@@ -218,20 +249,29 @@ namespace BinanceDataService.DataHandlers
                 ?? throw new InvalidOperationException($"{nameof(IBinanceDbContextFactory)} not registered!");
 
             using var database = databaseFactory.CreateScopeDatabase();
-            var hotData = _mapper.Map<IEnumerable<HotMiniTickerEntity>>(streamModels);
-            await database.HotUnitOfWork.HotMiniTickers.AddRangeAsync(hotData, _cancellationTokenSource.Token);
-
-            if (_dataAggregators.Any(_ => _.IsActive))
-            {
-                var coldData = _mapper.Map<IEnumerable<MiniTickerEntity>>(streamModels);
-                await database.ColdUnitOfWork.MiniTickers.AddRangeAsync(coldData, _cancellationTokenSource.Token);
-            }
+            await AddHotDataAsync(database, streamModels);
+            await AddColdDataAsync(database, streamModels);
 
             await database.SaveChangesAsync(_cancellationTokenSource.Token);
 
             await _logger.TraceAsync(
                 $"{streamModels.Count()} entities successfully saved",
                 cancellationToken: _cancellationTokenSource.Token);
+        }
+
+        private async Task AddHotDataAsync(IUnitOfWork database, IEnumerable<MiniTradeObjectStreamModel> streamModels)
+        {
+            var hotData = _mapper.Map<IEnumerable<HotMiniTickerEntity>>(streamModels);
+            await database.HotUnitOfWork.HotMiniTickers.AddRangeAsync(hotData, _cancellationTokenSource.Token);
+        }
+
+        private async Task AddColdDataAsync(IUnitOfWork database, IEnumerable<MiniTradeObjectStreamModel> streamModels)
+        {
+            if (_dataAggregators.Any(_ => _.IsActive))
+            {
+                var coldData = _mapper.Map<IEnumerable<MiniTickerEntity>>(streamModels);
+                await database.ColdUnitOfWork.MiniTickers.AddRangeAsync(coldData, _cancellationTokenSource.Token);
+            }
         }
 
         /// <summary>
@@ -270,11 +310,7 @@ namespace BinanceDataService.DataHandlers
 
             {
                 _logger.InfoAsync($"Restarting stream, attempt number = {i + 1}").Wait(5 * 1000);
-
-                Task.Factory.StartNew(
-                    async (_) => await StartWebSocket(_cancellationTokenSource.Token),
-                    TaskCreationOptions.LongRunning | TaskCreationOptions.DenyChildAttach,
-                    _cancellationTokenSource.Token);
+                StartWebSocketTask(_cancellationTokenSource.Token);
 
                 if (_webSocket.SocketState is System.Net.WebSockets.WebSocketState.Open)
                 {

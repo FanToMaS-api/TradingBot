@@ -1,4 +1,5 @@
 ﻿using Analytic.AnalyticUnits.Profiles.ML.Models.ArgumentsCreators;
+using Common.Helpers;
 using Microsoft.ML;
 using Microsoft.ML.Transforms.TimeSeries;
 using System;
@@ -54,8 +55,13 @@ namespace Analytic.AnalyticUnits.Profiles.ML.Models.Impl
             var  trainingDataView = _context.Data.LoadFromEnumerable(data);
             var argumentsCreator = new ArgumentsCreator(data);
             var numberPricesToForecast = argumentsCreator.GetNumberPricesToForecast();
+            Assert.True(numberPricesToForecast > 0);
+
             var windowSize = argumentsCreator.GetWindowSize();
+            Assert.True(windowSize > 0);
+
             var seriesLength = argumentsCreator.GetSeriesLength();
+            Assert.True(seriesLength > 0);
 
             // Сформированный ниже конвейер возьмет _numberPricesToTake обучающих выборок
             // и разделит данные на часовые интервалы ('seriesLength').

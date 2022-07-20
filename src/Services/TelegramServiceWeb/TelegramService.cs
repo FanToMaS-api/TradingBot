@@ -170,7 +170,7 @@ namespace TelegramServiceWeb
                 user.LastName = message.From.LastName;
                 user.ChatId = message.Chat.Id;
                 user.FirstName = message.From.FirstName;
-                user.LastAction = DateTime.Now;
+                user.LastAction = DateTime.Now.AddMinutes(-2); // чтобы пользователь мог сразу запросить прогноз
                 user.UserState = new UserStateEntity
                 {
                     UserId = user.TelegramId,

@@ -28,15 +28,22 @@ namespace BinanceDatabase.Repositories.ColdRepositories.Impl
         #region Implementation of IPredictionRepository
 
         /// <inheritdoc />
-        public IQueryable<PredictionEntity> CreateQuery() => _appDbContext.Predictions.AsQueryable();
+        public IQueryable<PredictionEntity> CreateQuery()
+        {
+            return _appDbContext.Predictions.AsQueryable();
+        }
 
         /// <inheritdoc />
         public async Task AddAsync(PredictionEntity entity, CancellationToken cancellationToken = default)
-            => await _appDbContext.Predictions.AddAsync(entity, cancellationToken);
+        {
+            await _appDbContext.Predictions.AddAsync(entity, cancellationToken);
+        }
 
         /// <inheritdoc />
         public async Task AddRangeAsync(IEnumerable<PredictionEntity> entities, CancellationToken cancellationToken = default)
-            => await _appDbContext.Predictions.AddRangeAsync(entities, cancellationToken);
+        {
+            await _appDbContext.Predictions.AddRangeAsync(entities, cancellationToken);
+        }
 
         #endregion
     }

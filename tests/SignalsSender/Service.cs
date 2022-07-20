@@ -21,6 +21,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Telegram.Builder;
 using Telegram.Client;
+using Telegram.Models;
 
 namespace SignalsSender
 {
@@ -80,7 +81,7 @@ namespace SignalsSender
             
             var priceDeviationFilter = new PriceDeviationFilterBuilder()
                 .SetFilterName("AnyFilter")
-                .SetAggregateDataIntervalType(AggregateDataIntervalType.OneMinute)
+                .SetAggregateDataIntervalType(AggregateDataIntervalType.Default)
                 .SetComparisonType(ComparisonType.GreaterThan)
                 .SetLimit(2.55)
                 .GetResult();
@@ -99,7 +100,7 @@ namespace SignalsSender
 
             var priceDeviationFilterForBTC = new PriceDeviationFilterBuilder()
                 .SetFilterName("BTC_PriceDeviationFilter")
-                .SetAggregateDataIntervalType(AggregateDataIntervalType.OneMinute)
+                .SetAggregateDataIntervalType(AggregateDataIntervalType.Default)
                 .SetComparisonType(ComparisonType.GreaterThan)
                 .SetLimit(5.7)
                 .GetResult();
@@ -112,7 +113,7 @@ namespace SignalsSender
 
             var priceDeviationFilterForETH = new PriceDeviationFilterBuilder()
                 .SetFilterName("ETH_PriceDeviationFilter")
-                .SetAggregateDataIntervalType(AggregateDataIntervalType.OneMinute)
+                .SetAggregateDataIntervalType(AggregateDataIntervalType.Default)
                 .SetComparisonType(ComparisonType.GreaterThan)
                 .SetLimit(4.5)
                 .GetResult();
@@ -133,7 +134,7 @@ namespace SignalsSender
             var volumeFilter = new VolumeFilterBuilder()
                 .SetFilterName("VolumeBidFilter")
                 .SetVolumeType()
-                .SetOrderNumber()
+                .SetOrderNumber(1000)
                 .SetComparisonType()
                 .SetPercentDeviation()
                 .GetResult();
@@ -157,9 +158,9 @@ namespace SignalsSender
 
             var priceDeviationCommonFilter = new PriceDeviationFilterBuilder()
                 .SetFilterName("FallingPriceDeviationFilter")
-                .SetAggregateDataIntervalType(AggregateDataIntervalType.FiveMinutes)
+                .SetAggregateDataIntervalType(AggregateDataIntervalType.Default)
                 .SetComparisonType(ComparisonType.LessThan)
-                .SetLimit(-7.8)
+                .SetLimit(-2)
                 .SetTimeframeNumber(20)
                 .GetResult();
             var commonFilterGroupForFallingTickers = new FilterGroupBuilder()
@@ -172,7 +173,7 @@ namespace SignalsSender
             var volumeBidFilterForFallingPairs = new VolumeFilterBuilder()
                 .SetFilterName("VolumeBidFilterForFallingPairs")
                 .SetVolumeType(VolumeType.Ask)
-                .SetOrderNumber()
+                .SetOrderNumber(1000)
                 .SetComparisonType(VolumeComparisonType.GreaterThan)
                 .SetPercentDeviation(0.35)
                 .GetResult();
@@ -198,21 +199,18 @@ namespace SignalsSender
             _analyticService.ModelsFiltered += OnModelsFilteredReceived;
             _analyticService.SuccessfulAnalyzed += OnModelsToBuyReceived;
 
-            var ssaDataLoader = new BinanceDataLoaderForSsa(_logger, _mapper);
-            var ssaMlProfile = new MlAnalyticProfile(_logger, MachineLearningModelType.SSA, ssaDataLoader, "MlSsaProfile");
+            // var ssaDataLoader = new BinanceDataLoaderForSsa(_logger, _mapper);
+            // var ssaMlProfile = new MlAnalyticProfile(_logger, MachineLearningModelType.SSA, ssaDataLoader, "MlSsaProfile");
 
-            var fastTreeDataLoader = new BinanceDataLoader(_logger, _mapper);
+            var fastTreeDataLoader = new BinanceDataLoader(_logger, _mapper, AggregateDataIntervalType.Default);
             var fastTreeProfile = new MlAnalyticProfile(_logger, MachineLearningModelType.FastTree, fastTreeDataLoader, "MlFastTreeProfile");
+            var profileGroup = new ProfileGroup(_logger, "ProfileGroup");
             
-            var ssaProfileGroup = new ProfileGroup(_logger, "SsaGroupProfile");
-            ssaProfileGroup.AddAnalyticUnit(ssaMlProfile);
-            _analyticService.AddProfileGroup(ssaProfileGroup);
-            
-            var fastTreeProfileGroup = new ProfileGroup(_logger, "fastTreeGroupProfile");
-            fastTreeProfileGroup.AddAnalyticUnit(fastTreeProfile);
-            _analyticService.AddProfileGroup(fastTreeProfileGroup);
+            // profileGroup.AddAnalyticUnit(ssaMlProfile);
+            profileGroup.AddAnalyticUnit(fastTreeProfile);
+            _analyticService.AddProfileGroup(profileGroup);
 
-            _analyticService.AddFilterManager(growingPairFilterManager);
+            // _analyticService.AddFilterManager(growingPairFilterManager);
             _analyticService.AddFilterManager(fallingTickersFilterManager);
             
             await _analyticService.RunAsync(cancellationToken);
@@ -240,9 +238,8 @@ namespace SignalsSender
         /// </summary>
         private void OnModelsFilteredReceived(object sender, InfoModel[] models)
         {
-            var tasks = new List<Task>();
+            var messageModels = new List<TelegramMessageModel>();
             var builder = new TelegramMessageBuilder();
-            builder.SetChatId(_settings.ChannelId);
             foreach (var model in models)
             {
                 try
@@ -257,28 +254,30 @@ namespace SignalsSender
 
                     var pairSymbols = model.TradeObjectName.Insert(model.TradeObjectName.Length - symbol.Length, "/");
                     var pairName = pairSymbols.Replace("/", "_");
-                    var message = $"*{pairSymbols}*\nНовая разница: *{model.LastDeviation:0.00000}%*" +
-                        $"\nРазница за последние несколько таймфреймов: *{model.DeviationsSum:0.0000000}%*" +
-                        $"\nПоследняя цена: *{model.LastPrice}*" +
+                    var message = $"*{pairSymbols}*\nРазница за последние несколько таймфреймов: *{model.PricePercentDeviation:0.##}%*" +
+                        $"\nПоследняя цена: *{model.LastPrice:e3}*" +
                         $"\nОбъем спроса: *{model.BidVolume:0,0.0}*" +
                         $"\nОбъем предложения: *{model.AskVolume:0,0.0}*";
 
                     var url = _baseUrl.Replace("<pair>", pairName);
                     var telegramMessage = builder
+                        .Reset()
+                        .SetChatId(_settings.ChannelId)
                         .SetMessageText(message)
                         .SetInlineButton("Перейти", $"{url}")
                         .GetResult();
-                    tasks.Add(_telegramClient.SendMessageAsync(telegramMessage, CancellationToken.None));
+
+                    messageModels.Add(telegramMessage);
                 }
                 catch (Exception ex)
                 {
-                    tasks.Add(_logger.ErrorAsync(ex, "Failed to send message wtih filtered models to telegram"));
+                    _logger.ErrorAsync(ex, "Failed to send message wtih filtered models to telegram").Wait(5 * 1000);
                 }
             }
 
             try
             {
-                Task.WhenAll(tasks).Wait();
+                Task.Run(() => _telegramClient.SendManyMessagesAsync(messageModels, _cancellationTokenSource.Token));
             }
             catch (Exception ex)
             {
@@ -291,9 +290,8 @@ namespace SignalsSender
         /// </summary>
         private void OnModelsToBuyReceived(object sender, AnalyticResultModel[] models)
         {
-            var tasks = new List<Task>();
+            var messageModels = new List<TelegramMessageModel>();
             var builder = new TelegramMessageBuilder();
-            builder.SetChatId(_settings.ChannelId);
             foreach (var model in models)
             {
                 try
@@ -308,13 +306,15 @@ namespace SignalsSender
 
                     var pairSymbols = model.TradeObjectName.Insert(model.TradeObjectName.Length - symbol.Length, "/");
                     var pairName = pairSymbols.Replace("/", "_");
-                    var message = $"*{pairSymbols}*\n*Минимальная цена прогноза: {model.RecommendedPurchasePrice:0.00000}*";
+                    var message = $"*{pairSymbols}*\n*Минимальная цена прогноза: {model.RecommendedPurchasePrice:e3}*";
                     if (model.RecommendedSellingPrice is not null)
                     {
-                        message += $"\n*Максимальная цена прогноза: {model.RecommendedSellingPrice.Value:0.00000}*";
+                        message += $"\n*Максимальная цена прогноза: {model.RecommendedSellingPrice.Value:e3}*";
                     }
 
-                    builder.SetMessageText(message);
+                    builder.Reset()
+                        .SetChatId(_settings.ChannelId)
+                        .SetMessageText(message);
                     if (model.HasPredictionImage)
                     {
                         builder.SetImage(model.ImagePath);
@@ -326,17 +326,17 @@ namespace SignalsSender
                     }
 
                     var telegramMessage = builder.GetResult();
-                    tasks.Add(_telegramClient.SendMessageAsync(telegramMessage, CancellationToken.None));
+                    messageModels.Add(telegramMessage);
                 }
                 catch (Exception ex)
                 {
-                    tasks.Add(_logger.ErrorAsync(ex, "Failed to send message with models to buy to telegram"));
+                    _logger.ErrorAsync(ex, "Failed to send message with models to buy to telegram").Wait(7 * 1000);
                 }
             }
 
             try
             {
-                Task.WhenAll(tasks).Wait();
+                Task.Run(() => _telegramClient.SendManyMessagesAsync(messageModels, _cancellationTokenSource.Token));
             }
             catch (Exception ex)
             {

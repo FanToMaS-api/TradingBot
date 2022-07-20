@@ -89,7 +89,7 @@ namespace Common.Plotter
                 && File.GetCreationTime(imagePath).AddMinutes(_numberOfMinutesOfImageStorage) > DateTime.Now)
             {
                 _logger.TraceAsync($"The graph for '{PairName}' was created recently, " +
-                    "saving and processing is canceled. Path: {directoryPath}");
+                    $"saving and processing is canceled. Path: {directoryPath}");
                 return false;
             }
 
@@ -179,11 +179,11 @@ namespace Common.Plotter
             plot.XAxis.TickLabelFormat("g", dateTimeFormat: true);
 
             plot.AddText(
-                $"Min: {MinPrice:0.0000}",
+                $"Min: {MinPrice:e3}",
                 timeForPredictions[MinIndex],
                 MinPrice, 17);
             plot.AddText(
-                $"Max: {MaxPrice:0.0000}",
+                $"Max: {MaxPrice:e3}",
                 timeForPredictions[MaxIndex],
                 MaxPrice, 17);
 

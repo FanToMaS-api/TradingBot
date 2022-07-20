@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Common.Helpers
 {
@@ -8,7 +9,6 @@ namespace Common.Helpers
     /// </summary>
     public static class CommonHelper
     {
-
         /// <summary>
         ///     Возвращает процентное отклонение новой цены от старой
         /// </summary>
@@ -25,6 +25,17 @@ namespace Common.Helpers
             if (string.IsNullOrEmpty(value))
             {
                 throw new ArgumentNullException($"{nameof(value)} can not be null or empty");
+            }
+        }
+
+        /// <summary>
+        ///     Выполнеяет указанное действие для каждого элемента из коллекции
+        /// </summary>
+        public static void ForEach<T>(this IEnumerable<T> collection, Action<T> action)
+        {
+            foreach (var item in collection)
+            {
+                action(item);
             }
         }
 

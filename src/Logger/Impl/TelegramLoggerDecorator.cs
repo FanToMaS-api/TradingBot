@@ -41,12 +41,50 @@ namespace Logger.Impl
 
         #region Implementation of ILoggerDecorator
 
-        #region Properties
-
         /// <inheritdoc />
         public ILoggerDecorator BaseLogger { get; }
 
-        #endregion
+        /// <inheritdoc />
+        public async Task TraceAsync(
+            string message = null,
+            [CallerMemberName] string memberName = null,
+            [CallerLineNumber] int? lineNumber = null,
+            CancellationToken cancellationToken = default)
+        {
+            await BaseLogger?.TraceAsync(message, memberName, lineNumber, cancellationToken);
+            if (_minLogLevel <= LogLevel.Trace)
+            {
+                await WriteLogAsync(message, memberName, lineNumber, cancellationToken);
+            }
+        }
+
+        /// <inheritdoc />
+        public async Task DebugAsync(
+            string message = null,
+            [CallerMemberName] string memberName = null,
+            [CallerLineNumber] int? lineNumber = null,
+            CancellationToken cancellationToken = default)
+        {
+            await BaseLogger?.DebugAsync(message, memberName, lineNumber, cancellationToken);
+            if (_minLogLevel <= LogLevel.Debug)
+            {
+                await WriteLogAsync(message, memberName, lineNumber, cancellationToken);
+            }
+        }
+
+        /// <inheritdoc />
+        public async Task InfoAsync(
+            string message = null,
+            [CallerMemberName] string memberName = null,
+            [CallerLineNumber] int? lineNumber = null,
+            CancellationToken cancellationToken = default)
+        {
+            await BaseLogger?.InfoAsync(message, memberName, lineNumber, cancellationToken);
+            if (_minLogLevel <= LogLevel.Info)
+            {
+                await WriteLogAsync(message, memberName, lineNumber, cancellationToken);
+            }
+        }
 
         /// <inheritdoc />
         public async Task WarnAsync(
@@ -73,21 +111,7 @@ namespace Logger.Impl
             await BaseLogger?.WarnAsync(exception, message, memberName, lineNumber, cancellationToken);
             if (_minLogLevel <= LogLevel.Warn)
             {
-                message += $" {exception.Message}";
-                await WriteLogAsync(message, memberName, lineNumber, cancellationToken);
-            }
-        }
-
-        /// <inheritdoc />
-        public async Task TraceAsync(
-            string message = null,
-            [CallerMemberName] string memberName = null,
-            [CallerLineNumber] int? lineNumber = null,
-            CancellationToken cancellationToken = default)
-        {
-            await BaseLogger?.TraceAsync(message, memberName, lineNumber, cancellationToken);
-            if (_minLogLevel <= LogLevel.Trace)
-            {
+                message += $" {exception.GetFullMessage()}";
                 await WriteLogAsync(message, memberName, lineNumber, cancellationToken);
             }
         }
@@ -103,7 +127,7 @@ namespace Logger.Impl
             await BaseLogger?.ErrorAsync(exception, message, memberName, lineNumber, cancellationToken);
             if (_minLogLevel <= LogLevel.Error)
             {
-                message += $" {exception.Message}";
+                message += $" {exception.GetFullMessage()}";
                 await WriteLogAsync(message, memberName, lineNumber, cancellationToken);
             }
         }
@@ -123,34 +147,6 @@ namespace Logger.Impl
         }
 
         /// <inheritdoc />
-        public async Task InfoAsync(
-            string message = null,
-            [CallerMemberName] string memberName = null,
-            [CallerLineNumber] int? lineNumber = null,
-            CancellationToken cancellationToken = default)
-        {
-            await BaseLogger?.InfoAsync(message, memberName, lineNumber, cancellationToken);
-            if (_minLogLevel <= LogLevel.Info)
-            {
-                await WriteLogAsync(message, memberName, lineNumber, cancellationToken);
-            }
-        }
-
-        /// <inheritdoc />
-        public async Task DebugAsync(
-            string message = null,
-            [CallerMemberName] string memberName = null,
-            [CallerLineNumber] int? lineNumber = null,
-            CancellationToken cancellationToken = default)
-        {
-            await BaseLogger?.DebugAsync(message, memberName, lineNumber, cancellationToken);
-            if (_minLogLevel <= LogLevel.Debug)
-            {
-                await WriteLogAsync(message, memberName, lineNumber, cancellationToken);
-            }
-        }
-
-        /// <inheritdoc />
         public async Task FatalAsync(
             Exception exception,
             string message = null,
@@ -161,7 +157,7 @@ namespace Logger.Impl
             await BaseLogger?.FatalAsync(exception, message, memberName, lineNumber, cancellationToken);
             if (_minLogLevel <= LogLevel.Fatal)
             {
-                message += $" {exception.Message}";
+                message += $" {exception.GetFullMessage()}";
                 await WriteLogAsync(message, memberName, lineNumber, cancellationToken);
             }
         }

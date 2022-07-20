@@ -32,15 +32,24 @@ namespace BinanceDatabase.Repositories.HotRepositories.Impl
         #region Implementation of IHotMiniTickerRepository
 
         /// <inheritdoc />
-        public IQueryable<HotMiniTickerEntity> CreateQuery() => _appDbContext.HotMiniTickers.AsQueryable();
+        public IQueryable<HotMiniTickerEntity> CreateQuery()
+        {
+            return _appDbContext.HotMiniTickers.AsQueryable();
+        }
 
         /// <inheritdoc />
         public async Task AddAsync(HotMiniTickerEntity entity, CancellationToken cancellationToken = default)
-            => await _appDbContext.HotMiniTickers.AddAsync(entity, cancellationToken);
+        {
+            await _appDbContext.HotMiniTickers.AddAsync(entity, cancellationToken);
+        }
 
         /// <inheritdoc />
-        public async Task AddRangeAsync(IEnumerable<HotMiniTickerEntity> miniTickerEntities, CancellationToken cancellationToken = default)
-            => await _appDbContext.HotMiniTickers.AddRangeAsync(miniTickerEntities, cancellationToken);
+        public async Task AddRangeAsync(
+            IEnumerable<HotMiniTickerEntity> miniTickerEntities,
+            CancellationToken cancellationToken = default)
+        {
+            await _appDbContext.HotMiniTickers.AddRangeAsync(miniTickerEntities, cancellationToken);
+        }
 
         /// <inheritdoc />
         public IEnumerable<HotMiniTickerEntity> GetEntities(
