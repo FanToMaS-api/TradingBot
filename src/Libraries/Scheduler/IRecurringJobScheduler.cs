@@ -42,8 +42,7 @@ namespace Scheduler
         ///     Исключается возможность выполнения одной задачи дважды одновременно
         /// </remarks>
         Task<TriggerKey> GeneralScheduleAsync(
-             Func<CancellationToken, Task> action,
              string cronExpress,
-             CancellationToken cancellationToken);
+             Func<IServiceProvider, Task> func);
     }
 }

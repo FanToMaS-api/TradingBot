@@ -58,8 +58,10 @@ namespace TelegramServiceWeb
             serviceProvider.ApplyTelegramDatabaseMigration();
             serviceProvider.ApplyBinanceDatabaseMigration();
 
-            var task = Task.Run(async () => await AppInitializer.InitializeAsync(serviceProvider));
-            Task.WaitAll(task);
+            var task = Task.Factory.StartNew(
+                async () => await AppInitializer.InitializeAsync(serviceProvider),
+                TaskCreationOptions.LongRunning);
+            Task.WaitAll(task.Unwrap());
         }
     }
 }

@@ -13,6 +13,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -104,28 +105,22 @@ namespace BinanceDataService.DataAggregators
                     ?? throw new InvalidOperationException($"{nameof(IBinanceDbContextFactory)} not registered!");
                 using var database = databaseFactory.CreateScopeDatabase();
 
-                var aggregateCount = 0;
-                var now = DateTime.Now;
+                var totalAggregatedCount = 0;
                 await foreach (var groupedData in GetAveragingMiniTickersAsync(database))
                 {
                     var count = groupedData.Count();
-                    aggregateCount += count;
+                    totalAggregatedCount += count;
 
-                    var name = groupedData.Select(_ => _.ShortName).FirstOrDefault();
-                    await _logger.TraceAsync(
-                        $"{count} data successfully aggregated for '{name}'",
-                        cancellationToken: _cancellationTokenSource.Token);
+                    var name = groupedData.FirstOrDefault().ShortName;
+                    await LogAboutSuccessfullyAggregationAsync(name, count);
 
                     await database.ColdUnitOfWork.MiniTickers.AddRangeAsync(groupedData, _cancellationTokenSource.Token);
-                    await database.SaveChangesAsync(_cancellationTokenSource.Token);
                 }
 
+                await database.SaveChangesAsync(_cancellationTokenSource.Token);
+
                 watch.Stop();
-                await _logger.InfoAsync(
-                    $"{_configuration.AggregateDataInterval} data aggregating ended!\n" +
-                    $"{aggregateCount} entities successfully aggregate and saved\n" +
-                    $"Time elapsed: {watch.Elapsed.TotalSeconds} s",
-                    cancellationToken: _cancellationTokenSource.Token);
+                await LogAboutEndDataAggregationAsync(totalAggregatedCount, watch.Elapsed.TotalSeconds);
             }
             catch (Exception ex)
             {
@@ -140,7 +135,7 @@ namespace BinanceDataService.DataAggregators
         {
             if (_configuration?.IsNeedToAggregateColdData ?? false)
             {
-                _triggerKey = await _scheduler.ScheduleAsync(_configuration.AggregateDataCron, AggregateAndSaveDataAsync);
+                _triggerKey = await _scheduler.GeneralScheduleAsync(_configuration.AggregateDataCron, AggregateAndSaveDataAsync);
             }
         }
 
@@ -166,11 +161,7 @@ namespace BinanceDataService.DataAggregators
             {
                 var averagedGroup = new List<MiniTickerEntity>();
                 var aggregatedMiniTickers = new List<MiniTickerEntity>();
-                var allCount = await database.ColdUnitOfWork.MiniTickers
-                    .CreateQuery()
-                    .CountAsync(
-                        _ => _.ShortName == name && _reducedDataIntervalType == _.AggregateDataInterval,
-                        _cancellationTokenSource.Token);
+                var allCount = await CountEntitiesWithName(database, name);
                 if (allCount == 0)
                 {
                     continue;
@@ -180,10 +171,10 @@ namespace BinanceDataService.DataAggregators
                 var query = CreateQuery(database, _ => _.ShortName == name && _reducedDataIntervalType == _.AggregateDataInterval);
                 for (var page = 0; page < pagesCount; page++)
                 {
-                    var entities = GetNonAggregatingMiniTickersEntities(query, page, pageSize);
+                    var entities = GetNextPage(query, page, pageSize);
                     if (entities.Any())
                     {
-                        averagedGroup.AddRange(GetAveragingTicker(entities, _configuration.AggregateDataInterval));
+                        averagedGroup.AddRange(GetAveragingTickers(entities, _configuration.AggregateDataInterval));
                     }
                 }
 
@@ -194,11 +185,20 @@ namespace BinanceDataService.DataAggregators
             }
         }
 
+        private async Task<int> CountEntitiesWithName(IUnitOfWork database, string name)
+        {
+            return await database.ColdUnitOfWork.MiniTickers
+                .CreateQuery()
+                .CountAsync(
+                    _ => _.ShortName == name && _reducedDataIntervalType == _.AggregateDataInterval,
+                    _cancellationTokenSource.Token);
+        }
+
         /// <summary>
         ///     Возвращает еще не агрегированные модели
         /// </summary>
-        internal IEnumerable<MiniTickerEntity> GetNonAggregatingMiniTickersEntities(
-            IOrderedEnumerable<MiniTickerEntity> query,
+        internal IEnumerable<MiniTickerEntity> GetNextPage(
+            IOrderedQueryable<MiniTickerEntity> query,
             int page,
             int pageSize)
         {
@@ -212,15 +212,12 @@ namespace BinanceDataService.DataAggregators
         /// <summary>
         ///     Возвращает усредненные объекты
         /// </summary>
-        internal static List<MiniTickerEntity> GetAveragingTicker(
+        internal static List<MiniTickerEntity> GetAveragingTickers(
             IEnumerable<MiniTickerEntity> entities,
             AggregateDataIntervalType intervalType)
         {
-            var interval = intervalType.ConvertToTimeSpan();
-            var aggregatedMiniTickers = new List<MiniTickerEntity>();
             var firstEntity = entities.FirstOrDefault();
             var startTime = firstEntity.EventTime;
-            var averagingObjectsCounter = 0;
             var aggregateObject = new MiniTickerEntity()
             {
                 ShortName = firstEntity.ShortName,
@@ -229,15 +226,20 @@ namespace BinanceDataService.DataAggregators
                 MinPrice = double.MaxValue,
             };
 
+            var aggregatedMiniTickers = new List<MiniTickerEntity>();
+            var averagingObjectsCounter = 0;
+            var interval = intervalType.ConvertToTimeSpan();
             foreach (var item in entities)
             {
                 if (item.EventTime - startTime > interval)
                 {
                     AveragingFields(aggregateObject, averagingObjectsCounter);
+
                     aggregatedMiniTickers.Add(aggregateObject);
                     averagingObjectsCounter = 1;
+
                     aggregateObject = (MiniTickerEntity)item.Clone();
-                    aggregateObject.AggregateDataInterval = intervalType;
+                    aggregateObject.AggregateDataInterval = intervalType; // TODO: нахуя здесь это?
                     startTime = item.EventTime;
                     continue;
                 }
@@ -302,10 +304,36 @@ namespace BinanceDataService.DataAggregators
         #region Private methods
 
         /// <summary>
+        ///     Лог об успешной агрегации данных для определенного тикера
+        /// </summary>
+        /// <param name="name"> Название тикера </param>
+        /// <param name="count"> Кол-во агрегированных данных </param>
+        private async Task LogAboutSuccessfullyAggregationAsync(string name, int count)
+        {
+            await _logger.TraceAsync(
+                $"{count} data successfully aggregated for '{name}'",
+                cancellationToken: _cancellationTokenSource.Token);
+        }
+
+        /// <summary>
+        ///     Лог об успешном окончании агрегирования данных
+        /// </summary>
+        /// <param name="aggregateCount"> Суммарное кол-во агрегированных данных </param>
+        /// <param name="totalsSeconds"> Кол-во затраченных секунд на агрегацию </param>
+        private async Task LogAboutEndDataAggregationAsync(int aggregateCount, double totalsSeconds)
+        {
+            await _logger.InfoAsync(
+                $"{_configuration.AggregateDataInterval} data aggregating ended!\n" +
+                $"{aggregateCount} entities successfully aggregate and saved\n" +
+                $"Time elapsed: {totalsSeconds} s",
+                cancellationToken: _cancellationTokenSource.Token);
+        }
+
+        /// <summary>
         ///     Создает запрос мини тикеров к базе данных
         /// </summary>
         /// <param name="func"> Функция отбора </param>
-        private IOrderedEnumerable<MiniTickerEntity> CreateQuery(IUnitOfWork database, Func<MiniTickerEntity, bool> func)
+        private IOrderedQueryable<MiniTickerEntity> CreateQuery(IUnitOfWork database, Expression<Func<MiniTickerEntity, bool>> func)
         {
             return database.ColdUnitOfWork.MiniTickers
                 .CreateQuery()

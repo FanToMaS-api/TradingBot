@@ -3,6 +3,7 @@ using Microsoft.Extensions.Options;
 using Quartz;
 using Quartz.Impl;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -17,7 +18,7 @@ namespace Scheduler
         private static readonly ILoggerDecorator Log = LoggerManager.CreateDefaultLogger();
         private readonly RecurringJobSchedulerOptions _options;
         private readonly IServiceProvider _serviceProvider;
-        private readonly List<bool> _busyScheduled = new();
+        private readonly ConcurrentDictionary<string, bool> _busyScheduled = new();
         private readonly object _runningJobCounterLock = new();
         private int _runningJobCounter;
         private IScheduler _scheduler;
@@ -42,40 +43,41 @@ namespace Scheduler
 
         /// <inheritdoc />
         public async Task<TriggerKey> GeneralScheduleAsync(
-            Func<CancellationToken, Task> action,
             string cronExpress,
-            CancellationToken cancellationToken = default)
+            Func<IServiceProvider, Task> func)
         {
-            var id = _busyScheduled.Count;
-            _busyScheduled.Insert(id, false);
+            var key = func.GetHashCode().ToString();
+            _busyScheduled[key] = false;
             var triggerKey = await ScheduleAsync(
                 cronExpress,
                 _ => Task.Run(
                     async () =>
                     {
-                        if (_busyScheduled[id])
+                        if (_busyScheduled[key])
                         {
-                            await Log.WarnAsync($"The task {action.Method.Name} is in progress");
+                            await Log.WarnAsync($"The task {func.Method.Name} is in progress");
                             return;
                         }
 
-                        _busyScheduled[id] = true;
+                        _busyScheduled[key] = true;
 
                         try
                         {
-                            await action(cancellationToken);
+                            await func(_);
+                        }
+                        catch(OperationCanceledException ex)
+                        {
+                            await Log.ErrorAsync(ex, $"Scheduled task of {func.Method.Name} was cancelled");
                         }
                         catch (Exception ex)
                         {
-                            await Log.ErrorAsync(ex, $"Failed to complete the task of {action.Method.Name}");
+                            await Log.ErrorAsync(ex, $"Failed to complete the task of {func.Method.Name}");
                         }
                         finally
                         {
-                            _busyScheduled[id] = false;
+                            _busyScheduled[key] = false;
                         }
-                    },
-                    cancellationToken
-                ));
+                    }));
 
             return triggerKey;
         }

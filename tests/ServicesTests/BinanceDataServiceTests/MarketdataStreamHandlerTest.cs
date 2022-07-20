@@ -227,7 +227,7 @@ namespace BinanceDataServiceTests
             IEnumerable<MiniTickerEntity> entities,
             MiniTickerEntity[] expectedResult)
         {
-            var actual = DataAggregator.GetAveragingTicker(entities, intervalType);
+            var actual = DataAggregator.GetAveragingTickers(entities, intervalType);
             Assert.Equal(expectedResult.Length, actual.Count);
             for (var i = 0; i < expectedResult.Length; i++)
             {
